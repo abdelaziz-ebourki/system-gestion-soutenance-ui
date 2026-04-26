@@ -52,6 +52,18 @@ const navItems: NavItem[] = [
 		icon: Users,
 		roles: ["ADMIN"],
 	},
+	{
+		title: "Gestion des Salles",
+		href: "/admin",
+		icon: DoorOpen,
+		roles: ["ADMIN"],
+	},
+	{
+		title: "Sessions",
+		href: "/admin",
+		icon: Calendar,
+		roles: ["ADMIN"],
+	},
 ];
 
 const DashboardLayout: React.FC = () => {
@@ -74,7 +86,7 @@ const DashboardLayout: React.FC = () => {
 			{/* Mobile Sidebar Toggle */}
 			<div className="md:hidden flex items-center justify-between p-4 border-b bg-card">
 				<div className="flex items-center gap-2">
-					<GraduationCap className="h-6 w-6 text-primary" />
+					<img src="/logo.svg" alt="Logo" className="h-8 w-8" />
 					<span className="font-heading font-bold text-xl">SG Soutenances</span>
 				</div>
 				<Button
@@ -95,9 +107,7 @@ const DashboardLayout: React.FC = () => {
 			>
 				<div className="h-full flex flex-col bg-[#f8f9fa] dark:bg-slate-900">
 					<div className="p-6 flex items-center gap-3">
-						<div className="p-2 bg-primary rounded-lg shadow-lg shadow-primary/20">
-							<GraduationCap className="h-6 w-6 text-primary-foreground" />
-						</div>
+						<img src="/logo.svg" alt="Logo" className="h-10 w-10 shadow-lg" />
 						<div className="flex flex-col">
 							<span className="font-heading font-bold text-lg leading-none">
 								SG Soutenances

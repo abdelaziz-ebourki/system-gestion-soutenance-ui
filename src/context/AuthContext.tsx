@@ -39,7 +39,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       role,
     };
     setUser(mockUser);
-    localStorage.setItem('auth_user', JSON.stringify(mockUser));
+    
+    try {
+      localStorage.setItem('auth_user', JSON.stringify(mockUser));
+    } catch (e) {
+      console.error('Failed to save to localStorage:', e);
+      if (e instanceof DOMException && (e.code === 22 || e.code === 1014 || e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')) {
+        // Try clearing and saving again
+        try {
+          localStorage.clear();
+          localStorage.setItem('auth_user', JSON.stringify(mockUser));
+        } catch (retryError) {
+          console.error('Storage still full after clear:', retryError);
+        }
+      }
+    }
   };
 
   const logout = () => {
