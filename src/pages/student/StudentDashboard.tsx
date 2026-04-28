@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ConvocationDialog from "@/components/academic/ConvocationDialog";
 
-const StudentDashboard: React.FC = () => {
+export default function StudentDashboard() {
 	const [isConvocationOpen, setIsConvocationOpen] = useState(false);
 
 	const studentData = {
@@ -255,6 +255,4 @@ const StudentDashboard: React.FC = () => {
 			/>
 		</div>
 	);
-};
-
-export default StudentDashboard;
+}

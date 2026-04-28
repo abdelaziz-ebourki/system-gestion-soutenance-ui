@@ -1,14 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import {
-	Landmark,
-	ShieldCheck,
-	UserCircle,
-	Users,
-	BookOpen,
-} from "lucide-react";
+import { Landmark, ShieldCheck, BookOpen } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import type { UserRole } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -21,13 +14,35 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-const Login: React.FC = () => {
+export default function Login() {
 	const { login } = useAuth();
 	const navigate = useNavigate();
+	const [email, setEmail] = React.useState("");
+	const [password, setPassword] = React.useState("");
 
-	const handleLogin = (role: UserRole) => {
-		login(role);
-		navigate("/");
+	const handleLogin = (e: React.FormEvent) => {
+		e.preventDefault();
+
+		if (email === "student@example.com" && password === "student123") {
+			login("STUDENT");
+			navigate("/");
+		} else if (
+			email === "coordinator@example.com" &&
+			password === "coordinator123"
+		) {
+			login("COORDINATOR");
+			navigate("/");
+		} else if (email === "teacher@example.com" && password === "teacher123") {
+			login("TEACHER");
+			navigate("/");
+		} else if (email === "admin@example.com" && password === "admin123") {
+			login("ADMIN");
+			navigate("/");
+		} else {
+			alert(
+				"Identifiants invalides (Essayer: student@example.com / student123)",
+			);
+		}
 	};
 
 	return (
@@ -86,72 +101,47 @@ const Login: React.FC = () => {
 							Choisissez votre profil pour accéder à votre espace
 						</CardDescription>
 					</CardHeader>
-					<CardContent className="grid gap-4">
-						<div className="grid grid-cols-2 gap-3">
-							<Button
-								variant="outline"
-								className="h-24 flex-col gap-2 hover:border-primary hover:bg-primary/5 group"
-								onClick={() => handleLogin("STUDENT")}
-							>
-								<UserCircle className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
-								<span>Étudiant</span>
-							</Button>
-							<Button
-								variant="outline"
-								className="h-24 flex-col gap-2 hover:border-primary hover:bg-primary/5 group"
-								onClick={() => handleLogin("TEACHER")}
-							>
-								<Users className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
-								<span>Enseignant</span>
-							</Button>
-							<Button
-								variant="outline"
-								className="h-24 flex-col gap-2 hover:border-primary hover:bg-primary/5 group"
-								onClick={() => handleLogin("COORDINATOR")}
-							>
-								<BookOpen className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
-								<span>Coordinateur</span>
-							</Button>
-							<Button
-								variant="outline"
-								className="h-24 flex-col gap-2 hover:border-primary hover:bg-primary/5 group"
-								onClick={() => handleLogin("ADMIN")}
-							>
-								<ShieldCheck className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
-								<span>Admin</span>
-							</Button>
-						</div>
-
-						<div className="relative py-4">
-							<div className="absolute inset-0 flex items-center">
-								<span className="w-full border-t" />
+					<form onSubmit={handleLogin}>
+						<CardContent className="grid gap-4">
+							<div className="relative py-4">
+								<div className="absolute inset-0 flex items-center">
+									<span className="w-full border-t" />
+								</div>
+								<div className="relative flex justify-center text-xs uppercase">
+									<span className="bg-background px-2 text-muted-foreground">
+										Identifiants
+									</span>
+								</div>
 							</div>
-							<div className="relative flex justify-center text-xs uppercase">
-								<span className="bg-background px-2 text-muted-foreground">
-									Identifiants
-								</span>
-							</div>
-						</div>
 
-						<div className="space-y-2">
-							<Label htmlFor="email">Email académique</Label>
-							<Input
-								id="email"
-								type="email"
-								placeholder="nom.prenom@univ.dz"
-								disabled
-							/>
-						</div>
-						<div className="space-y-2">
-							<Label htmlFor="password">Mot de passe</Label>
-							<Input id="password" type="password" disabled />
-						</div>
-					</CardContent>
-					<CardFooter>
-						<Button className="w-full text-lg h-12" disabled>
-							Se connecter
-						</Button>
-					</CardFooter>
+							<div className="space-y-2">
+								<Label htmlFor="email">Email académique</Label>
+								<Input
+									id="email"
+									type="email"
+									placeholder="nom.prenom@univ.dz"
+									value={email}
+									onChange={(e) => setEmail(e.target.value)}
+									required
+								/>
+							</div>
+							<div className="space-y-2">
+								<Label htmlFor="password">Mot de passe</Label>
+								<Input
+									id="password"
+									type="password"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+									required
+								/>
+							</div>
+						</CardContent>
+						<CardFooter>
+							<Button type="submit" className="w-full text-lg h-12">
+								Se connecter
+							</Button>
+						</CardFooter>
+					</form>
 				</Card>
 			</div>
 
@@ -164,6 +154,4 @@ const Login: React.FC = () => {
 			</footer>
 		</div>
 	);
-};
-
-export default Login;
+}

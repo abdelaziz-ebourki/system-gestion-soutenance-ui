@@ -9,14 +9,13 @@ import {
 	LogOut,
 	Menu,
 	X,
-	GraduationCap,
 	DoorOpen,
 	ClipboardList,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import type { UserRole } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
@@ -66,7 +65,7 @@ const navItems: NavItem[] = [
 	},
 ];
 
-const DashboardLayout: React.FC = () => {
+export default function DashboardLayout() {
 	const { user, logout } = useAuth();
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -253,6 +252,4 @@ const DashboardLayout: React.FC = () => {
 			)}
 		</div>
 	);
-};
-
-export default DashboardLayout;
+}
