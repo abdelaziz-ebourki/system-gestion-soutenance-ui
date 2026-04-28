@@ -81,7 +81,7 @@ export default function DashboardLayout() {
 	};
 
 	return (
-		<div className="min-h-screen bg-background flex flex-col md:flex-row">
+		<div className="h-screen bg-background flex flex-col md:flex-row">
 			{/* Mobile Sidebar Toggle */}
 			<div className="md:hidden flex items-center justify-between p-4 border-b bg-card">
 				<div className="flex items-center gap-2">
@@ -100,13 +100,13 @@ export default function DashboardLayout() {
 			{/* Sidebar */}
 			<aside
 				className={cn(
-					"fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0",
+					"fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0 max-h-screen overflow-y-auto",
 					isSidebarOpen ? "translate-x-0" : "-translate-x-full",
 				)}
 			>
 				<div className="h-full flex flex-col bg-[#f8f9fa] dark:bg-slate-900">
 					<div className="p-6 flex items-center gap-3">
-						<img src="/logo.svg" alt="Logo" className="h-10 w-10 shadow-lg" />
+						<img src="/logo.svg" alt="Logo" className="h-10 w-10" />
 						<div className="flex flex-col">
 							<span className="font-heading font-bold text-lg leading-none">
 								SG Soutenances
