@@ -83,7 +83,7 @@ export default function DashboardLayout() {
 	return (
 		<div className="h-screen bg-background flex flex-col md:flex-row">
 			{/* Mobile Sidebar Toggle */}
-			<div className="md:hidden flex items-center justify-between p-4 border-b bg-card">
+			<div className="md:hidden flex items-center justify-between p-4 border-b bg-card no-print">
 				<div className="flex items-center gap-2">
 					<img src="/logo.svg" alt="Logo" className="h-8 w-8" />
 					<span className="font-heading font-bold text-xl">SG Soutenances</span>
@@ -100,7 +100,7 @@ export default function DashboardLayout() {
 			{/* Sidebar */}
 			<aside
 				className={cn(
-					"fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0 max-h-screen overflow-y-auto",
+					"fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0 max-h-screen overflow-y-auto no-print",
 					isSidebarOpen ? "translate-x-0" : "-translate-x-full",
 				)}
 			>
@@ -182,7 +182,7 @@ export default function DashboardLayout() {
 			{/* Main Content */}
 			<div className="flex-1 flex flex-col bg-slate-50/50 dark:bg-slate-950">
 				{/* Top Navbar */}
-				<header className="hidden md:flex h-16 items-center justify-between px-8 border-b bg-white/50 dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-40">
+				<header className="hidden md:flex h-16 items-center justify-between px-8 border-b bg-white/50 dark:bg-slate-900/50 backdrop-blur-md sticky top-0 z-40 no-print">
 					<div className="flex items-center gap-2 text-slate-400 text-sm font-sans">
 						<span className="hover:text-primary cursor-pointer transition-colors">
 							Portail Académique

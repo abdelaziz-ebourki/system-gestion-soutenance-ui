@@ -1,5 +1,4 @@
-import React from "react";
-import { Download, Printer, X } from "lucide-react";
+import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ConvocationDialogProps {
@@ -27,42 +26,10 @@ export default function ConvocationDialog({
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
 			<div className="relative w-full max-w-2xl bg-white text-slate-950 shadow-2xl rounded-sm overflow-hidden flex flex-col max-h-[90vh]">
-				<div className="absolute top-4 right-4 flex gap-2 no-print">
-					<Button
-						variant="outline"
-						size="icon"
-						onClick={() => window.print()}
-						className="rounded-full"
-					>
-						<Printer className="h-4 w-4" />
-					</Button>
-					<Button
-						variant="outline"
-						size="icon"
-						onClick={onClose}
-						className="rounded-full"
-					>
-						<X className="h-4 w-4" />
-					</Button>
-				</div>
-
 				<div
 					id="printable-convocation"
 					className="p-12 space-y-8 overflow-y-auto"
 				>
-					{/* Header */}
-					<div className="flex justify-between items-start border-b-2 border-slate-900 pb-6">
-						<div className="text-sm font-serif space-y-1">
-							<p className="font-bold">UNIVERSITÉ HASSAN II DE CASABLANCA</p>
-							<p>FACULTÉ DES SCIENCES BEN M'SICK</p>
-							<p>DÉPARTEMENT D'INFORMATIQUE</p>
-						</div>
-						<div className="text-right text-xs">
-							<p>Année Universitaire 2025-2026</p>
-							<p>Casablanca, le {new Date().toLocaleDateString()}</p>
-						</div>
-					</div>
-
 					{/* Title */}
 					<div className="text-center space-y-4 py-4">
 						<h1 className="text-3xl font-heading font-bold uppercase tracking-widest border-y py-2 border-double border-slate-900">
@@ -135,26 +102,32 @@ export default function ConvocationDialog({
 			</div>
 
 			<style>{`
-        @media print {
-          body * {
-            visibility: hidden;
-          }
-          #printable-convocation, #printable-convocation * {
-            visibility: visible;
-          }
-          #printable-convocation {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: auto;
-            overflow: visible;
-            padding: 0;
-          }
-          .no-print {
-            display: none !important;
-          }
-        }
+@media print {
+	@page {
+		size: A4;
+		margin: 2cm;
+	}
+
+	body * {
+		visibility: hidden;
+	}
+
+	#printable-convocation,
+	#printable-convocation * {
+		visibility: visible;
+	}
+
+	#printable-convocation {
+		position: static;
+		width: 100%;
+		margin: 0;
+		padding: 0;
+	}
+
+	.no-print {
+		display: none !important;
+	}
+}
       `}</style>
 		</div>
 	);
