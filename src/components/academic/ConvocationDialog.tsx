@@ -105,7 +105,7 @@ export default function ConvocationDialog({
 @media print {
 	@page {
 		size: A4;
-		margin: 2cm;
+		margin: 0cm;
 	}
 
 	body * {
