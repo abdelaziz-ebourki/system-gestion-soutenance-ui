@@ -53,8 +53,9 @@ const monthNames = [
 const ADMIN_SLOTS = [
 	"08:30 - 10:00",
 	"10:15 - 11:45",
-	"13:30 - 15:00",
-	"15:15 - 16:45",
+	"12:00 - 13:30",
+	"13:45 - 15:15",
+	"15:30 - 17:00",
 ];
 
 export default function AvailabilityCalendar({
@@ -120,7 +121,7 @@ export default function AvailabilityCalendar({
 							</div>
 							<div>
 								<h2 className="text-2xl font-heading font-bold text-slate-800">
-									Calendrier des Disponibilités
+									Calendrier des Indisponibilités
 								</h2>
 								<p className="text-muted-foreground text-sm">
 									{monthNames[viewMonth]} {viewYear} — Sélectionnez un jour pour

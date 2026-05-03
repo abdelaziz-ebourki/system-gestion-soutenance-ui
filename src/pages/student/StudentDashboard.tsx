@@ -10,6 +10,7 @@ import {
 	BookOpen,
 	GraduationCap,
 	FileCheck,
+	Users,
 } from "lucide-react";
 import {
 	Card,
@@ -26,8 +27,10 @@ export default function StudentDashboard() {
 	const [isConvocationOpen, setIsConvocationOpen] = useState(false);
 
 	const studentData = {
-		name: "Mohamed Ali",
-		cne: "D135678942",
+		students: [
+			{ name: "Mohamed Ali", cne: "D135678942" },
+			{ name: "Yassine El Amrani", cne: "D135678943" }
+		],
 		filiere: "SMI - Sciences Mathématiques et Informatique",
 		projectTitle: "Système Intelligente de Gestion des dépenses et des budgets",
 		date: "15 Juin 2026",
@@ -48,11 +51,11 @@ export default function StudentDashboard() {
 						Bienvenue dans votre espace
 					</h1>
 					<p className="text-muted-foreground font-sans">
-						Suivez l'état de votre soutenance et téléchargez vos documents.
+						Suivez l'état de votre soutenance et téléchargez vos documents officiels.
 					</p>
 				</div>
 				<Button
-					className="gap-2 shadow-lg hover:shadow-primary/20 transition-all"
+					className="gap-2 shadow-lg hover:shadow-primary/20 transition-all rounded-xl h-11"
 					onClick={() => setIsConvocationOpen(true)}
 				>
 					<Download className="h-4 w-4" />
@@ -62,11 +65,11 @@ export default function StudentDashboard() {
 
 			<div className="grid lg:grid-cols-4 gap-6">
 				<div className="lg:col-span-3 space-y-6">
-					<Card className="border-primary/20 bg-primary/2 shadow-sm overflow-hidden relative">
+					<Card className="border-primary/20 bg-primary/2 shadow-sm overflow-hidden relative rounded-3xl">
 						<div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
 							<GraduationCap className="h-32 w-32" />
 						</div>
-						<CardHeader>
+						<CardHeader className="pb-2">
 							<div className="flex justify-between items-start">
 								<div>
 									<CardTitle className="text-2xl font-heading">
@@ -76,76 +79,99 @@ export default function StudentDashboard() {
 										Session de Printemps 2026
 									</CardDescription>
 								</div>
-								<Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 px-4 py-1">
+								<Badge className="bg-primary/10 text-primary border-primary/20 hover:bg-primary/20 px-4 py-1.5 rounded-full uppercase text-[10px] font-bold tracking-widest">
 									Statut: Confirmée
 								</Badge>
 							</div>
 						</CardHeader>
 						<CardContent className="space-y-8">
 							<div className="grid sm:grid-cols-3 gap-6 relative z-10">
-								<div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-slate-100">
-									<div className="p-3 bg-primary/10 rounded-full">
+								<div className="flex items-center gap-4 p-5 bg-white rounded-2xl shadow-sm border border-slate-100 group hover:shadow-md transition-all">
+									<div className="p-3 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform">
 										<Calendar className="h-6 w-6 text-primary" />
 									</div>
 									<div>
-										<p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+										<p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">
 											Date de passage
 										</p>
-										<p className="font-semibold text-lg">{studentData.date}</p>
+										<p className="font-bold text-lg text-slate-800">{studentData.date}</p>
 									</div>
 								</div>
-								<div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-slate-100">
-									<div className="p-3 bg-primary/10 rounded-full">
+								<div className="flex items-center gap-4 p-5 bg-white rounded-2xl shadow-sm border border-slate-100 group hover:shadow-md transition-all">
+									<div className="p-3 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform">
 										<Clock className="h-6 w-6 text-primary" />
 									</div>
 									<div>
-										<p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+										<p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">
 											Heure précise
 										</p>
-										<p className="font-semibold text-lg">{studentData.time}</p>
+										<p className="font-bold text-lg text-slate-800">{studentData.time}</p>
 									</div>
 								</div>
-								<div className="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-slate-100">
-									<div className="p-3 bg-primary/10 rounded-full">
+								<div className="flex items-center gap-4 p-5 bg-white rounded-2xl shadow-sm border border-slate-100 group hover:shadow-md transition-all">
+									<div className="p-3 bg-primary/10 rounded-xl group-hover:scale-110 transition-transform">
 										<MapPin className="h-6 w-6 text-primary" />
 									</div>
 									<div>
-										<p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">
+										<p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">
 											Salle assignée
 										</p>
-										<p className="font-semibold text-lg">{studentData.room}</p>
+										<p className="font-bold text-lg text-slate-800">{studentData.room}</p>
 									</div>
 								</div>
 							</div>
 
-							<div className="p-6 bg-slate-900 text-slate-50 rounded-2xl shadow-xl space-y-2 relative overflow-hidden group">
-								<div className="absolute inset-0 bg-linear-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-								<p className="text-xs uppercase font-bold text-slate-400 tracking-[0.2em]">
-									Titre du Projet
-								</p>
-								<h3 className="text-xl font-heading font-medium italic">
-									"{studentData.projectTitle}"
-								</h3>
+							<div className="p-8 bg-slate-900 text-slate-50 rounded-3xl shadow-xl space-y-4 relative overflow-hidden group border border-white/5">
+								<div className="absolute inset-0 bg-linear-to-r from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+								<div className="space-y-1 relative z-10">
+									<p className="text-xs uppercase font-bold text-primary tracking-[0.2em]">
+										Titre du Projet
+									</p>
+									<h3 className="text-2xl font-heading font-medium italic leading-snug">
+										"{studentData.projectTitle}"
+									</h3>
+								</div>
+								
+								<div className="pt-4 flex flex-wrap gap-4 relative z-10">
+									<div className="space-y-2 w-full">
+										<p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest flex items-center gap-2">
+											<Users className="h-3 w-3" /> Candidat(s) du Groupe
+										</p>
+										<div className="flex flex-wrap gap-3">
+											{studentData.students.map((s, i) => (
+												<div key={i} className="px-4 py-2 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3">
+													<div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary text-xs font-bold">
+														{s.name.split(" ").map(n => n[0]).join("")}
+													</div>
+													<div className="flex flex-col">
+														<span className="text-sm font-bold">{s.name}</span>
+														<span className="text-[10px] text-slate-400 font-mono">{s.cne}</span>
+													</div>
+												</div>
+											))}
+										</div>
+									</div>
+								</div>
 							</div>
 
-							<div>
-								<h3 className="font-heading text-xl font-semibold mb-6 flex items-center gap-2">
+							<div className="space-y-6">
+								<h3 className="font-heading text-xl font-semibold flex items-center gap-3 text-slate-800">
 									<User className="h-5 w-5 text-primary" /> Composition du Jury
 								</h3>
 								<div className="grid sm:grid-cols-3 gap-6">
 									{studentData.jury.map((member) => (
 										<div
 											key={member.role}
-											className="group p-6 rounded-2xl border bg-white hover:border-primary/30 transition-all hover:shadow-md text-center space-y-3"
+											className="group p-6 rounded-3xl border border-slate-100 bg-white hover:border-primary/30 transition-all hover:shadow-xl text-center space-y-4"
 										>
-											<div className="h-16 w-16 mx-auto rounded-full bg-primary/5 border border-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-												<User className="h-8 w-8 text-primary" />
+											<div className="h-20 w-20 mx-auto rounded-2xl bg-primary/5 border border-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
+												<User className="h-10 w-10 text-primary" />
 											</div>
 											<div>
-												<p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-1">
+												<p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-1">
 													{member.role}
 												</p>
-												<p className="font-heading text-lg font-semibold">
+												<p className="font-heading text-lg font-bold text-slate-800">
 													{member.name}
 												</p>
 											</div>
@@ -159,7 +185,7 @@ export default function StudentDashboard() {
 					<Card className="border-none shadow-none bg-transparent">
 						<CardHeader className="px-0">
 							<CardTitle className="text-2xl font-heading">
-								Mon Parcours
+								Mon Parcours Académique
 							</CardTitle>
 						</CardHeader>
 						<CardContent className="px-0">
@@ -200,17 +226,17 @@ export default function StudentDashboard() {
 									].map((step, i) => (
 										<div key={i} className="flex items-start gap-8 group">
 											<div
-												className={`relative z-10 flex items-center justify-center h-8 w-8 rounded-full border-2 bg-white transition-colors ${step.status === "done" ? "border-primary bg-primary text-white" : "border-slate-300 text-slate-300"}`}
+												className={`relative z-10 flex items-center justify-center h-9 w-9 rounded-xl border-2 bg-white transition-all shadow-sm ${step.status === "done" ? "border-primary bg-primary text-white scale-110" : "border-slate-300 text-slate-300"}`}
 											>
 												<step.icon className="h-4 w-4" />
 											</div>
 											<div className="pt-1 space-y-1">
 												<h4
-													className={`font-semibold ${step.status === "done" ? "text-foreground" : "text-muted-foreground"}`}
+													className={`font-bold ${step.status === "done" ? "text-slate-800" : "text-slate-400"}`}
 												>
 													{step.title}
 												</h4>
-												<p className="text-xs text-muted-foreground">
+												<p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
 													{step.date}
 												</p>
 											</div>
@@ -223,35 +249,48 @@ export default function StudentDashboard() {
 				</div>
 
 				<div className="space-y-6">
-					<Card className="bg-linear-to-br from-primary to-primary/80 text-primary-foreground shadow-xl border-none">
-						<CardContent className="p-8 flex flex-col items-center text-center gap-4 relative overflow-hidden group">
-							<div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 transition-transform duration-500">
-								<Award className="h-32 w-32" />
+					<Card className="bg-linear-to-br from-slate-900 to-slate-800 text-white shadow-2xl border-none rounded-3xl overflow-hidden group">
+						<CardContent className="p-8 flex flex-col items-center text-center gap-6 relative overflow-hidden">
+							<div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 group-hover:-rotate-12 transition-transform duration-700">
+								<Award className="h-40 w-40" />
 							</div>
-							<div className="p-4 bg-white/10 rounded-full backdrop-blur-md">
-								<Award className="h-10 w-10 text-white" />
+							<div className="p-5 bg-white/10 rounded-2xl backdrop-blur-md border border-white/10 group-hover:rotate-12 transition-transform">
+								<Award className="h-10 w-10 text-primary" />
 							</div>
-							<div>
-								<h3 className="font-heading text-2xl font-bold">
+							<div className="space-y-4">
+								<h3 className="font-heading text-2xl font-bold leading-tight">
 									Prêt pour le grand jour ?
 								</h3>
-								<p className="text-primary-foreground/90 text-sm mt-3 font-sans leading-relaxed">
+								<p className="text-slate-300 text-sm font-sans leading-relaxed italic">
 									"L'éducation est l'arme la plus puissante pour changer le
 									monde."
 								</p>
-								<p className="text-xs mt-4 text-white/60 italic">
-									- Nelson Mandela
+								<p className="text-[10px] uppercase font-bold tracking-widest text-primary">
+									— Nelson Mandela
 								</p>
 							</div>
 						</CardContent>
 					</Card>
+					
+					<div className="bg-primary/5 p-6 rounded-3xl border border-primary/10 space-y-3">
+						<p className="text-[10px] uppercase font-bold text-primary tracking-widest">Assistance</p>
+						<p className="text-xs text-slate-600 leading-relaxed font-medium">
+							En cas de problème technique ou d'erreur dans vos informations, contactez le coordinateur de filière.
+						</p>
+					</div>
 				</div>
 			</div>
 
 			<ConvocationDialog
 				isOpen={isConvocationOpen}
 				onClose={() => setIsConvocationOpen(false)}
-				studentData={studentData}
+				students={studentData.students}
+				filiere={studentData.filiere}
+				projectTitle={studentData.projectTitle}
+				date={studentData.date}
+				time={studentData.time}
+				room={studentData.room}
+				jury={studentData.jury}
 			/>
 		</div>
 	);
