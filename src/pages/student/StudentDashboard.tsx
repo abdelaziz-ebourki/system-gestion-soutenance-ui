@@ -29,7 +29,7 @@ export default function StudentDashboard() {
 	const studentData = {
 		students: [
 			{ name: "Mohamed Ali", cne: "D135678942" },
-			{ name: "Yassine El Amrani", cne: "D135678943" }
+			{ name: "Yassine El Amrani", cne: "D135678943" },
 		],
 		filiere: "SMI - Sciences Mathématiques et Informatique",
 		projectTitle: "Système Intelligente de Gestion des dépenses et des budgets",
@@ -51,7 +51,8 @@ export default function StudentDashboard() {
 						Bienvenue dans votre espace
 					</h1>
 					<p className="text-muted-foreground font-sans">
-						Suivez l'état de votre soutenance et téléchargez vos documents officiels.
+						Suivez l'état de votre soutenance et téléchargez vos documents
+						officiels.
 					</p>
 				</div>
 				<Button
@@ -65,7 +66,7 @@ export default function StudentDashboard() {
 
 			<div className="grid lg:grid-cols-4 gap-6">
 				<div className="lg:col-span-3 space-y-6">
-					<Card className="border-primary/20 bg-primary/2 shadow-sm overflow-hidden relative rounded-3xl">
+					<Card className="border-primary/20 bg-primary/2 shadow-sm overflow-hidden relative">
 						<div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
 							<GraduationCap className="h-32 w-32" />
 						</div>
@@ -94,7 +95,9 @@ export default function StudentDashboard() {
 										<p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">
 											Date de passage
 										</p>
-										<p className="font-bold text-lg text-slate-800">{studentData.date}</p>
+										<p className="font-bold text-lg text-slate-800">
+											{studentData.date}
+										</p>
 									</div>
 								</div>
 								<div className="flex items-center gap-4 p-5 bg-white rounded-2xl shadow-sm border border-slate-100 group hover:shadow-md transition-all">
@@ -105,7 +108,9 @@ export default function StudentDashboard() {
 										<p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">
 											Heure précise
 										</p>
-										<p className="font-bold text-lg text-slate-800">{studentData.time}</p>
+										<p className="font-bold text-lg text-slate-800">
+											{studentData.time}
+										</p>
 									</div>
 								</div>
 								<div className="flex items-center gap-4 p-5 bg-white rounded-2xl shadow-sm border border-slate-100 group hover:shadow-md transition-all">
@@ -116,7 +121,9 @@ export default function StudentDashboard() {
 										<p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-0.5">
 											Salle assignée
 										</p>
-										<p className="font-bold text-lg text-slate-800">{studentData.room}</p>
+										<p className="font-bold text-lg text-slate-800">
+											{studentData.room}
+										</p>
 									</div>
 								</div>
 							</div>
@@ -131,7 +138,7 @@ export default function StudentDashboard() {
 										"{studentData.projectTitle}"
 									</h3>
 								</div>
-								
+
 								<div className="pt-4 flex flex-wrap gap-4 relative z-10">
 									<div className="space-y-2 w-full">
 										<p className="text-[10px] uppercase font-bold text-slate-400 tracking-widest flex items-center gap-2">
@@ -139,13 +146,21 @@ export default function StudentDashboard() {
 										</p>
 										<div className="flex flex-wrap gap-3">
 											{studentData.students.map((s, i) => (
-												<div key={i} className="px-4 py-2 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3">
+												<div
+													key={i}
+													className="px-4 py-2 bg-white/5 rounded-xl border border-white/10 flex items-center gap-3"
+												>
 													<div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary text-xs font-bold">
-														{s.name.split(" ").map(n => n[0]).join("")}
+														{s.name
+															.split(" ")
+															.map((n) => n[0])
+															.join("")}
 													</div>
 													<div className="flex flex-col">
 														<span className="text-sm font-bold">{s.name}</span>
-														<span className="text-[10px] text-slate-400 font-mono">{s.cne}</span>
+														<span className="text-[10px] text-slate-400 font-mono">
+															{s.cne}
+														</span>
 													</div>
 												</div>
 											))}
@@ -271,11 +286,14 @@ export default function StudentDashboard() {
 							</div>
 						</CardContent>
 					</Card>
-					
+
 					<div className="bg-primary/5 p-6 rounded-3xl border border-primary/10 space-y-3">
-						<p className="text-[10px] uppercase font-bold text-primary tracking-widest">Assistance</p>
+						<p className="text-[10px] uppercase font-bold text-primary tracking-widest">
+							Assistance
+						</p>
 						<p className="text-xs text-slate-600 leading-relaxed font-medium">
-							En cas de problème technique ou d'erreur dans vos informations, contactez le coordinateur de filière.
+							En cas de problème technique ou d'erreur dans vos informations,
+							contactez le coordinateur de filière.
 						</p>
 					</div>
 				</div>

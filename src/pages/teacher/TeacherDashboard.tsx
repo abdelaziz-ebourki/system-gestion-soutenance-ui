@@ -1,20 +1,11 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useCallback } from "react";
 import {
-	Clock,
 	Users,
 	BookOpen,
 	FileText,
 	Search,
-	User,
-	MapPin,
-	ClipboardCheck,
-	X,
-	Save,
 	TimerOff,
 	Download,
-	ChevronDown,
-	ChevronUp,
-	ExternalLink,
 } from "lucide-react";
 import {
 	Card,
@@ -28,342 +19,25 @@ import { Badge } from "@/components/ui/badge";
 import {
 	Table,
 	TableBody,
-	TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import AvailabilityCalendar from "@/components/academic/AvailabilityCalendar";
 
-// --- Interfaces & Types ---
-
-interface Candidate {
-	name: string;
-	cne: string;
-}
-
-interface DefenseSession {
-	id: number;
-	groupName: string;
-	students: Candidate[];
-	project: string;
-	date: string;
-	day: number;
-	time: string;
-	room: string;
-	role: "Président" | "Rapporteur" | "Examinateur" | string;
-	status: "Confirmé" | "En attente" | "Terminé" | string;
-}
-
-interface StatMetric {
-	title: string;
-	value: string;
-	icon: React.ElementType;
-	bg: string;
-}
-
-interface SupervisedProject {
-	id: number;
-	studentName: string;
-	initials: string;
-	filiere: string;
-	projectTitle: string;
-	progress: number;
-}
-
-// --- Refactored Sub-components ---
-
-const StudentInfoDialog = ({
-	isOpen,
-	onClose,
-	defense,
-}: {
-	isOpen: boolean;
-	onClose: () => void;
-	defense: DefenseSession | null;
-}) => {
-	if (!isOpen || !defense) return null;
-
-	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-			<div className="relative w-full max-w-lg bg-card shadow-2xl rounded-3xl overflow-hidden animate-in zoom-in-95 duration-200 border border-border">
-				<div className="p-6 border-b flex justify-between items-center bg-muted/30">
-					<h2 className="text-xl font-heading font-bold text-foreground">
-						Dossier des Candidats
-					</h2>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={onClose}
-						className="rounded-full hover:bg-muted"
-					>
-						<X className="h-4 w-4" />
-					</Button>
-				</div>
-				<div className="p-8 space-y-6">
-					<div className="space-y-4">
-						<p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
-							Binôme / Groupe d'Étudiants
-						</p>
-						{defense.students.map((s, idx) => (
-							<div
-								key={idx}
-								className="flex items-center gap-6 p-4 bg-secondary/50 rounded-2xl border border-border"
-							>
-								<div className="h-16 w-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary text-xl font-bold shadow-inner">
-									{s.name
-										.split(" ")
-										.map((n) => n[0])
-										.join("")}
-								</div>
-								<div className="space-y-1">
-									<h3 className="text-lg font-heading font-bold text-foreground">
-										{s.name}
-									</h3>
-									<p className="text-primary text-xs font-medium">{s.cne}</p>
-									<p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter">
-										Master Qualité Logicielle
-									</p>
-								</div>
-							</div>
-						))}
-					</div>
-
-					<div className="space-y-2 pt-2">
-						<p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
-							Sujet de PFE
-						</p>
-						<div className="p-5 bg-foreground text-background rounded-2xl border italic text-sm leading-relaxed shadow-xl">
-							"{defense.project}"
-						</div>
-					</div>
-					<Button
-						className="w-full gap-2 h-12 rounded-xl font-bold"
-						variant="outline"
-					>
-						<FileText className="h-4 w-4" /> Consulter le Rapport Complet
-					</Button>
-				</div>
-			</div>
-		</div>
-	);
-};
-
-const EvaluationDialog = ({
-	isOpen,
-	onClose,
-	defense,
-}: {
-	isOpen: boolean;
-	onClose: () => void;
-	defense: DefenseSession | null;
-}) => {
-	const [evaluations, setEvaluations] = useState<
-		Record<string, { note: string; obs: string }>
-	>({});
-
-	if (!isOpen || !defense) return null;
-
-	const handleSave = () => {
-		console.log("Saving evaluations:", evaluations);
-		alert("PV de soutenance enregistré avec succès.");
-		onClose();
-	};
-
-	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-			<div className="relative w-full max-w-2xl bg-card shadow-2xl rounded-4xl overflow-hidden animate-in zoom-in-95 duration-200 border border-border">
-				<div className="p-6 border-b flex justify-between items-center bg-primary/5">
-					<div className="flex items-center gap-3">
-						<div className="p-2 bg-primary/10 rounded-lg text-primary">
-							<ClipboardCheck className="h-5 w-5" />
-						</div>
-						<h2 className="text-xl font-heading font-bold text-foreground">
-							Saisie des Notes (PV de Groupe)
-						</h2>
-					</div>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={onClose}
-						className="rounded-full"
-					>
-						<X className="h-4 w-4" />
-					</Button>
-				</div>
-				<div className="p-8 space-y-6 max-h-[80vh] overflow-y-auto custom-scrollbar">
-					<div className="p-5 bg-muted/30 rounded-2xl mb-4 border-l-4 border-primary">
-						<p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest mb-1">
-							Projet de Soutenance
-						</p>
-						<p className="font-heading font-bold italic text-foreground/80 leading-snug">
-							"{defense.project}"
-						</p>
-					</div>
-
-					{defense.students.map((s, idx) => (
-						<div
-							key={idx}
-							className="space-y-4 p-6 rounded-2xl border border-border bg-card shadow-sm hover:border-primary/30 transition-colors"
-						>
-							<div className="flex justify-between items-center border-b border-border pb-4">
-								<div className="flex items-center gap-3">
-									<div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-bold">
-										{idx + 1}
-									</div>
-									<span className="font-bold text-foreground">{s.name}</span>
-								</div>
-								<Badge variant="secondary" className="font-mono text-[10px]">
-									{s.cne}
-								</Badge>
-							</div>
-							<div className="grid sm:grid-cols-4 gap-6">
-								<div className="sm:col-span-1 space-y-2">
-									<Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">
-										Note / 20
-									</Label>
-									<Input
-										type="number"
-										placeholder="00"
-										className="text-lg font-bold h-12 bg-muted/20"
-										onChange={(e) =>
-											setEvaluations({
-												...evaluations,
-												[s.cne]: {
-													...(evaluations[s.cne] || { obs: "" }),
-													note: e.target.value,
-												},
-											})
-										}
-									/>
-								</div>
-								<div className="sm:col-span-3 space-y-2">
-									<Label className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground">
-										Appréciations
-									</Label>
-									<Input
-										placeholder="Remarques pour cet étudiant..."
-										className="h-12 bg-muted/20"
-										onChange={(e) =>
-											setEvaluations({
-												...evaluations,
-												[s.cne]: {
-													...(evaluations[s.cne] || { note: "" }),
-													obs: e.target.value,
-												},
-											})
-										}
-									/>
-								</div>
-							</div>
-						</div>
-					))}
-
-					<div className="flex gap-4 pt-4">
-						<Button
-							variant="ghost"
-							onClick={onClose}
-							className="flex-1 rounded-xl h-12"
-						>
-							Annuler
-						</Button>
-						<Button
-							onClick={handleSave}
-							className="flex-1 rounded-xl h-12 gap-2 shadow-lg shadow-primary/20 bg-primary text-primary-foreground hover:bg-primary/90"
-						>
-							<Save className="h-4 w-4" /> Enregistrer le PV
-						</Button>
-					</div>
-				</div>
-			</div>
-		</div>
-	);
-};
-
-const StatCard = ({ metric }: { metric: StatMetric }) => (
-	<Card className="border border-border shadow-sm overflow-hidden group hover:shadow-md transition-all rounded-3xl bg-card">
-		<CardContent className="p-8">
-			<div className="flex items-center justify-between gap-4">
-				<div className="space-y-1">
-					<p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-						{metric.title}
-					</p>
-					<p className="text-4xl font-bold font-heading text-foreground">
-						{metric.value}
-					</p>
-				</div>
-				<div
-					className={`p-4 rounded-3xl ${metric.bg} group-hover:scale-110 transition-transform shadow-inner border border-primary/5`}
-				>
-					<metric.icon className="h-8 w-8 text-primary" />
-				</div>
-			</div>
-		</CardContent>
-	</Card>
-);
-
-const SupervisedProjectCard = ({ project }: { project: SupervisedProject }) => (
-	<Card className="group hover:shadow-xl transition-all border border-border relative overflow-hidden rounded-4xl bg-card">
-		<div className="absolute top-0 left-0 w-1.5 h-full bg-primary/20 group-hover:bg-primary transition-colors" />
-		<CardHeader className="pb-4">
-			<div className="flex justify-between items-start">
-				<div className="flex items-center gap-4">
-					<div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary font-bold shadow-inner border border-primary/5">
-						{project.initials}
-					</div>
-					<div>
-						<CardTitle className="text-lg font-heading font-bold text-foreground">
-							{project.studentName}
-						</CardTitle>
-						<CardDescription className="text-[10px] uppercase font-bold tracking-tighter text-muted-foreground">
-							{project.filiere}
-						</CardDescription>
-					</div>
-				</div>
-				<Badge className="bg-emerald-500/10 text-emerald-600 border-none rounded-full px-3 text-[10px] font-bold">
-					En cours
-				</Badge>
-			</div>
-		</CardHeader>
-		<CardContent className="space-y-6">
-			<div className="p-4 bg-muted/30 rounded-2xl text-xs italic border border-border/50 group-hover:bg-background transition-colors leading-relaxed">
-				"{project.projectTitle}"
-			</div>
-			<div className="space-y-2">
-				<div className="flex justify-between items-center text-xs">
-					<span className="text-muted-foreground font-medium">Progression</span>
-					<span className="font-bold text-primary">{project.progress}%</span>
-				</div>
-				<div className="w-full bg-muted h-2 rounded-full overflow-hidden border border-border/50 p-0.5">
-					<div
-						className="bg-primary h-full rounded-full shadow-sm transition-all duration-1000"
-						style={{ width: `${project.progress}%` }}
-					/>
-				</div>
-			</div>
-			<div className="grid grid-cols-2 gap-3">
-				<Button
-					size="sm"
-					className="gap-2 bg-foreground text-background hover:bg-foreground/90 rounded-xl h-10 font-bold"
-				>
-					<FileText className="h-4 w-4" /> Rapport
-				</Button>
-				<Button
-					size="sm"
-					variant="outline"
-					className="gap-2 border-border hover:bg-muted rounded-xl h-10 font-bold"
-				>
-					<ExternalLink className="h-4 w-4" /> Dossier
-				</Button>
-			</div>
-		</CardContent>
-	</Card>
-);
-
-// --- Main Dashboard Component ---
+// --- Types & Components ---
+import type {
+	DefenseSession,
+	StatMetric,
+	SupervisedProject,
+} from "@/pages/teacher/types";
+import { StatCard } from "@/components/teacher/StatCard";
+import { SupervisedProjectCard } from "@/components/teacher/SupervisedProjectCard";
+import { StudentInfoDialog } from "@/components/teacher/StudentInfoDialog";
+import { EvaluationDialog } from "@/components/teacher/EvaluationDialog";
+import { DefenseTableRow } from "@/components/teacher/DefenseTableRow";
 
 export default function TeacherDashboard() {
 	const [selectedDefense, setSelectedDefense] = useState<DefenseSession | null>(
@@ -489,19 +163,22 @@ export default function TeacherDashboard() {
 		[],
 	);
 
-	const handleAction = (type: "info" | "eval", defense: DefenseSession) => {
-		setSelectedDefense(defense);
-		if (type === "info") setIsInfoOpen(true);
-		if (type === "eval") setIsEvalOpen(true);
-	};
+	const handleAction = useCallback(
+		(type: "info" | "eval", defense: DefenseSession) => {
+			setSelectedDefense(defense);
+			if (type === "info") setIsInfoOpen(true);
+			if (type === "eval") setIsEvalOpen(true);
+		},
+		[],
+	);
 
-	const toggleGroup = (id: number) => {
+	const toggleGroup = useCallback((id: number) => {
 		setExpandedGroups((prev) =>
 			prev.includes(id) ? prev.filter((gid) => gid !== id) : [...prev, id],
 		);
-	};
+	}, []);
 
-	const toggleSlot = (day: number, slot: string) => {
+	const toggleSlot = useCallback((day: number, slot: string) => {
 		setUnavailableSlots((prev) => {
 			const daySlots = prev[day] || [];
 			const newDaySlots = daySlots.includes(slot)
@@ -510,11 +187,11 @@ export default function TeacherDashboard() {
 
 			return { ...prev, [day]: newDaySlots };
 		});
-	};
+	}, []);
 
-	const scrollToCalendar = () => {
+	const scrollToCalendar = useCallback(() => {
 		calendarRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-	};
+	}, []);
 
 	return (
 		<div className="space-y-12 animate-in fade-in duration-500 pb-20">
@@ -622,130 +299,15 @@ export default function TeacherDashboard() {
 									</TableRow>
 								</TableHeader>
 								<TableBody>
-									{upcomingDefenses.map((defense) => {
-										const isExpanded = expandedGroups.includes(defense.id);
-										return (
-											<TableRow
-												key={defense.id}
-												className={`transition-all border-border group ${isExpanded ? "bg-primary/3" : "hover:bg-muted/20"}`}
-											>
-												<TableCell className="p-6 align-top">
-													<div className="space-y-3">
-														<button
-															onClick={() => toggleGroup(defense.id)}
-															className="flex items-center gap-3 bg-card border border-border px-5 py-3 rounded-2xl hover:border-primary/50 transition-all shadow-sm group/btn"
-														>
-															<div className="h-9 w-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center text-[10px] font-bold group-hover/btn:scale-110 transition-transform">
-																{defense.students.length}
-															</div>
-															<div className="flex flex-col items-start">
-																<span className="font-bold text-foreground text-sm tracking-tight">
-																	{defense.groupName}
-																</span>
-																<span className="text-[9px] text-primary uppercase font-bold tracking-tighter flex items-center gap-1.5 opacity-80">
-																	{isExpanded ? (
-																		<ChevronUp className="h-3 w-3" />
-																	) : (
-																		<ChevronDown className="h-3 w-3" />
-																	)}
-																	{isExpanded ? "Fermer" : "Membres"}
-																</span>
-															</div>
-														</button>
-
-														{isExpanded && (
-															<div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
-																{defense.students.map((s, idx) => (
-																	<div
-																		key={idx}
-																		className="flex items-center gap-3 pl-4 py-2 border-l-2 border-primary/20 bg-muted/10 rounded-r-xl"
-																	>
-																		<div className="h-8 w-8 rounded-lg bg-card border border-border flex items-center justify-center text-[10px] font-bold text-primary">
-																			{s.name
-																				.split(" ")
-																				.map((n) => n[0])
-																				.join("")}
-																		</div>
-																		<div className="flex flex-col">
-																			<span className="text-xs font-bold text-foreground leading-none mb-1">
-																				{s.name}
-																			</span>
-																			<span className="text-[8px] text-muted-foreground font-mono uppercase tracking-widest">
-																				{s.cne}
-																			</span>
-																		</div>
-																	</div>
-																))}
-															</div>
-														)}
-													</div>
-												</TableCell>
-												<TableCell className="p-6 max-w-62 align-top">
-													<p className="text-sm italic text-muted-foreground line-clamp-3 leading-relaxed font-serif">
-														"{defense.project}"
-													</p>
-												</TableCell>
-												<TableCell className="p-6 align-top">
-													<div className="flex flex-col gap-2">
-														<span className="font-bold text-sm text-foreground bg-muted/40 px-3 py-1 rounded-lg w-fit">
-															{defense.date}
-														</span>
-														<span className="text-[10px] text-primary flex items-center gap-1.5 uppercase font-bold tracking-wider px-3">
-															<Clock className="h-3 w-3" /> {defense.time}
-														</span>
-													</div>
-												</TableCell>
-												<TableCell className="p-6 align-top">
-													<div className="flex items-center gap-2 text-sm font-medium text-foreground px-3 py-1 rounded-xl border border-border bg-secondary shadow-sm w-fit">
-														<MapPin className="h-4 w-4 text-primary" />
-														<span>{defense.room}</span>
-													</div>
-												</TableCell>
-												<TableCell className="p-6 align-top">
-													<Badge
-														variant="outline"
-														className={`px-4 rounded-full border-primary/20 text-primary font-bold ${
-															defense.role === "Président"
-																? "bg-primary/5"
-																: "bg-muted"
-														}`}
-													>
-														{defense.role}
-													</Badge>
-												</TableCell>
-												<TableCell className="p-6 text-right align-top">
-													<div className="flex justify-end gap-2">
-														<Button
-															variant="outline"
-															size="icon"
-															className="h-10 w-10 rounded-xl border-border hover:bg-primary/10 hover:text-primary hover:border-primary/30 shadow-sm"
-															title="Dossier Étudiants"
-															onClick={() => handleAction("info", defense)}
-														>
-															<User className="h-4 w-4" />
-														</Button>
-														<Button
-															variant="outline"
-															size="icon"
-															className="h-10 w-10 rounded-xl border-border hover:bg-amber-500/10 hover:text-amber-600 hover:border-amber-500/30 shadow-sm"
-															title="Saisir PV"
-															onClick={() => handleAction("eval", defense)}
-														>
-															<ClipboardCheck className="h-4 w-4" />
-														</Button>
-														<Button
-															variant="outline"
-															size="icon"
-															className="h-10 w-10 rounded-xl border-border hover:bg-emerald-500/10 hover:text-emerald-600 hover:border-emerald-500/30 shadow-sm"
-															title="Exporter PV"
-														>
-															<Download className="h-4 w-4" />
-														</Button>
-													</div>
-												</TableCell>
-											</TableRow>
-										);
-									})}
+									{upcomingDefenses.map((defense) => (
+										<DefenseTableRow
+											key={defense.id}
+											defense={defense}
+											isExpanded={expandedGroups.includes(defense.id)}
+											onToggleExpand={toggleGroup}
+											onAction={handleAction}
+										/>
+									))}
 								</TableBody>
 							</Table>
 						</CardContent>

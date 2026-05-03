@@ -4,8 +4,8 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 import Login from "./pages/Login";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
-import CoordinatorDashboard from "./pages/coordinator/Dashboard";
-import AdminDashboard from "./pages/admin/Dashboard";
+import CoordinatorDashboard from "./pages/coordinator/CoordinatorDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import { useAuth } from "./context/AuthContext";
 
 export default function App() {
