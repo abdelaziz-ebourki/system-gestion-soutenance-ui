@@ -175,7 +175,7 @@ const EvaluationDialog = ({
 
 	return (
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-			<div className="relative w-full max-w-2xl bg-card shadow-2xl rounded-[2rem] overflow-hidden animate-in zoom-in-95 duration-200 border border-border">
+			<div className="relative w-full max-w-2xl bg-card shadow-2xl rounded-4xl overflow-hidden animate-in zoom-in-95 duration-200 border border-border">
 				<div className="p-6 border-b flex justify-between items-center bg-primary/5">
 					<div className="flex items-center gap-3">
 						<div className="p-2 bg-primary/10 rounded-lg text-primary">
@@ -306,7 +306,7 @@ const StatCard = ({ metric }: { metric: StatMetric }) => (
 );
 
 const SupervisedProjectCard = ({ project }: { project: SupervisedProject }) => (
-	<Card className="group hover:shadow-xl transition-all border border-border relative overflow-hidden rounded-[2rem] bg-card">
+	<Card className="group hover:shadow-xl transition-all border border-border relative overflow-hidden rounded-4xl bg-card">
 		<div className="absolute top-0 left-0 w-1.5 h-full bg-primary/20 group-hover:bg-primary transition-colors" />
 		<CardHeader className="pb-4">
 			<div className="flex justify-between items-start">
@@ -580,7 +580,7 @@ export default function TeacherDashboard() {
 				</div>
 
 				<TabsContent value="jury" className="space-y-6">
-					<Card className="border border-border shadow-xl bg-card/80 backdrop-blur-md overflow-hidden rounded-[2rem]">
+					<Card className="border border-border shadow-xl bg-card/80 backdrop-blur-md overflow-hidden rounded-4xl">
 						<CardHeader className="bg-muted/20 border-b border-border p-10">
 							<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
 								<div>
@@ -627,7 +627,7 @@ export default function TeacherDashboard() {
 										return (
 											<TableRow
 												key={defense.id}
-												className={`transition-all border-border group ${isExpanded ? "bg-primary/[0.03]" : "hover:bg-muted/20"}`}
+												className={`transition-all border-border group ${isExpanded ? "bg-primary/3" : "hover:bg-muted/20"}`}
 											>
 												<TableCell className="p-6 align-top">
 													<div className="space-y-3">
@@ -680,7 +680,7 @@ export default function TeacherDashboard() {
 														)}
 													</div>
 												</TableCell>
-												<TableCell className="p-6 max-w-[250px] align-top">
+												<TableCell className="p-6 max-w-62 align-top">
 													<p className="text-sm italic text-muted-foreground line-clamp-3 leading-relaxed font-serif">
 														"{defense.project}"
 													</p>
@@ -764,8 +764,6 @@ export default function TeacherDashboard() {
 			{/* Availability Calendar Section */}
 			<div ref={calendarRef} className="pt-10 scroll-mt-10">
 				<AvailabilityCalendar
-					monthName="Juin"
-					year={2026}
 					unavailableSlots={unavailableSlots}
 					onToggleSlot={toggleSlot}
 					sessions={upcomingDefenses.map((d) => ({

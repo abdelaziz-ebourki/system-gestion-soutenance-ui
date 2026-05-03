@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
 	Calendar as CalendarIcon,
 	ChevronLeft,
@@ -59,8 +59,8 @@ const ADMIN_SLOTS = [
 ];
 
 export default function AvailabilityCalendar({
-	initialMonth = 5, // Juin
-	initialYear = 2026,
+	initialMonth = new Date().getMonth(),
+	initialYear = new Date().getFullYear(),
 	unavailableSlots,
 	onToggleSlot,
 	sessions,
@@ -138,7 +138,7 @@ export default function AvailabilityCalendar({
 							>
 								<ChevronLeft className="h-6 w-6 text-slate-600" />
 							</Button>
-							<span className="font-heading font-bold text-xl px-4 text-slate-800 min-w-[150px] text-center">
+							<span className="font-heading font-bold text-xl px-4 text-slate-800 min-w-37 text-center">
 								{monthNames[viewMonth]} {viewYear}
 							</span>
 							<Button
