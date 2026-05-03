@@ -51,8 +51,8 @@ export default function StudentDashboard() {
 						Bienvenue dans votre espace
 					</h1>
 					<p className="text-muted-foreground font-sans">
-						Suivez l'état de votre soutenance et téléchargez vos documents
-						officiels.
+						Suivi des plannings, consultation des dossiers et saisie des
+						évaluations.
 					</p>
 				</div>
 				<Button
@@ -264,7 +264,7 @@ export default function StudentDashboard() {
 				</div>
 
 				<div className="space-y-6">
-					<Card className="bg-linear-to-br from-slate-900 to-slate-800 text-white shadow-2xl border-none rounded-3xl overflow-hidden group">
+					<Card className="bg-linear-to-br from-slate-900 to-slate-800 text-white shadow-2xl border-none overflow-hidden group">
 						<CardContent className="p-8 flex flex-col items-center text-center gap-6 relative overflow-hidden">
 							<div className="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-125 group-hover:-rotate-12 transition-transform duration-700">
 								<Award className="h-40 w-40" />

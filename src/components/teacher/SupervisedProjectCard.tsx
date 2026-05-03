@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import type { SupervisedProject } from "@/pages/teacher/types";
 
 export const SupervisedProjectCard = ({
@@ -15,7 +16,7 @@ export const SupervisedProjectCard = ({
 }: {
 	project: SupervisedProject;
 }) => (
-	<Card className="group hover:shadow-xl transition-all border border-border relative overflow-hidden rounded-4xl bg-card">
+	<Card className="flex flex-col h-full group hover:shadow-xl transition-all border border-border relative overflow-hidden bg-card">
 		<div className="absolute top-0 left-0 w-1.5 h-full bg-primary/20 group-hover:bg-primary transition-colors" />
 		<CardHeader className="pb-4">
 			<div className="flex justify-between items-start">
@@ -37,23 +38,18 @@ export const SupervisedProjectCard = ({
 				</Badge>
 			</div>
 		</CardHeader>
-		<CardContent className="space-y-6">
+		<CardContent className="flex flex-col flex-1 space-y-6">
 			<div className="p-4 bg-muted/30 rounded-2xl text-xs italic border border-border/50 group-hover:bg-background transition-colors leading-relaxed">
 				"{project.projectTitle}"
 			</div>
-			<div className="space-y-2">
+			<div className="space-y-3">
 				<div className="flex justify-between items-center text-xs">
 					<span className="text-muted-foreground font-medium">Progression</span>
 					<span className="font-bold text-primary">{project.progress}%</span>
 				</div>
-				<div className="w-full bg-muted h-2 rounded-full overflow-hidden border border-border/50 p-0.5">
-					<div
-						className="bg-primary h-full rounded-full shadow-sm transition-all duration-1000"
-						style={{ width: `${project.progress}%` }}
-					/>
-				</div>
+				<Progress value={project.progress} className="h-2" />
 			</div>
-			<div className="grid grid-cols-2 gap-3">
+			<div className="grid grid-cols-2 gap-3 mt-auto">
 				<Button
 					size="sm"
 					className="gap-2 bg-foreground text-background hover:bg-foreground/90 rounded-xl h-10 font-bold"
