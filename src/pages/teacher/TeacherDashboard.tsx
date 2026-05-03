@@ -231,17 +231,17 @@ export default function TeacherDashboard() {
 
 			{/* Main Content Tabs */}
 			<Tabs defaultValue="jury" className="space-y-6">
-				<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-					<TabsList className="bg-muted/50 p-1 rounded-2xl border border-border">
+				<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-5">
+					<TabsList className="bg-muted/50 rounded-2xl border border-border">
 						<TabsTrigger
 							value="jury"
-							className="gap-2 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm px-8 h-10 font-bold"
+							className="gap-2 rounded-2xl data-[state=active]:bg-card data-[state=active]:shadow-sm font-bold"
 						>
 							<Users className="h-4 w-4" /> Planning Jury
 						</TabsTrigger>
 						<TabsTrigger
 							value="supervision"
-							className="gap-2 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-sm px-8 h-10 font-bold"
+							className="gap-2 rounded-2xl data-[state=active]:bg-card data-[state=active]:shadow-sm font-bold"
 						>
 							<BookOpen className="h-4 w-4" /> Encadrements
 						</TabsTrigger>
