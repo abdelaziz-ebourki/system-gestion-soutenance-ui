@@ -73,7 +73,7 @@ export interface PlanningConflict {
 const INITIAL_DEFENSES: Defense[] = [
 	{
 		id: 1,
-		groupName: "Groupe-Alpha",
+		groupName: "Groupe-1",
 		students: [
 			{ name: "Amine El Fassi", cne: "D135678942" },
 			{ name: "Salma Bennani", cne: "D135678943" },
@@ -92,7 +92,7 @@ const INITIAL_DEFENSES: Defense[] = [
 	},
 	{
 		id: 2,
-		groupName: "Groupe-Beta",
+		groupName: "Groupe-2",
 		students: [{ name: "Youssef Mansouri", cne: "G145223311" }],
 		project: "Analyse des données massives avec Spark",
 		filiere: "Big Data",
@@ -105,7 +105,7 @@ const INITIAL_DEFENSES: Defense[] = [
 	},
 	{
 		id: 3,
-		groupName: "Groupe-Gamma",
+		groupName: "Groupe-3",
 		students: [
 			{ name: "Kenza Idrissi", cne: "E122998877" },
 			{ name: "Omar Benjelloun", cne: "E122998878" },
@@ -135,9 +135,30 @@ const TEACHERS = [
 ];
 
 const MOCK_REPORTS = [
-	{ id: 1, group: "Groupe-Alpha", project: "Système Intelligente...", status: "Déposé", date: "01/05/2026", file: "rapport_alpha.pdf" },
-	{ id: 2, group: "Groupe-Beta", project: "Analyse des données...", status: "En attente", date: "-", file: null },
-	{ id: 3, group: "Groupe-Gamma", project: "Sécurité des objets...", status: "Déposé", date: "03/05/2026", file: "rapport_gamma.pdf" },
+	{
+		id: 1,
+		group: "Groupe-1",
+		project: "Système Intelligente...",
+		status: "Déposé",
+		date: "01/05/2026",
+		file: "rapport_alpha.pdf",
+	},
+	{
+		id: 2,
+		group: "Groupe-2",
+		project: "Analyse des données...",
+		status: "En attente",
+		date: "-",
+		file: null,
+	},
+	{
+		id: 3,
+		group: "Groupe-3",
+		project: "Sécurité des objets...",
+		status: "Déposé",
+		date: "03/05/2026",
+		file: "rapport_gamma.pdf",
+	},
 ];
 
 export default function CoordinatorDashboard() {
@@ -199,9 +220,7 @@ export default function CoordinatorDashboard() {
 		conflicts.filter((c) => c.defenseId === id);
 
 	const handleAssignJury = (id: number, jury: JuryMember[]) => {
-		setDefenses((prev) =>
-			prev.map((d) => (d.id === id ? { ...d, jury } : d)),
-		);
+		setDefenses((prev) => prev.map((d) => (d.id === id ? { ...d, jury } : d)));
 	};
 
 	const handleValidatePlanning = () => {
@@ -217,7 +236,9 @@ export default function CoordinatorDashboard() {
 		(d) =>
 			d.groupName.toLowerCase().includes(searchQuery.toLowerCase()) ||
 			d.project.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			d.students.some(s => s.name.toLowerCase().includes(searchQuery.toLowerCase())),
+			d.students.some((s) =>
+				s.name.toLowerCase().includes(searchQuery.toLowerCase()),
+			),
 	);
 
 	return (
@@ -292,8 +313,12 @@ export default function CoordinatorDashboard() {
 						<CardHeader className="p-8 border-b border-border bg-muted/10">
 							<div className="flex justify-between items-center">
 								<div>
-									<CardTitle className="text-2xl font-heading">Planification des Soutenances</CardTitle>
-									<CardDescription>Détectez les conflits et assignez les membres du jury.</CardDescription>
+									<CardTitle className="text-2xl font-heading">
+										Planification des Soutenances
+									</CardTitle>
+									<CardDescription>
+										Détectez les conflits et assignez les membres du jury.
+									</CardDescription>
 								</div>
 								<Badge className="bg-primary/10 text-primary border-primary/20 px-4 py-1.5 rounded-full font-bold">
 									Session Juin 2026
@@ -304,25 +329,43 @@ export default function CoordinatorDashboard() {
 							<Table>
 								<TableHeader className="bg-muted/5">
 									<TableRow className="border-border">
-										<TableHead className="font-bold uppercase text-[10px] tracking-widest p-6">Candidats / Groupe</TableHead>
-										<TableHead className="font-bold uppercase text-[10px] tracking-widest p-6">Détails Planning</TableHead>
-										<TableHead className="font-bold uppercase text-[10px] tracking-widest p-6">Composition Jury</TableHead>
-										<TableHead className="font-bold uppercase text-[10px] tracking-widest p-6">État & Conflits</TableHead>
-										<TableHead className="text-right font-bold uppercase text-[10px] tracking-widest p-6">Actions</TableHead>
+										<TableHead className="font-bold uppercase text-[10px] tracking-widest p-6">
+											Candidats / Groupe
+										</TableHead>
+										<TableHead className="font-bold uppercase text-[10px] tracking-widest p-6">
+											Détails Planning
+										</TableHead>
+										<TableHead className="font-bold uppercase text-[10px] tracking-widest p-6">
+											Composition Jury
+										</TableHead>
+										<TableHead className="font-bold uppercase text-[10px] tracking-widest p-6">
+											État & Conflits
+										</TableHead>
+										<TableHead className="text-right font-bold uppercase text-[10px] tracking-widest p-6">
+											Actions
+										</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
 									{filteredDefenses.map((defense) => {
 										const defenseConflicts = getDefenseConflicts(defense.id);
 										return (
-											<TableRow key={defense.id} className="border-border hover:bg-muted/5 transition-colors">
+											<TableRow
+												key={defense.id}
+												className="border-border hover:bg-muted/5 transition-colors"
+											>
 												<TableCell className="p-6">
 													<div className="space-y-1">
-														<div className="font-bold text-lg text-foreground">{defense.groupName}</div>
-														<div className="text-sm text-muted-foreground">
-															{defense.students.map(s => s.name).join(", ")}
+														<div className="font-bold text-lg text-foreground">
+															{defense.groupName}
 														</div>
-														<Badge variant="outline" className="text-[9px] uppercase tracking-tighter">
+														<div className="text-sm text-muted-foreground">
+															{defense.students.map((s) => s.name).join(", ")}
+														</div>
+														<Badge
+															variant="outline"
+															className="text-[9px] uppercase tracking-tighter"
+														>
 															{defense.filiere}
 														</Badge>
 													</div>
@@ -343,13 +386,22 @@ export default function CoordinatorDashboard() {
 													<div className="flex flex-col gap-1.5">
 														{defense.jury.length > 0 ? (
 															defense.jury.map((j, i) => (
-																<div key={i} className="text-xs flex items-center gap-2">
-																	<span className="text-muted-foreground w-16 italic">{j.role}:</span>
-																	<span className="font-semibold">{j.name}</span>
+																<div
+																	key={i}
+																	className="text-xs flex items-center gap-2"
+																>
+																	<span className="text-muted-foreground w-16 italic">
+																		{j.role}:
+																	</span>
+																	<span className="font-semibold">
+																		{j.name}
+																	</span>
 																</div>
 															))
 														) : (
-															<span className="text-xs text-destructive italic">Jury non assigné</span>
+															<span className="text-xs text-destructive italic">
+																Jury non assigné
+															</span>
 														)}
 													</div>
 												</TableCell>
@@ -357,42 +409,69 @@ export default function CoordinatorDashboard() {
 													{defenseConflicts.length > 0 ? (
 														<div className="space-y-2">
 															<Badge className="bg-destructive/10 text-destructive border-destructive/20 animate-pulse">
-																<AlertTriangle className="h-3 w-3 mr-1" /> Conflit
+																<AlertTriangle className="h-3 w-3 mr-1" />{" "}
+																Conflit
 															</Badge>
 															{defenseConflicts.map((c, i) => (
-																<p key={i} className="text-[10px] text-destructive leading-tight font-medium max-w-[150px]">
+																<p
+																	key={i}
+																	className="text-[10px] text-destructive leading-tight font-medium max-w-[150px]"
+																>
 																	⚠ {c.message}
 																</p>
 															))}
 														</div>
 													) : (
 														<Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-															<Check className="h-3 w-3 mr-1" /> {defense.status === "Validé" ? "Validé" : "Correct"}
+															<Check className="h-3 w-3 mr-1" />{" "}
+															{defense.status === "Validé"
+																? "Validé"
+																: "Correct"}
 														</Badge>
 													)}
 												</TableCell>
 												<TableCell className="p-6 text-right">
 													<DropdownMenu>
 														<DropdownMenuTrigger asChild>
-															<Button variant="ghost" size="icon" className="rounded-full">
+															<Button
+																variant="ghost"
+																size="icon"
+																className="rounded-full"
+															>
 																<MoreHorizontal className="h-4 w-4" />
 															</Button>
 														</DropdownMenuTrigger>
-														<DropdownMenuContent align="end" className="w-56 rounded-xl p-2">
-															<DropdownMenuLabel>Actions Coordinateur</DropdownMenuLabel>
+														<DropdownMenuContent
+															align="end"
+															className="w-56 rounded-xl p-2"
+														>
+															<DropdownMenuLabel>
+																Actions Coordinateur
+															</DropdownMenuLabel>
 															<DropdownMenuSeparator />
-															<DropdownMenuItem onClick={() => {
-																setSelectedDefense(defense);
-																setIsJuryModalOpen(true);
-															}} className="gap-2 rounded-lg cursor-pointer">
-																<UserPlus className="h-4 w-4" /> Modifier le Jury
+															<DropdownMenuItem
+																onClick={() => {
+																	setSelectedDefense(defense);
+																	setIsJuryModalOpen(true);
+																}}
+																className="gap-2 rounded-lg cursor-pointer"
+															>
+																<UserPlus className="h-4 w-4" /> Modifier le
+																Jury
 															</DropdownMenuItem>
-															<DropdownMenuItem onClick={() => alert("Génération de convocation...")} className="gap-2 rounded-lg cursor-pointer">
-																<FileText className="h-4 w-4" /> Générer Convocation
+															<DropdownMenuItem
+																onClick={() =>
+																	alert("Génération de convocation...")
+																}
+																className="gap-2 rounded-lg cursor-pointer"
+															>
+																<FileText className="h-4 w-4" /> Générer
+																Convocation
 															</DropdownMenuItem>
 															<DropdownMenuSeparator />
 															<DropdownMenuItem className="gap-2 rounded-lg text-destructive focus:text-destructive cursor-pointer">
-																<AlertTriangle className="h-4 w-4" /> Signaler Anomalie
+																<AlertTriangle className="h-4 w-4" /> Signaler
+																Anomalie
 															</DropdownMenuItem>
 														</DropdownMenuContent>
 													</DropdownMenu>
@@ -408,12 +487,21 @@ export default function CoordinatorDashboard() {
 
 				<TabsContent value="projects">
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-						{filteredDefenses.map(d => (
-							<Card key={d.id} className="border-border hover:shadow-lg transition-all rounded-3xl overflow-hidden group">
+						{filteredDefenses.map((d) => (
+							<Card
+								key={d.id}
+								className="border-border hover:shadow-lg transition-all rounded-3xl overflow-hidden group"
+							>
 								<CardHeader className="bg-muted/10 group-hover:bg-primary/5 transition-colors">
 									<div className="flex justify-between items-start mb-2">
 										<Badge variant="secondary">{d.filiere}</Badge>
-										<Button variant="ghost" size="icon" className="h-8 w-8 rounded-full"><MoreHorizontal className="h-4 w-4" /></Button>
+										<Button
+											variant="ghost"
+											size="icon"
+											className="h-8 w-8 rounded-full"
+										>
+											<MoreHorizontal className="h-4 w-4" />
+										</Button>
 									</div>
 									<CardTitle className="text-xl line-clamp-2 min-h-[3.5rem] leading-tight group-hover:text-primary transition-colors">
 										{d.project}
@@ -421,18 +509,33 @@ export default function CoordinatorDashboard() {
 								</CardHeader>
 								<CardContent className="pt-6 space-y-4">
 									<div className="space-y-2">
-										<p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Étudiants</p>
+										<p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+											Étudiants
+										</p>
 										<div className="flex flex-wrap gap-2">
 											{d.students.map((s, i) => (
-												<Badge key={i} variant="outline" className="rounded-lg bg-background">{s.name}</Badge>
+												<Badge
+													key={i}
+													variant="outline"
+													className="rounded-lg bg-background"
+												>
+													{s.name}
+												</Badge>
 											))}
 										</div>
 									</div>
 									<div className="pt-4 border-t border-border flex justify-between items-center">
 										<div className="text-xs text-muted-foreground">
-											<span className="font-bold text-foreground">Groupe:</span> {d.groupName}
+											<span className="font-bold text-foreground">Groupe:</span>{" "}
+											{d.groupName}
 										</div>
-										<Button size="sm" variant="ghost" className="text-primary font-bold">Détails Projet</Button>
+										<Button
+											size="sm"
+											variant="ghost"
+											className="text-primary font-bold"
+										>
+											Détails Projet
+										</Button>
 									</div>
 								</CardContent>
 							</Card>
@@ -446,32 +549,56 @@ export default function CoordinatorDashboard() {
 							<Table>
 								<TableHeader className="bg-muted/10">
 									<TableRow>
-										<TableHead className="p-6 font-bold uppercase text-[10px] tracking-widest">Groupe / Projet</TableHead>
-										<TableHead className="p-6 font-bold uppercase text-[10px] tracking-widest">État du Dépôt</TableHead>
-										<TableHead className="p-6 font-bold uppercase text-[10px] tracking-widest">Dernière Modif.</TableHead>
-										<TableHead className="p-6 text-right font-bold uppercase text-[10px] tracking-widest">Fichier</TableHead>
+										<TableHead className="p-6 font-bold uppercase text-[10px] tracking-widest">
+											Groupe / Projet
+										</TableHead>
+										<TableHead className="p-6 font-bold uppercase text-[10px] tracking-widest">
+											État du Dépôt
+										</TableHead>
+										<TableHead className="p-6 font-bold uppercase text-[10px] tracking-widest">
+											Dernière Modif.
+										</TableHead>
+										<TableHead className="p-6 text-right font-bold uppercase text-[10px] tracking-widest">
+											Fichier
+										</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
-									{MOCK_REPORTS.map(r => (
+									{MOCK_REPORTS.map((r) => (
 										<TableRow key={r.id} className="border-border">
 											<TableCell className="p-6">
 												<div className="font-bold">{r.group}</div>
-												<div className="text-sm text-muted-foreground">{r.project}</div>
+												<div className="text-sm text-muted-foreground">
+													{r.project}
+												</div>
 											</TableCell>
 											<TableCell className="p-6">
-												<Badge className={r.status === "Déposé" ? "bg-emerald-100 text-emerald-700 border-emerald-200" : "bg-orange-100 text-orange-700 border-orange-200"}>
+												<Badge
+													className={
+														r.status === "Déposé"
+															? "bg-emerald-100 text-emerald-700 border-emerald-200"
+															: "bg-orange-100 text-orange-700 border-orange-200"
+													}
+												>
 													{r.status}
 												</Badge>
 											</TableCell>
-											<TableCell className="p-6 text-sm text-muted-foreground">{r.date}</TableCell>
+											<TableCell className="p-6 text-sm text-muted-foreground">
+												{r.date}
+											</TableCell>
 											<TableCell className="p-6 text-right">
 												{r.file ? (
-													<Button size="sm" variant="outline" className="gap-2 rounded-xl">
+													<Button
+														size="sm"
+														variant="outline"
+														className="gap-2 rounded-xl"
+													>
 														<Download className="h-4 w-4" /> {r.file}
 													</Button>
 												) : (
-													<span className="text-xs italic text-muted-foreground">Aucun fichier</span>
+													<span className="text-xs italic text-muted-foreground">
+														Aucun fichier
+													</span>
 												)}
 											</TableCell>
 										</TableRow>
@@ -526,7 +653,9 @@ function JuryModal({
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
 			<div className="relative w-full max-w-lg bg-card border border-border shadow-2xl rounded-3xl overflow-hidden flex flex-col">
 				<div className="p-8 border-b border-border bg-muted/20">
-					<h2 className="text-2xl font-heading font-bold">Assignation du Jury</h2>
+					<h2 className="text-2xl font-heading font-bold">
+						Assignation du Jury
+					</h2>
 					<p className="text-muted-foreground text-sm">
 						{defense.groupName} — {defense.project}
 					</p>
