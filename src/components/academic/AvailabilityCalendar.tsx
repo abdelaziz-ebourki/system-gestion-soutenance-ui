@@ -15,9 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 interface Session {
-	day: number;
-	month?: number; // Added for better cross-month support
-	year?: number;
+	dateKey: string;
 	time: string;
 	student: string;
 	room: string;
@@ -26,9 +24,9 @@ interface Session {
 interface AvailabilityCalendarProps {
 	initialMonth?: number; // 0-11
 	initialYear?: number;
-	// Map of day number to array of unavailable slot labels
-	unavailableSlots: Record<number, string[]>;
-	onToggleSlot: (day: number, slot: string) => void;
+	// Map of YYYY-MM-DD to array of unavailable slot labels
+	unavailableSlots: Record<string, string[]>;
+	onToggleSlot: (dateKey: string, slot: string) => void;
 	sessions: Session[];
 	onSave?: () => void;
 }
@@ -57,6 +55,9 @@ const ADMIN_SLOTS = [
 	"13:45 - 15:15",
 	"15:30 - 17:00",
 ];
+
+const formatDateKey = (year: number, month: number, day: number) =>
+	`${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
 export default function AvailabilityCalendar({
 	initialMonth = new Date().getMonth(),
@@ -103,8 +104,10 @@ export default function AvailabilityCalendar({
 		setActiveDay(1); // Reset active day when changing month
 	};
 
-	const getDayStatus = (day: number) => {
-		const slots = unavailableSlots[day] || [];
+	const activeDateKey = formatDateKey(viewYear, viewMonth, activeDay);
+
+	const getDayStatus = (dateKey: string) => {
+		const slots = unavailableSlots[dateKey] || [];
 		if (slots.length === 0) return "available";
 		if (slots.length === ADMIN_SLOTS.length) return "full-unavailable";
 		return "partial";
@@ -161,40 +164,39 @@ export default function AvailabilityCalendar({
 								{day}
 							</div>
 						))}
-						{calendarGrid.map((day, i) => {
-							// For prototype simplicity, sessions are still filtered by day number
-							// In production, we would filter by exact Date
-							const status = day === 0 ? "none" : getDayStatus(day);
+								{calendarGrid.map((day, i) => {
+							const dateKey = day === 0 ? "" : formatDateKey(viewYear, viewMonth, day);
+							const status = day === 0 ? "none" : getDayStatus(dateKey);
 							const session =
-								day === 0 ? null : sessions.find((s) => s.day === day);
+								day === 0 ? null : sessions.find((s) => s.dateKey === dateKey);
 							const isActive = activeDay === day && day !== 0;
 
 							return (
-								<div
-									key={i}
-									onClick={() => day !== 0 && setActiveDay(day)}
-									className={`
+										<div
+											key={i}
+											onClick={() => day !== 0 && setActiveDay(day)}
+											className={`
                     relative aspect-square rounded-2xl border transition-all cursor-pointer p-3 group
                     ${day === 0 ? "invisible" : ""}
                     ${isActive ? "ring-2 ring-primary ring-offset-4 z-10 shadow-lg" : "hover:border-primary/30"}
-                    ${status === "full-unavailable" ? "bg-amber-100 border-amber-300" : status === "partial" ? "bg-amber-50/50 border-amber-200" : "bg-white border-slate-100"}
+                    ${status === "full-unavailable" ? "bg-destructive/10 border-destructive/30" : status === "partial" ? "bg-destructive/5 border-destructive/20" : "bg-white border-slate-100"}
                     ${session ? "bg-blue-50 border-blue-200" : ""}
                   `}
-								>
-									<span
-										className={`text-base font-bold ${status !== "available" && status !== "none" ? "text-amber-700" : session ? "text-blue-700" : "text-slate-600"}`}
 									>
-										{day !== 0 ? day : ""}
-									</span>
+										<span
+											className={`text-base font-bold ${status !== "available" && status !== "none" ? "text-destructive" : session ? "text-blue-700" : "text-slate-600"}`}
+										>
+											{day !== 0 ? day : ""}
+										</span>
 
 									<div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
 										{session && (
 											<div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-sm" />
 										)}
-										{status === "partial" && (
-											<div className="h-1.5 w-1.5 rounded-full bg-amber-500 shadow-sm animate-pulse" />
-										)}
-									</div>
+											{status === "partial" && (
+												<div className="h-1.5 w-1.5 rounded-full bg-destructive shadow-sm animate-pulse" />
+											)}
+										</div>
 
 									{session && (
 										<div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-4 bg-slate-900 text-white rounded-2xl text-xs opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-20 shadow-2xl scale-95 group-hover:scale-100 origin-bottom">
@@ -218,7 +220,7 @@ export default function AvailabilityCalendar({
 				</div>
 
 				{/* Side Panel */}
-				<div className="bg-slate-50/80 p-8 space-y-8 border-l border-slate-100 flex flex-col h-full">
+						<div className="bg-slate-50/80 p-8 space-y-8 border-l border-slate-100 flex flex-col h-full">
 					<div className="space-y-1">
 						<h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">
 							Détails : {activeDay} {monthNames[viewMonth]}
@@ -231,17 +233,18 @@ export default function AvailabilityCalendar({
 					<div className="flex-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
 						{ADMIN_SLOTS.map((slot) => {
 							const isUnavailable = (
-								unavailableSlots[activeDay] || []
+								unavailableSlots[activeDateKey] || []
 							).includes(slot);
 							const hasSession = sessions.some(
 								(s) =>
-									s.day === activeDay && s.time.includes(slot.split(" ")[0]),
+									s.dateKey === activeDateKey &&
+									s.time.includes(slot.split(" ")[0]),
 							);
 
 							return (
 								<button
 									key={slot}
-									onClick={() => !hasSession && onToggleSlot(activeDay, slot)}
+									onClick={() => !hasSession && onToggleSlot(activeDateKey, slot)}
 									disabled={hasSession}
 									className={`
 										w-full flex items-center justify-between p-4 rounded-2xl border transition-all text-left
@@ -249,14 +252,14 @@ export default function AvailabilityCalendar({
 											hasSession
 												? "bg-blue-50 border-blue-100 opacity-60 cursor-not-allowed"
 												: isUnavailable
-													? "bg-amber-50 border-amber-200 text-amber-800 ring-2 ring-amber-500/10 shadow-sm"
+													? "bg-destructive/10 border-destructive/20 text-destructive ring-2 ring-destructive/10 shadow-sm"
 													: "bg-white border-slate-200 hover:border-primary/40 hover:shadow-md"
 										}
 									`}
 								>
 									<div className="flex items-center gap-3">
 										<div
-											className={`p-2 rounded-lg ${isUnavailable ? "bg-amber-100 text-amber-600" : hasSession ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
+											className={`p-2 rounded-lg ${isUnavailable ? "bg-destructive/20 text-destructive" : hasSession ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
 										>
 											<Clock className="h-4 w-4" />
 										</div>
@@ -267,7 +270,7 @@ export default function AvailabilityCalendar({
 											Jury
 										</Badge>
 									) : isUnavailable ? (
-										<X className="h-4 w-4 text-amber-500" />
+										<X className="h-4 w-4 text-destructive" />
 									) : (
 										<Plus className="h-4 w-4 text-slate-300" />
 									)}

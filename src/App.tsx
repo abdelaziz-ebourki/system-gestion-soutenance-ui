@@ -6,7 +6,7 @@ import StudentDashboard from "./pages/student/StudentDashboard";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import CoordinatorDashboard from "./pages/coordinator/CoordinatorDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./context/auth";
 
 export default function App() {
 	const { user } = useAuth();
@@ -33,7 +33,7 @@ export default function App() {
 						) : user?.role === "COORDINATOR" ? (
 							<Navigate to="/coordinator" replace />
 						) : user?.role === "ADMIN" ? (
-							<Navigate to="/admin" replace />
+							<Navigate to="/admin/users" replace />
 						) : (
 							<Navigate to="/login" replace />
 						)
@@ -69,12 +69,33 @@ export default function App() {
 
 				<Route
 					path="admin"
-					element={
-						<ProtectedRoute allowedRoles={["ADMIN"]}>
-							<AdminDashboard />
-						</ProtectedRoute>
-					}
-				/>
+				>
+					<Route index element={<Navigate to="/admin/users" replace />} />
+					<Route
+						path="users"
+						element={
+							<ProtectedRoute allowedRoles={["ADMIN"]}>
+								<AdminDashboard />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="rooms"
+						element={
+							<ProtectedRoute allowedRoles={["ADMIN"]}>
+								<AdminDashboard />
+							</ProtectedRoute>
+						}
+					/>
+					<Route
+						path="sessions"
+						element={
+							<ProtectedRoute allowedRoles={["ADMIN"]}>
+								<AdminDashboard />
+							</ProtectedRoute>
+						}
+					/>
+				</Route>
 			</Route>
 
 			<Route path="*" element={<Navigate to="/" replace />} />

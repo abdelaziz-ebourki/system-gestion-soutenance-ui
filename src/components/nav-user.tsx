@@ -16,10 +16,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar"
+import { useSidebar } from "@/components/ui/sidebar-context"
 import { CaretUpDownIcon, SignOutIcon, UserIcon, BellIcon, GearIcon } from "@phosphor-icons/react"
-import { useAuth } from "@/context/AuthContext"
+import { useAuth } from "@/context/auth"
 import { useNavigate } from "react-router-dom"
 
 export function NavUser() {
@@ -31,7 +31,7 @@ export function NavUser() {
 
   const handleLogout = () => {
     logout()
-    navigate("/login")
+    navigate("/login", { replace: true })
   }
 
   return (

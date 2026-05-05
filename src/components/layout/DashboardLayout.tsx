@@ -14,6 +14,17 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { Link } from "react-router-dom";
+
+const titleMap: Record<string, string> = {
+	student: "Espace Étudiant",
+	teacher: "Espace Enseignant",
+	coordinator: "Espace Coordination",
+	admin: "Administration",
+	users: "Utilisateurs",
+	rooms: "Salles",
+	sessions: "Sessions",
+};
 
 export default function DashboardLayout() {
 	const location = useLocation();
@@ -21,7 +32,8 @@ export default function DashboardLayout() {
 	const currentPageTitle =
 		location.pathname === "/"
 			? "Tableau de bord"
-			: location.pathname.split("/").filter(Boolean).pop()?.replace("-", " ") ||
+			: titleMap[location.pathname.split("/").filter(Boolean).pop() ?? ""] ||
+				location.pathname.split("/").filter(Boolean).pop()?.replace("-", " ") ||
 				"";
 
 	return (
@@ -36,11 +48,18 @@ export default function DashboardLayout() {
 						<Breadcrumb>
 							<BreadcrumbList>
 								<BreadcrumbItem className="hidden md:block">
-									<BreadcrumbLink href="/" className="text-[10px] font-bold uppercase tracking-widest">Université</BreadcrumbLink>
+									<BreadcrumbLink
+										asChild
+										className="text-[10px] font-bold uppercase tracking-widest"
+									>
+										<Link to="/">Portail</Link>
+									</BreadcrumbLink>
 								</BreadcrumbItem>
 								<BreadcrumbSeparator className="hidden md:block" />
 								<BreadcrumbItem>
-									<BreadcrumbPage className="font-heading text-sm normal-case tracking-tight">{currentPageTitle}</BreadcrumbPage>
+									<BreadcrumbPage className="font-heading text-sm normal-case tracking-tight">
+										{currentPageTitle}
+									</BreadcrumbPage>
 								</BreadcrumbItem>
 							</BreadcrumbList>
 						</Breadcrumb>

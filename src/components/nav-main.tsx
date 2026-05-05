@@ -24,11 +24,13 @@ export function NavMain({
 			<SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 mb-2 px-2">
 				Menu Principal
 			</SidebarGroupLabel>
+
 			<SidebarMenu className="gap-1">
 				{items.map((item) => {
 					const isActive =
 						location.pathname === item.href ||
 						(item.href !== "/" && location.pathname.startsWith(item.href));
+
 					return (
 						<SidebarMenuItem key={item.href}>
 							<SidebarMenuButton
@@ -38,8 +40,8 @@ export function NavMain({
 								className={cn(
 									"h-11 px-4 rounded-xl transition-all duration-200 group",
 									isActive
-										? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary hover:text-primary-foreground"
-										: "hover:bg-secondary hover:text-foreground",
+										? "bg-primary text-primary-foreground shadow-lg shadow-primary/30 hover:bg-primary/90"
+										: "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
 								)}
 							>
 								<Link to={item.href} className="flex items-center gap-3">
@@ -48,11 +50,12 @@ export function NavMain({
 											className={cn(
 												"h-4 w-4 transition-colors",
 												isActive
-													? "text-primary-foreground"
-													: "text-muted-foreground group-hover:text-primary",
+													? "text-primary"
+													: "text-muted-foreground group-hover:text-accent-foreground",
 											)}
 										/>
 									)}
+
 									<span className="font-bold text-sm tracking-tight">
 										{item.title}
 									</span>

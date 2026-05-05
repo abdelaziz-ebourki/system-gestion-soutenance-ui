@@ -34,3 +34,9 @@ export interface AdminStatMetric {
 	icon: ElementType;
 	bg: string;
 }
+
+export interface UniversitySettings {
+	name: string;
+	logoUrl: string;
+	defenseSlots: string[];
+}

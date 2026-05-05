@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Landmark, ShieldCheck, BookOpen } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/auth";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -11,6 +11,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
@@ -19,28 +20,29 @@ export default function Login() {
 	const navigate = useNavigate();
 	const [email, setEmail] = React.useState("");
 	const [password, setPassword] = React.useState("");
+	const [errorMessage, setErrorMessage] = React.useState("");
 
 	const handleLogin = (e: React.FormEvent) => {
 		e.preventDefault();
 
 		if (email === "student@example.com" && password === "student123") {
 			login("STUDENT");
-			navigate("/");
+			navigate("/", { replace: true });
 		} else if (
 			email === "coordinator@example.com" &&
 			password === "coordinator123"
 		) {
 			login("COORDINATOR");
-			navigate("/");
+			navigate("/", { replace: true });
 		} else if (email === "teacher@example.com" && password === "teacher123") {
 			login("TEACHER");
-			navigate("/");
+			navigate("/", { replace: true });
 		} else if (email === "admin@example.com" && password === "admin123") {
 			login("ADMIN");
-			navigate("/");
+			navigate("/", { replace: true });
 		} else {
-			alert(
-				"Identifiants invalides (Essayer: student@example.com / student123)",
+			setErrorMessage(
+				"Identifiants invalides. Vérifiez votre email et votre mot de passe.",
 			);
 		}
 	};
@@ -103,6 +105,12 @@ export default function Login() {
 					</CardHeader>
 					<form onSubmit={handleLogin}>
 						<CardContent className="grid gap-4">
+							{errorMessage ? (
+								<Alert variant="destructive">
+									<AlertDescription>{errorMessage}</AlertDescription>
+								</Alert>
+							) : null}
+
 							<div className="relative py-4">
 								<div className="absolute inset-0 flex items-center">
 									<span className="w-full border-t" />
@@ -121,7 +129,10 @@ export default function Login() {
 									type="email"
 									placeholder="nom.prenom@univ.dz"
 									value={email}
-									onChange={(e) => setEmail(e.target.value)}
+									onChange={(e) => {
+										setEmail(e.target.value);
+										if (errorMessage) setErrorMessage("");
+									}}
 									required
 								/>
 							</div>
@@ -131,7 +142,10 @@ export default function Login() {
 									id="password"
 									type="password"
 									value={password}
-									onChange={(e) => setPassword(e.target.value)}
+									onChange={(e) => {
+										setPassword(e.target.value);
+										if (errorMessage) setErrorMessage("");
+									}}
 									required
 								/>
 							</div>

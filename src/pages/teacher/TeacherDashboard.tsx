@@ -16,9 +16,11 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
 	Table,
 	TableBody,
+	TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
@@ -39,6 +41,9 @@ import { StudentInfoDialog } from "@/components/teacher/StudentInfoDialog";
 import { EvaluationDialog } from "@/components/teacher/EvaluationDialog";
 import { DefenseTableRow } from "@/components/teacher/DefenseTableRow";
 
+const formatDateKey = (year: number, monthIndex: number, day: number) =>
+	`${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
 export default function TeacherDashboard() {
 	const [selectedDefense, setSelectedDefense] = useState<DefenseSession | null>(
 		null,
@@ -46,13 +51,17 @@ export default function TeacherDashboard() {
 	const [isInfoOpen, setIsInfoOpen] = useState(false);
 	const [isEvalOpen, setIsEvalOpen] = useState(false);
 	const [expandedGroups, setExpandedGroups] = useState<number[]>([]);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [notice, setNotice] = useState<
+		{ variant: "default" | "destructive"; title: string; description: string } | null
+	>(null);
 	const calendarRef = useRef<HTMLDivElement>(null);
 
 	const [unavailableSlots, setUnavailableSlots] = useState<
-		Record<number, string[]>
+		Record<string, string[]>
 	>({
-		10: ["08:30 - 10:00", "10:15 - 11:45"],
-		11: ["13:30 - 15:00"],
+		"2026-06-10": ["08:30 - 10:00", "10:15 - 11:45"],
+		"2026-06-11": ["13:30 - 15:00"],
 	});
 
 	const teacherStats = useMemo<StatMetric[]>(
@@ -132,6 +141,24 @@ export default function TeacherDashboard() {
 		[],
 	);
 
+	const filteredDefenses = useMemo(() => {
+		const needle = searchQuery.trim().toLowerCase();
+		if (!needle) return upcomingDefenses;
+
+		return upcomingDefenses.filter((defense) =>
+			[
+				defense.groupName,
+				defense.project,
+				defense.date,
+				defense.time,
+				defense.room,
+				defense.role,
+				defense.students.map((student) => student.name).join(" "),
+				defense.students.map((student) => student.cne).join(" "),
+			].some((value) => value.toLowerCase().includes(needle)),
+		);
+	}, [searchQuery, upcomingDefenses]);
+
 	const supervisedProjects = useMemo<SupervisedProject[]>(
 		() => [
 			{
@@ -163,6 +190,19 @@ export default function TeacherDashboard() {
 		[],
 	);
 
+	const filteredProjects = useMemo(() => {
+		const needle = searchQuery.trim().toLowerCase();
+		if (!needle) return supervisedProjects;
+
+		return supervisedProjects.filter((project) =>
+			[
+				project.studentName,
+				project.filiere,
+				project.projectTitle,
+			].some((value) => value.toLowerCase().includes(needle)),
+		);
+	}, [searchQuery, supervisedProjects]);
+
 	const handleAction = useCallback(
 		(type: "info" | "eval", defense: DefenseSession) => {
 			setSelectedDefense(defense);
@@ -178,19 +218,46 @@ export default function TeacherDashboard() {
 		);
 	}, []);
 
-	const toggleSlot = useCallback((day: number, slot: string) => {
+	const toggleSlot = useCallback((dateKey: string, slot: string) => {
 		setUnavailableSlots((prev) => {
-			const daySlots = prev[day] || [];
+			const daySlots = prev[dateKey] || [];
 			const newDaySlots = daySlots.includes(slot)
 				? daySlots.filter((s) => s !== slot)
 				: [...daySlots, slot];
 
-			return { ...prev, [day]: newDaySlots };
+			return { ...prev, [dateKey]: newDaySlots };
 		});
 	}, []);
 
+	const availabilitySessions = useMemo(
+		() =>
+			upcomingDefenses.map((d) => ({
+				dateKey: formatDateKey(2026, 5, d.day),
+				time: d.time,
+				student: d.students.map((s) => s.name).join(", "),
+				room: d.room,
+			})),
+		[upcomingDefenses],
+	);
+
 	const scrollToCalendar = useCallback(() => {
 		calendarRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+	}, []);
+
+	const handleEvaluationSaved = useCallback(() => {
+		setNotice({
+			variant: "default",
+			title: "PV enregistré",
+			description: "Les notes du jury ont été sauvegardées dans l'interface.",
+		});
+	}, []);
+
+	const handleAvailabilitySaved = useCallback(() => {
+		setNotice({
+			variant: "default",
+			title: "Disponibilités mises à jour",
+			description: "Vos créneaux indisponibles ont été enregistrés.",
+		});
 	}, []);
 
 	return (
@@ -222,6 +289,13 @@ export default function TeacherDashboard() {
 				</div>
 			</div>
 
+			{notice ? (
+				<Alert variant={notice.variant}>
+					<AlertTitle>{notice.title}</AlertTitle>
+					<AlertDescription>{notice.description}</AlertDescription>
+				</Alert>
+			) : null}
+
 			{/* Stats Grid */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 				{teacherStats.map((stat, i) => (
@@ -250,7 +324,9 @@ export default function TeacherDashboard() {
 					<div className="relative w-full sm:w-72">
 						<Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 						<Input
-							placeholder="Rechercher une session..."
+							placeholder="Rechercher un groupe, un sujet ou un étudiant..."
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
 							className="pl-12 bg-card border-border rounded-xl h-11 shadow-sm focus:ring-primary/20"
 						/>
 					</div>
@@ -299,7 +375,7 @@ export default function TeacherDashboard() {
 									</TableRow>
 								</TableHeader>
 								<TableBody>
-									{upcomingDefenses.map((defense) => (
+									{filteredDefenses.map((defense) => (
 										<DefenseTableRow
 											key={defense.id}
 											defense={defense}
@@ -307,7 +383,14 @@ export default function TeacherDashboard() {
 											onToggleExpand={toggleGroup}
 											onAction={handleAction}
 										/>
-									))}
+										))}
+									{filteredDefenses.length === 0 ? (
+										<TableRow>
+											<TableCell colSpan={6} className="p-10 text-center text-muted-foreground">
+												Aucune soutenance ne correspond à votre recherche.
+											</TableCell>
+										</TableRow>
+									) : null}
 								</TableBody>
 							</Table>
 						</CardContent>
@@ -316,9 +399,16 @@ export default function TeacherDashboard() {
 
 				<TabsContent value="supervision">
 					<div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 pt-4">
-						{supervisedProjects.map((p) => (
+						{filteredProjects.map((p) => (
 							<SupervisedProjectCard key={p.id} project={p} />
 						))}
+						{filteredProjects.length === 0 ? (
+							<Card className="border border-border shadow-sm bg-card rounded-3xl">
+								<CardContent className="p-8 text-center text-muted-foreground">
+									Aucun projet encadré ne correspond à votre recherche.
+								</CardContent>
+							</Card>
+						) : null}
 					</div>
 				</TabsContent>
 			</Tabs>
@@ -326,15 +416,12 @@ export default function TeacherDashboard() {
 			{/* Availability Calendar Section */}
 			<div ref={calendarRef} className="pt-10 scroll-mt-10">
 				<AvailabilityCalendar
+					initialMonth={5}
+					initialYear={2026}
 					unavailableSlots={unavailableSlots}
 					onToggleSlot={toggleSlot}
-					sessions={upcomingDefenses.map((d) => ({
-						day: d.day,
-						time: d.time,
-						student: d.students.map((s) => s.name).join(", "),
-						room: d.room,
-					}))}
-					onSave={() => alert("Vos disponibilités ont été mises à jour.")}
+					sessions={availabilitySessions}
+					onSave={handleAvailabilitySaved}
 				/>
 			</div>
 
@@ -346,9 +433,11 @@ export default function TeacherDashboard() {
 			/>
 
 			<EvaluationDialog
+				key={`${isEvalOpen}-${selectedDefense?.id ?? "none"}`}
 				isOpen={isEvalOpen}
 				onClose={() => setIsEvalOpen(false)}
 				defense={selectedDefense}
+				onSave={handleEvaluationSaved}
 			/>
 		</div>
 	);

@@ -78,10 +78,12 @@ export const EvaluationDialog = ({
 	isOpen,
 	onClose,
 	defense,
+	onSave,
 }: {
 	isOpen: boolean;
 	onClose: () => void;
 	defense: DefenseSession | null;
+	onSave?: (evaluations: Record<string, { note: string; obs: string }>) => void;
 }) => {
 	const [evaluations, setEvaluations] = useState<
 		Record<string, { note: string; obs: string }>
@@ -100,8 +102,7 @@ export const EvaluationDialog = ({
 	if (!isOpen || !defense) return null;
 
 	const handleSave = () => {
-		console.log("Saving evaluations:", evaluations);
-		alert("PV de soutenance enregistré avec succès.");
+		onSave?.(evaluations);
 		onClose();
 	};
 

@@ -15,8 +15,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar"
+import { useSidebar } from "@/components/ui/sidebar-context"
 import { CaretUpDownIcon, PlusIcon } from "@phosphor-icons/react"
 
 export function TeamSwitcher({

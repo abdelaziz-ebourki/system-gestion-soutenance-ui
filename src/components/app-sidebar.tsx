@@ -18,8 +18,7 @@ import {
 	SidebarMenuItem,
 	SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import { useAuth } from "@/context/AuthContext";
-import type { UserRole } from "@/context/AuthContext";
+import { useAuth, type UserRole } from "@/context/auth";
 
 interface NavItem {
 	title: string;
@@ -49,19 +48,19 @@ const navItems: NavItem[] = [
 	},
 	{
 		title: "Utilisateurs",
-		href: "/admin",
+		href: "/admin/users",
 		icon: Users,
 		roles: ["ADMIN"],
 	},
 	{
 		title: "Gestion des Salles",
-		href: "/admin",
+		href: "/admin/rooms",
 		icon: DoorOpen,
 		roles: ["ADMIN"],
 	},
 	{
 		title: "Sessions",
-		href: "/admin",
+		href: "/admin/sessions",
 		icon: Calendar,
 		roles: ["ADMIN"],
 	},

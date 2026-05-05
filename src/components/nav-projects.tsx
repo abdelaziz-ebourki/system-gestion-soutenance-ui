@@ -14,8 +14,8 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar"
+import { useSidebar } from "@/components/ui/sidebar-context"
 import { DotsThreeOutlineIcon, FolderIcon, ShareFatIcon, TrashIcon } from "@phosphor-icons/react"
 
 export function NavProjects({
