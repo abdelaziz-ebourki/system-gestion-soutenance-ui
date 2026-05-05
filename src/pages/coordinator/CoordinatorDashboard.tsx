@@ -40,7 +40,34 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Defense, PlanningConflict, JuryMember } from "./types";
+import type { Candidate } from "@/pages/teacher/types";
+
+// --- Types ---
+export interface JuryMember {
+	name: string;
+	role: "Président" | "Rapporteur" | "Examinateur";
+}
+
+export interface Defense {
+	id: number;
+	groupName: string;
+	students: Candidate[];
+	project: string;
+	filiere: string;
+	date: string;
+	day: number;
+	time: string;
+	room: string;
+	jury: JuryMember[];
+	status: "Planifié" | "Validé" | "En Conflit";
+}
+
+export interface PlanningConflict {
+	defenseId: number;
+	type: "Professeur" | "Salle";
+	message: string;
+	involvedDefenses: number[];
+}
 
 // --- Mock Data ---
 const INITIAL_DEFENSES: Defense[] = [
