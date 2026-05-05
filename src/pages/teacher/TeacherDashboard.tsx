@@ -52,9 +52,11 @@ export default function TeacherDashboard() {
 	const [isEvalOpen, setIsEvalOpen] = useState(false);
 	const [expandedGroups, setExpandedGroups] = useState<number[]>([]);
 	const [searchQuery, setSearchQuery] = useState("");
-	const [notice, setNotice] = useState<
-		{ variant: "default" | "destructive"; title: string; description: string } | null
-	>(null);
+	const [notice, setNotice] = useState<{
+		variant: "default" | "destructive";
+		title: string;
+		description: string;
+	} | null>(null);
 	const calendarRef = useRef<HTMLDivElement>(null);
 
 	const [unavailableSlots, setUnavailableSlots] = useState<
@@ -92,7 +94,7 @@ export default function TeacherDashboard() {
 		() => [
 			{
 				id: 1,
-				groupName: "Groupe-Alpha",
+				groupName: "Groupe-1",
 				students: [
 					{ name: "Mohamed Ali", cne: "D135678942" },
 					{ name: "Yassine El Amrani", cne: "D135678943" },
@@ -111,7 +113,7 @@ export default function TeacherDashboard() {
 			},
 			{
 				id: 2,
-				groupName: "Groupe-Beta",
+				groupName: "Groupe-2",
 				students: [{ name: "Fatimah Zahra", cne: "G145223311" }],
 				project: "Analyse des données massives avec Spark et Hadoop",
 				date: "16 Juin 2026",
@@ -123,7 +125,7 @@ export default function TeacherDashboard() {
 			},
 			{
 				id: 3,
-				groupName: "Groupe-Gamma",
+				groupName: "Groupe-3",
 				students: [
 					{ name: "Karim Idrissi", cne: "E122998877" },
 					{ name: "Sami Benjelloun", cne: "E122998878" },
@@ -195,11 +197,9 @@ export default function TeacherDashboard() {
 		if (!needle) return supervisedProjects;
 
 		return supervisedProjects.filter((project) =>
-			[
-				project.studentName,
-				project.filiere,
-				project.projectTitle,
-			].some((value) => value.toLowerCase().includes(needle)),
+			[project.studentName, project.filiere, project.projectTitle].some(
+				(value) => value.toLowerCase().includes(needle),
+			),
 		);
 	}, [searchQuery, supervisedProjects]);
 
@@ -383,10 +383,13 @@ export default function TeacherDashboard() {
 											onToggleExpand={toggleGroup}
 											onAction={handleAction}
 										/>
-										))}
+									))}
 									{filteredDefenses.length === 0 ? (
 										<TableRow>
-											<TableCell colSpan={6} className="p-10 text-center text-muted-foreground">
+											<TableCell
+												colSpan={6}
+												className="p-10 text-center text-muted-foreground"
+											>
 												Aucune soutenance ne correspond à votre recherche.
 											</TableCell>
 										</TableRow>
