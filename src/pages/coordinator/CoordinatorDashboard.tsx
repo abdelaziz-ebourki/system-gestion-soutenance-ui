@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import {
-	CheckCircle,
 	AlertTriangle,
 	Search,
 	Calendar,
@@ -8,9 +7,7 @@ import {
 	UserPlus,
 	Check,
 	FileText,
-	Download,
 	BookOpen,
-	ClipboardCheck,
 	MoreHorizontal,
 } from "lucide-react";
 import {
@@ -134,33 +131,6 @@ const TEACHERS = [
 	"Pr. Mohamed Ali",
 ];
 
-const MOCK_REPORTS = [
-	{
-		id: 1,
-		group: "Groupe-1",
-		project: "Système Intelligente...",
-		status: "Déposé",
-		date: "01/05/2026",
-		file: "rapport_alpha.pdf",
-	},
-	{
-		id: 2,
-		group: "Groupe-2",
-		project: "Analyse des données...",
-		status: "En attente",
-		date: "-",
-		file: null,
-	},
-	{
-		id: 3,
-		group: "Groupe-3",
-		project: "Sécurité des objets...",
-		status: "Déposé",
-		date: "03/05/2026",
-		file: "rapport_gamma.pdf",
-	},
-];
-
 export default function CoordinatorDashboard() {
 	const [defenses, setDefenses] = useState<Defense[]>(INITIAL_DEFENSES);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -223,15 +193,6 @@ export default function CoordinatorDashboard() {
 		setDefenses((prev) => prev.map((d) => (d.id === id ? { ...d, jury } : d)));
 	};
 
-	const handleValidatePlanning = () => {
-		if (conflicts.length > 0) {
-			alert("Impossible de valider le planning tant qu'il reste des conflits.");
-			return;
-		}
-		setDefenses((prev) => prev.map((d) => ({ ...d, status: "Validé" })));
-		alert("Le planning a été validé avec succès.");
-	};
-
 	const filteredDefenses = defenses.filter(
 		(d) =>
 			d.groupName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -253,23 +214,6 @@ export default function CoordinatorDashboard() {
 						Gestion complète du cycle des soutenances et des projets.
 					</p>
 				</div>
-				<div className="flex flex-wrap gap-3">
-					<Button
-						variant="outline"
-						className="gap-2 rounded-xl h-11 border-primary/20 text-primary hover:bg-primary/5"
-						onClick={() => alert("Génération du planning général PDF...")}
-					>
-						<Download className="h-4 w-4" />
-						Planning Général (PDF)
-					</Button>
-					<Button
-						onClick={handleValidatePlanning}
-						className="gap-2 shadow-lg hover:shadow-primary/20 transition-all bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-11 font-bold"
-					>
-						<CheckCircle className="h-4 w-4" />
-						Valider Planning
-					</Button>
-				</div>
 			</div>
 
 			{/* Tabs Management */}
@@ -287,12 +231,6 @@ export default function CoordinatorDashboard() {
 							className="gap-2 rounded-2xl py-3 px-5 data-[state=active]:bg-card data-[state=active]:shadow-sm font-bold transition-all"
 						>
 							<BookOpen className="h-4 w-4" /> Gérer Projets
-						</TabsTrigger>
-						<TabsTrigger
-							value="reports"
-							className="gap-2 rounded-2xl py-3 px-5 data-[state=active]:bg-card data-[state=active]:shadow-sm font-bold transition-all"
-						>
-							<ClipboardCheck className="h-4 w-4" /> Consulter Rapports
 						</TabsTrigger>
 					</TabsList>
 
@@ -541,72 +479,6 @@ export default function CoordinatorDashboard() {
 							</Card>
 						))}
 					</div>
-				</TabsContent>
-
-				<TabsContent value="reports">
-					<Card className="border-border rounded-4xl overflow-hidden shadow-xl">
-						<CardContent className="p-0">
-							<Table>
-								<TableHeader className="bg-muted/10">
-									<TableRow>
-										<TableHead className="p-6 font-bold uppercase text-[10px] tracking-widest">
-											Groupe / Projet
-										</TableHead>
-										<TableHead className="p-6 font-bold uppercase text-[10px] tracking-widest">
-											État du Dépôt
-										</TableHead>
-										<TableHead className="p-6 font-bold uppercase text-[10px] tracking-widest">
-											Dernière Modif.
-										</TableHead>
-										<TableHead className="p-6 text-right font-bold uppercase text-[10px] tracking-widest">
-											Fichier
-										</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{MOCK_REPORTS.map((r) => (
-										<TableRow key={r.id} className="border-border">
-											<TableCell className="p-6">
-												<div className="font-bold">{r.group}</div>
-												<div className="text-sm text-muted-foreground">
-													{r.project}
-												</div>
-											</TableCell>
-											<TableCell className="p-6">
-												<Badge
-													className={
-														r.status === "Déposé"
-															? "bg-emerald-100 text-emerald-700 border-emerald-200"
-															: "bg-orange-100 text-orange-700 border-orange-200"
-													}
-												>
-													{r.status}
-												</Badge>
-											</TableCell>
-											<TableCell className="p-6 text-sm text-muted-foreground">
-												{r.date}
-											</TableCell>
-											<TableCell className="p-6 text-right">
-												{r.file ? (
-													<Button
-														size="sm"
-														variant="outline"
-														className="gap-2 rounded-xl"
-													>
-														<Download className="h-4 w-4" /> {r.file}
-													</Button>
-												) : (
-													<span className="text-xs italic text-muted-foreground">
-														Aucun fichier
-													</span>
-												)}
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						</CardContent>
-					</Card>
 				</TabsContent>
 			</Tabs>
 

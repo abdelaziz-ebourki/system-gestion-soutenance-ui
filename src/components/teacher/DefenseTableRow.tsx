@@ -6,7 +6,7 @@ import {
 	MapPin,
 	User,
 	ClipboardCheck,
-	Download,
+	File,
 } from "lucide-react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -132,9 +132,9 @@ export const DefenseTableRow = memo(
 							variant="outline"
 							size="icon"
 							className="h-10 w-10 rounded-xl border-border hover:bg-emerald-500/10 hover:text-emerald-600 hover:border-emerald-500/30 shadow-sm"
-							title="Exporter PV"
+							title="Rapport"
 						>
-							<Download className="h-4 w-4" />
+							<File className="h-4 w-4" />
 						</Button>
 					</div>
 				</TableCell>

@@ -98,9 +98,6 @@ export default function TeacherDashboard() {
 				students: [
 					{ name: "Mohamed Ali", cne: "D135678942" },
 					{ name: "Yassine El Amrani", cne: "D135678943" },
-					{ name: "Sara Belhaj", cne: "D135678944" },
-					{ name: "Anas Idrissi", cne: "D135678945" },
-					{ name: "Laila Mansouri", cne: "D135678946" },
 				],
 				project:
 					"Système Intelligente de Gestion des dépenses et des budgets universitaires",

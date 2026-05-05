@@ -11,6 +11,10 @@ import {
 	Users,
 	CheckCircle2,
 	XCircle,
+	Settings as SettingsIcon,
+	Clock,
+	Upload,
+	Building2,
 } from "lucide-react";
 import {
 	Card,
@@ -218,6 +222,21 @@ const initialSessions: GlobalSession[] = [
 	},
 ];
 
+const initialSettings: UniversitySettings & {
+	slotDuration: number;
+	restDuration: number;
+	startHour: string;
+	endHour: string;
+} = {
+	name: "Université Abdelmalek Essaâdi",
+	logoUrl: "/logo.svg",
+	defenseSlots: ["08:30 - 10:00", "10:15 - 11:45", "14:00 - 15:30", "15:45 - 17:15"],
+	slotDuration: 90,
+	restDuration: 15,
+	startHour: "08:30",
+	endHour: "18:00",
+};
+
 const sectionMeta: Record<
 	SectionKey,
 	{
@@ -225,7 +244,7 @@ const sectionMeta: Record<
 		description: string;
 		placeholder: string;
 		actionLabel: string;
-		actionIcon: typeof Plus;
+		actionIcon: typeof Plus | typeof CheckCircle2;
 	}
 > = {
 	users: {
@@ -263,6 +282,7 @@ const sectionMeta: Record<
 function getSection(pathname: string): SectionKey {
 	if (pathname.endsWith("/rooms")) return "rooms";
 	if (pathname.endsWith("/sessions")) return "sessions";
+	if (pathname.endsWith("/settings")) return "settings";
 	return "users";
 }
 
