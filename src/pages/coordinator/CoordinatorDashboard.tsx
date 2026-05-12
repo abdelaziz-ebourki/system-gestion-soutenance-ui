@@ -9,6 +9,10 @@ import {
 	FileText,
 	BookOpen,
 	MoreHorizontal,
+	Plus,
+	Edit,
+	Trash2,
+	User,
 } from "lucide-react";
 import {
 	Card,
@@ -37,6 +41,15 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import type { Candidate } from "@/pages/teacher/types";
 
 // --- Types ---
@@ -45,18 +58,29 @@ export interface JuryMember {
 	role: "Président" | "Rapporteur" | "Examinateur";
 }
 
+export interface Project {
+	id: number;
+	title: string;
+	filiere: string;
+	supervisor: string;
+	coSupervisor?: string;
+	description?: string;
+	status: "Disponible" | "Affecté";
+}
+
 export interface Defense {
 	id: number;
 	groupName: string;
 	students: Candidate[];
 	project: string;
+	projectId: number;
 	filiere: string;
 	date: string;
 	day: number;
 	time: string;
 	room: string;
 	jury: JuryMember[];
-	status: "Planifié" | "Validé" | "En Conflit";
+	status: "Planifié" | "Validé" | "En Conflit" | "Publié";
 }
 
 export interface PlanningConflict {
@@ -67,10 +91,42 @@ export interface PlanningConflict {
 }
 
 // --- Mock Data ---
+const INITIAL_PROJECTS: Project[] = [
+	{
+		id: 1,
+		title: "Système Intelligente de Gestion des dépenses",
+		filiere: "Génie Informatique",
+		supervisor: "Pr. Ahmed Alami",
+		status: "Affecté",
+	},
+	{
+		id: 2,
+		title: "Analyse des données massives avec Spark",
+		filiere: "Big Data",
+		supervisor: "Pr. Karim Idrissi",
+		status: "Affecté",
+	},
+	{
+		id: 3,
+		title: "Sécurité des objets connectés (IoT)",
+		filiere: "Cyber-Sécurité",
+		supervisor: "Pr. Laila Mansouri",
+		status: "Affecté",
+	},
+	{
+		id: 4,
+		title: "Application de Télé-médecine avec WebRTC",
+		filiere: "Génie Informatique",
+		supervisor: "Pr. Fatimah Benani",
+		status: "Disponible",
+	},
+];
+
 const INITIAL_DEFENSES: Defense[] = [
 	{
 		id: 1,
 		groupName: "Groupe-1",
+		projectId: 1,
 		students: [
 			{ name: "Amine El Fassi", cne: "D135678942" },
 			{ name: "Salma Bennani", cne: "D135678943" },
@@ -90,6 +146,7 @@ const INITIAL_DEFENSES: Defense[] = [
 	{
 		id: 2,
 		groupName: "Groupe-2",
+		projectId: 2,
 		students: [{ name: "Youssef Mansouri", cne: "G145223311" }],
 		project: "Analyse des données massives avec Spark",
 		filiere: "Big Data",
@@ -103,6 +160,7 @@ const INITIAL_DEFENSES: Defense[] = [
 	{
 		id: 3,
 		groupName: "Groupe-3",
+		projectId: 3,
 		students: [
 			{ name: "Kenza Idrissi", cne: "E122998877" },
 			{ name: "Omar Benjelloun", cne: "E122998878" },
@@ -133,9 +191,13 @@ const TEACHERS = [
 
 export default function CoordinatorDashboard() {
 	const [defenses, setDefenses] = useState<Defense[]>(INITIAL_DEFENSES);
+	const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS);
 	const [searchQuery, setSearchQuery] = useState("");
 	const [selectedDefense, setSelectedDefense] = useState<Defense | null>(null);
 	const [isJuryModalOpen, setIsJuryModalOpen] = useState(false);
+	
+	const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+	const [editingProject, setEditingProject] = useState<Project | null>(null);
 
 	// --- Conflict Detection Logic ---
 	const conflicts = useMemo<PlanningConflict[]>(() => {
@@ -193,6 +255,33 @@ export default function CoordinatorDashboard() {
 		setDefenses((prev) => prev.map((d) => (d.id === id ? { ...d, jury } : d)));
 	};
 
+	const handlePublishPlanning = () => {
+		setDefenses((prev) => prev.map(d => ({ ...d, status: "Publié" })));
+		alert("Planning publié avec succès !");
+	};
+
+	const handleSaveProject = (projectData: Partial<Project>) => {
+		if (editingProject) {
+			setProjects(prev => prev.map(p => p.id === editingProject.id ? { ...p, ...projectData } as Project : p));
+		} else {
+			const newProject: Project = {
+				id: Math.max(0, ...projects.map(p => p.id)) + 1,
+				title: projectData.title || "",
+				filiere: projectData.filiere || "",
+				supervisor: projectData.supervisor || "",
+				status: "Disponible",
+				...projectData
+			};
+			setProjects(prev => [...prev, newProject]);
+		}
+		setIsProjectModalOpen(false);
+		setEditingProject(null);
+	};
+
+	const handleDeleteProject = (id: number) => {
+		setProjects(prev => prev.filter(p => p.id !== id));
+	};
+
 	const filteredDefenses = defenses.filter(
 		(d) =>
 			d.groupName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -200,6 +289,13 @@ export default function CoordinatorDashboard() {
 			d.students.some((s) =>
 				s.name.toLowerCase().includes(searchQuery.toLowerCase()),
 			),
+	);
+
+	const filteredProjects = projects.filter(
+		(p) =>
+			p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			p.supervisor.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			p.filiere.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
 	return (
@@ -213,6 +309,14 @@ export default function CoordinatorDashboard() {
 					<p className="text-muted-foreground font-sans text-lg">
 						Gestion complète du cycle des soutenances et des projets.
 					</p>
+				</div>
+				<div className="flex gap-3">
+					<Button 
+						onClick={handlePublishPlanning}
+						className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-11 font-bold shadow-lg shadow-emerald-600/20"
+					>
+						<Check className="h-4 w-4 mr-2" /> Publier le Planning
+					</Button>
 				</div>
 			</div>
 
@@ -237,7 +341,7 @@ export default function CoordinatorDashboard() {
 					<div className="relative w-full lg:w-96 px-2">
 						<Search className="absolute left-6 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 						<Input
-							placeholder="Rechercher (Groupe, Étudiant, Projet)..."
+							placeholder="Rechercher..."
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
 							className="pl-12 bg-card border-border rounded-2xl h-12 shadow-sm focus:ring-primary/20"
@@ -344,29 +448,33 @@ export default function CoordinatorDashboard() {
 													</div>
 												</TableCell>
 												<TableCell className="p-6">
-													{defenseConflicts.length > 0 ? (
-														<div className="space-y-2">
-															<Badge className="bg-destructive/10 text-destructive border-destructive/20 animate-pulse">
-																<AlertTriangle className="h-3 w-3 mr-1" />{" "}
-																Conflit
+													<div className="space-y-2">
+														{defenseConflicts.length > 0 ? (
+															<>
+																<Badge className="bg-destructive/10 text-destructive border-destructive/20 animate-pulse">
+																	<AlertTriangle className="h-3 w-3 mr-1" />{" "}
+																	Conflit
+																</Badge>
+																{defenseConflicts.map((c, i) => (
+																	<p
+																		key={i}
+																		className="text-[10px] text-destructive leading-tight font-medium max-w-[150px]"
+																	>
+																		⚠ {c.message}
+																	</p>
+																))}
+															</>
+														) : (
+															<Badge className={
+																defense.status === "Publié" 
+																	? "bg-primary text-primary-foreground font-bold"
+																	: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+															}>
+																<Check className="h-3 w-3 mr-1" />{" "}
+																{defense.status}
 															</Badge>
-															{defenseConflicts.map((c, i) => (
-																<p
-																	key={i}
-																	className="text-[10px] text-destructive leading-tight font-medium max-w-[150px]"
-																>
-																	⚠ {c.message}
-																</p>
-															))}
-														</div>
-													) : (
-														<Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20">
-															<Check className="h-3 w-3 mr-1" />{" "}
-															{defense.status === "Validé"
-																? "Validé"
-																: "Correct"}
-														</Badge>
-													)}
+														)}
+													</div>
 												</TableCell>
 												<TableCell className="p-6 text-right">
 													<DropdownMenu>
@@ -423,56 +531,84 @@ export default function CoordinatorDashboard() {
 					</Card>
 				</TabsContent>
 
-				<TabsContent value="projects">
+				<TabsContent value="projects" className="space-y-6">
+					<div className="flex justify-between items-center mb-6">
+						<h2 className="text-2xl font-bold font-heading">Catalogue des Projets</h2>
+						<Button 
+							onClick={() => {
+								setEditingProject(null);
+								setIsProjectModalOpen(true);
+							}}
+							className="rounded-xl font-bold bg-primary"
+						>
+							<Plus className="h-4 w-4 mr-2" /> Nouveau Projet
+						</Button>
+					</div>
+
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-						{filteredDefenses.map((d) => (
+						{filteredProjects.map((p) => (
 							<Card
-								key={d.id}
+								key={p.id}
 								className="border-border hover:shadow-lg transition-all rounded-3xl overflow-hidden group"
 							>
 								<CardHeader className="bg-muted/10 group-hover:bg-primary/5 transition-colors">
 									<div className="flex justify-between items-start mb-2">
-										<Badge variant="secondary">{d.filiere}</Badge>
-										<Button
-											variant="ghost"
-											size="icon"
-											className="h-8 w-8 rounded-full"
-										>
-											<MoreHorizontal className="h-4 w-4" />
-										</Button>
+										<Badge variant="secondary">{p.filiere}</Badge>
+										<DropdownMenu>
+											<DropdownMenuTrigger asChild>
+												<Button
+													variant="ghost"
+													size="icon"
+													className="h-8 w-8 rounded-full"
+												>
+													<MoreHorizontal className="h-4 w-4" />
+												</Button>
+											</DropdownMenuTrigger>
+											<DropdownMenuContent align="end" className="rounded-xl">
+												<DropdownMenuItem 
+													onClick={() => {
+														setEditingProject(p);
+														setIsProjectModalOpen(true);
+													}}
+													className="gap-2 rounded-lg cursor-pointer"
+												>
+													<Edit className="h-4 w-4" /> Modifier
+												</DropdownMenuItem>
+												<DropdownMenuItem 
+													onClick={() => handleDeleteProject(p.id)}
+													className="gap-2 rounded-lg text-destructive focus:text-destructive cursor-pointer"
+												>
+													<Trash2 className="h-4 w-4" /> Supprimer
+												</DropdownMenuItem>
+											</DropdownMenuContent>
+										</DropdownMenu>
 									</div>
 									<CardTitle className="text-xl line-clamp-2 min-h-[3.5rem] leading-tight group-hover:text-primary transition-colors">
-										{d.project}
+										{p.title}
 									</CardTitle>
 								</CardHeader>
 								<CardContent className="pt-6 space-y-4">
 									<div className="space-y-2">
 										<p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-											Étudiants
+											Encadrant Principal
 										</p>
-										<div className="flex flex-wrap gap-2">
-											{d.students.map((s, i) => (
-												<Badge
-													key={i}
-													variant="outline"
-													className="rounded-lg bg-background"
-												>
-													{s.name}
-												</Badge>
-											))}
+										<div className="flex items-center gap-2">
+											<div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+												<User className="h-4 w-4 text-primary" />
+											</div>
+											<span className="font-semibold text-sm">{p.supervisor}</span>
 										</div>
 									</div>
 									<div className="pt-4 border-t border-border flex justify-between items-center">
-										<div className="text-xs text-muted-foreground">
-											<span className="font-bold text-foreground">Groupe:</span>{" "}
-											{d.groupName}
-										</div>
+										<Badge className={p.status === "Affecté" ? "bg-emerald-500/10 text-emerald-700" : "bg-blue-500/10 text-blue-700"}>
+											{p.status}
+										</Badge>
 										<Button
 											size="sm"
 											variant="ghost"
 											className="text-primary font-bold"
 										>
-											Détails Projet
+											Détails
 										</Button>
 									</div>
 								</CardContent>
@@ -482,7 +618,7 @@ export default function CoordinatorDashboard() {
 				</TabsContent>
 			</Tabs>
 
-			{/* Jury Assignment Modal (Custom) */}
+			{/* Jury Assignment Modal */}
 			{isJuryModalOpen && selectedDefense && (
 				<JuryModal
 					defense={selectedDefense}
@@ -490,6 +626,14 @@ export default function CoordinatorDashboard() {
 					onSave={handleAssignJury}
 				/>
 			)}
+
+			{/* Project Management Modal */}
+			<ProjectModal 
+				isOpen={isProjectModalOpen}
+				onClose={() => setIsProjectModalOpen(false)}
+				onSave={handleSaveProject}
+				project={editingProject}
+			/>
 		</div>
 	);
 }
@@ -570,6 +714,83 @@ function JuryModal({
 					</Button>
 				</div>
 			</div>
+		</div>
+	);
+}
+
+function ProjectModal({
+	isOpen,
+	onClose,
+	onSave,
+	project
+}: {
+	isOpen: boolean;
+	onClose: () => void;
+	onSave: (data: Partial<Project>) => void;
+	project: Project | null;
+}) {
+	const [formData, setFormData] = useState<Partial<Project>>(project || {
+		title: "",
+		filiere: "",
+		supervisor: "",
+	});
+
+	if (!isOpen) return null;
+
+	return (
+		<div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+			<Dialog open={isOpen} onOpenChange={onClose}>
+				<DialogContent className="sm:max-w-[500px] rounded-3xl">
+					<DialogHeader>
+						<DialogTitle>{project ? "Modifier le Projet" : "Nouveau Projet"}</DialogTitle>
+						<DialogDescription>
+							Remplissez les informations du projet et assignez un encadrant.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="grid gap-4 py-4">
+						<div className="grid gap-2">
+							<Label htmlFor="title">Titre du Projet</Label>
+							<Input 
+								id="title" 
+								value={formData.title} 
+								onChange={(e) => setFormData({...formData, title: e.target.value})}
+								placeholder="Ex: Analyse des données massives..."
+								className="rounded-xl"
+							/>
+						</div>
+						<div className="grid gap-2">
+							<Label htmlFor="filiere">Filière</Label>
+							<select
+								id="filiere"
+								className="w-full bg-background border border-border rounded-xl h-11 px-4 focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
+								value={formData.filiere}
+								onChange={(e) => setFormData({...formData, filiere: e.target.value})}
+							>
+								<option value="">Sélectionner une filière...</option>
+								<option value="Génie Informatique">Génie Informatique</option>
+								<option value="Big Data">Big Data</option>
+								<option value="Cyber-Sécurité">Cyber-Sécurité</option>
+							</select>
+						</div>
+						<div className="grid gap-2">
+							<Label htmlFor="supervisor">Encadrant Principal</Label>
+							<select
+								id="supervisor"
+								className="w-full bg-background border border-border rounded-xl h-11 px-4 focus:ring-2 focus:ring-primary/20 outline-none transition-all text-sm"
+								value={formData.supervisor}
+								onChange={(e) => setFormData({...formData, supervisor: e.target.value})}
+							>
+								<option value="">Sélectionner un enseignant...</option>
+								{TEACHERS.map(t => <option key={t} value={t}>{t}</option>)}
+							</select>
+						</div>
+					</div>
+					<DialogFooter>
+						<Button variant="ghost" onClick={onClose} className="rounded-xl">Annuler</Button>
+						<Button onClick={() => onSave(formData)} className="rounded-xl bg-primary">Enregistrer</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
 		</div>
 	);
 }
