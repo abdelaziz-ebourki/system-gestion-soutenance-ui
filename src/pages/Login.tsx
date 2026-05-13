@@ -43,8 +43,10 @@ export default function Login() {
       // Store token and user info (simplified for now)
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("expiresAt", data.expiresAt.toString());
 
       // Navigate based on role
+
       const roleRoutes: Record<string, string> = {
         admin: "/admin",
         coordinator: "/coordinator",
