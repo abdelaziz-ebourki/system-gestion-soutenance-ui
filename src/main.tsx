@@ -7,21 +7,21 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { Toaster } from "sonner";
 
 async function enableMocking() {
-	if (import.meta.env.DEV) {
-		const { worker } = await import("./mocks/browser");
-		return worker.start();
-	}
+  if (import.meta.env.DEV) {
+    const { worker } = await import("./mocks/browser");
+    return worker.start();
+  }
 }
 
 enableMocking().then(() => {
-	createRoot(document.getElementById("root")!).render(
-		<StrictMode>
-			<BrowserRouter>
-				<TooltipProvider>
-					<App />
-					<Toaster />
-				</TooltipProvider>
-			</BrowserRouter>
-		</StrictMode>,
-	);
+  createRoot(document.getElementById("root")!).render(
+    <StrictMode>
+      <BrowserRouter>
+        <TooltipProvider>
+          <App />
+          <Toaster position="top-center" />
+        </TooltipProvider>
+      </BrowserRouter>
+    </StrictMode>,
+  );
 });
