@@ -55,7 +55,7 @@ Il doit supporter :
 - plusieurs filières ;
 - plusieurs sessions académiques.
 
-Le système est conçu comme une plateforme multi-tenant.
+Le système est conçu comme une plateforme multi-tenant avec **isolation physique (schémas/bases de données séparés par université)** pour garantir une sécurité totale des données.
 
 ---
 
@@ -98,7 +98,8 @@ Un groupe :
 
 - appartient à une seule session ;
 - possède un seul projet ;
-- ne peut contenir qu’un nombre limité d’étudiants.
+- ne peut contenir qu’un nombre limité d’étudiants ;
+- **possède un encadrant principal et éventuellement des co-encadrants (enseignants ou externes).**
 
 ---
 
@@ -111,12 +112,6 @@ Le terme projet désigne :
 - une thèse.
 
 Un projet peut exister sans groupe affecté.
-
-Un projet peut posséder :
-
-- un encadrant principal ;
-- un ou plusieurs co-encadrants ;
-- des encadrants externes.
 
 ---
 
@@ -143,14 +138,6 @@ Responsabilités principales :
 - activer l’envoi des invitations ;
 - gérer les audits.
 
-Exemples de paramètres :
-
-- durée des soutenances ;
-- temps de pause ;
-- date limite des dépôts ;
-- délais de modification ;
-- logo et informations de l’université.
-
 ---
 
 ## 6.2 Coordinateur pédagogique
@@ -171,8 +158,6 @@ Responsabilités principales :
 - générer les convocations ;
 - générer les PV.
 
-Le coordinateur peut ajuster manuellement un planning généré automatiquement.
-
 ---
 
 ## 6.3 Enseignant
@@ -188,15 +173,6 @@ L’enseignant peut :
 - évaluer les étudiants ;
 - ajouter des remarques.
 
-Un enseignant peut simultanément :
-
-- être encadrant ;
-- être président d’un autre jury ;
-- être rapporteur ;
-- être examinateur.
-
-Cependant, un enseignant ne peut pas cumuler plusieurs rôles dans une même soutenance.
-
 ---
 
 ## 6.4 Encadrant
@@ -209,14 +185,7 @@ Un encadrant peut être :
 - un étudiant doctorant ;
 - un étudiant en master.
 
-L’encadrant peut :
-
-- consulter les documents du projet ;
-- ajouter des remarques ;
-- suivre l’avancement ;
-- consulter la planification.
-
-L’encadrant ne peut pas attribuer de note.
+**Note sur les encadrants externes :** Ils accèdent au système via des **liens d’accès sécurisés (tokens temporels)** sans nécessiter de création de compte complet.
 
 ---
 
@@ -233,225 +202,103 @@ L’étudiant peut :
 - consulter les résultats ;
 - recevoir des notifications.
 
-Un étudiant ne peut appartenir qu’à un seul groupe par session.
-
 ---
 
 # 7. Gestion des jurys
 
-## 7.1 Composition du jury
-
-La structure du jury est configurable.
-
-Un jury peut contenir :
-
-- un président ;
-- un ou plusieurs rapporteurs ;
-- un ou plusieurs examinateurs ;
-- éventuellement des encadrants ;
-- des membres externes.
-
-Les rôles de jury sont contextuels à une soutenance.
-
----
-
-## 7.2 Contraintes
-
-Le système doit empêcher :
-
-- l’affectation simultanée d’un enseignant à plusieurs soutenances au même horaire ;
-- le cumul de plusieurs rôles dans une même soutenance ;
-- l’affectation d’un enseignant hors de son département ;
-- la planification sans jury valide.
+La structure du jury est configurable (Président, rapporteurs, examinateurs, encadrants, membres externes). Le système interdit le cumul de rôles dans une même soutenance et l'affectation simultanée d'un enseignant à deux soutenances.
 
 ---
 
 # 8. Planification des soutenances
 
-Le système doit supporter :
+Le système supporte une planification automatique et manuelle.
 
-- la planification automatique ;
-- la planification manuelle ;
-- la replanification ;
-- la détection des conflits.
-
-La planification doit prendre en compte :
-
-- les disponibilités des enseignants ;
-- les salles ;
-- les contraintes horaires ;
-- les types de salles ;
-- les capacités des salles ;
-- les rôles des jurys ;
-- les délais définis par l’administration.
-
-Le système doit permettre plusieurs soutenances simultanées dans des salles différentes.
+- **Moteur de planification :** Approche par **heuristique de priorité** pour résoudre les conflits en respectant les contraintes strictes (salle, disponibilité).
 
 ---
 
 # 9. Gestion des évaluations
 
-Les membres internes du jury peuvent :
+Les membres internes du jury attribuent des notes et remarques.
 
-- attribuer une note ;
-- ajouter des remarques ;
-- enregistrer une décision.
-
-Décisions possibles :
-
-- admis ;
-- admis avec corrections ;
-- ajourné.
-
-Les évaluations peuvent être modifiées avant clôture.
-
-La note finale correspond à la moyenne pondérée des notes attribuées.
-
-Le système doit supporter les coefficients personnalisés.
-
-Les encadrants peuvent uniquement ajouter des remarques.
+- **Décisions :** Admis, Admis avec corrections, Ajourné.
+- **Calcul :** Moyenne pondérée avec coefficients personnalisables.
 
 ---
 
 # 10. Gestion documentaire
 
-Le système doit permettre le dépôt de fichiers.
-
-Formats supportés :
-
-- PDF ;
-- PPTX ;
-- DOCX ;
-- CSV ;
-- XLSX ;
-- PUML ;
-- archives de code source.
-
-Les dépôts doivent respecter des dates limites.
-
-Le système doit générer automatiquement :
-
-- convocations ;
-- procès-verbaux ;
-- rapports ;
-- attestations.
+Supporte PDF, PPTX, DOCX, CSV, XLSX, PUML, ZIP. Respect strict des dates limites de dépôt.
 
 ---
 
 # 11. Authentification et sécurité
 
-Le système doit utiliser une authentification par email et mot de passe.
-
-Les comptes sont créés par l’administrateur via importation de données.
-
-Le système doit envoyer des liens d’activation aux utilisateurs.
-
-Le système doit implémenter un contrôle d’accès basé sur les rôles (RBAC).
-
-Le système doit également fournir :
-
-- journalisation des actions ;
-- audit des modifications ;
-- historique des opérations.
+- **RBAC** (Contrôle d'accès basé sur les rôles).
+- **Audit Logging** complet de toutes les opérations critiques.
 
 ---
 
 # 12. Notifications
 
-Le système doit envoyer :
-
-- des notifications email ;
-- des notifications internes ;
-- des rappels automatiques.
-
-Exemples :
-
-- publication du planning ;
-- modification de soutenance ;
-- rappel de dépôt ;
-- affectation de jury ;
-- activation de compte.
+Email, notifications internes, et rappels automatiques pour les étapes clés du workflow (dépôts, affectations, modifications).
 
 ---
 
 # 13. Cycle de vie d’une soutenance
 
-Une soutenance possède les états suivants :
-
-- Brouillon ;
-- Planifiée ;
-- Publiée ;
-- Terminée ;
-- Archivée.
-
-Une soutenance archivée devient immutable.
+États : Brouillon, Planifiée, Publiée, Terminée, Archivée (immutable).
 
 ---
 
 # 14. Règles métier principales
 
-- Un étudiant ne peut appartenir qu’à un seul groupe par session.
-- Un groupe ne possède qu’un seul projet.
-- Un projet peut exister sans groupe.
-- Un enseignant ne peut appartenir qu’à un seul département.
-- Un enseignant ne peut participer à deux soutenances simultanément.
-- Une soutenance ne peut être publiée sans jury valide.
-- Les dépôts sont interdits après la date limite.
-- Les évaluations deviennent verrouillées après clôture.
-- Les sessions archivées deviennent non modifiables.
+- Un étudiant : 1 groupe/session.
+- Un groupe : 1 projet.
+- Un enseignant : 1 département.
+- Pas de double affectation horaire pour les enseignants.
+- Immutabilité des sessions archivées.
 
 ---
 
-# 15. Exigences non fonctionnelles
+# 15. Perspectives techniques
 
-Le système doit être :
+- **Frontend :** Typescript, React avec Tailwind CSS.
+- **Backend :** Spring Boot, API REST, Java.
+- **Base de données :** Mysql.
+- **Sécurité :** JWT, RBAC, isolation multi-tenante.
 
-- sécurisé ;
-- modulaire ;
-- extensible ;
-- maintenable ;
-- responsive ;
-- multi-tenant ;
-- traçable ;
-- réutilisable.
+# 16. Architecture des pages
 
-Le système doit permettre une montée en charge pour plusieurs universités.
+## Administrateur
 
----
+- Dashboard principal
+- Gestion Universités/Facultés/Départements
+- Gestion Utilisateurs (import/export)
+- Configuration Sessions Globales
+- Audit des logs
 
-# 16. Perspectives techniques
+## Coordinateur
 
-Architecture envisagée :
+- Dashboard de gestion (projets & groupes)
+- Planificateur de soutenances (vue calendrier)
+- Gestionnaire de jurys
+- Interface de validation des plannings
+- Rapport et Statistiques
 
-Frontend :
+## Enseignant / Encadrant
 
-- React ou Angular.
+- Dashboard personnel
+- Planning des soutenances
+- Gestion des indisponibilités
+- Interface d'évaluation
+- Espace de dépôt (encadrants)
 
-Backend :
+## Étudiant
 
-- Spring Boot ;
-- API REST.
-
-Base de données :
-
-- PostgreSQL.
-
-Fonctionnalités techniques importantes :
-
-- JWT ;
-- RBAC ;
-- génération PDF ;
-- moteur de planification ;
-- gestion des conflits ;
-- système de notifications ;
-- audit logging.
-
-# Architecture des pages:
-
-## Pages important:
-
-- Page de connexion
-- Dashboard d'étudiant
-- Dashboard d'administration
-- Dashboard de coordinateur
-- Dashboard d'enseignant
+- Dashboard Étudiant
+- Gestion du groupe
+- Dépôt de fichiers
+- Convocation (Vue et téléchargement)
+- Résultats
