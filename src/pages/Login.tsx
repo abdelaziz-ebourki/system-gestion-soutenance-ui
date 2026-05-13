@@ -1,7 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { Landmark, ShieldCheck, BookOpen } from "lucide-react";
-import { useAuth } from "@/context/auth";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -12,48 +10,23 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { toast } from "sonner";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 export default function Login() {
-	const { login } = useAuth();
-	const navigate = useNavigate();
 	const [email, setEmail] = React.useState("");
 	const [password, setPassword] = React.useState("");
 	const [errorMessage, setErrorMessage] = React.useState("");
 
 	const handleLogin = (e: React.FormEvent) => {
 		e.preventDefault();
-
-		if (email === "student@example.com" && password === "student123") {
-			login("STUDENT");
-			navigate("/", { replace: true });
-		} else if (
-			email === "coordinator@example.com" &&
-			password === "coordinator123"
-		) {
-			login("COORDINATOR");
-			navigate("/", { replace: true });
-		} else if (email === "teacher@example.com" && password === "teacher123") {
-			login("TEACHER");
-			navigate("/", { replace: true });
-		} else if (email === "admin@example.com" && password === "admin123") {
-			login("ADMIN");
-			navigate("/", { replace: true });
-		} else {
-			setErrorMessage(
-				"Identifiants invalides. Vérifiez votre email et votre mot de passe.",
-			);
-		}
+		toast("welcome");
 	};
 
 	return (
 		<div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
-			{/* Decorative Background Elements */}
-			<div className="absolute top-0 left-0 w-full h-1 bg-primary/20" />
-			<div className="absolute -top-24 -left-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-			<div className="absolute -bottom-24 -right-24 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-
 			<div className="w-full max-w-4xl grid md:grid-cols-2 gap-8 items-center z-10">
 				<div className="space-y-6 text-center md:text-left">
 					<div className="flex items-center justify-center md:justify-start gap-4 mb-8">
@@ -94,13 +67,13 @@ export default function Login() {
 					</div>
 				</div>
 
-				<Card className="border-2 shadow-2xl bg-white/80 backdrop-blur-md">
+				<Card className="shadow-2xl bg-card">
 					<CardHeader className="space-y-1 text-center">
 						<CardTitle className="text-3xl font-heading font-bold">
 							Connexion
 						</CardTitle>
 						<CardDescription>
-							Choisissez votre profil pour accéder à votre espace
+							Veuillez entrer vos identifiants pour accéder à votre espace
 						</CardDescription>
 					</CardHeader>
 					<form onSubmit={handleLogin}>
@@ -122,35 +95,36 @@ export default function Login() {
 								</div>
 							</div>
 
-							<div className="space-y-2">
-								<Label htmlFor="email">Email académique</Label>
-								<Input
-									id="email"
-									type="email"
-									placeholder="nom.prenom@univ.dz"
-									value={email}
-									onChange={(e) => {
-										setEmail(e.target.value);
-										if (errorMessage) setErrorMessage("");
-									}}
-									required
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="password">Mot de passe</Label>
-								<Input
-									id="password"
-									type="password"
-									value={password}
-									onChange={(e) => {
-										setPassword(e.target.value);
-										if (errorMessage) setErrorMessage("");
-									}}
-									required
-								/>
-							</div>
+							<FieldGroup>
+								<Field>
+									<FieldLabel>Email académique</FieldLabel>
+									<Input
+										id="email"
+										type="email"
+										placeholder="nom.prenom@univ.com"
+										value={email}
+										onChange={(e) => {
+											setEmail(e.target.value);
+											if (errorMessage) setErrorMessage("");
+										}}
+										required
+									/>
+								</Field>
+								<Field>
+									<FieldLabel>Mot de passe</FieldLabel>
+									<PasswordInput
+										id="password"
+										value={password}
+										onChange={(e) => {
+											setPassword(e.target.value);
+											if (errorMessage) setErrorMessage("");
+										}}
+										required
+									/>
+								</Field>
+							</FieldGroup>
 						</CardContent>
-						<CardFooter>
+						<CardFooter className="mt-10">
 							<Button type="submit" className="w-full text-lg h-12">
 								Se connecter
 							</Button>
@@ -159,7 +133,7 @@ export default function Login() {
 				</Card>
 			</div>
 
-			<footer className="absolute bottom-8 text-sm text-muted-foreground flex gap-6">
+			<footer className="md:absolute pt-10 bottom-8 text-sm text-muted-foreground flex gap-6">
 				<span>© 2026 Copyright</span>
 				<span className="hover:text-primary cursor-pointer">Assistance</span>
 				<span className="hover:text-primary cursor-pointer">
