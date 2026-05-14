@@ -117,20 +117,19 @@ Un projet peut exister sans groupe affecté.
 
 # 6. Acteurs du système
 
-## 6.1 Administrateur
+## 6.1 Administrateur (Tenant Admin)
 
-L’administrateur possède les privilèges globaux du système.
+L’administrateur possède les privilèges de gestion de son institution (université, faculté ou école).
 
 Responsabilités principales :
 
-- gérer les universités ;
 - gérer les facultés ;
 - gérer les départements ;
 - gérer les filières ;
 - gérer les utilisateurs ;
 - importer les données depuis des fichiers CSV/Excel ;
-- définir les rôles ;
-- configurer les paramètres globaux ;
+- définir les rôles internes ;
+- configurer les paramètres de l'institution ;
 - gérer les salles ;
 - définir les contraintes de soutenance ;
 - gérer les sessions globales ;
