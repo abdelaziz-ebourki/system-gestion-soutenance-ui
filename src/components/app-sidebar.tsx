@@ -23,6 +23,8 @@ import {
 	FileTextIcon,
 	BuildingIcon,
 	HistoryIcon,
+	LayersIcon,
+	University,
 } from "lucide-react";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -37,9 +39,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				return [
 					{ title: "Dashboard", url: "/admin", icon: <LayoutDashboardIcon /> },
 					{
-						title: "Universités",
-						url: "/admin/universities",
+						title: "Départements",
+						url: "/admin/departments",
+						icon: <University />,
+					},
+					{
+						title: "Salles",
+						url: "/admin/rooms",
 						icon: <BuildingIcon />,
+					},
+					{
+						title: "Sessions",
+						url: "/admin/sessions",
+						icon: <LayersIcon />,
 					},
 					{ title: "Utilisateurs", url: "/admin/users", icon: <UsersIcon /> },
 					{

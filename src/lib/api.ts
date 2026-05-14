@@ -29,7 +29,7 @@ async function api<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
 			const data = await response.json().catch(() => ({}));
 			const errorMessage =
 				data.message || "Une erreur est survenue lors de la requête.";
-			throw new Error(errorMessage);
+			throw new Error(errorMessage, { cause: response.statusText });
 		}
 
 		if (
@@ -45,7 +45,7 @@ async function api<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
 		if (error instanceof Error) {
 			throw error;
 		}
-		throw new Error("Une erreur inattendue est survenue.");
+		throw new Error("Une erreur inattendue est survenue.", { cause: error });
 	}
 }
 

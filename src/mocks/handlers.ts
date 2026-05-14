@@ -1,34 +1,34 @@
 import { http, HttpResponse, delay } from "msw";
 import type { User, Department, Session, Room } from "@/types";
 
-const MOCK_DELAY = 1000;
+const MOCK_DELAY = 500;
 
 const mockUsers: User[] = [
 	{
 		id: "1",
 		email: "admin@univ.com",
-		password: "password123",
+		password: "1234",
 		role: "admin",
 		name: "Mohamed Ahmadi",
 	},
 	{
 		id: "2",
 		email: "coord@univ.com",
-		password: "password123",
+		password: "1234",
 		role: "coordinator",
 		name: "Yassin Ouchen",
 	},
 	{
 		id: "3",
 		email: "teacher@univ.com",
-		password: "password123",
+		password: "1234",
 		role: "teacher",
 		name: "Ali Ben Ali",
 	},
 	{
 		id: "4",
 		email: "student@univ.com",
-		password: "password123",
+		password: "1234",
 		role: "student",
 		name: "Sami El Alami",
 	},
