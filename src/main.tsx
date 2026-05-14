@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./index.css";
 import App from "./App.tsx";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { Toaster } from "sonner";
+import { Toaster } from "./components/ui/sonner";
 
 async function enableMocking() {
   if (import.meta.env.DEV) {
