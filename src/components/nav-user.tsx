@@ -7,7 +7,11 @@ import {
 	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuPortal,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -21,7 +25,12 @@ import {
 	CircleUserRoundIcon,
 	BellIcon,
 	LogOutIcon,
+	SunIcon,
+	MoonIcon,
+	MonitorIcon,
+	CheckIcon,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -36,6 +45,7 @@ export function NavUser({
 }) {
 	const { isMobile } = useSidebar();
 	const navigate = useNavigate();
+	const { setTheme, theme } = useTheme();
 
 	const handleLogout = () => {
 		localStorage.removeItem("token");
@@ -94,14 +104,58 @@ export function NavUser({
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem>
+							<DropdownMenuItem className="cursor-pointer">
 								<CircleUserRoundIcon className="size-4" />
 								Mon Profil
 							</DropdownMenuItem>
-							<DropdownMenuItem>
+							<DropdownMenuItem className="cursor-pointer">
 								<BellIcon className="size-4" />
 								Notifications
 							</DropdownMenuItem>
+						</DropdownMenuGroup>
+						<DropdownMenuSeparator />
+						<DropdownMenuGroup>
+							<DropdownMenuSub>
+								<DropdownMenuSubTrigger className="cursor-pointer">
+									<SunIcon className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+									<MoonIcon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+									<span>Thème</span>
+								</DropdownMenuSubTrigger>
+								<DropdownMenuPortal>
+									<DropdownMenuSubContent>
+										<DropdownMenuItem
+											onClick={() => setTheme("light")}
+											className="cursor-pointer justify-between"
+										>
+											<div className="flex items-center">
+												<SunIcon className="mr-2 h-4 w-4" />
+												Clair
+											</div>
+											{theme === "light" && <CheckIcon className="h-4 w-4" />}
+										</DropdownMenuItem>
+										<DropdownMenuItem
+											onClick={() => setTheme("dark")}
+											className="cursor-pointer justify-between"
+										>
+											<div className="flex items-center">
+												<MoonIcon className="mr-2 h-4 w-4" />
+												Sombre
+											</div>
+											{theme === "dark" && <CheckIcon className="h-4 w-4" />}
+										</DropdownMenuItem>
+										<DropdownMenuItem
+											onClick={() => setTheme("system")}
+											className="cursor-pointer justify-between"
+										>
+											<div className="flex items-center">
+												<MonitorIcon className="mr-2 h-4 w-4" />
+												Système
+											</div>
+											{theme === "system" && <CheckIcon className="h-4 w-4" />}
+										</DropdownMenuItem>
+									</DropdownMenuSubContent>
+								</DropdownMenuPortal>
+							</DropdownMenuSub>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
