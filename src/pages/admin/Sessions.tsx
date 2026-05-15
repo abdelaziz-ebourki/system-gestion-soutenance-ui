@@ -350,17 +350,26 @@ export default function Sessions() {
 									<Field>
 										<FieldLabel>Statut Initial</FieldLabel>
 										<Select
-											value={formData.status}
+											value={
+												formData.status === "active"
+													? "Active"
+													: formData.status === "draft"
+														? "Brouillon"
+														: "Archivée"
+											}
 											onValueChange={(val) =>
-												setFormData({ ...formData, status: val ?? "draft" })
+												setFormData({
+													...formData,
+													status: val === "Active" ? "active" : "draft",
+												})
 											}
 										>
 											<SelectTrigger>
 												<SelectValue placeholder="Choisir un statut" />
 											</SelectTrigger>
 											<SelectContent>
-												<SelectItem value="draft">Brouillon</SelectItem>
-												<SelectItem value="active">Active</SelectItem>
+												<SelectItem value="Brouillon">Brouillon</SelectItem>
+												<SelectItem value="Active">Active</SelectItem>
 											</SelectContent>
 										</Select>
 									</Field>
