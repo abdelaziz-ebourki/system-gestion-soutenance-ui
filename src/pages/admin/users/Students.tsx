@@ -180,12 +180,17 @@ export default function Students() {
 			),
 		},
 		{
-			id: "full_name",
-			header: "Nom Complet",
+			accessorKey: "lastName",
+			header: "Nom",
 			cell: ({ row }) => (
-				<div className="font-medium">
-					{row.original.lastName} {row.original.firstName}
-				</div>
+				<div className="font-medium">{row.original.lastName}</div>
+			),
+		},
+		{
+			accessorKey: "firstName",
+			header: "Prénom",
+			cell: ({ row }) => (
+				<div className="font-medium">{row.original.firstName}</div>
 			),
 		},
 		{
@@ -266,7 +271,7 @@ export default function Students() {
 				</div>
 				<div className="flex gap-2">
 					<BulkImportDialog
-						role="student"
+						entity="student"
 						triggerButtonText="Importation en masse"
 						onSuccess={fetchData}
 					/>

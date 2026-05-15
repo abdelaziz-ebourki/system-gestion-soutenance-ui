@@ -121,6 +121,12 @@ export const bulkCreateUsers = (users: any[], role: string) =>
 		body: JSON.stringify({ users, role }),
 	});
 
+export const bulkCreateRooms = (rooms: any[]) =>
+	api<Room[]>("/admin/rooms/bulk", {
+		method: "POST",
+		body: JSON.stringify({ rooms }),
+	});
+
 export const updateUser = (id: string, data: Partial<UserCreateParams>) =>
 	api<User>(`/admin/users/${id}`, {
 		method: "PUT",

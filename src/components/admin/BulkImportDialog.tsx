@@ -12,17 +12,23 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { bulkCreateUsers } from "@/lib/api";
+import { bulkCreateUsers, bulkCreateRooms } from "@/lib/api";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface BulkImportDialogProps {
-	role: "student" | "teacher" | "coordinator";
+	entity: "student" | "teacher" | "coordinator" | "room";
 	triggerButtonText?: string;
 	onSuccess?: () => void;
 }
 
+const ENTITY_HEADERS: Record<string, string[]> = {
+	student: ["prénom", "nom", "email", "cne", "filière", "niveau"],
+	teacher: ["prénom", "nom", "email", "département", "grade"],
+	room: ["nom", "bâtiment", "capacité"],
+};
+
 export function BulkImportDialog({
-	role,
+	entity,
 	triggerButtonText = "Importation en masse",
 	onSuccess,
 }: BulkImportDialogProps) {
@@ -41,8 +47,24 @@ export function BulkImportDialog({
 			const wb = XLSX.read(bstr, { type: "binary" });
 			const wsname = wb.SheetNames[0];
 			const ws = wb.Sheets[wsname];
-			const parsedData = XLSX.utils.sheet_to_json(ws);
-			setData(parsedData);
+			const parsedData = XLSX.utils.sheet_to_json(ws, { header: 1 });
+			
+			const headers = (parsedData[0] as string[]).map((h) =>
+				h.toLowerCase().trim(),
+			);
+			const expectedHeaders = ENTITY_HEADERS[entity];
+
+			const isValid = expectedHeaders.every((h) => headers.includes(h));
+
+			if (!isValid) {
+				toast.error("Format de fichier invalide. Vérifiez les colonnes.");
+				setFile(null);
+				setData([]);
+				return;
+			}
+
+			const jsonData = XLSX.utils.sheet_to_json(ws);
+			setData(jsonData);
 		};
 		reader.readAsBinaryString(selectedFile);
 	};
@@ -67,14 +89,18 @@ export function BulkImportDialog({
 	const handleSubmit = async () => {
 		setIsSubmitting(true);
 		try {
-			await bulkCreateUsers(data, role);
-			toast.success(`${data.length} utilisateurs importés avec succès.`);
+			if (entity === "room") {
+				await bulkCreateRooms(data);
+			} else {
+				await bulkCreateUsers(data, entity);
+			}
+			toast.success(`${data.length} éléments importés avec succès.`);
 			setIsOpen(false);
 			setFile(null);
 			setData([]);
 			onSuccess?.();
 		} catch {
-			toast.error("Échec de l'importation des utilisateurs.");
+			toast.error("Échec de l'importation.");
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -90,9 +116,9 @@ export function BulkImportDialog({
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
-					<DialogTitle>Importation en masse des {role}s</DialogTitle>
+					<DialogTitle>Importation en masse : {entity}</DialogTitle>
 					<DialogDescription>
-						Téléchargez un fichier Excel pour importer plusieurs {role}s à la
+						Téléchargez un fichier Excel pour importer plusieurs {entity}s à la
 						fois.
 					</DialogDescription>
 				</DialogHeader>
@@ -102,11 +128,7 @@ export function BulkImportDialog({
 					<AlertDescription>
 						Le fichier Excel doit contenir les colonnes suivantes :
 						<span className="font-semibold block mt-1">
-							{role === "student"
-								? "prénom, nom, email, cne, filière, niveau"
-								: role === "teacher"
-									? "prénom, nom, email, département, grade"
-									: "prénom, nom, email"}
+							{ENTITY_HEADERS[entity]?.join(", ")}
 						</span>
 					</AlertDescription>
 				</Alert>

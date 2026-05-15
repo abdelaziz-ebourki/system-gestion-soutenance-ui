@@ -15,6 +15,7 @@ import { getRooms, createRoom, updateRoom, deleteRoom } from "@/lib/api";
 import type { Room } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
+import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -229,96 +230,103 @@ export default function Rooms() {
 						Gérez les espaces physiques pour les soutenances.
 					</p>
 				</div>
-				<Dialog
-					open={isDialogOpen}
-					onOpenChange={(open) => {
-						setIsDialogOpen(open);
-						if (!open) {
-							resetForm();
-						}
-					}}
-				>
-					<DialogTrigger
-						render={
-							<Button>
-								<Plus className="h-4 w-4" />
-								Nouvelle Salle
-							</Button>
-						}
+				<div className="flex gap-2">
+					<BulkImportDialog
+						entity="room"
+						triggerButtonText="Importation en masse"
+						onSuccess={fetchRooms}
 					/>
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>
-								{selectedRoom ? "Modifier la salle" : "Ajouter une Salle"}
-							</DialogTitle>
-							<DialogDescription>
-								{selectedRoom
-									? "Mettez à jour les informations de la salle."
-									: "Créez une nouvelle salle pour les examens et soutenances."}
-							</DialogDescription>
-						</DialogHeader>
-						<form onSubmit={handleSubmit}>
-							<FieldGroup className="py-4">
-								<Field>
-									<FieldLabel>Nom de la Salle</FieldLabel>
-									<Input
-										placeholder="ex: Salle 101"
-										value={formData.name}
-										onChange={(e) =>
-											setFormData({ ...formData, name: e.target.value })
-										}
-										required
-									/>
-								</Field>
-								<Field>
-									<FieldLabel>Bâtiment</FieldLabel>
-									<Input
-										placeholder="ex: Bloc A"
-										value={formData.building}
-										onChange={(e) =>
-											setFormData({ ...formData, building: e.target.value })
-										}
-										required
-									/>
-								</Field>
-								<Field>
-									<FieldLabel>Capacité (places)</FieldLabel>
-									<Input
-										type="number"
-										placeholder="ex: 30"
-										value={formData.capacity}
-										onChange={(e) =>
-											setFormData({
-												...formData,
-												capacity: parseInt(e.target.value) || 0,
-											})
-										}
-										required
-									/>
-								</Field>
-							</FieldGroup>
-							<DialogFooter>
-								<Button
-									type="button"
-									variant="outline"
-									onClick={() => setIsDialogOpen(false)}
-								>
-									Annuler
+					<Dialog
+						open={isDialogOpen}
+						onOpenChange={(open) => {
+							setIsDialogOpen(open);
+							if (!open) {
+								resetForm();
+							}
+						}}
+					>
+						<DialogTrigger
+							render={
+								<Button>
+									<Plus className="h-4 w-4" />
+									Nouvelle Salle
 								</Button>
-								<Button type="submit" disabled={isSubmitting}>
-									{isSubmitting ? (
-										<>
-											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-											Enregistrement...
-										</>
-									) : (
-										"Enregistrer"
-									)}
-								</Button>
-							</DialogFooter>
-						</form>
-					</DialogContent>
-				</Dialog>
+							}
+						/>
+						<DialogContent>
+							<DialogHeader>
+								<DialogTitle>
+									{selectedRoom ? "Modifier la salle" : "Ajouter une Salle"}
+								</DialogTitle>
+								<DialogDescription>
+									{selectedRoom
+										? "Mettez à jour les informations de la salle."
+										: "Créez une nouvelle salle pour les examens et soutenances."}
+								</DialogDescription>
+							</DialogHeader>
+							<form onSubmit={handleSubmit}>
+								<FieldGroup className="py-4">
+									<Field>
+										<FieldLabel>Nom de la Salle</FieldLabel>
+										<Input
+											placeholder="ex: Salle 101"
+											value={formData.name}
+											onChange={(e) =>
+												setFormData({ ...formData, name: e.target.value })
+											}
+											required
+										/>
+									</Field>
+									<Field>
+										<FieldLabel>Bâtiment</FieldLabel>
+										<Input
+											placeholder="ex: Bloc A"
+											value={formData.building}
+											onChange={(e) =>
+												setFormData({ ...formData, building: e.target.value })
+											}
+											required
+										/>
+									</Field>
+									<Field>
+										<FieldLabel>Capacité (places)</FieldLabel>
+										<Input
+											type="number"
+											placeholder="ex: 30"
+											value={formData.capacity}
+											onChange={(e) =>
+												setFormData({
+													...formData,
+													capacity: parseInt(e.target.value) || 0,
+												})
+											}
+											required
+										/>
+									</Field>
+								</FieldGroup>
+								<DialogFooter>
+									<Button
+										type="button"
+										variant="outline"
+										onClick={() => setIsDialogOpen(false)}
+									>
+										Annuler
+									</Button>
+									<Button type="submit" disabled={isSubmitting}>
+										{isSubmitting ? (
+											<>
+												<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+												Enregistrement...
+											</>
+										) : (
+											"Enregistrer"
+										)}
+									</Button>
+								</DialogFooter>
+							</form>
+						</DialogContent>
+					</Dialog>
+				</div>
 			</div>
 
 			<AlertDialog

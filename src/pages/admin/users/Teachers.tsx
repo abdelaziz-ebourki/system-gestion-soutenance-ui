@@ -119,7 +119,7 @@ export default function Teachers() {
 	const handleCreate = async () => {
 		setIsSubmitting(true);
 		try {
-			await createUser({ ...formData, role: "teacher", isActive: false });
+			await createUser({ ...formData, role: "teacher" });
 			toast.success("Enseignant ajouté avec succès");
 			setIsDialogOpen(false);
 			resetForm();
@@ -171,12 +171,17 @@ export default function Teachers() {
 
 	const columns: ColumnDef<Teacher>[] = [
 		{
-			id: "full_name",
-			header: "Nom Complet",
+			accessorKey: "lastName",
+			header: "Nom",
 			cell: ({ row }) => (
-				<div className="font-medium">
-					{row.original.lastName} {row.original.firstName}
-				</div>
+				<div className="font-medium">{row.original.lastName}</div>
+			),
+		},
+		{
+			accessorKey: "firstName",
+			header: "Prénom",
+			cell: ({ row }) => (
+				<div className="font-medium">{row.original.firstName}</div>
 			),
 		},
 		{
@@ -262,7 +267,7 @@ export default function Teachers() {
 				</div>
 				<div className="flex gap-2">
 					<BulkImportDialog
-						role="teacher"
+						entity="teacher"
 						triggerButtonText="Importation en masse"
 						onSuccess={fetchData}
 					/>
