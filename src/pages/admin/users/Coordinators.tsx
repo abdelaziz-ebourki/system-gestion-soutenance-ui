@@ -65,7 +65,6 @@ export default function Coordinators() {
 		lastName: "",
 		firstName: "",
 		email: "",
-		password: "",
 	});
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -90,14 +89,14 @@ export default function Coordinators() {
 	}, [pagination]);
 
 	const resetForm = () => {
-		setFormData({ lastName: "", firstName: "", email: "", password: "" });
+		setFormData({ lastName: "", firstName: "", email: "" });
 		setSelectedCoord(null);
 	};
 
 	const handleCreate = async () => {
 		setIsSubmitting(true);
 		try {
-			await createUser({ ...formData, role: "coordinator", isActive: true });
+			await createUser({ ...formData, role: "coordinator", isActive: false });
 			toast.success("Coordinateur ajouté avec succès");
 			setIsDialogOpen(false);
 			resetForm();
@@ -113,10 +112,7 @@ export default function Coordinators() {
 		if (!selectedCoord) return;
 		setIsSubmitting(true);
 		try {
-			const updateData = { ...formData, role: "coordinator" as const };
-			if (!updateData.password) delete (updateData as any).password;
-
-			await updateUser(selectedCoord.id, updateData);
+			await updateUser(selectedCoord.id, { ...formData, role: "coordinator" as const });
 			toast.success("Profil coordinateur mis à jour");
 			setIsDialogOpen(false);
 			resetForm();
@@ -197,7 +193,6 @@ export default function Coordinators() {
 											lastName: coord.lastName,
 											firstName: coord.firstName,
 											email: coord.email,
-											password: "",
 										});
 										setIsDialogOpen(true);
 									}}
@@ -298,20 +293,6 @@ export default function Coordinators() {
 										setFormData({ ...formData, email: e.target.value })
 									}
 									required
-								/>
-							</Field>
-							<Field className="col-span-2">
-								<FieldLabel>
-									Mot de passe{" "}
-									{selectedCoord && "(laisser vide pour ne pas changer)"}
-								</FieldLabel>
-								<Input
-									type="password"
-									value={formData.password}
-									onChange={(e) =>
-										setFormData({ ...formData, password: e.target.value })
-									}
-									required={!selectedCoord}
 								/>
 							</Field>
 						</FieldGroup>
