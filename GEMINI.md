@@ -93,3 +93,5 @@ Always use the centralized `api` function in `src/lib/api.ts` for network reques
 - Always use CSS variables for styling, never hardcode values
 - Styles must be consistent
 - Typescript types must be imported as a type
+- Following best practices is a must
+- This is not a toy project, it's rather a scalable SaaS project

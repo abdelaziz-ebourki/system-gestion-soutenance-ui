@@ -334,7 +334,7 @@ export default function Rooms() {
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel onClick={() => setIsDialogOpen(false)}>
+						<AlertDialogCancel>
 							Annuler
 						</AlertDialogCancel>
 						<AlertDialogAction

@@ -70,7 +70,7 @@ export default function Sessions() {
 	);
 
 	// Form state
-	const [formData, setFormData] = React.useState({
+	const [formData, setFormData] = React.useState<Omit<Session, "id">>({
 		name: "",
 		type: "Normale",
 		status: "draft",
@@ -433,7 +433,7 @@ export default function Sessions() {
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel onClick={() => setIsDialogOpen(false)}>
+						<AlertDialogCancel>
 							Annuler
 						</AlertDialogCancel>
 						<AlertDialogAction

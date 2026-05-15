@@ -1,30 +1,10 @@
-export interface User {
-	id: string;
-	email: string;
-	password?: string;
-	role: "admin" | "coordinator" | "teacher" | "student";
-	name: string;
-}
+export * from "./users-types";
 
-export interface Department {
-	id: string;
-	name: string;
-	code: string;
-	head: string;
-}
-
-export interface Session {
-	id: string;
-	name: string;
-	type: string;
-	status: string;
-	startDate: string;
-	endDate: string;
-}
-
-export interface Room {
-	id: string;
-	name: string;
-	capacity: number;
-	building: string;
+export interface DashboardStats {
+	totalStudents: number;
+	totalTeachers: number;
+	totalDepartments: number;
+	totalRooms: number;
+	activeSessions: number;
+	upcomingDefenses: number;
 }

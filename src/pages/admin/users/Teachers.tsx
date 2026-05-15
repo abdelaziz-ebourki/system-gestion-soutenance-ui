@@ -1,17 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { type ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Plus, MoreHorizontal, Pencil, Trash2, Loader2 } from "lucide-react";
 
-import {
-	getDepartments,
-	createDepartment,
-	updateDepartment,
-	deleteDepartment,
-	getTeachersList,
-} from "@/lib/api";
-import { type Department, type Teacher } from "@/types";
+import { getTeachers, createUser, updateUser, deleteUser, getGrades, getDepartments } from "@/lib/api";
+import { type Teacher, type Grade, type Department } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,36 +43,50 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 
-export default function Departments() {
-	const [data, setData] = React.useState<Department[]>([]);
-	const [teachers, setTeachers] = React.useState<Teacher[]>([]);
+export default function Teachers() {
+	const [data, setData] = React.useState<Teacher[]>([]);
+	const [grades, setGrades] = React.useState<Grade[]>([]);
+	const [departments, setDepartments] = React.useState<Department[]>([]);
+	const [pageCount, setPageCount] = React.useState(0);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
 	const [isDeleting, setIsDeleting] = React.useState(false);
-	const [selectedDept, setSelectedDept] = React.useState<Department | null>(
+	const [selectedTeacher, setSelectedTeacher] = React.useState<Teacher | null>(
 		null,
 	);
 
+	const [pagination, setPagination] = React.useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 10,
+	});
+
 	// Form state
 	const [formData, setFormData] = React.useState({
-		name: "",
-		code: "",
-		headId: "",
+		lastName: "",
+		firstName: "",
+		email: "",
+		gradeId: "",
+		departmentId: "",
+		password: "",
 	});
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
 	const fetchData = async () => {
 		setIsLoading(true);
 		try {
-			const [deptRes, teachersRes] = await Promise.all([
+			const [teachersRes, gradesRes, deptRes] = await Promise.all([
+				getTeachers(pagination.pageIndex, pagination.pageSize),
+				getGrades(),
 				getDepartments(),
-				getTeachersList(),
 			]);
-			setData(deptRes);
-			setTeachers(teachersRes);
+			setData(teachersRes.items);
+			setPageCount(teachersRes.pageCount);
+			setGrades(gradesRes);
+			setDepartments(deptRes);
 		} catch {
 			toast.error("Erreur lors du chargement des données");
 		} finally {
@@ -88,18 +96,25 @@ export default function Departments() {
 
 	React.useEffect(() => {
 		fetchData();
-	}, []);
+	}, [pagination]);
 
 	const resetForm = () => {
-		setFormData({ name: "", code: "", headId: teachers[0]?.id || "" });
-		setSelectedDept(null);
+		setFormData({
+			lastName: "",
+			firstName: "",
+			email: "",
+			gradeId: grades[0]?.id || "",
+			departmentId: departments[0]?.id || "",
+			password: "",
+		});
+		setSelectedTeacher(null);
 	};
 
 	const handleCreate = async () => {
 		setIsSubmitting(true);
 		try {
-			await createDepartment(formData);
-			toast.success("Département ajouté avec succès");
+			await createUser({ ...formData, role: "teacher", isActive: true });
+			toast.success("Enseignant ajouté avec succès");
 			setIsDialogOpen(false);
 			resetForm();
 			fetchData();
@@ -111,11 +126,14 @@ export default function Departments() {
 	};
 
 	const handleUpdate = async () => {
-		if (!selectedDept) return;
+		if (!selectedTeacher) return;
 		setIsSubmitting(true);
 		try {
-			await updateDepartment(selectedDept.id, formData);
-			toast.success("Département modifié avec succès");
+			const updateData = { ...formData, role: "teacher" as const };
+			if (!updateData.password) delete (updateData as any).password;
+
+			await updateUser(selectedTeacher.id, updateData);
+			toast.success("Profil enseignant mis à jour");
 			setIsDialogOpen(false);
 			resetForm();
 			fetchData();
@@ -128,52 +146,66 @@ export default function Departments() {
 
 	const handleSubmit = (e: React.SubmitEvent) => {
 		e.preventDefault();
-		if (selectedDept) handleUpdate();
+		if (selectedTeacher) handleUpdate();
 		else handleCreate();
 	};
 
 	const handleDelete = async () => {
-		if (!selectedDept) return;
+		if (!selectedTeacher) return;
 		setIsDeleting(true);
 		try {
-			await deleteDepartment(selectedDept.id);
-			toast.success("Département supprimé");
+			await deleteUser(selectedTeacher.id);
+			toast.success("Enseignant supprimé");
 			fetchData();
 		} catch {
 			toast.error("Erreur lors de la suppression");
 		} finally {
 			setIsDeleting(false);
 			setIsDeleteDialogOpen(false);
-			setSelectedDept(null);
+			setSelectedTeacher(null);
 		}
 	};
 
-	const columns: ColumnDef<Department>[] = [
+	const columns: ColumnDef<Teacher>[] = [
 		{
-			accessorKey: "code",
-			header: "Code",
+			id: "full_name",
+			header: "Nom Complet",
 			cell: ({ row }) => (
-				<div className="font-mono font-bold">{row.getValue("code")}</div>
+				<div className="font-medium">
+					{row.original.lastName} {row.original.firstName}
+				</div>
 			),
 		},
 		{
-			accessorKey: "name",
-			header: "Nom du Département",
+			accessorKey: "email",
+			header: "Email",
 		},
 		{
-			accessorKey: "headId",
-			header: "Chef de Département",
+			accessorKey: "gradeId",
+			header: "Grade",
 			cell: ({ row }) => {
-				const id = row.getValue("headId") as string;
-				const teacher = teachers.find(t => t.id === id);
-				return teacher ? `${teacher.lastName} ${teacher.firstName}` : id;
-			}
+				const id = row.getValue("gradeId") as string;
+				const name = grades.find(g => g.id === id)?.name || id;
+				return (
+					<Badge variant="outline" className="bg-primary/5">
+						{name}
+					</Badge>
+				);
+			},
+		},
+		{
+			accessorKey: "departmentId",
+			header: "Département",
+			cell: ({ row }) => {
+				const id = row.getValue("departmentId") as string;
+				return departments.find(d => d.id === id)?.name || id;
+			},
 		},
 		{
 			id: "actions",
 			header: "Action",
 			cell: ({ row }) => {
-				const department = row.original;
+				const teacher = row.original;
 				return (
 					<DropdownMenu>
 						<DropdownMenuTrigger
@@ -187,17 +219,15 @@ export default function Departments() {
 							<DropdownMenuGroup>
 								<DropdownMenuLabel>Actions</DropdownMenuLabel>
 								<DropdownMenuItem
-									onClick={() => navigator.clipboard.writeText(department.id)}
-								>
-									Copier l'ID
-								</DropdownMenuItem>
-								<DropdownMenuItem
 									onClick={() => {
-										setSelectedDept(department);
+										setSelectedTeacher(teacher);
 										setFormData({
-											name: department.name,
-											code: department.code,
-											headId: department.headId,
+											lastName: teacher.lastName,
+											firstName: teacher.firstName,
+											email: teacher.email,
+											gradeId: teacher.gradeId,
+											departmentId: teacher.departmentId,
+											password: "",
 										});
 										setIsDialogOpen(true);
 									}}
@@ -207,7 +237,7 @@ export default function Departments() {
 								<DropdownMenuItem
 									className="text-destructive"
 									onClick={() => {
-										setSelectedDept(department);
+										setSelectedTeacher(teacher);
 										setIsDeleteDialogOpen(true);
 									}}
 								>
@@ -225,8 +255,8 @@ export default function Departments() {
 		<div className="space-y-6">
 			<div className="flex items-center justify-between">
 				<div>
-					<h1 className="text-3xl font-bold tracking-tight">Départements</h1>
-					<p className="text-muted-foreground">Structure académique.</p>
+					<h1 className="text-3xl font-bold tracking-tight">Enseignants</h1>
+					<p className="text-muted-foreground">Gestion du corps professoral.</p>
 				</div>
 				<Button
 					onClick={() => {
@@ -234,7 +264,7 @@ export default function Departments() {
 						setIsDialogOpen(true);
 					}}
 				>
-					<Plus className="h-4 w-4" /> Nouveau Département
+					<Plus className="h-4 w-4" /> Nouvel Enseignant
 				</Button>
 			</div>
 
@@ -246,64 +276,111 @@ export default function Departments() {
 				<DataTable
 					columns={columns}
 					data={data}
-					filterColumn="name"
+					manualPagination
+					pageCount={pageCount}
+					pagination={pagination}
+					onPaginationChange={setPagination}
+					filterColumn="lastName"
 					filterPlaceholder="Rechercher par nom..."
 				/>
 			)}
 
 			<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-				<DialogContent>
+				<DialogContent className="max-w-2xl">
 					<DialogHeader>
 						<DialogTitle>
-							{selectedDept ? "Modifier" : "Ajouter"} Département
+							{selectedTeacher ? "Modifier" : "Ajouter"} Enseignant
 						</DialogTitle>
 						<DialogDescription>
-							Détails de l'unité académique.
+							Informations professionnelles de l'enseignant.
 						</DialogDescription>
 					</DialogHeader>
 					<form onSubmit={handleSubmit}>
-						<FieldGroup className="py-4">
+						<FieldGroup className="grid grid-cols-2 gap-4 py-4">
 							<Field>
-								<FieldLabel>Nom du Département</FieldLabel>
+								<FieldLabel>Nom</FieldLabel>
 								<Input
-									placeholder="ex: Informatique"
-									value={formData.name}
+									value={formData.lastName}
 									onChange={(e) =>
-										setFormData({ ...formData, name: e.target.value })
+										setFormData({ ...formData, lastName: e.target.value })
 									}
 									required
 								/>
 							</Field>
 							<Field>
-								<FieldLabel>Code</FieldLabel>
+								<FieldLabel>Prénom</FieldLabel>
 								<Input
-									placeholder="ex: INFO"
-									value={formData.code}
+									value={formData.firstName}
 									onChange={(e) =>
-										setFormData({ ...formData, code: e.target.value })
+										setFormData({ ...formData, firstName: e.target.value })
+									}
+									required
+								/>
+							</Field>
+							<Field className="col-span-2">
+								<FieldLabel>Email</FieldLabel>
+								<Input
+									type="email"
+									value={formData.email}
+									onChange={(e) =>
+										setFormData({ ...formData, email: e.target.value })
 									}
 									required
 								/>
 							</Field>
 							<Field>
-								<FieldLabel>Chef de Département</FieldLabel>
+								<FieldLabel>Grade</FieldLabel>
 								<Select
-									value={formData.headId}
+									value={formData.gradeId}
 									onValueChange={(v) =>
-										setFormData({ ...formData, headId: v || "" })
+										setFormData({ ...formData, gradeId: v || "" })
 									}
 								>
 									<SelectTrigger>
-										<SelectValue placeholder="Choisir un enseignant" />
+										<SelectValue placeholder="Choisir un grade" />
 									</SelectTrigger>
 									<SelectContent>
-										{teachers.map((t) => (
-											<SelectItem key={t.id} value={t.id}>
-												{t.lastName} {t.firstName}
+										{grades.map((g) => (
+											<SelectItem key={g.id} value={g.id}>
+												{g.name}
 											</SelectItem>
 										))}
 									</SelectContent>
 								</Select>
+							</Field>
+							<Field>
+								<FieldLabel>Département</FieldLabel>
+								<Select
+									value={formData.departmentId}
+									onValueChange={(v) =>
+										setFormData({ ...formData, departmentId: v || "" })
+									}
+								>
+									<SelectTrigger>
+										<SelectValue placeholder="Choisir un département" />
+									</SelectTrigger>
+									<SelectContent>
+										{departments.map((d) => (
+											<SelectItem key={d.id} value={d.id}>
+												{d.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+							</Field>
+							<Field className="col-span-2">
+								<FieldLabel>
+									Mot de passe{" "}
+									{selectedTeacher && "(laisser vide pour ne pas changer)"}
+								</FieldLabel>
+								<Input
+									type="password"
+									value={formData.password}
+									onChange={(e) =>
+										setFormData({ ...formData, password: e.target.value })
+									}
+									required={!selectedTeacher}
+								/>
 							</Field>
 						</FieldGroup>
 						<DialogFooter>
@@ -326,7 +403,8 @@ export default function Departments() {
 					<AlertDialogHeader>
 						<AlertDialogTitle>Confirmation</AlertDialogTitle>
 						<AlertDialogDescription>
-							Supprimer le département {selectedDept?.name} ?
+							Supprimer l'enseignant {selectedTeacher?.lastName}{" "}
+							{selectedTeacher?.firstName} ?
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>

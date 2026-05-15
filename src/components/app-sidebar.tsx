@@ -31,7 +31,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const userStr = localStorage.getItem("user");
 	const user = userStr
 		? JSON.parse(userStr)
-		: { name: "Guest", email: "", role: "guest", avatar: "" };
+		: { lastName: "Guest", firstName: "", email: "", role: "guest", avatar: "" };
 
 	const getNavItems = (role: string) => {
 		switch (role) {
@@ -53,7 +53,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 						url: "/admin/sessions",
 						icon: <LayersIcon />,
 					},
-					{ title: "Utilisateurs", url: "/admin/users", icon: <UsersIcon /> },
+					{
+						title: "Utilisateurs",
+						url: "#",
+						icon: <UsersIcon />,
+						items: [
+							{
+								title: "Étudiants",
+								url: "/admin/users/students",
+							},
+							{
+								title: "Enseignants",
+								url: "/admin/users/teachers",
+							},
+							{
+								title: "Coordinateurs",
+								url: "/admin/users/coordinators",
+							},
+						],
+					},
 					{
 						title: "Configuration",
 						url: "/admin/config",

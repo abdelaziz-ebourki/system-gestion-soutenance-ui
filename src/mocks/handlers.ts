@@ -1,7 +1,52 @@
 import { http, HttpResponse, delay } from "msw";
-import type { User, Department, Session, Room } from "@/types";
+import type {
+	User,
+	Department,
+	Session,
+	Room,
+	Student,
+	Teacher,
+	Filiere,
+	Level,
+	Grade,
+} from "@/types";
 
 const MOCK_DELAY = 500;
+
+const mockFilieres: Filiere[] = [
+	{ id: "f1", name: "Génie Informatique" },
+	{ id: "f2", name: "Génie Industriel" },
+	{ id: "f3", name: "Génie Civil" },
+	{ id: "f4", name: "Génie Électrique" },
+	{ id: "f5", name: "Management" },
+];
+
+const mockLevels: Level[] = [
+	{ id: "n1", name: "Licence" },
+	{ id: "n2", name: "Master" },
+	{ id: "n3", name: "Doctorat" },
+];
+
+const mockGrades: Grade[] = [
+	{ id: "g1", name: "PES" },
+	{ id: "g2", name: "PH" },
+	{ id: "g3", name: "PA" },
+];
+
+// Helper to generate lots of mock students for pagination testing
+const generateStudents = (count: number): Student[] => {
+	return Array.from({ length: count }, (_, i) => ({
+		id: `std-${i + 1}`,
+		lastName: `Nom${i + 1}`,
+		firstName: `Prenom${i + 1}`,
+		email: `student${i + 1}@univ.com`,
+		role: "student",
+		isActive: true,
+		cne: `E13000${i + 1}`,
+		filiereId: mockFilieres[i % mockFilieres.length].id,
+		levelId: mockLevels[i % mockLevels.length].id,
+	}));
+};
 
 const mockUsers: User[] = [
 	{
@@ -9,35 +54,48 @@ const mockUsers: User[] = [
 		email: "admin@univ.com",
 		password: "1234",
 		role: "admin",
-		name: "Mohamed Ahmadi",
+		lastName: "Ahmadi",
+		firstName: "Mohamed",
+		isActive: true,
 	},
 	{
 		id: "2",
 		email: "coord@univ.com",
 		password: "1234",
 		role: "coordinator",
-		name: "Yassin Ouchen",
+		lastName: "Ouchen",
+		firstName: "Yassin",
+		isActive: true,
 	},
 	{
 		id: "3",
 		email: "teacher@univ.com",
 		password: "1234",
 		role: "teacher",
-		name: "Ali Ben Ali",
-	},
+		lastName: "Ali",
+		firstName: "Ben Ali",
+		isActive: true,
+		gradeId: "g1",
+		departmentId: "1",
+	} as Teacher,
 	{
 		id: "4",
-		email: "student@univ.com",
+		email: "moussa@univ.com",
 		password: "1234",
-		role: "student",
-		name: "Sami El Alami",
-	},
+		role: "teacher",
+		lastName: "Alami",
+		firstName: "Moussa",
+		isActive: true,
+		gradeId: "g2",
+		departmentId: "2",
+	} as Teacher,
+	...generateStudents(50),
 ];
 
 const mockDepartments: Department[] = [
-	{ id: "1", name: "Informatique", code: "INFO", head: "Dr. Alami" },
-	{ id: "2", name: "Mathématiques", code: "MATH", head: "Pr. Idrissi" },
-	{ id: "3", name: "Physique", code: "PHYS", head: "Dr. Bennani" },
+	{ id: "1", name: "Informatique", code: "INFO", headId: "4" },
+	{ id: "2", name: "Mathématiques", code: "MATH", headId: "3" },
+	{ id: "3", name: "Physique", code: "PHYS", headId: "3" },
 ];
 
 const mockSessions: Session[] = [
@@ -95,6 +153,63 @@ export const handlers = [
 			}),
 			{ status: 401 },
 		);
+	}),
+
+	// Generalized User Fetcher with Pagination
+	http.get("/api/admin/users", async ({ request }) => {
+		await delay(MOCK_DELAY);
+		const url = new URL(request.url);
+		const role = url.searchParams.get("role");
+		const page = Number.parseInt(url.searchParams.get("page") || "0");
+		const limit = Number.parseInt(url.searchParams.get("limit") || "10");
+
+		let filtered = mockUsers;
+		if (role) {
+			filtered = mockUsers.filter((u) => u.role === role);
+		}
+
+		const start = page * limit;
+		const end = start + limit;
+		const items = filtered.slice(start, end);
+
+		return HttpResponse.json({
+			items,
+			total: filtered.length,
+			pageCount: Math.ceil(filtered.length / limit),
+		});
+	}),
+
+	http.post("/api/admin/users", async ({ request }) => {
+		await delay(MOCK_DELAY);
+		const body = (await request.json()) as Omit<User, "id">;
+		const newUser: User = {
+			...body,
+			id: (mockUsers.length + 1).toString(),
+			isActive: true,
+		};
+		mockUsers.push(newUser);
+		return HttpResponse.json(newUser);
+	}),
+
+	http.put("/api/admin/users/:id", async ({ params, request }) => {
+		await delay(MOCK_DELAY);
+		const { id } = params;
+		const body = (await request.json()) as Omit<User, "id">;
+		const index = mockUsers.findIndex((u) => u.id === id);
+		if (index === -1) return new HttpResponse(null, { status: 404 });
+
+		mockUsers[index] = { ...mockUsers[index], ...body };
+		return HttpResponse.json(mockUsers[index]);
+	}),
+
+	http.delete("/api/admin/users/:id", async ({ params }) => {
+		await delay(MOCK_DELAY);
+		const { id } = params;
+		const index = mockUsers.findIndex((u) => u.id === id);
+		if (index === -1) return new HttpResponse(null, { status: 404 });
+
+		mockUsers.splice(index, 1);
+		return new HttpResponse(null, { status: 204 });
 	}),
 
 	// Departments
@@ -208,6 +323,98 @@ export const handlers = [
 		if (index === -1) return new HttpResponse(null, { status: 404 });
 
 		mockRooms.splice(index, 1);
+		return new HttpResponse(null, { status: 204 });
+	}),
+
+	// Dashboard Stats
+	http.get("/api/admin/stats", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json({
+			totalStudents: mockUsers.filter((u) => u.role === "student").length,
+			totalTeachers: mockUsers.filter((u) => u.role === "teacher").length,
+			totalDepartments: mockDepartments.length,
+			totalRooms: mockRooms.length,
+			activeSessions: mockSessions.filter((s) => s.status === "active").length,
+			upcomingDefenses: 12, // Mocked value
+		});
+	}),
+
+	// Configuration Handlers
+	http.get("/api/admin/config/filieres", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(mockFilieres);
+	}),
+	http.post("/api/admin/config/filieres", async ({ request }) => {
+		const body = (await request.json()) as Omit<Filiere, "id">;
+		const newItem = { ...body, id: `f${mockFilieres.length + 1}` };
+		mockFilieres.push(newItem);
+		return HttpResponse.json(newItem);
+	}),
+	http.put("/api/admin/config/filieres/:id", async ({ params, request }) => {
+		const { id } = params;
+		const body = (await request.json()) as Omit<Filiere, "id">;
+		const idx = mockFilieres.findIndex((f) => f.id === id);
+		if (idx === -1) return new HttpResponse(null, { status: 404 });
+		mockFilieres[idx] = { ...mockFilieres[idx], ...body };
+		return HttpResponse.json(mockFilieres[idx]);
+	}),
+	http.delete("/api/admin/config/filieres/:id", async ({ params }) => {
+		const { id } = params;
+		const idx = mockFilieres.findIndex((f) => f.id === id);
+		if (idx === -1) return new HttpResponse(null, { status: 404 });
+		mockFilieres.splice(idx, 1);
+		return new HttpResponse(null, { status: 204 });
+	}),
+
+	http.get("/api/admin/config/levels", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(mockLevels);
+	}),
+	http.post("/api/admin/config/levels", async ({ request }) => {
+		const body = (await request.json()) as Omit<Level, "id">;
+		const newItem = { ...body, id: `n${mockLevels.length + 1}` };
+		mockLevels.push(newItem);
+		return HttpResponse.json(newItem);
+	}),
+	http.put("/api/admin/config/levels/:id", async ({ params, request }) => {
+		const { id } = params;
+		const body = (await request.json()) as Omit<Level, "id">;
+		const idx = mockLevels.findIndex((l) => l.id === id);
+		if (idx === -1) return new HttpResponse(null, { status: 404 });
+		mockLevels[idx] = { ...mockLevels[idx], ...body };
+		return HttpResponse.json(mockLevels[idx]);
+	}),
+	http.delete("/api/admin/config/levels/:id", async ({ params }) => {
+		const { id } = params;
+		const idx = mockLevels.findIndex((l) => l.id === id);
+		if (idx === -1) return new HttpResponse(null, { status: 404 });
+		mockLevels.splice(idx, 1);
+		return new HttpResponse(null, { status: 204 });
+	}),
+
+	http.get("/api/admin/config/grades", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(mockGrades);
+	}),
+	http.post("/api/admin/config/grades", async ({ request }) => {
+		const body = (await request.json()) as Omit<Grade, "id">;
+		const newItem = { ...body, id: `g${mockGrades.length + 1}` };
+		mockGrades.push(newItem);
+		return HttpResponse.json(newItem);
+	}),
+	http.put("/api/admin/config/grades/:id", async ({ params, request }) => {
+		const { id } = params;
+		const body = (await request.json()) as Omit<Grade, "id">;
+		const idx = mockGrades.findIndex((g) => g.id === id);
+		if (idx === -1) return new HttpResponse(null, { status: 404 });
+		mockGrades[idx] = { ...mockGrades[idx], ...body };
+		return HttpResponse.json(mockGrades[idx]);
+	}),
+	http.delete("/api/admin/config/grades/:id", async ({ params }) => {
+		const { id } = params;
+		const idx = mockGrades.findIndex((g) => g.id === id);
+		if (idx === -1) return new HttpResponse(null, { status: 404 });
+		mockGrades.splice(idx, 1);
 		return new HttpResponse(null, { status: 204 });
 	}),
 ];
