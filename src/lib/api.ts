@@ -20,6 +20,7 @@ import type {
 	StudentDefenseDetails,
 	StudentDocument,
 	StudentGroupDetails,
+	StudentGroupWorkspace,
 	StudentStats,
 } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
@@ -259,6 +260,8 @@ export interface DefenseSettings {
 	endTime: string;
 	defenseDuration: number;
 	breakDuration: number;
+	groupCreationStartDate: string;
+	groupCreationEndDate: string;
 }
 export const getDefenseSettings = () => api<DefenseSettings>("/admin/config/settings");
 export const updateDefenseSettings = (data: DefenseSettings) =>
@@ -355,7 +358,30 @@ export const getStudentDefense = () =>
 	api<StudentDefenseDetails>("/student/defense");
 
 export const getStudentGroup = () =>
-	api<StudentGroupDetails>("/student/group");
+	api<StudentGroupWorkspace>("/student/group");
 
 export const getStudentDocuments = () =>
 	api<StudentDocument[]>("/student/documents");
+
+export const createStudentGroup = () =>
+	api<StudentGroupDetails>("/student/group", {
+		method: "POST",
+	});
+
+export const joinStudentGroup = (groupId: string) =>
+	api<StudentGroupDetails>(`/student/group/${groupId}/join`, {
+		method: "POST",
+	});
+
+export const getStudentConvocation = () =>
+	fetch("/api/student/convocation", {
+		headers: {
+			Authorization: `Bearer ${localStorage.getItem("token")}`,
+		},
+	}).then(async (response) => {
+		if (!response.ok) {
+			const data = await response.json().catch(() => ({}));
+			throw new Error(data.message || "Impossible de telecharger la convocation");
+		}
+		return response.blob();
+	});

@@ -111,9 +111,10 @@ export interface StudentDefenseDetails {
 }
 
 export interface StudentGroupDetails {
+	id: string;
 	groupName: string;
-	projectTitle: string;
-	supervisorName: string;
+	projectTitle?: string;
+	supervisorName?: string;
 	members: Array<{
 		id: string;
 		fullName: string;
@@ -129,4 +130,16 @@ export interface StudentDocument {
 	deadline: string;
 	status: "submitted" | "missing" | "validated";
 	submittedAt?: string;
+}
+
+export interface StudentGroupWorkspace {
+	currentGroup: StudentGroupDetails | null;
+	availableGroups: Array<{
+		id: string;
+		groupName: string;
+		memberCount: number;
+	}>;
+	groupCreationStartDate: string;
+	groupCreationEndDate: string;
+	isGroupCreationOpen: boolean;
 }

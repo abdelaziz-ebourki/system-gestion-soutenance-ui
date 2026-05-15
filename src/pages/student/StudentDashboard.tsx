@@ -1,11 +1,15 @@
 import * as React from "react";
-import { CalendarDays, Download, GraduationCap, Users } from "lucide-react";
+import { CalendarDays, Download, GraduationCap, Loader2, Users } from "lucide-react";
 
-import { getStudentDefense, getStudentStats } from "@/lib/api";
+import {
+	getStudentConvocation,
+	getStudentDefense,
+	getStudentStats,
+} from "@/lib/api";
 import type { StudentDefenseDetails, StudentStats } from "@/types";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
@@ -13,12 +17,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
 
 export default function StudentDashboard() {
 	const [stats, setStats] = React.useState<StudentStats | null>(null);
 	const [defense, setDefense] = React.useState<StudentDefenseDetails | null>(null);
 	const [isLoading, setIsLoading] = React.useState(true);
+	const [isDownloading, setIsDownloading] = React.useState(false);
 
 	React.useEffect(() => {
 		const fetchData = async () => {
@@ -38,6 +43,29 @@ export default function StudentDashboard() {
 
 		fetchData();
 	}, []);
+
+	const handleConvocationDownload = async () => {
+		setIsDownloading(true);
+		try {
+			const blob = await getStudentConvocation();
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement("a");
+			link.href = url;
+			link.download = "convocation-soutenance.pdf";
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+			window.URL.revokeObjectURL(url);
+		} catch (error) {
+			const message =
+				error instanceof Error
+					? error.message
+					: "Impossible de telecharger la convocation";
+			toast.error(message);
+		} finally {
+			setIsDownloading(false);
+		}
+	};
 
 	return (
 		<div className="space-y-6">
@@ -166,15 +194,23 @@ export default function StudentDashboard() {
 								</p>
 							</div>
 						</div>
-						{defense?.convocationUrl && (
-							<a
-								href={defense.convocationUrl}
-								target="_blank"
-								rel="noreferrer"
-								className={cn(buttonVariants({ variant: "outline" }), "w-fit")}
+						{defense?.status === "scheduled" ? (
+							<Button
+								variant="outline"
+								className="w-fit"
+								onClick={handleConvocationDownload}
+								disabled={isDownloading}
 							>
+								{isDownloading && <Loader2 className="mr-2 size-4 animate-spin" />}
 								Telecharger la convocation
-							</a>
+							</Button>
+						) : (
+							<Link
+								to="/student/group"
+								className={buttonVariants({ variant: "outline" })}
+							>
+								Creez ou rejoignez un groupe
+							</Link>
 						)}
 					</CardContent>
 				</Card>

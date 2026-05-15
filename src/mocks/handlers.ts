@@ -18,6 +18,7 @@ import type {
 	StudentStats,
 	StudentDefenseDetails,
 	StudentGroupDetails,
+	StudentGroupWorkspace,
 	StudentDocument,
 } from "@/types";
 import { auditLogHandlers } from "./audit-log-handlers";
@@ -111,7 +112,6 @@ const mockUsers: User[] = [
 		cne: "E13000999",
 		filiereId: "f1",
 		levelId: "n2",
-		projectId: "p5",
 	} as Student,
 	...generateStudents(20),
 ];
@@ -152,6 +152,8 @@ let defenseSettings = {
 	endTime: "18:00",
 	defenseDuration: 30,
 	breakDuration: 15,
+	groupCreationStartDate: "2026-05-01",
+	groupCreationEndDate: "2026-06-20",
 };
 
 let mockProjects: Project[] = [
@@ -199,8 +201,8 @@ let mockProjects: Project[] = [
 		id: "p5",
 		title: "Portail intelligent de suivi des soutenances",
 		description: "Interface et services pour suivre planning, documents et evaluations.",
-		studentIds: ["std-demo", "std-1"],
-		studentNames: ["Bourki Salma", "Nom1 Prenom1"],
+		studentIds: ["std-1", "std-2"],
+		studentNames: ["Nom1 Prenom1", "Nom2 Prenom2"],
 		supervisorId: "3",
 		supervisorName: "Ali Ben Ali",
 		status: "approved",
@@ -319,43 +321,25 @@ let teacherUnavailability: TeacherUnavailability = {
 	},
 };
 
-const studentGroupDetails: StudentGroupDetails = {
-	groupName: "Equipe P5-Alpha",
-	projectTitle: "Portail intelligent de suivi des soutenances",
-	supervisorName: "Ali Ben Ali",
-	members: [
-		{
-			id: "std-demo",
-			fullName: "Bourki Salma",
-			email: "student@univ.com",
-			role: "leader",
-		},
-		{
-			id: "std-1",
-			fullName: "Nom1 Prenom1",
-			email: "student1@univ.com",
-			role: "member",
-		},
-	],
-};
-
-const studentDefenseDetails: StudentDefenseDetails = {
-	projectTitle: "Portail intelligent de suivi des soutenances",
-	projectDescription:
-		"Concevoir un portail et des parcours utilisateur pour fluidifier toute la campagne de soutenance.",
-	supervisorName: "Ali Ben Ali",
-	juryMembers: [
-		{ name: "Alami Moussa", role: "President" },
-		{ name: "Ali Ben Ali", role: "Rapporteur" },
-		{ name: "Ouchen Yassin", role: "Examinateur" },
-	],
-	date: "2026-06-14",
-	startTime: "10:15",
-	endTime: "11:45",
-	roomName: "Salle 101",
-	status: "scheduled",
-	convocationUrl: "/mock/convocation-p5.pdf",
-};
+let studentGroups: Array<{
+	id: string;
+	groupName: string;
+	memberIds: string[];
+	projectId?: string;
+}> = [
+	{
+		id: "sg1",
+		groupName: "Groupe-1",
+		memberIds: ["std-1", "std-2"],
+		projectId: "p5",
+	},
+	{
+		id: "sg2",
+		groupName: "Groupe-2",
+		memberIds: ["std-3"],
+		projectId: "p2",
+	},
+];
 
 const studentDocuments: StudentDocument[] = [
 	{
@@ -382,6 +366,108 @@ const studentDocuments: StudentDocument[] = [
 		status: "missing",
 	},
 ];
+
+const currentStudentId = "std-demo";
+
+const getUserFullName = (userId: string) => {
+	const user = mockUsers.find((item) => item.id === userId);
+	return user ? `${user.lastName} ${user.firstName}` : "Utilisateur inconnu";
+};
+
+const getStudentEmail = (studentId: string) => {
+	const student = mockUsers.find((item) => item.id === studentId) as Student | undefined;
+	return student?.email || "";
+};
+
+const getCurrentStudentGroup = () =>
+	studentGroups.find((group) => group.memberIds.includes(currentStudentId)) || null;
+
+const mapGroupDetails = (
+	group: (typeof studentGroups)[number],
+): StudentGroupDetails => {
+	const project = group.projectId
+		? mockProjects.find((item) => item.id === group.projectId)
+		: undefined;
+
+	return {
+		id: group.id,
+		groupName: group.groupName,
+		projectTitle: project?.title,
+		supervisorName: project?.supervisorName,
+		members: group.memberIds.map((memberId) => ({
+			id: memberId,
+			fullName: getUserFullName(memberId),
+			email: getStudentEmail(memberId),
+			role: memberId === group.memberIds[0] ? "leader" : "member",
+		})),
+	};
+};
+
+const isGroupCreationOpen = () => {
+	const today = "2026-05-15";
+	return (
+		today >= defenseSettings.groupCreationStartDate &&
+		today <= defenseSettings.groupCreationEndDate
+	);
+};
+
+const getStudentGroupWorkspace = (): StudentGroupWorkspace => {
+	const currentGroup = getCurrentStudentGroup();
+
+	return {
+		currentGroup: currentGroup ? mapGroupDetails(currentGroup) : null,
+		availableGroups: studentGroups
+			.filter((group) => !group.memberIds.includes(currentStudentId))
+			.map((group) => ({
+				id: group.id,
+				groupName: group.groupName,
+				memberCount: group.memberIds.length,
+			})),
+		groupCreationStartDate: defenseSettings.groupCreationStartDate,
+		groupCreationEndDate: defenseSettings.groupCreationEndDate,
+		isGroupCreationOpen: isGroupCreationOpen(),
+	};
+};
+
+const getStudentDefenseDetails = (): StudentDefenseDetails => {
+	const currentGroup = getCurrentStudentGroup();
+	const project = currentGroup?.projectId
+		? mockProjects.find((item) => item.id === currentGroup.projectId)
+		: undefined;
+	const jury = project
+		? mockJurys.find((item) => item.projectId === project.id)
+		: undefined;
+
+	if (!project) {
+		return {
+			projectTitle: "Aucun projet affecte",
+			projectDescription:
+				"Creez ou rejoignez un groupe pendant la periode autorisee pour demarrer votre dossier.",
+			supervisorName: "En attente",
+			juryMembers: [],
+			status: "pending",
+		};
+	}
+
+	return {
+		projectTitle: project.title,
+		projectDescription: project.description,
+		supervisorName: project.supervisorName,
+		juryMembers: jury
+			? [
+					{ name: jury.presidentName, role: "President" },
+					{ name: jury.reporterName, role: "Rapporteur" },
+					{ name: jury.examinerName, role: "Examinateur" },
+				]
+			: [],
+		date: project.id === "p5" ? "2026-06-14" : undefined,
+		startTime: project.id === "p5" ? "10:15" : undefined,
+		endTime: project.id === "p5" ? "11:45" : undefined,
+		roomName: project.id === "p5" ? "Salle 101" : undefined,
+		status: project.id === "p5" ? "scheduled" : "pending",
+		convocationUrl: project.id === "p5" ? "/api/student/convocation" : undefined,
+	};
+};
 
 export const handlers = [
 	http.post("/api/login", async ({ request }) => {
@@ -903,29 +989,126 @@ export const handlers = [
 
 	http.get("/api/student/stats", async () => {
 		await delay(MOCK_DELAY);
+		const groupWorkspace = getStudentGroupWorkspace();
+		const currentDefense = getStudentDefenseDetails();
 		const stats: StudentStats = {
 			documentCount: studentDocuments.length,
 			missingDocuments: studentDocuments.filter(
 				(document) => document.status === "missing",
 			).length,
-			groupMembers: studentGroupDetails.members.length,
-			defenseStatus: studentDefenseDetails.status,
+			groupMembers: groupWorkspace.currentGroup?.members.length || 0,
+			defenseStatus: currentDefense.status,
 		};
 		return HttpResponse.json(stats);
 	}),
 
 	http.get("/api/student/defense", async () => {
 		await delay(MOCK_DELAY);
-		return HttpResponse.json(studentDefenseDetails);
+		return HttpResponse.json(getStudentDefenseDetails());
 	}),
 
 	http.get("/api/student/group", async () => {
 		await delay(MOCK_DELAY);
-		return HttpResponse.json(studentGroupDetails);
+		return HttpResponse.json(getStudentGroupWorkspace());
+	}),
+
+	http.post("/api/student/group", async () => {
+		await delay(MOCK_DELAY);
+
+		if (!isGroupCreationOpen()) {
+			return HttpResponse.json(
+				{
+					message:
+						"La creation de groupe n'est pas autorisee en dehors de la periode configuree.",
+				},
+				{ status: 400 },
+			);
+		}
+
+		if (getCurrentStudentGroup()) {
+			return HttpResponse.json(
+				{ message: "Vous appartenez deja a un groupe pour cette session." },
+				{ status: 400 },
+			);
+		}
+
+		const nextGroupNumber =
+			studentGroups.length > 0
+				? Math.max(
+						...studentGroups.map((group) =>
+							Number.parseInt(group.groupName.replace("Groupe-", ""), 10),
+						),
+					) + 1
+				: 1;
+		const newGroup = {
+			id: `sg${studentGroups.length + 1}`,
+			groupName: `Groupe-${nextGroupNumber}`,
+			memberIds: [currentStudentId],
+		};
+		studentGroups = [...studentGroups, newGroup];
+		return HttpResponse.json(mapGroupDetails(newGroup), { status: 201 });
+	}),
+
+	http.post("/api/student/group/:id/join", async ({ params }) => {
+		await delay(MOCK_DELAY);
+		const { id } = params;
+
+		if (!isGroupCreationOpen()) {
+			return HttpResponse.json(
+				{
+					message:
+						"Vous ne pouvez pas rejoindre un groupe en dehors de la periode configuree.",
+				},
+				{ status: 400 },
+			);
+		}
+
+		if (getCurrentStudentGroup()) {
+			return HttpResponse.json(
+				{ message: "Vous appartenez deja a un groupe pour cette session." },
+				{ status: 400 },
+			);
+		}
+
+		const group = studentGroups.find((item) => item.id === id);
+		if (!group) {
+			return new HttpResponse(null, { status: 404 });
+		}
+
+		group.memberIds.push(currentStudentId);
+		return HttpResponse.json(mapGroupDetails(group));
 	}),
 
 	http.get("/api/student/documents", async () => {
 		await delay(MOCK_DELAY);
 		return HttpResponse.json(studentDocuments);
+	}),
+
+	http.get("/api/student/convocation", async () => {
+		await delay(MOCK_DELAY);
+		const defense = getStudentDefenseDetails();
+
+		if (!defense.convocationUrl) {
+			return HttpResponse.json(
+				{ message: "Aucune convocation n'est disponible pour le moment." },
+				{ status: 404 },
+			);
+		}
+
+		const content = [
+			"CONVOCATION DE SOUTENANCE",
+			`Projet: ${defense.projectTitle}`,
+			`Date: ${defense.date}`,
+			`Horaire: ${defense.startTime} - ${defense.endTime}`,
+			`Salle: ${defense.roomName}`,
+			`Encadrant: ${defense.supervisorName}`,
+		].join("\n");
+
+		return new HttpResponse(content, {
+			headers: {
+				"Content-Type": "application/pdf",
+				"Content-Disposition": 'attachment; filename="convocation-soutenance.pdf"',
+			},
+		});
 	}),
 ];

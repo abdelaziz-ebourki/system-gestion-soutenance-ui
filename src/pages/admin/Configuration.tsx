@@ -70,6 +70,8 @@ export default function Configuration() {
 		endTime: "18:00",
 		defenseDuration: 30,
 		breakDuration: 15,
+		groupCreationStartDate: "2026-05-01",
+		groupCreationEndDate: "2026-06-20",
 	});
 	const [isLoading, setIsLoading] = React.useState(true);
 
@@ -326,6 +328,36 @@ export default function Configuration() {
 												setSettings({
 													...settings,
 													breakDuration: parseInt(e.target.value),
+												})
+											}
+											required
+										/>
+									</Field>
+								</div>
+								<div className="grid grid-cols-2 gap-4">
+									<Field>
+										<FieldLabel>Début création groupes</FieldLabel>
+										<Input
+											type="date"
+											value={settings.groupCreationStartDate}
+											onChange={(e) =>
+												setSettings({
+													...settings,
+													groupCreationStartDate: e.target.value,
+												})
+											}
+											required
+										/>
+									</Field>
+									<Field>
+										<FieldLabel>Fin création groupes</FieldLabel>
+										<Input
+											type="date"
+											value={settings.groupCreationEndDate}
+											onChange={(e) =>
+												setSettings({
+													...settings,
+													groupCreationEndDate: e.target.value,
 												})
 											}
 											required
