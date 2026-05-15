@@ -4,10 +4,18 @@ import * as React from "react";
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Plus, MoreHorizontal, Pencil, Trash2, Loader2 } from "lucide-react";
 
-import { getTeachers, createUser, updateUser, deleteUser, getGrades, getDepartments } from "@/lib/api";
+import {
+	getTeachers,
+	createUser,
+	updateUser,
+	deleteUser,
+	getGrades,
+	getDepartments,
+} from "@/lib/api";
 import { type Teacher, type Grade, type Department } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
+import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -185,7 +193,7 @@ export default function Teachers() {
 			header: "Grade",
 			cell: ({ row }) => {
 				const id = row.getValue("gradeId") as string;
-				const name = grades.find(g => g.id === id)?.name || id;
+				const name = grades.find((g) => g.id === id)?.name || id;
 				return (
 					<Badge variant="outline" className="bg-primary/5">
 						{name}
@@ -198,7 +206,7 @@ export default function Teachers() {
 			header: "Département",
 			cell: ({ row }) => {
 				const id = row.getValue("departmentId") as string;
-				return departments.find(d => d.id === id)?.name || id;
+				return departments.find((d) => d.id === id)?.name || id;
 			},
 		},
 		{
@@ -258,14 +266,21 @@ export default function Teachers() {
 					<h1 className="text-3xl font-bold tracking-tight">Enseignants</h1>
 					<p className="text-muted-foreground">Gestion du corps professoral.</p>
 				</div>
-				<Button
-					onClick={() => {
-						resetForm();
-						setIsDialogOpen(true);
-					}}
-				>
-					<Plus className="h-4 w-4" /> Nouvel Enseignant
-				</Button>
+				<div className="flex gap-2">
+					<BulkImportDialog
+						role="teacher"
+						triggerButtonText="Importation en masse"
+						onSuccess={fetchData}
+					/>
+					<Button
+						onClick={() => {
+							resetForm();
+							setIsDialogOpen(true);
+						}}
+					>
+						<Plus className="h-4 w-4" /> Nouvel Enseignant
+					</Button>
+				</div>
 			</div>
 
 			{isLoading ? (
@@ -331,17 +346,18 @@ export default function Teachers() {
 							<Field>
 								<FieldLabel>Grade</FieldLabel>
 								<Select
-									value={formData.gradeId}
-									onValueChange={(v) =>
-										setFormData({ ...formData, gradeId: v || "" })
-									}
+									value={grades.find((g) => g.id === formData.gradeId)?.name || ""}
+									onValueChange={(name) => {
+										const grade = grades.find((g) => g.name === name);
+										setFormData({ ...formData, gradeId: grade?.id || "" });
+									}}
 								>
 									<SelectTrigger>
 										<SelectValue placeholder="Choisir un grade" />
 									</SelectTrigger>
 									<SelectContent>
 										{grades.map((g) => (
-											<SelectItem key={g.id} value={g.id}>
+											<SelectItem key={g.id} value={g.name}>
 												{g.name}
 											</SelectItem>
 										))}
@@ -351,17 +367,18 @@ export default function Teachers() {
 							<Field>
 								<FieldLabel>Département</FieldLabel>
 								<Select
-									value={formData.departmentId}
-									onValueChange={(v) =>
-										setFormData({ ...formData, departmentId: v || "" })
-									}
+									value={departments.find((d) => d.id === formData.departmentId)?.name || ""}
+									onValueChange={(name) => {
+										const dept = departments.find((d) => d.name === name);
+										setFormData({ ...formData, departmentId: dept?.id || "" });
+									}}
 								>
 									<SelectTrigger>
 										<SelectValue placeholder="Choisir un département" />
 									</SelectTrigger>
 									<SelectContent>
 										{departments.map((d) => (
-											<SelectItem key={d.id} value={d.id}>
+											<SelectItem key={d.id} value={d.name}>
 												{d.name}
 											</SelectItem>
 										))}

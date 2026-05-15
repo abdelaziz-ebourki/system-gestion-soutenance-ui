@@ -191,6 +191,47 @@ export const handlers = [
 		return HttpResponse.json(newUser);
 	}),
 
+	http.post("/api/admin/users/bulk", async ({ request }) => {
+		await delay(MOCK_DELAY);
+		const { users, role } = (await request.json()) as {
+			users: any[];
+			role: "student" | "teacher" | "coordinator";
+		};
+
+		const createdUsers = users.map((u) => {
+			const newUser: User = {
+				id: Math.random().toString(36).substr(2, 9),
+				firstName: u.firstName,
+				lastName: u.lastName,
+				email: u.email,
+				password: "1234",
+				role,
+				isActive: true,
+			};
+
+			if (role === "student") {
+				const student = newUser as Student;
+				student.cne = u.cne;
+				student.filiereId =
+					mockFilieres.find((f) => f.name === u.filiereName)?.id || "f1";
+				student.levelId =
+					mockLevels.find((l) => l.name === u.levelName)?.id || "n1";
+				return student;
+			} else if (role === "teacher") {
+				const teacher = newUser as Teacher;
+				teacher.departmentId =
+					mockDepartments.find((d) => d.name === u.departmentName)?.id || "1";
+				teacher.gradeId =
+					mockGrades.find((g) => g.name === u.gradeName)?.id || "g1";
+				return teacher;
+			}
+			return newUser;
+		});
+
+		mockUsers.push(...createdUsers);
+		return HttpResponse.json(createdUsers, { status: 201 });
+	}),
+
 	http.put("/api/admin/users/:id", async ({ params, request }) => {
 		await delay(MOCK_DELAY);
 		const { id } = params;

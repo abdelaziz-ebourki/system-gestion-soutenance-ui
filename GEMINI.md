@@ -95,3 +95,4 @@ Always use the centralized `api` function in `src/lib/api.ts` for network reques
 - Typescript types must be imported as a type
 - Following best practices is a must
 - This is not a toy project, it's rather a scalable SaaS project
+- UI in french, code in english

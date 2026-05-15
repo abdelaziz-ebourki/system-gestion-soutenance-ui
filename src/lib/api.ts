@@ -115,6 +115,12 @@ export const createUser = (data: UserCreateParams) =>
 		body: JSON.stringify(data),
 	});
 
+export const bulkCreateUsers = (users: any[], role: string) =>
+	api<User[]>("/admin/users/bulk", {
+		method: "POST",
+		body: JSON.stringify({ users, role }),
+	});
+
 export const updateUser = (id: string, data: Partial<UserCreateParams>) =>
 	api<User>(`/admin/users/${id}`, {
 		method: "PUT",

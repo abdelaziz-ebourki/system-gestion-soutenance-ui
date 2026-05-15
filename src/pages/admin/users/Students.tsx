@@ -2,18 +2,20 @@
 
 import * as React from "react";
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
-import {
-	Plus,
-	MoreHorizontal,
-	Pencil,
-	Trash2,
-	Loader2,
-} from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, Loader2 } from "lucide-react";
 
-import { getStudents, createUser, updateUser, deleteUser, getFilieres, getLevels } from "@/lib/api";
+import {
+	getStudents,
+	createUser,
+	updateUser,
+	deleteUser,
+	getFilieres,
+	getLevels,
+} from "@/lib/api";
 import { type Student, type Filiere, type Level } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
+import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -196,15 +198,15 @@ export default function Students() {
 			header: "Filière",
 			cell: ({ row }) => {
 				const id = row.getValue("filiereId") as string;
-				return filieres.find(f => f.id === id)?.name || id;
-			}
+				return filieres.find((f) => f.id === id)?.name || id;
+			},
 		},
 		{
 			accessorKey: "levelId",
 			header: "Niveau",
 			cell: ({ row }) => {
 				const id = row.getValue("levelId") as string;
-				const name = levels.find(l => l.id === id)?.name || id;
+				const name = levels.find((l) => l.id === id)?.name || id;
 				return <Badge variant="secondary">{name}</Badge>;
 			},
 		},
@@ -268,14 +270,21 @@ export default function Students() {
 						Gestion des inscriptions et profils étudiants.
 					</p>
 				</div>
-				<Button
-					onClick={() => {
-						resetForm();
-						setIsDialogOpen(true);
-					}}
-				>
-					<Plus className="h-4 w-4" /> Nouvel Étudiant
-				</Button>
+				<div className="flex gap-2">
+					<BulkImportDialog
+						role="student"
+						triggerButtonText="Importation en masse"
+						onSuccess={fetchData}
+					/>
+					<Button
+						onClick={() => {
+							resetForm();
+							setIsDialogOpen(true);
+						}}
+					>
+						<Plus className="h-4 w-4" /> Nouvel Étudiant
+					</Button>
+				</div>
 			</div>
 
 			{isLoading ? (
@@ -351,17 +360,18 @@ export default function Students() {
 							<Field>
 								<FieldLabel>Niveau</FieldLabel>
 								<Select
-									value={formData.levelId}
-									onValueChange={(v) =>
-										setFormData({ ...formData, levelId: v || "" })
-									}
+									value={levels.find((l) => l.id === formData.levelId)?.name || ""}
+									onValueChange={(name) => {
+										const level = levels.find((l) => l.name === name);
+										setFormData({ ...formData, levelId: level?.id || "" });
+									}}
 								>
 									<SelectTrigger>
 										<SelectValue placeholder="Choisir un niveau" />
 									</SelectTrigger>
 									<SelectContent>
 										{levels.map((n) => (
-											<SelectItem key={n.id} value={n.id}>
+											<SelectItem key={n.id} value={n.name}>
 												{n.name}
 											</SelectItem>
 										))}
@@ -371,17 +381,18 @@ export default function Students() {
 							<Field className="col-span-2">
 								<FieldLabel>Filière</FieldLabel>
 								<Select
-									value={formData.filiereId}
-									onValueChange={(v) =>
-										setFormData({ ...formData, filiereId: v || "" })
-									}
+									value={filieres.find((f) => f.id === formData.filiereId)?.name || ""}
+									onValueChange={(name) => {
+										const filiere = filieres.find((f) => f.name === name);
+										setFormData({ ...formData, filiereId: filiere?.id || "" });
+									}}
 								>
 									<SelectTrigger>
 										<SelectValue placeholder="Choisir une filière" />
 									</SelectTrigger>
 									<SelectContent>
 										{filieres.map((f) => (
-											<SelectItem key={f.id} value={f.id}>
+											<SelectItem key={f.id} value={f.name}>
 												{f.name}
 											</SelectItem>
 										))}
