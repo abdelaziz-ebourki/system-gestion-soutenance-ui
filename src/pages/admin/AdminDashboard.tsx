@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { type ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import {
 	Users,
 	GraduationCap,
@@ -9,7 +9,6 @@ import {
 	DoorOpen,
 	CalendarCheck,
 	History,
-	Loader2,
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { format } from "date-fns";
@@ -22,7 +21,6 @@ import { Badge } from "@/components/ui/badge";
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
@@ -38,27 +36,57 @@ import { toast } from "sonner";
 export default function AdminDashboard() {
 	const [stats, setStats] = React.useState<DashboardStats | null>(null);
 	const [users, setUsers] = React.useState<User[]>([]);
+	const [pageCount, setPageCount] = React.useState(0);
 	const [logs, setLogs] = React.useState<AuditLog[]>([]);
 	const [isLoading, setIsLoading] = React.useState(true);
+	const [isLogsLoading, setIsLogsLoading] = React.useState(true);
+	
+	const [pagination, setPagination] = React.useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 5,
+	});
 
 	React.useEffect(() => {
-		const fetchData = async () => {
+		const fetchBaseData = async () => {
 			try {
-				const [statsData, usersData, logsData] = await Promise.all([
-					getAdminStats(),
-					getUsers({ limit: 5 }),
-					getAuditLogs(),
-				]);
+				const statsData = await getAdminStats();
 				setStats(statsData);
-				setUsers(usersData.items);
-				setLogs(logsData);
 			} catch {
-				toast.error("Erreur lors du chargement des données");
+				toast.error("Erreur lors du chargement des statistiques");
+			}
+		};
+		fetchBaseData();
+	}, []);
+
+	React.useEffect(() => {
+		const fetchUsers = async () => {
+			setIsLoading(true);
+			try {
+				const usersData = await getUsers({ page: pagination.pageIndex, limit: pagination.pageSize });
+				setUsers(usersData.items);
+				setPageCount(usersData.pageCount);
+			} catch {
+				toast.error("Erreur lors du chargement des utilisateurs");
 			} finally {
 				setIsLoading(false);
 			}
 		};
-		fetchData();
+		fetchUsers();
+	}, [pagination]);
+
+	React.useEffect(() => {
+		const fetchLogs = async () => {
+			setIsLogsLoading(true);
+			try {
+				const logsData = await getAuditLogs();
+				setLogs(logsData);
+			} catch {
+				toast.error("Erreur lors du chargement des logs");
+			} finally {
+				setIsLogsLoading(false);
+			}
+		};
+		fetchLogs();
 	}, []);
 
 	const userColumns: ColumnDef<User>[] = [
@@ -109,23 +137,6 @@ export default function AdminDashboard() {
 		},
 	];
 
-	if (isLoading) {
-		return (
-			<div className="space-y-6">
-				<div>
-					<h1 className="text-3xl font-bold tracking-tight">Tableau de Bord</h1>
-					<p className="text-muted-foreground">Chargement des données...</p>
-				</div>
-				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-					{Array.from({ length: 4 }).map((_, i) => (
-						<Skeleton key={i} className="h-32 w-full" />
-					))}
-				</div>
-				<Skeleton className="h-[400px] w-full" />
-			</div>
-		);
-	}
-
 	const chartData = [
 		{ name: "Étudiants", total: stats?.totalStudents || 0 },
 		{ name: "Enseignants", total: stats?.totalTeachers || 0 },
@@ -151,7 +162,7 @@ export default function AdminDashboard() {
 						<Users className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">{stats?.totalStudents}</div>
+						<div className="text-2xl font-bold">{stats?.totalStudents ?? <Skeleton className="h-8 w-16" />}</div>
 					</CardContent>
 				</Card>
 				<Card>
@@ -160,7 +171,7 @@ export default function AdminDashboard() {
 						<GraduationCap className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">{stats?.totalTeachers}</div>
+						<div className="text-2xl font-bold">{stats?.totalTeachers ?? <Skeleton className="h-8 w-16" />}</div>
 					</CardContent>
 				</Card>
 				<Card>
@@ -169,7 +180,7 @@ export default function AdminDashboard() {
 						<Building2 className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">{stats?.totalDepartments}</div>
+						<div className="text-2xl font-bold">{stats?.totalDepartments ?? <Skeleton className="h-8 w-16" />}</div>
 					</CardContent>
 				</Card>
 				<Card>
@@ -178,7 +189,7 @@ export default function AdminDashboard() {
 						<DoorOpen className="h-4 w-4 text-muted-foreground" />
 					</CardHeader>
 					<CardContent>
-						<div className="text-2xl font-bold">{stats?.totalRooms}</div>
+						<div className="text-2xl font-bold">{stats?.totalRooms ?? <Skeleton className="h-8 w-16" />}</div>
 					</CardContent>
 				</Card>
 			</div>
@@ -189,14 +200,16 @@ export default function AdminDashboard() {
 						<CardTitle>Distribution des Ressources</CardTitle>
 					</CardHeader>
 					<CardContent className="pl-2">
-						<ChartContainer config={chartConfig} className="min-h-[300px] w-full">
-							<BarChart data={chartData}>
-								<CartesianGrid vertical={false} />
-								<XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
-								<ChartTooltip content={<ChartTooltipContent />} />
-								<Bar dataKey="total" fill="var(--color-total)" radius={8} />
-							</BarChart>
-						</ChartContainer>
+						{stats ? (
+							<ChartContainer config={chartConfig} className="min-h-[300px] w-full">
+								<BarChart data={chartData}>
+									<CartesianGrid vertical={false} />
+									<XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
+									<ChartTooltip content={<ChartTooltipContent />} />
+									<Bar dataKey="total" fill="var(--color-total)" radius={8} />
+								</BarChart>
+							</ChartContainer>
+						) : <Skeleton className="h-[300px] w-full" />}
 					</CardContent>
 				</Card>
 
@@ -211,7 +224,7 @@ export default function AdminDashboard() {
 									<CalendarCheck className="h-5 w-5 text-primary" />
 								</div>
 								<div className="ml-4">
-									<p className="text-sm font-medium">{stats?.activeSessions} Sessions Actives</p>
+									<p className="text-sm font-medium">{stats?.activeSessions ?? <Skeleton className="h-4 w-12" />} Sessions Actives</p>
 								</div>
 							</div>
 							<div className="flex items-center">
@@ -219,7 +232,7 @@ export default function AdminDashboard() {
 									<History className="h-5 w-5 text-primary" />
 								</div>
 								<div className="ml-4">
-									<p className="text-sm font-medium">{stats?.upcomingDefenses} Soutenances</p>
+									<p className="text-sm font-medium">{stats?.upcomingDefenses ?? <Skeleton className="h-4 w-12" />} Soutenances</p>
 								</div>
 							</div>
 						</div>
@@ -230,10 +243,23 @@ export default function AdminDashboard() {
 			<div className="grid gap-4 md:grid-cols-2">
 				<Card>
 					<CardHeader>
-						<CardTitle>Derniers Utilisateurs</CardTitle>
+						<CardTitle>Utilisateurs</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<DataTable columns={userColumns} data={users} />
+						{isLoading ? (
+							<Skeleton className="h-[300px] w-full" />
+						) : (
+							<DataTable 
+								columns={userColumns} 
+								data={users} 
+								manualPagination
+								pageCount={pageCount}
+								pagination={pagination}
+								onPaginationChange={setPagination}
+								filterColumn="full_name"
+								filterPlaceholder="Rechercher par nom..."
+							/>
+						)}
 					</CardContent>
 				</Card>
 				<Card>
@@ -241,7 +267,16 @@ export default function AdminDashboard() {
 						<CardTitle>Audit Log</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<DataTable columns={logColumns} data={logs} />
+						{isLogsLoading ? (
+							<Skeleton className="h-[300px] w-full" />
+						) : (
+							<DataTable 
+								columns={logColumns} 
+								data={logs} 
+								filterColumn="action"
+								filterPlaceholder="Rechercher par action..."
+							/>
+						)}
 					</CardContent>
 				</Card>
 			</div>
