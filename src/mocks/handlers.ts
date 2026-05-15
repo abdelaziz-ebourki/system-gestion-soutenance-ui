@@ -89,7 +89,7 @@ const mockUsers: User[] = [
 		gradeId: "g2",
 		departmentId: "2",
 	} as Teacher,
-	...generateStudents(50),
+	...generateStudents(20),
 ];
 
 const mockDepartments: Department[] = [
@@ -189,7 +189,9 @@ export const handlers = [
 			isActive: false, // Inactive until verified
 		};
 		mockUsers.push(newUser);
-		console.log(`[Mock Email] Sending verification link to ${newUser.email}: /verify-account?token=${btoa(newUser.id)}`);
+		console.log(
+			`[Mock Email] Sending verification link to ${newUser.email}: /verify-account?token=${btoa(newUser.id)}`,
+		);
 		return HttpResponse.json(newUser);
 	}),
 
@@ -227,7 +229,9 @@ export const handlers = [
 					mockGrades.find((g) => g.name === u.gradeName)?.id || "g1";
 				return teacher;
 			}
-			console.log(`[Mock Email] Sending verification link to ${newUser.email}: /verify-account?token=${btoa(newUser.id)}`);
+			console.log(
+				`[Mock Email] Sending verification link to ${newUser.email}: /verify-account?token=${btoa(newUser.id)}`,
+			);
 			return newUser;
 		});
 
@@ -237,7 +241,10 @@ export const handlers = [
 
 	http.post("/api/auth/verify-account", async ({ request }) => {
 		await delay(MOCK_DELAY);
-		const { token, password } = (await request.json()) as { token: string; password: string };
+		const { token, password } = (await request.json()) as {
+			token: string;
+			password: string;
+		};
 		const userId = atob(token);
 		const user = mockUsers.find((u) => u.id === userId);
 		if (!user) return new HttpResponse(null, { status: 404 });

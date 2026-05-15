@@ -47,24 +47,29 @@ export function BulkImportDialog({
 			const wb = XLSX.read(bstr, { type: "binary" });
 			const wsname = wb.SheetNames[0];
 			const ws = wb.Sheets[wsname];
-			const parsedData = XLSX.utils.sheet_to_json(ws, { header: 1 });
-			
-			const headers = (parsedData[0] as string[]).map((h) =>
-				h.toLowerCase().trim(),
-			);
-			const expectedHeaders = ENTITY_HEADERS[entity];
+			const rawData = XLSX.utils.sheet_to_json(ws) as any[];
 
-			const isValid = expectedHeaders.every((h) => headers.includes(h));
+			const mappedData = rawData.map((item) => {
+				const newItem: any = {};
+				Object.keys(item).forEach((key) => {
+					const normalizedKey = key.toLowerCase().trim();
+					if (normalizedKey === "prénom") newItem.firstName = item[key];
+					else if (normalizedKey === "nom") newItem.lastName = item[key];
+					else if (normalizedKey === "email") newItem.email = item[key];
+					else if (normalizedKey === "cne") newItem.cne = item[key];
+					else if (normalizedKey === "filière") newItem.filiereName = item[key];
+					else if (normalizedKey === "niveau") newItem.levelName = item[key];
+					else if (normalizedKey === "département") newItem.departmentName = item[key];
+					else if (normalizedKey === "grade") newItem.gradeName = item[key];
+					else if (normalizedKey === "nom") newItem.name = item[key];
+					else if (normalizedKey === "bâtiment") newItem.building = item[key];
+					else if (normalizedKey === "capacité") newItem.capacity = item[key];
+					else newItem[normalizedKey] = item[key];
+				});
+				return newItem;
+			});
 
-			if (!isValid) {
-				toast.error("Format de fichier invalide. Vérifiez les colonnes.");
-				setFile(null);
-				setData([]);
-				return;
-			}
-
-			const jsonData = XLSX.utils.sheet_to_json(ws);
-			setData(jsonData);
+			setData(mappedData);
 		};
 		reader.readAsBinaryString(selectedFile);
 	};
