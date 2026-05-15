@@ -151,9 +151,11 @@ const mockSessions: Session[] = [
 ];
 
 const mockRooms: Room[] = [
-	{ id: "1", name: "Salle 101", capacity: 30, building: "Bloc A" },
-	{ id: "2", name: "Amphi B", capacity: 150, building: "Bloc B" },
-	{ id: "3", name: "Labo Info", capacity: 20, building: "Bloc C" },
+	{ id: "1", name: "TD-1", capacity: 30, building: "Bloc A" },
+	{ id: "2", name: "TD-2", capacity: 30, building: "Bloc A" },
+	{ id: "3", name: "Amphi-1", capacity: 150, building: "Bloc B" },
+	{ id: "4", name: "TP-1", capacity: 20, building: "Bloc C" },
+	{ id: "5", name: "TP-2", capacity: 20, building: "Bloc C" },
 ];
 
 let defenseSettings = {
