@@ -114,8 +114,8 @@ export default function AvailabilityCalendar({
   };
 
   return (
-    <Card className="border-none shadow-2xl bg-white overflow-hidden rounded-3xl">
-      <div className="grid lg:grid-cols-3 border-b">
+    <Card className="border-border shadow-md bg-card overflow-hidden rounded-3xl">
+      <div className="grid lg:grid-cols-3 border-b border-border">
         <div className="lg:col-span-2 p-10">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-5">
@@ -123,7 +123,7 @@ export default function AvailabilityCalendar({
                 <CalendarIcon className="h-7 w-7" />
               </div>
               <div>
-                <h2 className="text-2xl font-heading font-bold text-slate-800">
+                <h2 className="text-2xl font-heading font-bold text-foreground">
                   Calendrier des Indisponibilités
                 </h2>
                 <p className="text-muted-foreground text-sm">
@@ -136,21 +136,21 @@ export default function AvailabilityCalendar({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-full hover:bg-slate-100"
+                className="h-10 w-10 rounded-full hover:bg-muted"
                 onClick={() => changeMonth(-1)}
               >
-                <ChevronLeft className="h-6 w-6 text-slate-600" />
+                <ChevronLeft className="h-6 w-6 text-muted-foreground" />
               </Button>
-              <span className="font-heading font-bold text-xl px-4 text-slate-800 min-w-37 text-center">
+              <span className="font-heading font-bold text-xl px-4 text-foreground min-w-37 text-center">
                 {monthNames[viewMonth]} {viewYear}
               </span>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-full hover:bg-slate-100"
+                className="h-10 w-10 rounded-full hover:bg-muted"
                 onClick={() => changeMonth(1)}
               >
-                <ChevronRight className="h-6 w-6 text-slate-600" />
+                <ChevronRight className="h-6 w-6 text-muted-foreground" />
               </Button>
             </div>
           </div>
@@ -179,20 +179,20 @@ export default function AvailabilityCalendar({
                   className={`
                     relative aspect-square rounded-2xl border transition-all cursor-pointer p-3 group
                     ${day === 0 ? "invisible" : ""}
-                    ${isActive ? "ring-2 ring-primary ring-offset-4 z-10 shadow-lg" : "hover:border-primary/30"}
-                    ${status === "full-unavailable" ? "bg-destructive/10 border-destructive/30" : status === "partial" ? "bg-destructive/5 border-destructive/20" : "bg-white border-slate-100"}
-                    ${session ? "bg-blue-50 border-blue-200" : ""}
+                    ${isActive ? "ring-2 ring-primary ring-offset-2 z-10 shadow-sm" : "hover:border-primary/30"}
+                    ${status === "full-unavailable" ? "bg-destructive/10 border-destructive/30" : status === "partial" ? "bg-destructive/5 border-destructive/20" : "bg-card border-border"}
+                    ${session ? "bg-primary/5 border-primary/20" : ""}
                   `}
                 >
                   <span
-                    className={`text-base font-bold ${status !== "available" && status !== "none" ? "text-destructive" : session ? "text-blue-700" : "text-slate-600"}`}
+                    className={`text-base font-bold ${status !== "available" && status !== "none" ? "text-destructive" : session ? "text-primary" : "text-foreground"}`}
                   >
                     {day !== 0 ? day : ""}
                   </span>
 
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
                     {session && (
-                      <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shadow-sm" />
+                      <div className="h-1.5 w-1.5 rounded-full bg-primary shadow-sm" />
                     )}
                     {status === "partial" && (
                       <div className="h-1.5 w-1.5 rounded-full bg-destructive shadow-sm animate-pulse" />
@@ -200,18 +200,18 @@ export default function AvailabilityCalendar({
                   </div>
 
                   {session && (
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-4 bg-slate-900 text-white rounded-2xl text-xs opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-20 shadow-2xl scale-95 group-hover:scale-100 origin-bottom">
-                      <p className="font-bold mb-2 border-b border-white/10 pb-2 flex items-center gap-2">
-                        <Clock className="h-3 w-3 text-blue-400" />{" "}
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-4 bg-popover text-popover-foreground rounded-2xl text-xs opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-20 shadow-xl scale-95 group-hover:scale-100 origin-bottom">
+                      <p className="font-bold mb-2 border-b border-border pb-2 flex items-center gap-2">
+                        <Clock className="h-3 w-3 text-primary" />{" "}
                         {session.time}
                       </p>
-                      <p className="opacity-90 font-medium mb-1 truncate">
+                      <p className="font-medium mb-1 truncate">
                         {session.student}
                       </p>
-                      <p className="opacity-70 text-[10px] flex items-center gap-1">
+                      <p className="text-[10px] text-muted-foreground flex items-center gap-1">
                         <MapPin className="h-3 w-3" /> {session.room}
                       </p>
-                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-slate-900" />
+                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-popover" />
                     </div>
                   )}
                 </div>
@@ -221,9 +221,9 @@ export default function AvailabilityCalendar({
         </div>
 
         {/* Side Panel */}
-        <div className="bg-slate-50/80 p-8 space-y-8 border-l border-slate-100 flex flex-col h-full">
+        <div className="bg-muted/30 p-8 space-y-8 border-l border-border flex flex-col h-full">
           <div className="space-y-1">
-            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
               Détails : {activeDay} {monthNames[viewMonth]}
             </h3>
             <p className="text-xs text-muted-foreground font-medium">
@@ -253,29 +253,29 @@ export default function AvailabilityCalendar({
 										w-full flex items-center justify-between p-4 rounded-2xl border transition-all text-left
 										${
                       hasSession
-                        ? "bg-blue-50 border-blue-100 opacity-60 cursor-not-allowed"
+                        ? "bg-primary/5 border-primary/10 opacity-60 cursor-not-allowed"
                         : isUnavailable
-                          ? "bg-destructive/10 border-destructive/20 text-destructive ring-2 ring-destructive/10 shadow-sm"
-                          : "bg-white border-slate-200 hover:border-primary/40 hover:shadow-md"
+                          ? "bg-destructive/10 border-destructive/20 text-destructive ring-2 ring-destructive/10"
+                          : "bg-card border-border hover:border-primary/40"
                     }
 									`}
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-lg ${isUnavailable ? "bg-destructive/20 text-destructive" : hasSession ? "bg-blue-100 text-blue-600" : "bg-slate-100 text-slate-500"}`}
+                      className={`p-2 rounded-lg ${isUnavailable ? "bg-destructive/20 text-destructive" : hasSession ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
                     >
                       <Clock className="h-4 w-4" />
                     </div>
                     <span className="text-sm font-bold">{slot}</span>
                   </div>
                   {hasSession ? (
-                    <Badge className="bg-blue-100 text-blue-700 text-[10px] border-none">
+                    <Badge variant="secondary" className="text-[10px]">
                       Jury
                     </Badge>
                   ) : isUnavailable ? (
                     <X className="h-4 w-4 text-destructive" />
                   ) : (
-                    <Plus className="h-4 w-4 text-slate-300" />
+                    <Plus className="h-4 w-4 text-muted-foreground" />
                   )}
                 </button>
               );
@@ -283,14 +283,14 @@ export default function AvailabilityCalendar({
           </div>
 
           <div className="pt-6 space-y-4">
-            <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-3 shadow-sm">
+            <div className="p-4 bg-card rounded-2xl border border-border space-y-3">
               <div className="flex items-center gap-2 text-primary">
                 <Info className="h-4 w-4" />
                 <span className="text-[10px] font-bold uppercase tracking-tighter">
                   Information Créneau
                 </span>
               </div>
-              <p className="text-[10px] text-slate-500 leading-relaxed italic">
+              <p className="text-[10px] text-muted-foreground leading-relaxed italic">
                 Les créneaux sont fixés à 90min par l'administration avec 15min
                 de repos entre chaque session.
               </p>
@@ -299,7 +299,7 @@ export default function AvailabilityCalendar({
             {onSave && (
               <Button
                 onClick={onSave}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-2xl h-14 shadow-xl text-base font-bold transition-all hover:scale-[1.02] active:scale-[0.98] gap-2"
+                className="w-full rounded-2xl h-14 font-bold shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] gap-2"
               >
                 <CheckCircle2 className="h-5 w-5" />
                 Valider mes choix
