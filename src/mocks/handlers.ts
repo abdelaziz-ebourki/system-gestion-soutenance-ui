@@ -351,11 +351,23 @@ export const handlers = [
 		mockSessions.splice(index, 1);
 		return new HttpResponse(null, { status: 204 });
 	}),
-
 	// Rooms
 	http.get("/api/admin/rooms", async () => {
 		await delay(MOCK_DELAY);
 		return HttpResponse.json(mockRooms);
+	}),
+
+	http.post("/api/admin/rooms/bulk", async ({ request }) => {
+		await delay(MOCK_DELAY);
+		const { rooms } = (await request.json()) as { rooms: any[] };
+		const createdRooms: Room[] = rooms.map((r) => ({
+			id: Math.random().toString(36).substr(2, 9),
+			name: r.name,
+			building: r.building,
+			capacity: Number(r.capacity),
+		}));
+		mockRooms.push(...createdRooms);
+		return HttpResponse.json(createdRooms, { status: 201 });
 	}),
 
 	http.post("/api/admin/rooms", async ({ request }) => {

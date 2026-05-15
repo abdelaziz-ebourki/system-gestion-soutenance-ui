@@ -40,6 +40,16 @@ export function BulkImportDialog({
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const parseFile = (selectedFile: File) => {
+		const isExcel =
+			selectedFile.type ===
+				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+			selectedFile.type === "application/vnd.ms-excel";
+
+		if (!isExcel) {
+			toast.error("Format de fichier non supporté. Veuillez utiliser un fichier Excel (.xlsx ou .xls).");
+			return;
+		}
+
 		setFile(selectedFile);
 		const reader = new FileReader();
 		reader.onload = (evt) => {
@@ -49,21 +59,42 @@ export function BulkImportDialog({
 			const ws = wb.Sheets[wsname];
 			const rawData = XLSX.utils.sheet_to_json(ws) as any[];
 
+			if (rawData.length === 0) {
+				toast.error("Le fichier semble être vide.");
+				setFile(null);
+				return;
+			}
+
+			const headers = Object.keys(rawData[0]).map((h) => h.toLowerCase().trim());
+			const expectedHeaders = ENTITY_HEADERS[entity];
+
+			const missingHeaders = expectedHeaders.filter(
+				(h) => !headers.some((header) => header.includes(h.toLowerCase())),
+			);
+
+			if (missingHeaders.length > 0) {
+				toast.error(`Colonnes manquantes : ${missingHeaders.join(", ")}`);
+				setFile(null);
+				setData([]);
+				return;
+			}
+
 			const mappedData = rawData.map((item) => {
 				const newItem: any = {};
 				Object.keys(item).forEach((key) => {
 					const normalizedKey = key.toLowerCase().trim();
-					if (normalizedKey === "prénom") newItem.firstName = item[key];
-					else if (normalizedKey === "nom") newItem.lastName = item[key];
-					else if (normalizedKey === "email") newItem.email = item[key];
-					else if (normalizedKey === "cne") newItem.cne = item[key];
-					else if (normalizedKey === "filière") newItem.filiereName = item[key];
-					else if (normalizedKey === "niveau") newItem.levelName = item[key];
-					else if (normalizedKey === "département") newItem.departmentName = item[key];
-					else if (normalizedKey === "grade") newItem.gradeName = item[key];
-					else if (normalizedKey === "nom") newItem.name = item[key];
-					else if (normalizedKey === "bâtiment") newItem.building = item[key];
-					else if (normalizedKey === "capacité") newItem.capacity = item[key];
+					if (normalizedKey.includes("prénom")) newItem.firstName = item[key];
+					else if (normalizedKey.includes("nom")) {
+						if (entity === "room") newItem.name = item[key];
+						else newItem.lastName = item[key];
+					} else if (normalizedKey.includes("email")) newItem.email = item[key];
+					else if (normalizedKey.includes("cne")) newItem.cne = item[key];
+					else if (normalizedKey.includes("filière")) newItem.filiereName = item[key];
+					else if (normalizedKey.includes("niveau")) newItem.levelName = item[key];
+					else if (normalizedKey.includes("département")) newItem.departmentName = item[key];
+					else if (normalizedKey.includes("grade")) newItem.gradeName = item[key];
+					else if (normalizedKey.includes("bâtiment")) newItem.building = item[key];
+					else if (normalizedKey.includes("capacité")) newItem.capacity = item[key];
 					else newItem[normalizedKey] = item[key];
 				});
 				return newItem;
@@ -91,6 +122,15 @@ export function BulkImportDialog({
 		if (droppedFile) parseFile(droppedFile);
 	};
 
+const ENTITY_LABELS: Record<string, string> = {
+	student: "Étudiants",
+	teacher: "Enseignants",
+	coordinator: "Coordinateurs",
+	room: "Salles",
+};
+
+// ... inside BulkImportDialog component
+
 	const handleSubmit = async () => {
 		setIsSubmitting(true);
 		try {
@@ -99,7 +139,7 @@ export function BulkImportDialog({
 			} else {
 				await bulkCreateUsers(data, entity);
 			}
-			toast.success(`${data.length} éléments importés avec succès.`);
+			toast.success(`${data.length} ${ENTITY_LABELS[entity].toLowerCase()} importés avec succès.`);
 			setIsOpen(false);
 			setFile(null);
 			setData([]);
