@@ -9,6 +9,7 @@ import {
 	GraduationCap,
 	Layers,
 	BookOpen,
+	Settings,
 } from "lucide-react";
 
 import {
@@ -24,6 +25,9 @@ import {
 	createGrade,
 	updateGrade,
 	deleteGrade,
+	getDefenseSettings,
+	updateDefenseSettings,
+	type DefenseSettings,
 } from "@/lib/api";
 import { type Filiere, type Level, type Grade } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -61,6 +65,12 @@ export default function Configuration() {
 	const [filieres, setFilieres] = React.useState<Filiere[]>([]);
 	const [levels, setLevels] = React.useState<Level[]>([]);
 	const [grades, setGrades] = React.useState<Grade[]>([]);
+	const [settings, setSettings] = React.useState<DefenseSettings>({
+		startTime: "08:00",
+		endTime: "18:00",
+		defenseDuration: 30,
+		breakDuration: 15,
+	});
 	const [isLoading, setIsLoading] = React.useState(true);
 
 	const [isDialogOpen, setIsDialogOpen] = React.useState(false);
@@ -75,14 +85,16 @@ export default function Configuration() {
 	const fetchData = async () => {
 		setIsLoading(true);
 		try {
-			const [fRes, lRes, gRes] = await Promise.all([
+			const [fRes, lRes, gRes, sRes] = await Promise.all([
 				getFilieres(),
 				getLevels(),
 				getGrades(),
+				getDefenseSettings().catch(() => settings),
 			]);
 			setFilieres(fRes);
 			setLevels(lRes);
 			setGrades(gRes);
+			setSettings(sRes);
 		} catch {
 			toast.error("Erreur lors du chargement des configurations");
 		} finally {
@@ -144,12 +156,25 @@ export default function Configuration() {
 		}
 	};
 
+	const handleSettingsUpdate = async (e: React.SubmitEvent) => {
+		e.preventDefault();
+		setIsSubmitting(true);
+		try {
+			await updateDefenseSettings(settings);
+			toast.success("Paramètres mis à jour");
+		} catch {
+			toast.error("Erreur lors de la mise à jour des paramètres");
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
+
 	const renderConfigCard = (
 		title: string,
 		description: string,
 		items: any[],
 		type: ConfigType,
-		icon: React.ReactNode
+		icon: React.ReactNode,
 	) => (
 		<Card>
 			<CardHeader className="flex flex-row items-center justify-between">
@@ -225,22 +250,97 @@ export default function Configuration() {
 						"Liste des filières disponibles.",
 						filieres,
 						"filiere",
-						<BookOpen className="h-5 w-5" />
+						<BookOpen className="h-5 w-5" />,
 					)}
 					{renderConfigCard(
 						"Niveaux",
 						"Cycles universitaires.",
 						levels,
 						"level",
-						<Layers className="h-5 w-5" />
+						<Layers className="h-5 w-5" />,
 					)}
 					{renderConfigCard(
 						"Grades",
 						"Titres académiques.",
 						grades,
 						"grade",
-						<GraduationCap className="h-5 w-5" />
+						<GraduationCap className="h-5 w-5" />,
 					)}
+
+					<Card>
+						<CardHeader>
+							<CardTitle className="flex items-center gap-2">
+								<Settings className="h-5 w-5" /> Paramètres des Soutenances
+							</CardTitle>
+							<CardDescription>
+								Définissez les créneaux horaires globaux.
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<form onSubmit={handleSettingsUpdate} className="grid gap-4">
+								<div className="grid grid-cols-2 gap-4">
+									<Field>
+										<FieldLabel>Début de journée</FieldLabel>
+										<Input
+											type="time"
+											value={settings.startTime}
+											onChange={(e) =>
+												setSettings({ ...settings, startTime: e.target.value })
+											}
+											required
+										/>
+									</Field>
+									<Field>
+										<FieldLabel>Fin de journée</FieldLabel>
+										<Input
+											type="time"
+											value={settings.endTime}
+											onChange={(e) =>
+												setSettings({ ...settings, endTime: e.target.value })
+											}
+											required
+										/>
+									</Field>
+								</div>
+								<div className="grid grid-cols-2 gap-4">
+									<Field>
+										<FieldLabel>Durée soutenance (min)</FieldLabel>
+										<Input
+											type="number"
+											value={settings.defenseDuration}
+											onChange={(e) =>
+												setSettings({
+													...settings,
+													defenseDuration: parseInt(e.target.value),
+												})
+											}
+											required
+										/>
+									</Field>
+									<Field>
+										<FieldLabel>Durée repos (min)</FieldLabel>
+										<Input
+											type="number"
+											value={settings.breakDuration}
+											onChange={(e) =>
+												setSettings({
+													...settings,
+													breakDuration: parseInt(e.target.value),
+												})
+											}
+											required
+										/>
+									</Field>
+								</div>
+								<Button type="submit" className="mt-2" disabled={isSubmitting}>
+									{isSubmitting && (
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									)}
+									Sauvegarder
+								</Button>
+							</form>
+						</CardContent>
+					</Card>
 				</div>
 			)}
 
@@ -249,7 +349,11 @@ export default function Configuration() {
 					<DialogHeader>
 						<DialogTitle>
 							{selectedItem ? "Modifier" : "Ajouter"}{" "}
-							{activeType === "filiere" ? "Filière" : activeType === "level" ? "Niveau" : "Grade"}
+							{activeType === "filiere"
+								? "Filière"
+								: activeType === "level"
+									? "Niveau"
+									: "Grade"}
 						</DialogTitle>
 					</DialogHeader>
 					<form onSubmit={handleSubmit}>
@@ -265,7 +369,9 @@ export default function Configuration() {
 						</FieldGroup>
 						<DialogFooter>
 							<Button type="submit" disabled={isSubmitting}>
-								{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+								{isSubmitting && (
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								)}
 								Enregistrer
 							</Button>
 						</DialogFooter>
@@ -273,22 +379,33 @@ export default function Configuration() {
 				</DialogContent>
 			</Dialog>
 
-			<AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+			<AlertDialog
+				open={isDeleteDialogOpen}
+				onOpenChange={setIsDeleteDialogOpen}
+			>
 				<AlertDialogContent>
 					<AlertDialogHeader>
 						<AlertDialogTitle>Confirmation</AlertDialogTitle>
 						<AlertDialogDescription>
-							Supprimer cet élément ? Cela pourrait affecter les utilisateurs liés.
+							Supprimer cet élément ? Cela pourrait affecter les utilisateurs
+							liés.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Annuler</AlertDialogCancel>
 						<AlertDialogAction
-							onClick={handleDelete}
+							onClick={(e) => {
+								e.preventDefault();
+								handleDelete();
+							}}
 							className="bg-destructive hover:bg-destructive/90"
 							disabled={isDeleting}
 						>
-							{isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Supprimer"}
+							{isDeleting ? (
+								<Loader2 className="h-4 w-4 animate-spin" />
+							) : (
+								"Supprimer"
+							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

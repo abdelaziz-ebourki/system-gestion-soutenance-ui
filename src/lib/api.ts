@@ -170,6 +170,14 @@ export const updateSession = (id: string, data: Omit<Session, "id">) =>
 export const deleteSession = (id: string) =>
 	api<void>(`/admin/sessions/${id}`, { method: "DELETE" });
 
+export const getSessionTypes = () => api<{id: string, name: string}[]>("/admin/config/session-types");
+export const createSessionType = (data: {name: string}) => api("/admin/config/session-types", { method: "POST", body: JSON.stringify(data) });
+export const deleteSessionType = (id: string) => api(`/admin/config/session-types/${id}`, { method: "DELETE" });
+
+export const getSessionStatuses = () => api<{id: string, name: string}[]>("/admin/config/session-statuses");
+export const createSessionStatus = (data: {name: string}) => api("/admin/config/session-statuses", { method: "POST", body: JSON.stringify(data) });
+export const deleteSessionStatus = (id: string) => api(`/admin/config/session-statuses/${id}`, { method: "DELETE" });
+
 // --- Room Services ---
 export const getRooms = () => api<Room[]>("/admin/rooms");
 export const createRoom = (data: Omit<Room, "id">) =>
@@ -227,3 +235,17 @@ export const updateGrade = (id: string, data: Omit<Grade, "id">) =>
 	});
 export const deleteGrade = (id: string) =>
 	api<void>(`/admin/config/grades/${id}`, { method: "DELETE" });
+
+// --- Defense Settings ---
+export interface DefenseSettings {
+	startTime: string;
+	endTime: string;
+	defenseDuration: number;
+	breakDuration: number;
+}
+export const getDefenseSettings = () => api<DefenseSettings>("/admin/config/settings");
+export const updateDefenseSettings = (data: DefenseSettings) =>
+	api<DefenseSettings>("/admin/config/settings", {
+		method: "POST",
+		body: JSON.stringify(data),
+	});
