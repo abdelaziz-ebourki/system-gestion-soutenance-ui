@@ -17,6 +17,10 @@ import type {
 	TeacherEvaluation,
 	TeacherStats,
 	TeacherUnavailability,
+	StudentDefenseDetails,
+	StudentDocument,
+	StudentGroupDetails,
+	StudentStats,
 } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 
@@ -343,3 +347,15 @@ export const saveTeacherUnavailability = (
 		method: "POST",
 		body: JSON.stringify(data),
 	});
+
+// --- Student Services ---
+export const getStudentStats = () => api<StudentStats>("/student/stats");
+
+export const getStudentDefense = () =>
+	api<StudentDefenseDetails>("/student/defense");
+
+export const getStudentGroup = () =>
+	api<StudentGroupDetails>("/student/group");
+
+export const getStudentDocuments = () =>
+	api<StudentDocument[]>("/student/documents");

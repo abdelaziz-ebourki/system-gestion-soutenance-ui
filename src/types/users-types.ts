@@ -50,6 +50,23 @@ export interface Department {
 	headId: string;
 }
 
+export interface Project {
+	id: string;
+	title: string;
+	description?: string;
+	supervisorId: string;
+	studentIds: string[];
+	status: "pending" | "approved" | "rejected";
+}
+
+export interface Jury {
+	id: string;
+	projectId: string;
+	presidentId: string;
+	reporterId: string;
+	examinerId: string;
+}
+
 export interface Session {
 	id: string;
 	name: string;

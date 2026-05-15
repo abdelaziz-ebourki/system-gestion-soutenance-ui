@@ -82,3 +82,51 @@ export interface TeacherEvaluation {
 export interface TeacherUnavailability {
 	slotsByDate: Record<string, string[]>;
 }
+
+export interface StudentStats {
+	documentCount: number;
+	missingDocuments: number;
+	groupMembers: number;
+	defenseStatus: "scheduled" | "pending";
+}
+
+export interface StudentDefenseDetails {
+	projectTitle: string;
+	projectDescription?: string;
+	supervisorName: string;
+	juryMembers: Array<{
+		name: string;
+		role: string;
+	}>;
+	date?: string;
+	startTime?: string;
+	endTime?: string;
+	roomName?: string;
+	status: "scheduled" | "pending";
+	convocationUrl?: string;
+	result?: {
+		decision: string;
+		score?: number;
+	};
+}
+
+export interface StudentGroupDetails {
+	groupName: string;
+	projectTitle: string;
+	supervisorName: string;
+	members: Array<{
+		id: string;
+		fullName: string;
+		email: string;
+		role: "leader" | "member";
+	}>;
+}
+
+export interface StudentDocument {
+	id: string;
+	name: string;
+	type: string;
+	deadline: string;
+	status: "submitted" | "missing" | "validated";
+	submittedAt?: string;
+}

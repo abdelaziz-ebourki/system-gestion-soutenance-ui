@@ -15,6 +15,10 @@ import type {
 	TeacherEvaluation,
 	TeacherStats,
 	TeacherUnavailability,
+	StudentStats,
+	StudentDefenseDetails,
+	StudentGroupDetails,
+	StudentDocument,
 } from "@/types";
 import { auditLogHandlers } from "./audit-log-handlers";
 
@@ -96,6 +100,19 @@ const mockUsers: User[] = [
 		gradeId: "g2",
 		departmentId: "2",
 	} as Teacher,
+	{
+		id: "std-demo",
+		lastName: "Bourki",
+		firstName: "Salma",
+		email: "student@univ.com",
+		password: "1234",
+		role: "student",
+		isActive: true,
+		cne: "E13000999",
+		filiereId: "f1",
+		levelId: "n2",
+		projectId: "p5",
+	} as Student,
 	...generateStudents(20),
 ];
 
@@ -178,6 +195,16 @@ let mockProjects: Project[] = [
 		supervisorName: "Alami Moussa",
 		status: "approved",
 	},
+	{
+		id: "p5",
+		title: "Portail intelligent de suivi des soutenances",
+		description: "Interface et services pour suivre planning, documents et evaluations.",
+		studentIds: ["std-demo", "std-1"],
+		studentNames: ["Bourki Salma", "Nom1 Prenom1"],
+		supervisorId: "3",
+		supervisorName: "Ali Ben Ali",
+		status: "approved",
+	},
 ];
 
 let mockJurys: Jury[] = [
@@ -196,6 +223,17 @@ let mockJurys: Jury[] = [
 		id: "j2",
 		projectId: "p3",
 		projectTitle: "Analyse des donnees IoT",
+		presidentId: "4",
+		presidentName: "Alami Moussa",
+		reporterId: "3",
+		reporterName: "Ali Ben Ali",
+		examinerId: "2",
+		examinerName: "Ouchen Yassin",
+	},
+	{
+		id: "j3",
+		projectId: "p5",
+		projectTitle: "Portail intelligent de suivi des soutenances",
 		presidentId: "4",
 		presidentName: "Alami Moussa",
 		reporterId: "3",
@@ -280,6 +318,70 @@ let teacherUnavailability: TeacherUnavailability = {
 		"2026-06-12": ["08:30 - 10:00", "10:15 - 11:45"],
 	},
 };
+
+const studentGroupDetails: StudentGroupDetails = {
+	groupName: "Equipe P5-Alpha",
+	projectTitle: "Portail intelligent de suivi des soutenances",
+	supervisorName: "Ali Ben Ali",
+	members: [
+		{
+			id: "std-demo",
+			fullName: "Bourki Salma",
+			email: "student@univ.com",
+			role: "leader",
+		},
+		{
+			id: "std-1",
+			fullName: "Nom1 Prenom1",
+			email: "student1@univ.com",
+			role: "member",
+		},
+	],
+};
+
+const studentDefenseDetails: StudentDefenseDetails = {
+	projectTitle: "Portail intelligent de suivi des soutenances",
+	projectDescription:
+		"Concevoir un portail et des parcours utilisateur pour fluidifier toute la campagne de soutenance.",
+	supervisorName: "Ali Ben Ali",
+	juryMembers: [
+		{ name: "Alami Moussa", role: "President" },
+		{ name: "Ali Ben Ali", role: "Rapporteur" },
+		{ name: "Ouchen Yassin", role: "Examinateur" },
+	],
+	date: "2026-06-14",
+	startTime: "10:15",
+	endTime: "11:45",
+	roomName: "Salle 101",
+	status: "scheduled",
+	convocationUrl: "/mock/convocation-p5.pdf",
+};
+
+const studentDocuments: StudentDocument[] = [
+	{
+		id: "sd1",
+		name: "Rapport final.pdf",
+		type: "Rapport",
+		deadline: "2026-06-05",
+		status: "validated",
+		submittedAt: "2026-06-03 14:20",
+	},
+	{
+		id: "sd2",
+		name: "Presentation finale.pptx",
+		type: "Presentation",
+		deadline: "2026-06-10",
+		status: "submitted",
+		submittedAt: "2026-06-09 18:05",
+	},
+	{
+		id: "sd3",
+		name: "Code source.zip",
+		type: "Archive",
+		deadline: "2026-06-10",
+		status: "missing",
+	},
+];
 
 export const handlers = [
 	http.post("/api/login", async ({ request }) => {
@@ -797,5 +899,33 @@ export const handlers = [
 		const body = (await request.json()) as TeacherUnavailability;
 		teacherUnavailability = body;
 		return HttpResponse.json(teacherUnavailability);
+	}),
+
+	http.get("/api/student/stats", async () => {
+		await delay(MOCK_DELAY);
+		const stats: StudentStats = {
+			documentCount: studentDocuments.length,
+			missingDocuments: studentDocuments.filter(
+				(document) => document.status === "missing",
+			).length,
+			groupMembers: studentGroupDetails.members.length,
+			defenseStatus: studentDefenseDetails.status,
+		};
+		return HttpResponse.json(stats);
+	}),
+
+	http.get("/api/student/defense", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(studentDefenseDetails);
+	}),
+
+	http.get("/api/student/group", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(studentGroupDetails);
+	}),
+
+	http.get("/api/student/documents", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(studentDocuments);
 	}),
 ];

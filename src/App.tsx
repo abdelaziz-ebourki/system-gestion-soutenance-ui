@@ -18,6 +18,8 @@ import TeacherSchedule from "./pages/teacher/TeacherSchedule";
 import TeacherEvaluations from "./pages/teacher/TeacherEvaluations";
 import TeacherUnavailability from "./pages/teacher/TeacherUnavailability";
 import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentGroup from "./pages/student/StudentGroup";
+import StudentDocuments from "./pages/student/StudentDocuments";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import DashboardLayout from "./components/layout/DashboardLayout";
 
@@ -55,6 +57,8 @@ export default function App() {
 
 				<Route element={<ProtectedRoute allowedRoles={["student"]} />}>
 					<Route path="/student" element={<StudentDashboard />} />
+					<Route path="/student/group" element={<StudentGroup />} />
+					<Route path="/student/documents" element={<StudentDocuments />} />
 				</Route>
 			</Route>
 
