@@ -9,7 +9,6 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
@@ -23,6 +22,12 @@ export default function VerifyAccount() {
 	const [password, setPassword] = React.useState("");
 	const [confirmPassword, setConfirmPassword] = React.useState("");
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+	React.useEffect(() => {
+		if (!token) {
+			navigate("/login", { replace: true });
+		}
+	}, [token, navigate]);
 
 	const handleVerify = async (e: React.SubmitEvent) => {
 		e.preventDefault();
@@ -50,25 +55,7 @@ export default function VerifyAccount() {
 		}
 	};
 
-	if (!token) {
-		return (
-			<div className="flex min-h-screen items-center justify-center p-4">
-				<Card className="w-full max-w-sm">
-					<CardHeader>
-						<CardTitle>Lien invalide</CardTitle>
-						<CardDescription>
-							Ce lien de vérification est invalide ou manquant.
-						</CardDescription>
-					</CardHeader>
-					<CardFooter>
-						<Button className="w-full" onClick={() => navigate("/login")}>
-							Retour à la connexion
-						</Button>
-					</CardFooter>
-				</Card>
-			</div>
-		);
-	}
+	if (!token) return null;
 
 	return (
 		<div className="flex min-h-screen items-center justify-center p-4">
