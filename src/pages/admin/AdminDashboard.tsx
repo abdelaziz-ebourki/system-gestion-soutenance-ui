@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { type ColumnDef } from "@tanstack/react-table";
 import {
 	Users,
 	GraduationCap,
@@ -8,12 +9,14 @@ import {
 	DoorOpen,
 	CalendarCheck,
 	History,
+	Loader2,
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { format } from "date-fns";
 
-import { getAdminStats, getUsers } from "@/lib/api";
+import { getAdminStats, getUsers, getAuditLogs } from "@/lib/api";
 import type { DashboardStats, User } from "@/types";
-import type { ColumnDef } from "@tanstack/react-table";
+import { type AuditLog } from "@/types/audit-log";
 import { DataTable } from "@/components/ui/data-table";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -35,17 +38,20 @@ import { toast } from "sonner";
 export default function AdminDashboard() {
 	const [stats, setStats] = React.useState<DashboardStats | null>(null);
 	const [users, setUsers] = React.useState<User[]>([]);
+	const [logs, setLogs] = React.useState<AuditLog[]>([]);
 	const [isLoading, setIsLoading] = React.useState(true);
 
 	React.useEffect(() => {
 		const fetchData = async () => {
 			try {
-				const [statsData, usersData] = await Promise.all([
+				const [statsData, usersData, logsData] = await Promise.all([
 					getAdminStats(),
 					getUsers({ limit: 5 }),
+					getAuditLogs(),
 				]);
 				setStats(statsData);
 				setUsers(usersData.items);
+				setLogs(logsData);
 			} catch {
 				toast.error("Erreur lors du chargement des données");
 			} finally {
@@ -72,23 +78,34 @@ export default function AdminDashboard() {
 		{
 			accessorKey: "role",
 			header: "Rôle",
-			cell: ({ row }) => {
-				const role = row.getValue("role") as string;
-				return (
-					<Badge variant="outline" className="capitalize">
-						{role}
-					</Badge>
-				);
-			},
-		},
-		{
-			accessorKey: "isActive",
-			header: "Statut",
 			cell: ({ row }) => (
-				<Badge variant={row.getValue("isActive") ? "default" : "secondary"}>
-					{row.getValue("isActive") ? "Actif" : "Inactif"}
+				<Badge variant="outline" className="capitalize">
+					{row.getValue("role")}
 				</Badge>
 			),
+		},
+	];
+
+	const logColumns: ColumnDef<AuditLog>[] = [
+		{
+			accessorKey: "timestamp",
+			header: "Date",
+			cell: ({ row }) => format(new Date(row.original.timestamp), "dd/MM/yyyy HH:mm"),
+		},
+		{
+			accessorKey: "adminEmail",
+			header: "Admin",
+		},
+		{
+			accessorKey: "action",
+			header: "Action",
+			cell: ({ row }) => (
+				<Badge variant="outline" className="font-mono">{row.original.action}</Badge>
+			),
+		},
+		{
+			accessorKey: "details",
+			header: "Détails",
 		},
 	];
 
@@ -104,10 +121,7 @@ export default function AdminDashboard() {
 						<Skeleton key={i} className="h-32 w-full" />
 					))}
 				</div>
-				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-					<Skeleton className="col-span-4 h-[400px]" />
-					<Skeleton className="col-span-3 h-[400px]" />
-				</div>
+				<Skeleton className="h-[400px] w-full" />
 			</div>
 		);
 	}
@@ -120,19 +134,14 @@ export default function AdminDashboard() {
 	];
 
 	const chartConfig = {
-		total: {
-			label: "Total",
-			color: "var(--primary)",
-		},
+		total: { label: "Total", color: "var(--primary)" },
 	} satisfies ChartConfig;
 
 	return (
 		<div className="space-y-6">
 			<div>
 				<h1 className="text-3xl font-bold tracking-tight">Tableau de Bord</h1>
-				<p className="text-muted-foreground">
-					Aperçu global de l'activité du système.
-				</p>
+				<p className="text-muted-foreground">Aperçu global de l'activité du système.</p>
 			</div>
 
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -143,7 +152,6 @@ export default function AdminDashboard() {
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">{stats?.totalStudents}</div>
-						<p className="text-xs text-muted-foreground">Inscrits cette année</p>
 					</CardContent>
 				</Card>
 				<Card>
@@ -153,7 +161,6 @@ export default function AdminDashboard() {
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">{stats?.totalTeachers}</div>
-						<p className="text-xs text-muted-foreground">Corps professoral</p>
 					</CardContent>
 				</Card>
 				<Card>
@@ -163,7 +170,6 @@ export default function AdminDashboard() {
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">{stats?.totalDepartments}</div>
-						<p className="text-xs text-muted-foreground">Unités académiques</p>
 					</CardContent>
 				</Card>
 				<Card>
@@ -173,7 +179,6 @@ export default function AdminDashboard() {
 					</CardHeader>
 					<CardContent>
 						<div className="text-2xl font-bold">{stats?.totalRooms}</div>
-						<p className="text-xs text-muted-foreground">Disponibles</p>
 					</CardContent>
 				</Card>
 			</div>
@@ -182,20 +187,12 @@ export default function AdminDashboard() {
 				<Card className="col-span-4">
 					<CardHeader>
 						<CardTitle>Distribution des Ressources</CardTitle>
-						<CardDescription>
-							Comparaison entre les différentes entités gérées.
-						</CardDescription>
 					</CardHeader>
 					<CardContent className="pl-2">
 						<ChartContainer config={chartConfig} className="min-h-[300px] w-full">
 							<BarChart data={chartData}>
 								<CartesianGrid vertical={false} />
-								<XAxis
-									dataKey="name"
-									tickLine={false}
-									tickMargin={10}
-									axisLine={false}
-								/>
+								<XAxis dataKey="name" tickLine={false} tickMargin={10} axisLine={false} />
 								<ChartTooltip content={<ChartTooltipContent />} />
 								<Bar dataKey="total" fill="var(--color-total)" radius={8} />
 							</BarChart>
@@ -205,37 +202,24 @@ export default function AdminDashboard() {
 
 				<Card className="col-span-3">
 					<CardHeader>
-						<CardTitle>Activités Récentes</CardTitle>
-						<CardDescription>
-							Résumé des opérations en cours.
-						</CardDescription>
+						<CardTitle>Activités Système</CardTitle>
 					</CardHeader>
 					<CardContent>
-						<div className="space-y-8">
+						<div className="space-y-4">
 							<div className="flex items-center">
-								<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-									<CalendarCheck className="h-6 w-6" />
+								<div className="flex h-10 w-10 items-center justify-center rounded bg-primary/10">
+									<CalendarCheck className="h-5 w-5 text-primary" />
 								</div>
-								<div className="ml-4 space-y-1">
-									<p className="text-sm font-medium leading-none">
-										{stats?.activeSessions} Sessions Actives
-									</p>
-									<p className="text-sm text-muted-foreground">
-										En cours de planification
-									</p>
+								<div className="ml-4">
+									<p className="text-sm font-medium">{stats?.activeSessions} Sessions Actives</p>
 								</div>
 							</div>
 							<div className="flex items-center">
-								<div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-									<History className="h-6 w-6" />
+								<div className="flex h-10 w-10 items-center justify-center rounded bg-primary/10">
+									<History className="h-5 w-5 text-primary" />
 								</div>
-								<div className="ml-4 space-y-1">
-									<p className="text-sm font-medium leading-none">
-										{stats?.upcomingDefenses} Soutenances à venir
-									</p>
-									<p className="text-sm text-muted-foreground">
-										Prévues pour les 30 prochains jours
-									</p>
+								<div className="ml-4">
+									<p className="text-sm font-medium">{stats?.upcomingDefenses} Soutenances</p>
 								</div>
 							</div>
 						</div>
@@ -243,22 +227,24 @@ export default function AdminDashboard() {
 				</Card>
 			</div>
 
-			<Card>
-				<CardHeader>
-					<CardTitle>Derniers Utilisateurs</CardTitle>
-					<CardDescription>
-						Liste des membres inscrits récemment sur la plateforme.
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<DataTable
-						columns={userColumns}
-						data={users}
-						filterColumn="full_name"
-						filterPlaceholder="Filtrer par nom..."
-					/>
-				</CardContent>
-			</Card>
+			<div className="grid gap-4 md:grid-cols-2">
+				<Card>
+					<CardHeader>
+						<CardTitle>Derniers Utilisateurs</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<DataTable columns={userColumns} data={users} />
+					</CardContent>
+				</Card>
+				<Card>
+					<CardHeader>
+						<CardTitle>Audit Log</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<DataTable columns={logColumns} data={logs} />
+					</CardContent>
+				</Card>
+			</div>
 		</div>
 	);
 }

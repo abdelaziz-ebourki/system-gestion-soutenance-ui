@@ -9,7 +9,6 @@ import Students from "./pages/admin/users/Students";
 import Teachers from "./pages/admin/users/Teachers";
 import Coordinators from "./pages/admin/users/Coordinators";
 import Configuration from "./pages/admin/Configuration";
-import AuditLogs from "./pages/admin/AuditLogs";
 import CoordinatorDashboard from "./pages/coordinator/CoordinatorDashboard";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import StudentDashboard from "./pages/student/StudentDashboard";
@@ -32,15 +31,16 @@ export default function App() {
 					<Route path="/admin/users/teachers" element={<Teachers />} />
 					<Route path="/admin/users/coordinators" element={<Coordinators />} />
 					<Route path="/admin/config" element={<Configuration />} />
-					<Route path="/admin/audit" element={<AuditLogs />} />
 				</Route>
-				//... (rest of the file content)
+
 				<Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>
 					<Route path="/coordinator" element={<CoordinatorDashboard />} />
 				</Route>
+
 				<Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
 					<Route path="/teacher" element={<TeacherDashboard />} />
 				</Route>
+
 				<Route element={<ProtectedRoute allowedRoles={["student"]} />}>
 					<Route path="/student" element={<StudentDashboard />} />
 				</Route>
