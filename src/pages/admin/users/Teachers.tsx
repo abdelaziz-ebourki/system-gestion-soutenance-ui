@@ -79,7 +79,6 @@ export default function Teachers() {
 		email: "",
 		gradeId: "",
 		departmentId: "",
-		password: "",
 	});
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -113,7 +112,6 @@ export default function Teachers() {
 			email: "",
 			gradeId: grades[0]?.id || "",
 			departmentId: departments[0]?.id || "",
-			password: "",
 		});
 		setSelectedTeacher(null);
 	};
@@ -121,7 +119,7 @@ export default function Teachers() {
 	const handleCreate = async () => {
 		setIsSubmitting(true);
 		try {
-			await createUser({ ...formData, role: "teacher", isActive: true });
+			await createUser({ ...formData, role: "teacher", isActive: false });
 			toast.success("Enseignant ajouté avec succès");
 			setIsDialogOpen(false);
 			resetForm();
@@ -137,10 +135,7 @@ export default function Teachers() {
 		if (!selectedTeacher) return;
 		setIsSubmitting(true);
 		try {
-			const updateData = { ...formData, role: "teacher" as const };
-			if (!updateData.password) delete (updateData as any).password;
-
-			await updateUser(selectedTeacher.id, updateData);
+			await updateUser(selectedTeacher.id, { ...formData, role: "teacher" as const });
 			toast.success("Profil enseignant mis à jour");
 			setIsDialogOpen(false);
 			resetForm();
@@ -235,7 +230,6 @@ export default function Teachers() {
 											email: teacher.email,
 											gradeId: teacher.gradeId,
 											departmentId: teacher.departmentId,
-											password: "",
 										});
 										setIsDialogOpen(true);
 									}}
@@ -384,20 +378,6 @@ export default function Teachers() {
 										))}
 									</SelectContent>
 								</Select>
-							</Field>
-							<Field className="col-span-2">
-								<FieldLabel>
-									Mot de passe{" "}
-									{selectedTeacher && "(laisser vide pour ne pas changer)"}
-								</FieldLabel>
-								<Input
-									type="password"
-									value={formData.password}
-									onChange={(e) =>
-										setFormData({ ...formData, password: e.target.value })
-									}
-									required={!selectedTeacher}
-								/>
 							</Field>
 						</FieldGroup>
 						<DialogFooter>

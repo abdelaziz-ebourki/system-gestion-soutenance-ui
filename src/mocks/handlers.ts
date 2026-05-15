@@ -181,13 +181,15 @@ export const handlers = [
 
 	http.post("/api/admin/users", async ({ request }) => {
 		await delay(MOCK_DELAY);
-		const body = (await request.json()) as Omit<User, "id">;
+		const body = (await request.json()) as Omit<User, "id" | "password">;
 		const newUser: User = {
 			...body,
-			id: (mockUsers.length + 1).toString(),
-			isActive: true,
+			id: Math.random().toString(36).substr(2, 9),
+			password: "", // No password yet
+			isActive: false, // Inactive until verified
 		};
 		mockUsers.push(newUser);
+		console.log(`[Mock Email] Sending verification link to ${newUser.email}: /verify-account?token=${btoa(newUser.id)}`);
 		return HttpResponse.json(newUser);
 	}),
 
@@ -204,9 +206,9 @@ export const handlers = [
 				firstName: u.firstName,
 				lastName: u.lastName,
 				email: u.email,
-				password: "1234",
+				password: "",
 				role,
-				isActive: true,
+				isActive: false,
 			};
 
 			if (role === "student") {
@@ -225,11 +227,24 @@ export const handlers = [
 					mockGrades.find((g) => g.name === u.gradeName)?.id || "g1";
 				return teacher;
 			}
+			console.log(`[Mock Email] Sending verification link to ${newUser.email}: /verify-account?token=${btoa(newUser.id)}`);
 			return newUser;
 		});
 
 		mockUsers.push(...createdUsers);
 		return HttpResponse.json(createdUsers, { status: 201 });
+	}),
+
+	http.post("/api/auth/verify-account", async ({ request }) => {
+		await delay(MOCK_DELAY);
+		const { token, password } = (await request.json()) as { token: string; password: string };
+		const userId = atob(token);
+		const user = mockUsers.find((u) => u.id === userId);
+		if (!user) return new HttpResponse(null, { status: 404 });
+
+		user.password = password;
+		user.isActive = true;
+		return HttpResponse.json({ message: "Account verified successfully" });
 	}),
 
 	http.put("/api/admin/users/:id", async ({ params, request }) => {

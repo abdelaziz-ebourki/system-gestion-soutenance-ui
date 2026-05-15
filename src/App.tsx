@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
+import VerifyAccount from "./pages/auth/VerifyAccount";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import Departments from "./pages/admin/Departments";
 import Sessions from "./pages/admin/Sessions";
@@ -18,6 +19,7 @@ export default function App() {
 	return (
 		<Routes>
 			<Route path="/login" element={<Login />} />
+			<Route path="/verify-account" element={<VerifyAccount />} />
 
 			<Route element={<DashboardLayout />}>
 				<Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

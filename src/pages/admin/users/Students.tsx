@@ -80,7 +80,6 @@ export default function Students() {
 		cne: "",
 		filiereId: "",
 		levelId: "",
-		password: "",
 	});
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -115,7 +114,6 @@ export default function Students() {
 			cne: "",
 			filiereId: filieres[0]?.id || "",
 			levelId: levels[0]?.id || "",
-			password: "",
 		});
 		setSelectedStudent(null);
 	};
@@ -123,7 +121,7 @@ export default function Students() {
 	const handleCreate = async () => {
 		setIsSubmitting(true);
 		try {
-			await createUser({ ...formData, role: "student", isActive: true });
+			await createUser({ ...formData, role: "student", isActive: false });
 			toast.success("Étudiant créé avec succès");
 			setIsDialogOpen(false);
 			resetForm();
@@ -139,10 +137,7 @@ export default function Students() {
 		if (!selectedStudent) return;
 		setIsSubmitting(true);
 		try {
-			const updateData = { ...formData, role: "student" as const };
-			if (!updateData.password) delete (updateData as any).password;
-
-			await updateUser(selectedStudent.id, updateData);
+			await updateUser(selectedStudent.id, { ...formData, role: "student" as const });
 			toast.success("Étudiant modifié avec succès");
 			setIsDialogOpen(false);
 			resetForm();
@@ -237,7 +232,6 @@ export default function Students() {
 											cne: student.cne,
 											filiereId: student.filiereId,
 											levelId: student.levelId,
-											password: "",
 										});
 										setIsDialogOpen(true);
 									}}
@@ -398,20 +392,6 @@ export default function Students() {
 										))}
 									</SelectContent>
 								</Select>
-							</Field>
-							<Field className="col-span-2">
-								<FieldLabel>
-									Mot de passe{" "}
-									{selectedStudent && "(laisser vide pour ne pas changer)"}
-								</FieldLabel>
-								<Input
-									type="password"
-									value={formData.password}
-									onChange={(e) =>
-										setFormData({ ...formData, password: e.target.value })
-									}
-									required={!selectedStudent}
-								/>
 							</Field>
 						</FieldGroup>
 						<DialogFooter>

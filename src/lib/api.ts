@@ -18,7 +18,7 @@ interface ApiOptions extends RequestInit {
 	requiresAuth?: boolean;
 }
 
-async function api<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
+export async function api<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
 	const { requiresAuth = true, ...customConfig } = options;
 
 	const headers = {
