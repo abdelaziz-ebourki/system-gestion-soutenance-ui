@@ -1,10 +1,19 @@
 import * as React from "react";
-import { CalendarClock, FileCheck2, FileText, FolderArchive } from "lucide-react";
+import {
+	CalendarClock,
+	FileCheck2,
+	FileText,
+	FolderArchive,
+	Upload,
+} from "lucide-react";
 
 import { getStudentDocuments } from "@/lib/api";
 import type { StudentDocument } from "@/types";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
 	Card,
 	CardContent,
@@ -34,6 +43,9 @@ const statusClass: Record<StudentDocument["status"], string> = {
 export default function StudentDocuments() {
 	const [documents, setDocuments] = React.useState<StudentDocument[]>([]);
 	const [isLoading, setIsLoading] = React.useState(true);
+	const [isUploading, setIsUploading] = React.useState<Record<string, boolean>>(
+		{},
+	);
 
 	React.useEffect(() => {
 		const fetchData = async () => {
@@ -49,6 +61,14 @@ export default function StudentDocuments() {
 		fetchData();
 	}, []);
 
+	const handleUpload = (documentId: string) => {
+		setIsUploading((prev) => ({ ...prev, [documentId]: true }));
+		setTimeout(() => {
+			setIsUploading((prev) => ({ ...prev, [documentId]: false }));
+			toast.success("Document envoye avec succes");
+		}, 1500);
+	};
+
 	return (
 		<div className="space-y-6">
 			<div>
@@ -62,7 +82,9 @@ export default function StudentDocuments() {
 				<Card className="border-0 shadow-sm">
 					<CardContent className="flex items-center justify-between p-5">
 						<div>
-							<p className="text-sm text-muted-foreground">Documents attendus</p>
+							<p className="text-sm text-muted-foreground">
+								Documents attendus
+							</p>
 							<p className="mt-2 text-3xl font-semibold">{documents.length}</p>
 						</div>
 						<div className="rounded-2xl bg-secondary p-3 text-primary">
@@ -75,7 +97,11 @@ export default function StudentDocuments() {
 						<div>
 							<p className="text-sm text-muted-foreground">Valides</p>
 							<p className="mt-2 text-3xl font-semibold">
-								{documents.filter((document) => document.status === "validated").length}
+								{
+									documents.filter(
+										(document) => document.status === "validated",
+									).length
+								}
 							</p>
 						</div>
 						<div className="rounded-2xl bg-secondary p-3 text-primary">
@@ -86,9 +112,14 @@ export default function StudentDocuments() {
 				<Card className="border-0 shadow-sm">
 					<CardContent className="flex items-center justify-between p-5">
 						<div>
-							<p className="text-sm text-muted-foreground">Echeances ouvertes</p>
+							<p className="text-sm text-muted-foreground">
+								Échéances ouvertes
+							</p>
 							<p className="mt-2 text-3xl font-semibold">
-								{documents.filter((document) => document.status === "missing").length}
+								{
+									documents.filter((document) => document.status === "missing")
+										.length
+								}
 							</p>
 						</div>
 						<div className="rounded-2xl bg-destructive/10 p-3 text-destructive">
@@ -132,11 +163,31 @@ export default function StudentDocuments() {
 											{statusLabel[document.status]}
 										</Badge>
 									</div>
-									<div className="mt-4 flex flex-wrap gap-6 text-sm text-muted-foreground">
-										<span>Echeance: {document.deadline}</span>
-										<span>
-											Depot: {document.submittedAt || "Non depose"}
-										</span>
+									<div className="mt-4 flex flex-wrap items-end justify-between gap-6">
+										<div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
+											<span>Echeance: {document.deadline}</span>
+											<span>Depot: {document.submittedAt || "Non depose"}</span>
+										</div>
+										{document.status === "missing" && (
+											<div className="flex items-end gap-2">
+												<div className="grid w-full max-w-sm items-center gap-1.5">
+													<Label
+														htmlFor={`file-${document.id}`}
+														className="sr-only"
+													>
+														Fichier
+													</Label>
+													<Input id={`file-${document.id}`} type="file" />
+												</div>
+												<Button
+													onClick={() => handleUpload(document.id)}
+													disabled={isUploading[document.id]}
+												>
+													<Upload className="mr-2 size-4" />
+													{isUploading[document.id] ? "Envoi..." : "Deposer"}
+												</Button>
+											</div>
+										)}
 									</div>
 								</div>
 							);

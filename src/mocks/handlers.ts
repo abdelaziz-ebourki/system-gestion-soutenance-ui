@@ -45,12 +45,21 @@ const mockGrades: Grade[] = [
 	{ id: "g3", name: "PA" },
 ];
 
+const firstNames = [
+	"Amine", "Salma", "Yassine", "Fatima", "Mehdi", "Sofia", "Omar", "Hajar", "Khalid", "Layla",
+	"Zakaria", "Nadia", "Hamza", "Zineb", "Anas", "Meryem", "Reda", "Chaimae", "Ayoub", "Ibtissam"
+];
+const lastNames = [
+	"Alami", "Benali", "Fassi", "Tazi", "Mansouri", "Radi", "Idrissi", "Bennani", "Kettani", "Amrani",
+	"Lahlou", "Sekkat", "Guessous", "Filali", "Skalli", "Kadiri", "Belkora", "Mernissi", "Berrada", "El Hachimi"
+];
+
 // Helper to generate lots of mock students for pagination testing
 const generateStudents = (count: number): Student[] => {
 	return Array.from({ length: count }, (_, i) => ({
 		id: `std-${i + 1}`,
-		lastName: `Nom${i + 1}`,
-		firstName: `Prenom${i + 1}`,
+		lastName: lastNames[i % lastNames.length],
+		firstName: firstNames[i % firstNames.length],
 		email: `student${i + 1}@univ.com`,
 		role: "student",
 		isActive: true,
@@ -113,7 +122,7 @@ const mockUsers: User[] = [
 		filiereId: "f1",
 		levelId: "n2",
 	} as Student,
-	...generateStudents(20),
+	...generateStudents(50),
 ];
 
 const mockDepartments: Department[] = [
