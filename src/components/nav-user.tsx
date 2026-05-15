@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -78,7 +77,10 @@ export function NavUser({
 					<DropdownMenu>
 						<DropdownMenuTrigger
 							render={
-								<SidebarMenuButton size="lg" className="aria-expanded:bg-muted" />
+								<SidebarMenuButton
+									size="lg"
+									className="aria-expanded:bg-muted"
+								/>
 							}
 						>
 							<Avatar className="size-8 rounded-lg grayscale">
@@ -111,7 +113,9 @@ export function NavUser({
 											</AvatarFallback>
 										</Avatar>
 										<div className="grid flex-1 text-left text-sm leading-tight">
-											<span className="truncate font-medium">{displayName}</span>
+											<span className="truncate font-medium">
+												{displayName}
+											</span>
 											<span className="truncate text-xs text-muted-foreground">
 												{user.email}
 											</span>
@@ -168,20 +172,22 @@ export function NavUser({
 													<MonitorIcon className="mr-2 h-4 w-4" />
 													Système
 												</div>
-												{theme === "system" && <CheckIcon className="h-4 w-4" />}
+												{theme === "system" && (
+													<CheckIcon className="h-4 w-4" />
+												)}
 											</DropdownMenuItem>
 										</DropdownMenuSubContent>
 									</DropdownMenuPortal>
 								</DropdownMenuSub>
 							</DropdownMenuGroup>
 							<DropdownMenuSeparator />
-							<AlertDialogTrigger asChild>
-								<DropdownMenuItem
-									className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
-								>
-									<LogOutIcon className="size-4" />
-									Se déconnecter
-								</DropdownMenuItem>
+							<AlertDialogTrigger
+								render={
+									<DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer" />
+								}
+							>
+								<LogOutIcon className="size-4" />
+								Se déconnecter
 							</AlertDialogTrigger>
 						</DropdownMenuContent>
 					</DropdownMenu>
@@ -189,12 +195,16 @@ export function NavUser({
 						<AlertDialogHeader>
 							<AlertDialogTitle>Déconnexion</AlertDialogTitle>
 							<AlertDialogDescription>
-								Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous reconnecter pour accéder au système.
+								Êtes-vous sûr de vouloir vous déconnecter ? Vous devrez vous
+								reconnecter pour accéder au système.
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>
 							<AlertDialogCancel>Annuler</AlertDialogCancel>
-							<AlertDialogAction onClick={handleLogout} className="bg-destructive hover:bg-destructive/90">
+							<AlertDialogAction
+								onClick={handleLogout}
+								className="bg-destructive hover:bg-destructive/90"
+							>
 								Se déconnecter
 							</AlertDialogAction>
 						</AlertDialogFooter>

@@ -10,6 +10,13 @@ import type {
 	Filiere,
 	Level,
 	Grade,
+	Project,
+	Group,
+	Jury,
+	TeacherDefense,
+	TeacherEvaluation,
+	TeacherStats,
+	TeacherUnavailability,
 } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 
@@ -108,6 +115,12 @@ export const getTeachersList = () =>
 		(res) => res.items,
 	);
 
+// Non-paginated students list for selections
+export const getStudentsList = () =>
+	api<PaginatedResponse<Student>>("/admin/users?role=student&limit=1000").then(
+		(res) => res.items,
+	);
+
 export const getCoordinators = (page = 0, limit = 10) =>
 	getUsers({ role: "coordinator", page, limit }) as unknown as Promise<
 		PaginatedResponse<Coordinator>
@@ -200,8 +213,8 @@ export const createFiliere = (data: Omit<Filiere, "id">) =>
 		method: "POST",
 		body: JSON.stringify(data),
 	});
-export const updateFiliere = (id: string, data: Omit<Filiere, "id">) =>
-	api<Filiere>(`/admin/config/filieres/${id}`, {
+export const updateFiliere = (_id: string, data: Omit<Filiere, "id">) =>
+	api<Filiere>(`/admin/config/filieres/${_id}`, {
 		method: "PUT",
 		body: JSON.stringify(data),
 	});
@@ -214,8 +227,8 @@ export const createLevel = (data: Omit<Level, "id">) =>
 		method: "POST",
 		body: JSON.stringify(data),
 	});
-export const updateLevel = (id: string, data: Omit<Level, "id">) =>
-	api<Level>(`/admin/config/levels/${id}`, {
+export const updateLevel = (_id: string, data: Omit<Level, "id">) =>
+	api<Level>(`/admin/config/levels/${_id}`, {
 		method: "PUT",
 		body: JSON.stringify(data),
 	});
@@ -228,8 +241,8 @@ export const createGrade = (data: Omit<Grade, "id">) =>
 		method: "POST",
 		body: JSON.stringify(data),
 	});
-export const updateGrade = (id: string, data: Omit<Grade, "id">) =>
-	api<Grade>(`/admin/config/grades/${id}`, {
+export const updateGrade = (_id: string, data: Omit<Grade, "id">) =>
+	api<Grade>(`/admin/config/grades/${_id}`, {
 		method: "PUT",
 		body: JSON.stringify(data),
 	});
@@ -246,6 +259,87 @@ export interface DefenseSettings {
 export const getDefenseSettings = () => api<DefenseSettings>("/admin/config/settings");
 export const updateDefenseSettings = (data: DefenseSettings) =>
 	api<DefenseSettings>("/admin/config/settings", {
+		method: "POST",
+		body: JSON.stringify(data),
+	});
+
+// --- Coordinator Services ---
+export interface CoordinatorStats {
+	totalProjects: number;
+	totalGroups: number;
+	totalJuries: number;
+	scheduledDefenses: number;
+}
+
+export const getCoordinatorStats = () => api<CoordinatorStats>("/coordinator/stats");
+
+export const getProjects = () => api<Project[]>("/coordinator/projects");
+export const createProject = (data: Omit<Project, "id">) =>
+	api<Project>("/coordinator/projects", {
+		method: "POST",
+		body: JSON.stringify(data),
+	});
+export const updateProject = (id: string, data: Partial<Project>) =>
+	api<Project>(`/coordinator/projects/${id}`, {
+		method: "PUT",
+		body: JSON.stringify(data),
+	});
+export const deleteProject = (id: string) =>
+	api<void>(`/coordinator/projects/${id}`, { method: "DELETE" });
+
+export const getGroups = () => api<Group[]>("/coordinator/groups");
+export const createGroup = (data: Omit<Group, "id">) =>
+	api<Group>("/coordinator/groups", {
+		method: "POST",
+		body: JSON.stringify(data),
+	});
+export const deleteGroup = (id: string) =>
+	api<void>(`/coordinator/groups/${id}`, { method: "DELETE" });
+
+export const getJurys = () => api<Jury[]>("/coordinator/jurys");
+export const createJury = (data: Omit<Jury, "id">) =>
+	api<Jury>("/coordinator/jurys", {
+		method: "POST",
+		body: JSON.stringify(data),
+	});
+export const updateJury = (id: string, data: Partial<Jury>) =>
+	api<Jury>(`/coordinator/jurys/${id}`, {
+		method: "PUT",
+		body: JSON.stringify(data),
+	});
+export const deleteJury = (id: string) =>
+	api<void>(`/coordinator/jurys/${id}`, { method: "DELETE" });
+
+export const saveSoutenanceSchedule = (schedule: Record<string, { id: string, title: string }>) =>
+	api<void>("/coordinator/schedule", {
+		method: "POST",
+		body: JSON.stringify({ schedule}),
+	});
+
+// --- Teacher Services ---
+export const getTeacherStats = () => api<TeacherStats>("/teacher/stats");
+
+export const getTeacherSchedule = () => api<TeacherDefense[]>("/teacher/schedule");
+
+export const getTeacherEvaluations = () =>
+	api<TeacherEvaluation[]>("/teacher/evaluations");
+
+export const submitTeacherEvaluation = (
+	id: string,
+	data: Pick<TeacherEvaluation, "score" | "comment">,
+) =>
+	api<TeacherEvaluation>(`/teacher/evaluations/${id}`, {
+		method: "POST",
+		body: JSON.stringify(data),
+	});
+
+export const getTeacherUnavailability = () =>
+	api<TeacherUnavailability>("/teacher/unavailability");
+
+export const saveTeacherUnavailability = (
+	data: TeacherUnavailability,
+) =>
+	api<TeacherUnavailability>("/teacher/unavailability", {
 		method: "POST",
 		body: JSON.stringify(data),
 	});

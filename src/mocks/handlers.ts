@@ -9,6 +9,12 @@ import type {
 	Filiere,
 	Level,
 	Grade,
+	Project,
+	Jury,
+	TeacherDefense,
+	TeacherEvaluation,
+	TeacherStats,
+	TeacherUnavailability,
 } from "@/types";
 import { auditLogHandlers } from "./audit-log-handlers";
 
@@ -123,6 +129,157 @@ const mockRooms: Room[] = [
 	{ id: "2", name: "Amphi B", capacity: 150, building: "Bloc B" },
 	{ id: "3", name: "Labo Info", capacity: 20, building: "Bloc C" },
 ];
+
+let defenseSettings = {
+	startTime: "08:00",
+	endTime: "18:00",
+	defenseDuration: 30,
+	breakDuration: 15,
+};
+
+let mockProjects: Project[] = [
+	{
+		id: "p1",
+		title: "Systeme de Gestion des Soutenances",
+		description: "Plateforme de planification, notifications et suivi des jurys.",
+		studentIds: ["std-1", "std-2"],
+		studentNames: ["Nom1 Prenom1", "Nom2 Prenom2"],
+		supervisorId: "3",
+		supervisorName: "Ali Ben Ali",
+		status: "approved",
+	},
+	{
+		id: "p2",
+		title: "Application E-learning adaptative",
+		description: "Personnalisation des parcours selon les performances.",
+		studentIds: ["std-3"],
+		studentNames: ["Nom3 Prenom3"],
+		supervisorId: "4",
+		supervisorName: "Alami Moussa",
+		status: "pending",
+	},
+	{
+		id: "p3",
+		title: "Analyse des donnees IoT",
+		description: "Pipeline d'agregation et tableau de bord temps reel.",
+		studentIds: ["std-4", "std-5"],
+		studentNames: ["Nom4 Prenom4", "Nom5 Prenom5"],
+		supervisorId: "3",
+		supervisorName: "Ali Ben Ali",
+		status: "approved",
+	},
+	{
+		id: "p4",
+		title: "Securite des reseaux cloud",
+		description: "Detection d'anomalies et gouvernance des acces.",
+		studentIds: ["std-6"],
+		studentNames: ["Nom6 Prenom6"],
+		supervisorId: "4",
+		supervisorName: "Alami Moussa",
+		status: "approved",
+	},
+];
+
+let mockJurys: Jury[] = [
+	{
+		id: "j1",
+		projectId: "p1",
+		projectTitle: "Systeme de Gestion des Soutenances",
+		presidentId: "3",
+		presidentName: "Ali Ben Ali",
+		reporterId: "4",
+		reporterName: "Alami Moussa",
+		examinerId: "2",
+		examinerName: "Ouchen Yassin",
+	},
+	{
+		id: "j2",
+		projectId: "p3",
+		projectTitle: "Analyse des donnees IoT",
+		presidentId: "4",
+		presidentName: "Alami Moussa",
+		reporterId: "3",
+		reporterName: "Ali Ben Ali",
+		examinerId: "2",
+		examinerName: "Ouchen Yassin",
+	},
+];
+
+const teacherSchedule: TeacherDefense[] = [
+	{
+		id: "td1",
+		projectId: "p1",
+		projectTitle: "Systeme de Gestion des Soutenances",
+		studentNames: ["Nom1 Prenom1", "Nom2 Prenom2"],
+		date: "2026-06-10",
+		startTime: "08:30",
+		endTime: "10:00",
+		roomName: "Salle 101",
+		role: "president",
+		status: "scheduled",
+	},
+	{
+		id: "td2",
+		projectId: "p3",
+		projectTitle: "Analyse des donnees IoT",
+		studentNames: ["Nom4 Prenom4", "Nom5 Prenom5"],
+		date: "2026-06-11",
+		startTime: "10:15",
+		endTime: "11:45",
+		roomName: "Amphi B",
+		role: "reporter",
+		status: "scheduled",
+	},
+	{
+		id: "td3",
+		projectId: "p4",
+		projectTitle: "Securite des reseaux cloud",
+		studentNames: ["Nom6 Prenom6"],
+		date: "2026-06-07",
+		startTime: "13:45",
+		endTime: "15:15",
+		roomName: "Labo Info",
+		role: "supervisor",
+		status: "completed",
+	},
+];
+
+let teacherEvaluations: TeacherEvaluation[] = [
+	{
+		id: "te1",
+		defenseId: "td1",
+		projectTitle: "Systeme de Gestion des Soutenances",
+		studentNames: ["Nom1 Prenom1", "Nom2 Prenom2"],
+		role: "president",
+		status: "pending",
+	},
+	{
+		id: "te2",
+		defenseId: "td2",
+		projectTitle: "Analyse des donnees IoT",
+		studentNames: ["Nom4 Prenom4", "Nom5 Prenom5"],
+		role: "reporter",
+		status: "pending",
+	},
+	{
+		id: "te3",
+		defenseId: "td3",
+		projectTitle: "Securite des reseaux cloud",
+		studentNames: ["Nom6 Prenom6"],
+		role: "supervisor",
+		score: 17,
+		comment: "Presentation claire et demonstration solide.",
+		status: "submitted",
+		submittedAt: "2026-06-07T16:20:00Z",
+	},
+];
+
+let teacherUnavailability: TeacherUnavailability = {
+	slotsByDate: {
+		"2026-06-09": ["10:15 - 11:45"],
+		"2026-06-12": ["08:30 - 10:00", "10:15 - 11:45"],
+	},
+};
 
 export const handlers = [
 	http.post("/api/login", async ({ request }) => {
@@ -493,5 +650,152 @@ export const handlers = [
 		mockGrades.splice(idx, 1);
 		return new HttpResponse(null, { status: 204 });
 	}),
+	http.get("/api/admin/config/settings", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(defenseSettings);
+	}),
+	http.post("/api/admin/config/settings", async ({ request }) => {
+		await delay(MOCK_DELAY);
+		const body = (await request.json()) as Partial<typeof defenseSettings>;
+		defenseSettings = { ...defenseSettings, ...body };
+		return HttpResponse.json(defenseSettings);
+	}),
 	...auditLogHandlers,
+	// Coordinator Stats
+	http.get("/api/coordinator/stats", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json({
+			totalProjects: mockProjects.length,
+			totalGroups: mockProjects.length,
+			totalJuries: mockJurys.length,
+			scheduledDefenses: 6,
+		});
+	}),
+
+	// Projects
+	http.get("/api/coordinator/projects", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(mockProjects);
+	}),
+	http.post("/api/coordinator/projects", async ({ request }) => {
+		await delay(MOCK_DELAY);
+		const body = (await request.json()) as Omit<Project, "id">;
+		const newProject: Project = {
+			...body,
+			id: `p${mockProjects.length + 1}`,
+		};
+		mockProjects = [newProject, ...mockProjects];
+		return HttpResponse.json(newProject, { status: 201 });
+	}),
+	http.put("/api/coordinator/projects/:id", async ({ params, request }) => {
+		await delay(MOCK_DELAY);
+		const { id } = params;
+		const body = (await request.json()) as Partial<Project>;
+		const index = mockProjects.findIndex((project) => project.id === id);
+		if (index === -1) {
+			return new HttpResponse(null, { status: 404 });
+		}
+		mockProjects[index] = { ...mockProjects[index], ...body };
+		return HttpResponse.json(mockProjects[index]);
+	}),
+	http.delete("/api/coordinator/projects/:id", async ({ params }) => {
+		await delay(MOCK_DELAY);
+		const { id } = params;
+		mockProjects = mockProjects.filter((project) => project.id !== id);
+		mockJurys = mockJurys.filter((jury) => jury.projectId !== id);
+		return new HttpResponse(null, { status: 204 });
+	}),
+
+	http.get("/api/coordinator/jurys", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(mockJurys);
+	}),
+	http.post("/api/coordinator/jurys", async ({ request }) => {
+		await delay(MOCK_DELAY);
+		const body = (await request.json()) as Omit<Jury, "id">;
+		const newJury: Jury = {
+			...body,
+			id: `j${mockJurys.length + 1}`,
+		};
+		mockJurys = [newJury, ...mockJurys];
+		return HttpResponse.json(newJury, { status: 201 });
+	}),
+
+	// Schedule
+	http.post("/api/coordinator/schedule", async ({ request }) => {
+		await delay(MOCK_DELAY);
+		const body = await request.json();
+		console.log("Schedule saved:", body);
+		return HttpResponse.json({ message: "Schedule saved successfully" });
+	}),
+
+	http.get("/api/teacher/stats", async () => {
+		await delay(MOCK_DELAY);
+		const pendingEvaluations = teacherEvaluations.filter(
+			(evaluation) => evaluation.status === "pending",
+		).length;
+		const upcomingDefenses = teacherSchedule.filter(
+			(defense) => defense.status === "scheduled",
+		).length;
+		const juryAssignments = teacherSchedule.filter(
+			(defense) => defense.role !== "supervisor",
+		).length;
+		const declaredUnavailabilitySlots = Object.values(
+			teacherUnavailability.slotsByDate,
+		).reduce((total, slots) => total + slots.length, 0);
+
+		const stats: TeacherStats = {
+			upcomingDefenses,
+			pendingEvaluations,
+			declaredUnavailabilitySlots,
+			juryAssignments,
+		};
+
+		return HttpResponse.json(stats);
+	}),
+
+	http.get("/api/teacher/schedule", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(teacherSchedule);
+	}),
+
+	http.get("/api/teacher/evaluations", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(teacherEvaluations);
+	}),
+
+	http.post("/api/teacher/evaluations/:id", async ({ params, request }) => {
+		await delay(MOCK_DELAY);
+		const { id } = params;
+		const body = (await request.json()) as Pick<
+			TeacherEvaluation,
+			"score" | "comment"
+		>;
+		const index = teacherEvaluations.findIndex((evaluation) => evaluation.id === id);
+
+		if (index === -1) {
+			return new HttpResponse(null, { status: 404 });
+		}
+
+		teacherEvaluations[index] = {
+			...teacherEvaluations[index],
+			...body,
+			status: "submitted",
+			submittedAt: new Date().toISOString(),
+		};
+
+		return HttpResponse.json(teacherEvaluations[index]);
+	}),
+
+	http.get("/api/teacher/unavailability", async () => {
+		await delay(MOCK_DELAY);
+		return HttpResponse.json(teacherUnavailability);
+	}),
+
+	http.post("/api/teacher/unavailability", async ({ request }) => {
+		await delay(MOCK_DELAY);
+		const body = (await request.json()) as TeacherUnavailability;
+		teacherUnavailability = body;
+		return HttpResponse.json(teacherUnavailability);
+	}),
 ];
