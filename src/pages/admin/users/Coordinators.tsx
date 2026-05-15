@@ -4,12 +4,7 @@ import * as React from "react";
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Plus, MoreHorizontal, Pencil, Trash2, Loader2 } from "lucide-react";
 
-import {
-	getCoordinators,
-	createUser,
-	updateUser,
-	deleteUser,
-} from "@/lib/api";
+import { getCoordinators, createUser, updateUser, deleteUser } from "@/lib/api";
 import { type Coordinator } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import { Button } from "@/components/ui/button";
@@ -112,7 +107,10 @@ export default function Coordinators() {
 		if (!selectedCoord) return;
 		setIsSubmitting(true);
 		try {
-			await updateUser(selectedCoord.id, { ...formData, role: "coordinator" as const });
+			await updateUser(selectedCoord.id, {
+				...formData,
+				role: "coordinator" as const,
+			});
 			toast.success("Profil coordinateur mis à jour");
 			setIsDialogOpen(false);
 			resetForm();
@@ -222,7 +220,7 @@ export default function Coordinators() {
 				<div>
 					<h1 className="text-3xl font-bold tracking-tight">Coordinateurs</h1>
 					<p className="text-muted-foreground">
-						Gestion des responsables de filières.
+						Gestion des responsables des soutenances.
 					</p>
 				</div>
 				<Button
