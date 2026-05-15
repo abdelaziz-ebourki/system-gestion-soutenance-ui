@@ -119,7 +119,7 @@ export default function Teachers() {
 	const handleCreate = async () => {
 		setIsSubmitting(true);
 		try {
-			await createUser({ ...formData, role: "teacher" });
+			await createUser({ ...formData, role: "teacher", isActive: false });
 			toast.success("Enseignant ajouté avec succès");
 			setIsDialogOpen(false);
 			resetForm();

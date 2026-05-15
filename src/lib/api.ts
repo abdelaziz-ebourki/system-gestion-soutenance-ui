@@ -11,6 +11,7 @@ import type {
 	Level,
 	Grade,
 } from "@/types";
+import type { AuditLog } from "@/types/audit-log";
 
 const BASE_URL = "/api";
 
@@ -63,6 +64,9 @@ export async function api<T>(endpoint: string, options: ApiOptions = {}): Promis
 
 // --- Dashboard Services ---
 export const getAdminStats = () => api<DashboardStats>("/admin/stats");
+
+// --- Audit Log Services ---
+export const getAuditLogs = () => api<AuditLog[]>("/admin/audit-logs");
 
 // --- User Services ---
 export interface PaginatedResponse<T> {

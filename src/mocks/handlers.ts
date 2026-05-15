@@ -10,6 +10,7 @@ import type {
 	Level,
 	Grade,
 } from "@/types";
+import { auditLogHandlers } from "./audit-log-handlers";
 
 const MOCK_DELAY = 500;
 
@@ -480,4 +481,5 @@ export const handlers = [
 		mockGrades.splice(idx, 1);
 		return new HttpResponse(null, { status: 204 });
 	}),
+	...auditLogHandlers,
 ];

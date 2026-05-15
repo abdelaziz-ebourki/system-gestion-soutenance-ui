@@ -27,7 +27,13 @@ import {
 } from "@/lib/api";
 import { type Filiere, type Level, type Grade } from "@/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -100,8 +106,10 @@ export default function Configuration() {
 		setIsSubmitting(true);
 		try {
 			if (selectedItem) {
-				if (activeType === "filiere") await updateFiliere(selectedItem.id, formData);
-				else if (activeType === "level") await updateLevel(selectedItem.id, formData);
+				if (activeType === "filiere")
+					await updateFiliere(selectedItem.id, formData);
+				else if (activeType === "level")
+					await updateLevel(selectedItem.id, formData);
 				else await updateGrade(selectedItem.id, formData);
 				toast.success("Modifié avec succès");
 			} else {
@@ -237,7 +245,7 @@ export default function Configuration() {
 							<CardHeader>
 								<CardTitle>Niveaux d'Étude</CardTitle>
 								<CardDescription>
-									Cycles universitaires (L1, L2, L3, M1, M2...).
+									Cycles universitaires (BTS, DUT, Licence ...).
 								</CardDescription>
 							</CardHeader>
 							<CardContent>{renderList(levels)}</CardContent>
@@ -262,7 +270,12 @@ export default function Configuration() {
 				<DialogContent>
 					<DialogHeader>
 						<DialogTitle>
-							{selectedItem ? "Modifier" : "Ajouter"} {activeType === "filiere" ? "Filière" : activeType === "level" ? "Niveau" : "Grade"}
+							{selectedItem ? "Modifier" : "Ajouter"}{" "}
+							{activeType === "filiere"
+								? "Filière"
+								: activeType === "level"
+									? "Niveau"
+									: "Grade"}
 						</DialogTitle>
 					</DialogHeader>
 					<form onSubmit={handleSubmit}>
@@ -278,7 +291,9 @@ export default function Configuration() {
 						</FieldGroup>
 						<DialogFooter>
 							<Button type="submit" disabled={isSubmitting}>
-								{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+								{isSubmitting && (
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								)}
 								Enregistrer
 							</Button>
 						</DialogFooter>
@@ -294,7 +309,8 @@ export default function Configuration() {
 					<AlertDialogHeader>
 						<AlertDialogTitle>Confirmation</AlertDialogTitle>
 						<AlertDialogDescription>
-							Supprimer cet élément ? Cela pourrait affecter les utilisateurs liés.
+							Supprimer cet élément ? Cela pourrait affecter les utilisateurs
+							liés.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
@@ -307,7 +323,11 @@ export default function Configuration() {
 							className="bg-destructive hover:bg-destructive/90"
 							disabled={isDeleting}
 						>
-							{isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : "Supprimer"}
+							{isDeleting ? (
+								<Loader2 className="h-4 w-4 animate-spin" />
+							) : (
+								"Supprimer"
+							)}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
