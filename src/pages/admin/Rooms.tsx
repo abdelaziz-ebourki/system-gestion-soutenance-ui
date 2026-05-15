@@ -185,11 +185,6 @@ export default function Rooms() {
 							<DropdownMenuGroup>
 								<DropdownMenuLabel>Actions</DropdownMenuLabel>
 								<DropdownMenuItem
-									onClick={() => navigator.clipboard.writeText(room.id)}
-								>
-									Copier l'ID
-								</DropdownMenuItem>
-								<DropdownMenuItem
 									onClick={() => {
 										setSelectedRoom(room);
 										setFormData({
@@ -342,9 +337,7 @@ export default function Rooms() {
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
-						<AlertDialogCancel>
-							Annuler
-						</AlertDialogCancel>
+						<AlertDialogCancel>Annuler</AlertDialogCancel>
 						<AlertDialogAction
 							onClick={(e) => {
 								e.preventDefault();

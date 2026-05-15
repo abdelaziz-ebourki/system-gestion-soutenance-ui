@@ -187,11 +187,6 @@ export default function Departments() {
 							<DropdownMenuGroup>
 								<DropdownMenuLabel>Actions</DropdownMenuLabel>
 								<DropdownMenuItem
-									onClick={() => navigator.clipboard.writeText(department.id)}
-								>
-									Copier l'ID
-								</DropdownMenuItem>
-								<DropdownMenuItem
 									onClick={() => {
 										setSelectedDept(department);
 										setFormData({
