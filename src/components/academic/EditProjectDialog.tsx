@@ -1,23 +1,27 @@
 "use client";
 
 import * as React from "react";
-import { Loader2 } from "lucide-react";
 
 import { getStudentsList, getTeachersList, updateProject } from "@/lib/api";
 import type { Project, Student, Teacher } from "@/types";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+	Input,
+	Label,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+	Textarea
+} from "@/components/primitive";
 
 interface EditProjectDialogProps {
 	open: boolean;
@@ -150,21 +154,22 @@ export function EditProjectDialog({
 
 					<div className="grid gap-2">
 						<Label htmlFor="edit-project-supervisor">Encadrant</Label>
-						<select
-							id="edit-project-supervisor"
+						<Select
 							value={supervisorId}
-							onChange={(event) => setSupervisorId(event.target.value)}
-							className="h-10 rounded-md border bg-background px-3 text-sm"
+							onValueChange={(val) => setSupervisorId(val || "")}
 							disabled={isLoadingOptions}
-							required
 						>
-							<option value="">Selectionner un encadrant</option>
-							{teachers.map((teacher) => (
-								<option key={teacher.id} value={teacher.id}>
-									{getFullName(teacher)}
-								</option>
-							))}
-						</select>
+							<SelectTrigger id="edit-project-supervisor" fullWidth>
+								<SelectValue placeholder="Selectionner un encadrant" />
+							</SelectTrigger>
+							<SelectContent>
+								{teachers.map((teacher) => (
+									<SelectItem key={teacher.id} value={teacher.id}>
+										{getFullName(teacher)}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 
 					<div className="grid gap-2">
@@ -190,9 +195,9 @@ export function EditProjectDialog({
 					<Button
 						type="submit"
 						form="edit-project-form"
-						disabled={isSubmitting || isLoadingOptions}
+						isLoading={isSubmitting}
+						disabled={isLoadingOptions}
 					>
-						{isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
 						Sauvegarder
 					</Button>
 				</DialogFooter>

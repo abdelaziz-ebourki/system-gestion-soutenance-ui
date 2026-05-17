@@ -5,7 +5,6 @@ import {
 	Plus,
 	Pencil,
 	Trash2,
-	Loader2,
 	GraduationCap,
 	Layers,
 	BookOpen,
@@ -30,24 +29,19 @@ import {
 	type DefenseSettings,
 } from "@/lib/api";
 import { type Filiere, type Level, type Grade } from "@/types";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import {
+	Input,
 	Dialog,
 	DialogContent,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import {
 	AlertDialog,
 	AlertDialogAction,
 	AlertDialogCancel,
@@ -56,7 +50,9 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+	Skeleton
+} from "@/components/primitive";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 
 type ConfigType = "filiere" | "level" | "grade";
@@ -242,8 +238,11 @@ export default function Configuration() {
 			</div>
 
 			{isLoading ? (
-				<div className="flex h-64 items-center justify-center">
-					<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+				<div className="grid md:grid-cols-2 gap-6">
+					<Skeleton className="h-64 w-full" />
+					<Skeleton className="h-64 w-full" />
+					<Skeleton className="h-64 w-full" />
+					<Skeleton className="h-64 w-full" />
 				</div>
 			) : (
 				<div className="grid md:grid-cols-2 gap-6">
@@ -364,10 +363,12 @@ export default function Configuration() {
 										/>
 									</Field>
 								</div>
-								<Button type="submit" className="mt-2" disabled={isSubmitting}>
-									{isSubmitting && (
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									)}
+								<Button 
+									type="submit" 
+									className="mt-2" 
+									isLoading={isSubmitting}
+									loadingText="Sauvegarde en cours..."
+								>
 									Sauvegarder
 								</Button>
 							</form>
@@ -400,10 +401,11 @@ export default function Configuration() {
 							</Field>
 						</FieldGroup>
 						<DialogFooter>
-							<Button type="submit" disabled={isSubmitting}>
-								{isSubmitting && (
-									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								)}
+							<Button 
+								type="submit" 
+								isLoading={isSubmitting}
+								loadingText="Enregistrement..."
+							>
 								Enregistrer
 							</Button>
 						</DialogFooter>
@@ -433,11 +435,7 @@ export default function Configuration() {
 							className="bg-destructive hover:bg-destructive/90"
 							disabled={isDeleting}
 						>
-							{isDeleting ? (
-								<Loader2 className="h-4 w-4 animate-spin" />
-							) : (
-								"Supprimer"
-							)}
+							{isDeleting ? "Suppression..." : "Supprimer"}
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

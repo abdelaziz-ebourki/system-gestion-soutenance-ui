@@ -8,18 +8,19 @@ import {
 } from "@/lib/api";
 import type { StudentGroupWorkspace } from "@/types";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
+	Badge,
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+	CardTitle
+} from "@/components/primitive";
 
 export default function StudentGroup() {
-	const [workspace, setWorkspace] = React.useState<StudentGroupWorkspace | null>(null);
+	const [workspace, setWorkspace] =
+		React.useState<StudentGroupWorkspace | null>(null);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -42,11 +43,11 @@ export default function StudentGroup() {
 		setIsSubmitting(true);
 		try {
 			await createStudentGroup();
-			toast.success("Votre groupe a ete cree automatiquement");
+			toast.success("Votre groupe a été créé automatiquement");
 			await loadWorkspace();
 		} catch (error) {
 			const message =
-				error instanceof Error ? error.message : "Erreur lors de la creation";
+				error instanceof Error ? error.message : "Erreur lors de la création";
 			toast.error(message);
 		} finally {
 			setIsSubmitting(false);
@@ -57,7 +58,7 @@ export default function StudentGroup() {
 		setIsSubmitting(true);
 		try {
 			await joinStudentGroup(groupId);
-			toast.success("Vous avez rejoint le groupe selectionne");
+			toast.success("Vous avez rejoint le groupe sélectionné");
 			await loadWorkspace();
 		} catch (error) {
 			const message =
@@ -75,7 +76,8 @@ export default function StudentGroup() {
 			<div>
 				<h1 className="text-3xl font-bold tracking-tight">Mon groupe</h1>
 				<p className="text-muted-foreground">
-					Consultez la composition de votre groupe et les informations du projet.
+					Consultez la composition de votre groupe et les informations du
+					projet.
 				</p>
 			</div>
 
@@ -124,16 +126,19 @@ export default function StudentGroup() {
 			<div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
 				<Card className="border-0 shadow-sm">
 					<CardHeader>
-						<CardTitle>Projet affecte</CardTitle>
+						<CardTitle>Projet affecté</CardTitle>
 						<CardDescription>
-							Le sujet actuellement rattache a votre groupe, lorsque l'affectation existe.
+							Le sujet actuellement rattaché à votre groupe, lorsque
+							l'affectation existe.
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
 						<div className="rounded-2xl border p-5">
 							<p className="text-sm text-muted-foreground">Titre</p>
 							<p className="mt-2 text-xl font-semibold">
-								{isLoading ? "Chargement..." : group?.projectTitle || "Projet non affecte"}
+								{isLoading
+									? "Chargement..."
+									: group?.projectTitle || "Projet non affecté"}
 							</p>
 							<div className="mt-4">
 								<Badge className="bg-secondary text-secondary-foreground">
@@ -148,7 +153,7 @@ export default function StudentGroup() {
 					<CardHeader>
 						<CardTitle>Membres du groupe</CardTitle>
 						<CardDescription>
-							La repartition actuelle de votre equipe.
+							La répartition actuelle de votre équipe.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
@@ -163,14 +168,16 @@ export default function StudentGroup() {
 										</p>
 									</div>
 									<Badge variant="outline">
-										{member.role === "leader" ? "Chef de groupe" : "Membre"}
+										{member.role === "leader"
+											? "Responsable de groupe"
+											: "Membre"}
 									</Badge>
 								</div>
 							</div>
 						))}
 						{!isLoading && !group && (
 							<div className="rounded-2xl border bg-secondary/40 p-4 text-sm text-muted-foreground">
-								Vous n'appartenez a aucun groupe pour le moment.
+								Vous n'appartenez à aucun groupe pour le moment.
 							</div>
 						)}
 					</CardContent>
@@ -179,26 +186,31 @@ export default function StudentGroup() {
 
 			<Card className="border-0 shadow-sm">
 				<CardHeader>
-					<CardTitle>Fenetre de creation des groupes</CardTitle>
+					<CardTitle>Fenêtre de création des groupes</CardTitle>
 					<CardDescription>
-						Les groupes sont nommes automatiquement par le systeme: Groupe-1, Groupe-2, etc.
+						Les groupes sont nommés automatiquement par le système: Groupe-1,
+						Groupe-2, etc.
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<div className="rounded-2xl border p-4 text-sm text-muted-foreground">
-						Periode autorisee: {workspace?.groupCreationStartDate} au{" "}
+						Période autorisée: {workspace?.groupCreationStartDate} au{" "}
 						{workspace?.groupCreationEndDate}
 					</div>
 					{workspace?.isGroupCreationOpen ? (
 						<div className="flex flex-wrap gap-3">
-							<Button onClick={handleCreateGroup} disabled={Boolean(group) || isSubmitting}>
+							<Button
+								onClick={handleCreateGroup}
+								isLoading={isSubmitting}
+								disabled={Boolean(group)}
+							>
 								<Plus className="mr-2 size-4" />
-								Creer un groupe
+								Créer un groupe
 							</Button>
 						</div>
 					) : (
 						<div className="rounded-2xl border bg-destructive/10 p-4 text-sm text-destructive">
-							La creation et la jonction des groupes sont actuellement fermees.
+							La création et la jonction des groupes sont actuellement fermées.
 						</div>
 					)}
 
@@ -219,7 +231,8 @@ export default function StudentGroup() {
 									<Button
 										variant="outline"
 										onClick={() => handleJoinGroup(availableGroup.id)}
-										disabled={!workspace.isGroupCreationOpen || isSubmitting}
+										isLoading={isSubmitting}
+										disabled={!workspace.isGroupCreationOpen}
 									>
 										Rejoindre
 									</Button>

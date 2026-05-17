@@ -1,17 +1,17 @@
 import { siteConfig } from "@/config/site";
 import React from "react";
-import { Landmark, ShieldCheck, BookOpen, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Landmark, ShieldCheck, BookOpen } from "lucide-react";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardFooter,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { PasswordInput } from "@/components/ui/password-input";
+	Input,
+	PasswordInput,
+} from "@/components/primitive";
 import { toast } from "sonner";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +22,7 @@ export default function Login() {
 	const [isLoading, setIsLoading] = React.useState(false);
 	const navigate = useNavigate();
 
-	const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+	const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setIsLoading(true);
 
@@ -107,11 +107,9 @@ export default function Login() {
 					</div>
 				</div>
 
-				<Card className="shadow-2xl bg-card">
+				<Card className="shadow-2xl">
 					<CardHeader className="space-y-1 text-center">
-						<CardTitle className="text-3xl font-heading font-bold">
-							Connexion
-						</CardTitle>
+						<CardTitle className="text-3xl">Connexion</CardTitle>
 						<CardDescription>
 							Veuillez entrer vos identifiants pour accéder à votre espace
 						</CardDescription>
@@ -157,17 +155,11 @@ export default function Login() {
 						<CardFooter className="mt-6">
 							<Button
 								type="submit"
-								className="w-full text-lg h-12 rounded-2xl transition-all shadow-lg hover:shadow-primary/20"
-								disabled={isLoading}
+								variant="action"
+								isLoading={isLoading}
+								loadingText="Connexion en cours..."
 							>
-								{isLoading ? (
-									<>
-										<Loader2 className="mr-2 h-5 w-5 animate-spin" />
-										Connexion en cours...
-									</>
-								) : (
-									"Se connecter"
-								)}
+								Se connecter
 							</Button>
 						</CardFooter>
 					</form>

@@ -9,14 +9,14 @@ import {
 import type { TeacherDefense, TeacherUnavailability } from "@/types";
 import { toast } from "sonner";
 import AvailabilityCalendar from "@/components/academic/AvailabilityCalendar";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+	CardTitle
+} from "@/components/primitive";
 
 type CalendarSession = {
 	dateKey: string;
@@ -104,9 +104,9 @@ export default function TeacherUnavailability() {
 						soutenances.
 					</p>
 				</div>
-				<Button onClick={handleSave} disabled={isSaving}>
+				<Button onClick={handleSave} isLoading={isSaving} loadingText="Enregistrement...">
 					<Save className="mr-2 size-4" />
-					{isSaving ? "Enregistrement..." : "Enregistrer"}
+					Enregistrer
 				</Button>
 			</div>
 

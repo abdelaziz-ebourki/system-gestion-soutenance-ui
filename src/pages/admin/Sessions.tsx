@@ -8,7 +8,6 @@ import {
 	Pencil,
 	Trash2,
 	Calendar,
-	Loader2,
 } from "lucide-react";
 
 import {
@@ -19,16 +18,14 @@ import {
 } from "@/lib/api";
 import type { Session } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
 	DropdownMenuGroup,
-} from "@/components/ui/dropdown-menu";
-import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
@@ -36,8 +33,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "@/components/ui/dialog";
-import {
 	AlertDialog,
 	AlertDialogAction,
 	AlertDialogCancel,
@@ -46,17 +41,16 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import {
+	Input,
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+	Badge,
+	Skeleton
+} from "@/components/primitive";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 
 export default function Sessions() {
@@ -413,15 +407,12 @@ export default function Sessions() {
 								>
 									Annuler
 								</Button>
-								<Button type="submit" disabled={isSubmitting}>
-									{isSubmitting ? (
-										<>
-											<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-											Enregistrement...
-										</>
-									) : (
-										"Enregistrer"
-									)}
+								<Button 
+									type="submit" 
+									isLoading={isSubmitting}
+									loadingText="Enregistrement..."
+								>
+									Enregistrer
 								</Button>
 							</DialogFooter>
 						</form>
@@ -450,26 +441,17 @@ export default function Sessions() {
 								e.preventDefault();
 								handleDelete();
 							}}
-							disabled={isDeleting}
-							className="bg-destructive hover:bg-destructive/90"
+							variant="destructive"
+							isLoading={isDeleting}
 						>
-							{isDeleting ? (
-								<>
-									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-									Suppression...
-								</>
-							) : (
-								"Supprimer"
-							)}
+							Supprimer
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
 
 			{isLoading ? (
-				<div className="flex h-64 items-center justify-center">
-					<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-				</div>
+				<Skeleton className="h-64 w-full" />
 			) : (
 				<DataTable
 					columns={columns}

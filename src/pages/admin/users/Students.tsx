@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
-import { Plus, MoreHorizontal, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 import {
 	getStudents,
@@ -14,25 +14,20 @@ import {
 } from "@/lib/api";
 import { type Student, type Filiere, type Level } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
-import { Button } from "@/components/ui/button";
-import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import {
+	Button,
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import {
 	AlertDialog,
 	AlertDialogAction,
 	AlertDialogCancel,
@@ -41,17 +36,17 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import {
+	Input,
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+	Badge,
+	Skeleton
+} from "@/components/primitive";
+import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 
 export default function Students() {
@@ -287,9 +282,7 @@ export default function Students() {
 			</div>
 
 			{isLoading ? (
-				<div className="flex h-64 items-center justify-center">
-					<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-				</div>
+				<Skeleton className="h-64 w-full" />
 			) : (
 				<DataTable
 					columns={columns}
@@ -400,10 +393,11 @@ export default function Students() {
 							</Field>
 						</FieldGroup>
 						<DialogFooter>
-							<Button type="submit" disabled={isSubmitting}>
-								{isSubmitting && (
-									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								)}
+							<Button 
+								type="submit" 
+								isLoading={isSubmitting}
+								loadingText="Enregistrement..."
+							>
 								Enregistrer
 							</Button>
 						</DialogFooter>
@@ -430,14 +424,10 @@ export default function Students() {
 								e.preventDefault();
 								handleDelete();
 							}}
-							className="bg-destructive hover:bg-destructive/90"
-							disabled={isDeleting}
+							variant="destructive"
+							isLoading={isDeleting}
 						>
-							{isDeleting ? (
-								<Loader2 className="h-4 w-4 animate-spin" />
-							) : (
-								"Supprimer"
-							)}
+							Supprimer
 						</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>

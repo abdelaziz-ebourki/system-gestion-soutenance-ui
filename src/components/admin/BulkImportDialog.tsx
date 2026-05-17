@@ -1,8 +1,11 @@
 import { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import { Loader2, Upload, FileUp, AlertCircle } from "lucide-react";
+import { Upload, FileUp, AlertCircle } from "lucide-react";
 import {
+	Alert,
+	AlertDescription,
+	Button,
 	Dialog,
 	DialogContent,
 	DialogDescription,
@@ -10,10 +13,8 @@ import {
 	DialogHeader,
 	DialogTitle,
 	DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@/components/primitive";
 import { bulkCreateUsers, bulkCreateRooms } from "@/lib/api";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface BulkImportDialogProps {
 	entity: "student" | "teacher" | "coordinator" | "room";
@@ -216,8 +217,7 @@ const ENTITY_LABELS: Record<string, string> = {
 					)}
 				</div>
 				<DialogFooter>
-					<Button onClick={handleSubmit} disabled={!file || isSubmitting}>
-						{isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+					<Button onClick={handleSubmit} isLoading={isSubmitting} disabled={!file}>
 						Importer
 					</Button>
 				</DialogFooter>

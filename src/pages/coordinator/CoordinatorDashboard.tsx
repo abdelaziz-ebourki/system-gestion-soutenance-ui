@@ -14,16 +14,16 @@ import { getCoordinatorStats, getProjects, getJurys } from "@/lib/api";
 import type { CoordinatorStats } from "@/lib/api";
 import type { Jury, Project } from "@/types";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
 import {
+	Badge,
+	buttonVariants,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+	Skeleton
+} from "@/components/primitive";
 
 const actionCards = [
 	{

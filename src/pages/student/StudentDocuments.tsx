@@ -10,17 +10,17 @@ import {
 import { getStudentDocuments } from "@/lib/api";
 import type { StudentDocument } from "@/types";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
+	Badge,
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+	Input,
+	Label
+} from "@/components/primitive";
 
 const documentIcons: Record<string, typeof FileText> = {
 	Rapport: FileText,
@@ -29,8 +29,8 @@ const documentIcons: Record<string, typeof FileText> = {
 };
 
 const statusLabel: Record<StudentDocument["status"], string> = {
-	submitted: "Depose",
-	validated: "Valide",
+	submitted: "Déposé",
+	validated: "Validé",
 	missing: "Manquant",
 };
 
@@ -65,7 +65,7 @@ export default function StudentDocuments() {
 		setIsUploading((prev) => ({ ...prev, [documentId]: true }));
 		setTimeout(() => {
 			setIsUploading((prev) => ({ ...prev, [documentId]: false }));
-			toast.success("Document envoye avec succes");
+			toast.success("Document envoyé avec succès");
 		}, 1500);
 	};
 
@@ -74,7 +74,7 @@ export default function StudentDocuments() {
 			<div>
 				<h1 className="text-3xl font-bold tracking-tight">Documents</h1>
 				<p className="text-muted-foreground">
-					Suivez les depots attendus, les echeances et l'etat de validation.
+					Suivez les dépôts attendus, les échéances et l'état de validation.
 				</p>
 			</div>
 
@@ -95,7 +95,7 @@ export default function StudentDocuments() {
 				<Card className="border-0 shadow-sm">
 					<CardContent className="flex items-center justify-between p-5">
 						<div>
-							<p className="text-sm text-muted-foreground">Valides</p>
+							<p className="text-sm text-muted-foreground">Validés</p>
 							<p className="mt-2 text-3xl font-semibold">
 								{
 									documents.filter(
@@ -131,7 +131,7 @@ export default function StudentDocuments() {
 
 			<Card className="border-0 shadow-sm">
 				<CardHeader>
-					<CardTitle>Suivi des pieces</CardTitle>
+					<CardTitle>Suivi des pièces</CardTitle>
 					<CardDescription>
 						Vue consolidée des livrables attendus pour votre soutenance.
 					</CardDescription>
@@ -165,8 +165,8 @@ export default function StudentDocuments() {
 									</div>
 									<div className="mt-4 flex flex-wrap items-end justify-between gap-6">
 										<div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-											<span>Echeance: {document.deadline}</span>
-											<span>Depot: {document.submittedAt || "Non depose"}</span>
+											<span>Échéance: {document.deadline}</span>
+											<span>Dépôt: {document.submittedAt || "Non déposé"}</span>
 										</div>
 										{document.status === "missing" && (
 											<div className="flex items-end gap-2">
@@ -181,10 +181,11 @@ export default function StudentDocuments() {
 												</div>
 												<Button
 													onClick={() => handleUpload(document.id)}
-													disabled={isUploading[document.id]}
+													isLoading={isUploading[document.id]}
+													loadingText="Envoi..."
 												>
 													<Upload className="mr-2 size-4" />
-													{isUploading[document.id] ? "Envoi..." : "Deposer"}
+													Déposer
 												</Button>
 											</div>
 										)}

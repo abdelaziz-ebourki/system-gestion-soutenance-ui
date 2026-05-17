@@ -5,15 +5,15 @@ import { ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
 import { getJurys, getProjects, getTeachersList } from "@/lib/api";
 import type { Jury, Project, Teacher } from "@/types";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
+	Badge,
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+	CardTitle
+} from "@/components/primitive";
 import { DataTable } from "@/components/ui/data-table";
 import { CreateJuryDialog } from "@/components/academic/CreateJuryDialog";
 

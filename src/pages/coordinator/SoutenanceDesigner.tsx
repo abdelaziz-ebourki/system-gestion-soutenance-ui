@@ -2,7 +2,6 @@ import * as React from "react";
 import {
 	CalendarDays,
 	GripVertical,
-	Loader2,
 	MapPin,
 	Save,
 	Users,
@@ -13,15 +12,16 @@ import { getJurys, getProjects, getRooms, saveSoutenanceSchedule } from "@/lib/a
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { Jury, Project, Room } from "@/types";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
+	Badge,
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+	Skeleton
+} from "@/components/primitive";
 
 const DAYS = ["2026-06-10", "2026-06-11"];
 const SLOTS = ["08:30", "10:15", "12:00", "13:45", "15:30"];
@@ -160,7 +160,7 @@ export default function SoutenanceDesigner() {
 	if (isLoading) {
 		return (
 			<div className="flex h-[60vh] items-center justify-center">
-				<Loader2 className="size-10 animate-spin text-primary" />
+				<Skeleton className="size-10 rounded-full" />
 			</div>
 		);
 	}
@@ -177,12 +177,8 @@ export default function SoutenanceDesigner() {
 						un planning defendable.
 					</p>
 				</div>
-				<Button onClick={handleSave} disabled={isSaving}>
-					{isSaving ? (
-						<Loader2 className="mr-2 size-4 animate-spin" />
-					) : (
-						<Save className="mr-2 size-4" />
-					)}
+				<Button onClick={handleSave} isLoading={isSaving} loadingText="Validation...">
+					<Save className="mr-2 size-4" />
 					Valider le planning
 				</Button>
 			</div>

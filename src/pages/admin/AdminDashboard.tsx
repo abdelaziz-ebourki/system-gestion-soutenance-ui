@@ -17,20 +17,20 @@ import { getAdminStats, getUsers, getAuditLogs } from "@/lib/api";
 import type { DashboardStats, User } from "@/types";
 import { type AuditLog } from "@/types/audit-log";
 import { DataTable } from "@/components/ui/data-table";
-import { Badge } from "@/components/ui/badge";
 import {
+	Badge,
 	Card,
 	CardContent,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+	Skeleton
+} from "@/components/primitive";
 import {
 	type ChartConfig,
 	ChartContainer,
 	ChartTooltip,
 	ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 export default function AdminDashboard() {

@@ -5,26 +5,26 @@ import { CalendarDays, MapPin, ShieldCheck, Timer } from "lucide-react";
 import { getTeacherSchedule } from "@/lib/api";
 import type { TeacherDefense } from "@/types";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import {
+	Badge,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+	CardTitle
+} from "@/components/primitive";
 import { DataTable } from "@/components/ui/data-table";
 
 const roleLabel: Record<TeacherDefense["role"], string> = {
-	president: "President",
+	president: "Président",
 	reporter: "Rapporteur",
 	examiner: "Examinateur",
 	supervisor: "Encadrant",
 };
 
 const statusLabel: Record<TeacherDefense["status"], string> = {
-	scheduled: "Planifiee",
-	completed: "Terminee",
+	scheduled: "Planifiée",
+	completed: "Terminée",
 };
 
 export default function TeacherSchedule() {
@@ -73,7 +73,7 @@ export default function TeacherSchedule() {
 		},
 		{
 			accessorKey: "role",
-			header: "Role",
+			header: "Rôle",
 			cell: ({ row }) => <Badge variant="outline">{roleLabel[row.original.role]}</Badge>,
 		},
 		{
@@ -107,7 +107,7 @@ export default function TeacherSchedule() {
 				<Card className="border-0 shadow-sm">
 					<CardContent className="flex items-center justify-between p-5">
 						<div>
-							<p className="text-sm text-muted-foreground">Soutenances a venir</p>
+							<p className="text-sm text-muted-foreground">Soutenances à venir</p>
 							<p className="mt-2 text-3xl font-semibold">{upcomingCount}</p>
 						</div>
 						<div className="rounded-2xl bg-secondary p-3 text-primary">
@@ -118,7 +118,7 @@ export default function TeacherSchedule() {
 				<Card className="border-0 shadow-sm">
 					<CardContent className="flex items-center justify-between p-5">
 						<div>
-							<p className="text-sm text-muted-foreground">Roles de jury</p>
+							<p className="text-sm text-muted-foreground">Rôles de jury</p>
 							<p className="mt-2 text-3xl font-semibold">
 								{schedule.length - supervisorCount}
 							</p>
@@ -143,9 +143,9 @@ export default function TeacherSchedule() {
 
 			<Card className="border-0 shadow-sm">
 				<CardHeader>
-					<CardTitle>Planning detaille</CardTitle>
+					<CardTitle>Planning détaillé</CardTitle>
 					<CardDescription>
-						Chaque passage indique votre role, la salle et le groupe d'etudiants.
+						Chaque passage indique votre rôle, la salle et le groupe d'étudiants.
 					</CardDescription>
 				</CardHeader>
 				<CardContent>

@@ -14,7 +14,7 @@ import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from "@/components/primitive";
 import { ChevronRight } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 

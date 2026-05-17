@@ -1,17 +1,16 @@
 import * as React from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Field, FieldLabel } from "@/components/ui/field";
 import {
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
+	Input
+} from "@/components/primitive";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { api } from "@/lib/api";
 
 export default function VerifyAccount() {
@@ -86,10 +85,12 @@ export default function VerifyAccount() {
 								required
 							/>
 						</Field>
-						<Button className="w-full" type="submit" disabled={isSubmitting}>
-							{isSubmitting && (
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-							)}
+						<Button 
+							className="w-full" 
+							type="submit" 
+							isLoading={isSubmitting}
+							loadingText="Activation..."
+						>
 							Activer mon compte
 						</Button>
 					</form>

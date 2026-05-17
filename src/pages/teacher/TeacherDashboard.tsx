@@ -13,18 +13,18 @@ import {
 } from "@/lib/api";
 import type { TeacherDefense, TeacherEvaluation, TeacherStats } from "@/types";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import {
+	Badge,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+	Skeleton
+} from "@/components/primitive";
 
 const roleLabel: Record<TeacherDefense["role"], string> = {
-	president: "President",
+	president: "Président",
 	reporter: "Rapporteur",
 	examiner: "Examinateur",
 	supervisor: "Encadrant",
@@ -77,8 +77,8 @@ export default function TeacherDashboard() {
 								Un espace enseignant clair pour suivre jurys, planning et notes.
 							</h1>
 							<p className="max-w-2xl text-sm text-muted-foreground md:text-base">
-								Retrouvez vos passages a venir, les evaluations a rendre et vos
-								indisponibilites depuis un point d'entree unique.
+								Retrouvez vos passages à venir, les évaluations à rendre et vos
+								indisponibilités depuis un point d'entrée unique.
 							</p>
 						</div>
 					</div>
@@ -87,13 +87,13 @@ export default function TeacherDashboard() {
 						<CardHeader className="pb-3">
 							<CardTitle className="text-base">Vue rapide</CardTitle>
 							<CardDescription>
-								Les indicateurs utiles avant le debut des soutenances.
+								Les indicateurs utiles avant le début des soutenances.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="grid gap-3 sm:grid-cols-2">
 							<div className="rounded-2xl border bg-background/80 p-4">
 								<p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
-									A venir
+									À venir
 								</p>
 								<p className="mt-2 text-2xl font-semibold">
 									{isLoading ? <Skeleton className="h-8 w-12" /> : stats?.upcomingDefenses}
@@ -115,22 +115,22 @@ export default function TeacherDashboard() {
 			<section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
 				{[
 					{
-						label: "Soutenances a venir",
+						label: "Soutenances à venir",
 						value: stats?.upcomingDefenses,
 						icon: Clock3,
 					},
 					{
-						label: "Evaluations en attente",
+						label: "Évaluations en attente",
 						value: stats?.pendingEvaluations,
 						icon: FileCheck2,
 					},
 					{
-						label: "Creneaux bloques",
+						label: "Créneaux bloqués",
 						value: stats?.declaredUnavailabilitySlots,
 						icon: ClipboardCheck,
 					},
 					{
-						label: "Jurys assignes",
+						label: "Jurys assignés",
 						value: stats?.juryAssignments,
 						icon: ShieldCheck,
 					},
@@ -156,7 +156,7 @@ export default function TeacherDashboard() {
 					<CardHeader>
 						<CardTitle>Prochaines soutenances</CardTitle>
 						<CardDescription>
-							Les passages ou votre presence est requise prochainement.
+							Les passages où votre présence est requise prochainement.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
@@ -184,7 +184,7 @@ export default function TeacherDashboard() {
 
 				<Card className="border-0 shadow-sm">
 					<CardHeader>
-						<CardTitle>Evaluations a rendre</CardTitle>
+						<CardTitle>Évaluations à rendre</CardTitle>
 						<CardDescription>
 							Les dossiers qui demandent encore une note ou un commentaire.
 						</CardDescription>
@@ -203,7 +203,7 @@ export default function TeacherDashboard() {
 						))}
 						{!isLoading && pendingEvaluations.length === 0 && (
 							<div className="rounded-2xl border bg-secondary p-4 text-sm text-secondary-foreground">
-								Aucune evaluation en attente.
+								Aucune évaluation en attente.
 							</div>
 						)}
 					</CardContent>

@@ -23,7 +23,7 @@ import type {
 } from "@/types";
 import { auditLogHandlers } from "./audit-log-handlers";
 
-const MOCK_DELAY = 500;
+const MOCK_DELAY = 1000;
 
 const mockFilieres: Filiere[] = [
 	{ id: "f1", name: "Génie Informatique" },
@@ -46,12 +46,48 @@ const mockGrades: Grade[] = [
 ];
 
 const firstNames = [
-	"Amine", "Salma", "Yassine", "Fatima", "Mehdi", "Sofia", "Omar", "Hajar", "Khalid", "Layla",
-	"Zakaria", "Nadia", "Hamza", "Zineb", "Anas", "Meryem", "Reda", "Chaimae", "Ayoub", "Ibtissam"
+	"Amine",
+	"Salma",
+	"Yassine",
+	"Fatima",
+	"Mehdi",
+	"Sofia",
+	"Omar",
+	"Hajar",
+	"Khalid",
+	"Layla",
+	"Zakaria",
+	"Nadia",
+	"Hamza",
+	"Zineb",
+	"Anas",
+	"Meryem",
+	"Reda",
+	"Chaimae",
+	"Ayoub",
+	"Ibtissam",
 ];
 const lastNames = [
-	"Alami", "Benali", "Fassi", "Tazi", "Mansouri", "Radi", "Idrissi", "Bennani", "Kettani", "Amrani",
-	"Lahlou", "Sekkat", "Guessous", "Filali", "Skalli", "Kadiri", "Belkora", "Mernissi", "Berrada", "El Hachimi"
+	"Alami",
+	"Benali",
+	"Fassi",
+	"Tazi",
+	"Mansouri",
+	"Radi",
+	"Idrissi",
+	"Bennani",
+	"Kettani",
+	"Amrani",
+	"Lahlou",
+	"Sekkat",
+	"Guessous",
+	"Filali",
+	"Skalli",
+	"Kadiri",
+	"Belkora",
+	"Mernissi",
+	"Berrada",
+	"El Hachimi",
 ];
 
 // Helper to generate lots of mock students for pagination testing
@@ -112,8 +148,8 @@ const mockUsers: User[] = [
 	} as Teacher,
 	{
 		id: "std-demo",
-		lastName: "Bourki",
-		firstName: "Salma",
+		lastName: "Mohamed",
+		firstName: "Khalid",
 		email: "student@univ.com",
 		password: "1234",
 		role: "student",
@@ -171,7 +207,8 @@ let mockProjects: Project[] = [
 	{
 		id: "p1",
 		title: "Systeme de Gestion des Soutenances",
-		description: "Plateforme de planification, notifications et suivi des jurys.",
+		description:
+			"Plateforme de planification, notifications et suivi des jurys.",
 		studentIds: ["std-1", "std-2"],
 		studentNames: ["Nom1 Prenom1", "Nom2 Prenom2"],
 		supervisorId: "3",
@@ -211,7 +248,8 @@ let mockProjects: Project[] = [
 	{
 		id: "p5",
 		title: "Portail intelligent de suivi des soutenances",
-		description: "Interface et services pour suivre planning, documents et evaluations.",
+		description:
+			"Interface et services pour suivre planning, documents et evaluations.",
 		studentIds: ["std-1", "std-2"],
 		studentNames: ["Nom1 Prenom1", "Nom2 Prenom2"],
 		supervisorId: "3",
@@ -295,7 +333,7 @@ const teacherSchedule: TeacherDefense[] = [
 	},
 ];
 
-let teacherEvaluations: TeacherEvaluation[] = [
+const teacherEvaluations: TeacherEvaluation[] = [
 	{
 		id: "te1",
 		defenseId: "td1",
@@ -386,12 +424,15 @@ const getUserFullName = (userId: string) => {
 };
 
 const getStudentEmail = (studentId: string) => {
-	const student = mockUsers.find((item) => item.id === studentId) as Student | undefined;
+	const student = mockUsers.find((item) => item.id === studentId) as
+		| Student
+		| undefined;
 	return student?.email || "";
 };
 
 const getCurrentStudentGroup = () =>
-	studentGroups.find((group) => group.memberIds.includes(currentStudentId)) || null;
+	studentGroups.find((group) => group.memberIds.includes(currentStudentId)) ||
+	null;
 
 const mapGroupDetails = (
 	group: (typeof studentGroups)[number],
@@ -476,7 +517,8 @@ const getStudentDefenseDetails = (): StudentDefenseDetails => {
 		endTime: project.id === "p5" ? "11:45" : undefined,
 		roomName: project.id === "p5" ? "Salle 101" : undefined,
 		status: project.id === "p5" ? "scheduled" : "pending",
-		convocationUrl: project.id === "p5" ? "/api/student/convocation" : undefined,
+		convocationUrl:
+			project.id === "p5" ? "/api/student/convocation" : undefined,
 	};
 };
 
@@ -970,7 +1012,9 @@ export const handlers = [
 			TeacherEvaluation,
 			"score" | "comment"
 		>;
-		const index = teacherEvaluations.findIndex((evaluation) => evaluation.id === id);
+		const index = teacherEvaluations.findIndex(
+			(evaluation) => evaluation.id === id,
+		);
 
 		if (index === -1) {
 			return new HttpResponse(null, { status: 404 });
@@ -1118,7 +1162,8 @@ export const handlers = [
 		return new HttpResponse(content, {
 			headers: {
 				"Content-Type": "application/pdf",
-				"Content-Disposition": 'attachment; filename="convocation-soutenance.pdf"',
+				"Content-Disposition":
+					'attachment; filename="convocation-soutenance.pdf"',
 			},
 		});
 	}),

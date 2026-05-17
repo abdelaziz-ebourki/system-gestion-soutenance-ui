@@ -4,13 +4,13 @@ import {
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { Separator } from "@/components/ui/separator";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
 	BreadcrumbList,
 	BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
+	Separator
+} from "@/components/primitive";
 import { Outlet } from "react-router-dom";
 
 export default function DashboardLayout() {

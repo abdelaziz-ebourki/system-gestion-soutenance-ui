@@ -96,3 +96,4 @@ Always use the centralized `api` function in `src/lib/api.ts` for network reques
 - Following best practices is a must
 - This is not a toy project, it's rather a scalable SaaS project
 - UI in french, code in english
+- Avoid importing shadcn's atomique ui components, always use there app abstractions from `src/components/primitive`

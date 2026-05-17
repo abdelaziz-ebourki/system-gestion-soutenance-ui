@@ -1,21 +1,25 @@
 "use client";
 
 import * as React from "react";
-import { Loader2 } from "lucide-react";
 
 import { createJury, getProjects, getTeachersList } from "@/lib/api";
 import type { Project, Teacher } from "@/types";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import {
+	Button,
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+	Label,
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from "@/components/primitive";
 
 interface CreateJuryDialogProps {
 	open: boolean;
@@ -125,102 +129,106 @@ export function CreateJuryDialog({
 				<form id="create-jury-form" className="grid gap-4" onSubmit={handleSubmit}>
 					<div className="grid gap-2">
 						<Label htmlFor="jury-project">Projet</Label>
-						<select
-							id="jury-project"
+						<Select
 							value={projectId}
-							onChange={(event) => setProjectId(event.target.value)}
-							className="h-10 rounded-md border bg-background px-3 text-sm"
+							onValueChange={(val) => setProjectId(val || "")}
 							disabled={isLoadingOptions}
-							required
 						>
-							<option value="">Selectionner un projet</option>
-							{availableProjects.map((project) => (
-								<option key={project.id} value={project.id}>
-									{project.title}
-								</option>
-							))}
-						</select>
+							<SelectTrigger id="jury-project" fullWidth>
+								<SelectValue placeholder="Selectionner un projet" />
+							</SelectTrigger>
+							<SelectContent>
+								{availableProjects.map((project) => (
+									<SelectItem key={project.id} value={project.id}>
+										{project.title}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 
 					<div className="grid gap-2">
 						<Label htmlFor="jury-president">President</Label>
-						<select
-							id="jury-president"
+						<Select
 							value={presidentId}
-							onChange={(event) => setPresidentId(event.target.value)}
-							className="h-10 rounded-md border bg-background px-3 text-sm"
+							onValueChange={(val) => setPresidentId(val || "")}
 							disabled={isLoadingOptions}
-							required
 						>
-							<option value="">Selectionner un president</option>
-							{teachers
-								.filter(
-									(teacher) =>
-										teacher.id !== reporterId && teacher.id !== examinerId,
-								)
-								.map((teacher) => (
-									<option key={teacher.id} value={teacher.id}>
-										{getFullName(teacher)}
-									</option>
-								))}
-						</select>
+							<SelectTrigger id="jury-president" fullWidth>
+								<SelectValue placeholder="Selectionner un president" />
+							</SelectTrigger>
+							<SelectContent>
+								{teachers
+									.filter(
+										(teacher) =>
+											teacher.id !== reporterId && teacher.id !== examinerId,
+									)
+									.map((teacher) => (
+										<SelectItem key={teacher.id} value={teacher.id}>
+											{getFullName(teacher)}
+										</SelectItem>
+									))}
+							</SelectContent>
+						</Select>
 					</div>
 
 					<div className="grid gap-2">
 						<Label htmlFor="jury-reporter">Rapporteur</Label>
-						<select
-							id="jury-reporter"
+						<Select
 							value={reporterId}
-							onChange={(event) => setReporterId(event.target.value)}
-							className="h-10 rounded-md border bg-background px-3 text-sm"
+							onValueChange={(val) => setReporterId(val || "")}
 							disabled={isLoadingOptions}
-							required
 						>
-							<option value="">Selectionner un rapporteur</option>
-							{teachers
-								.filter(
-									(teacher) =>
-										teacher.id !== presidentId && teacher.id !== examinerId,
-								)
-								.map((teacher) => (
-									<option key={teacher.id} value={teacher.id}>
-										{getFullName(teacher)}
-									</option>
-								))}
-						</select>
+							<SelectTrigger id="jury-reporter" fullWidth>
+								<SelectValue placeholder="Selectionner un rapporteur" />
+							</SelectTrigger>
+							<SelectContent>
+								{teachers
+									.filter(
+										(teacher) =>
+											teacher.id !== presidentId && teacher.id !== examinerId,
+									)
+									.map((teacher) => (
+										<SelectItem key={teacher.id} value={teacher.id}>
+											{getFullName(teacher)}
+										</SelectItem>
+									))}
+							</SelectContent>
+						</Select>
 					</div>
 
 					<div className="grid gap-2">
 						<Label htmlFor="jury-examiner">Examinateur</Label>
-						<select
-							id="jury-examiner"
+						<Select
 							value={examinerId}
-							onChange={(event) => setExaminerId(event.target.value)}
-							className="h-10 rounded-md border bg-background px-3 text-sm"
+							onValueChange={(val) => setExaminerId(val || "")}
 							disabled={isLoadingOptions}
-							required
 						>
-							<option value="">Selectionner un examinateur</option>
-							{teachers
-								.filter(
-									(teacher) =>
-										teacher.id !== presidentId && teacher.id !== reporterId,
-								)
-								.map((teacher) => (
-									<option key={teacher.id} value={teacher.id}>
-										{getFullName(teacher)}
-									</option>
-								))}
-						</select>
+							<SelectTrigger id="jury-examiner" fullWidth>
+								<SelectValue placeholder="Selectionner un examinateur" />
+							</SelectTrigger>
+							<SelectContent>
+								{teachers
+									.filter(
+										(teacher) =>
+											teacher.id !== presidentId && teacher.id !== reporterId,
+									)
+									.map((teacher) => (
+										<SelectItem key={teacher.id} value={teacher.id}>
+											{getFullName(teacher)}
+										</SelectItem>
+									))}
+							</SelectContent>
+						</Select>
 					</div>
 				</form>
 				<DialogFooter>
 					<Button
 						type="submit"
 						form="create-jury-form"
-						disabled={isSubmitting || isLoadingOptions}
+						isLoading={isSubmitting}
+						disabled={isLoadingOptions}
 					>
-						{isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
 						Creer le jury
 					</Button>
 				</DialogFooter>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { FileCheck2, Loader2, MessageSquareText, PencilLine } from "lucide-react";
+import { FileCheck2, MessageSquareText, PencilLine } from "lucide-react";
 
 import {
 	getTeacherEvaluations,
@@ -7,29 +7,27 @@ import {
 } from "@/lib/api";
 import type { TeacherEvaluation } from "@/types";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
+	Badge,
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card";
-import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+	Input,
+	Label,
+	Textarea
+} from "@/components/primitive";
 
 const roleLabel: Record<TeacherEvaluation["role"], string> = {
-	president: "President",
+	president: "Président",
 	reporter: "Rapporteur",
 	examiner: "Examinateur",
 	supervisor: "Encadrant",
@@ -49,7 +47,7 @@ export default function TeacherEvaluations() {
 		try {
 			setEvaluations(await getTeacherEvaluations());
 		} catch {
-			toast.error("Erreur lors du chargement des evaluations");
+			toast.error("Erreur lors du chargement des évaluations");
 		} finally {
 			setIsLoading(false);
 		}
@@ -84,7 +82,7 @@ export default function TeacherEvaluations() {
 				score: Number(score),
 				comment,
 			});
-			toast.success("Evaluation enregistree");
+			toast.success("Évaluation enregistrée");
 			closeEvaluation();
 			await loadEvaluations();
 		} catch {
@@ -104,9 +102,9 @@ export default function TeacherEvaluations() {
 	return (
 		<div className="space-y-6">
 			<div>
-				<h1 className="text-3xl font-bold tracking-tight">Evaluations</h1>
+				<h1 className="text-3xl font-bold tracking-tight">Évaluations</h1>
 				<p className="text-muted-foreground">
-					Gerez les notes et les appreciations des soutenances.
+					Gérez les notes et les appréciations des soutenances.
 				</p>
 			</div>
 
@@ -114,7 +112,7 @@ export default function TeacherEvaluations() {
 				<Card className="border-0 shadow-sm">
 					<CardContent className="flex items-center justify-between p-5">
 						<div>
-							<p className="text-sm text-muted-foreground">A completer</p>
+							<p className="text-sm text-muted-foreground">À compléter</p>
 							<p className="mt-2 text-3xl font-semibold">{pendingEvaluations.length}</p>
 						</div>
 						<div className="rounded-2xl bg-secondary p-3 text-primary">
@@ -151,15 +149,15 @@ export default function TeacherEvaluations() {
 			<div className="grid gap-6 xl:grid-cols-2">
 				<Card className="border-0 shadow-sm">
 					<CardHeader>
-						<CardTitle>Evaluations en attente</CardTitle>
+						<CardTitle>Évaluations en attente</CardTitle>
 						<CardDescription>
-							Saisissez une note et une appreciation pour chaque dossier.
+							Saisissez une note et une appréciation pour chaque dossier.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
 						{isLoading ? (
 							<div className="py-10 text-center text-sm text-muted-foreground">
-								Chargement des evaluations...
+								Chargement des évaluations...
 							</div>
 						) : (
 							pendingEvaluations.map((evaluation) => (
@@ -175,7 +173,7 @@ export default function TeacherEvaluations() {
 									</div>
 									<div className="mt-4">
 										<Button onClick={() => openEvaluation(evaluation)}>
-											Saisir l'evaluation
+											Saisir l'évaluation
 										</Button>
 									</div>
 								</div>
@@ -186,9 +184,9 @@ export default function TeacherEvaluations() {
 
 				<Card className="border-0 shadow-sm">
 					<CardHeader>
-						<CardTitle>Historique recent</CardTitle>
+						<CardTitle>Historique récent</CardTitle>
 						<CardDescription>
-							Les evaluations deja transmises au systeme.
+							Les évaluations déjà transmises au système.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
@@ -226,9 +224,9 @@ export default function TeacherEvaluations() {
 			>
 				<DialogContent className="sm:max-w-lg">
 					<DialogHeader>
-						<DialogTitle>Completer une evaluation</DialogTitle>
+						<DialogTitle>Compléter une évaluation</DialogTitle>
 						<DialogDescription>
-							Enregistrez votre note et votre appreciation pour ce dossier.
+							Enregistrez votre note et votre appréciation pour ce dossier.
 						</DialogDescription>
 					</DialogHeader>
 					<form id="teacher-evaluation-form" className="grid gap-4" onSubmit={handleSubmit}>
@@ -252,7 +250,7 @@ export default function TeacherEvaluations() {
 							/>
 						</div>
 						<div className="grid gap-2">
-							<Label htmlFor="teacher-comment">Appreciation</Label>
+							<Label htmlFor="teacher-comment">Appréciation</Label>
 							<Textarea
 								id="teacher-comment"
 								value={comment}
@@ -266,9 +264,9 @@ export default function TeacherEvaluations() {
 						<Button
 							type="submit"
 							form="teacher-evaluation-form"
-							disabled={isSubmitting}
+							isLoading={isSubmitting}
+							loadingText="Enregistrement..."
 						>
-							{isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" />}
 							Enregistrer
 						</Button>
 					</DialogFooter>

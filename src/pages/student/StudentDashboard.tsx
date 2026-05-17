@@ -1,5 +1,12 @@
+"use client";
+
 import * as React from "react";
-import { CalendarDays, Download, GraduationCap, Loader2, Users } from "lucide-react";
+import {
+	CalendarDays,
+	Download,
+	GraduationCap,
+	Users,
+} from "lucide-react";
 
 import {
 	getStudentConvocation,
@@ -8,20 +15,23 @@ import {
 } from "@/lib/api";
 import type { StudentDefenseDetails, StudentStats } from "@/types";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
 import {
+	Badge,
+	Button,
+	buttonVariants,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+	CardTitle
+} from "@/components/primitive";
 import { Link } from "react-router-dom";
 
 export default function StudentDashboard() {
 	const [stats, setStats] = React.useState<StudentStats | null>(null);
-	const [defense, setDefense] = React.useState<StudentDefenseDetails | null>(null);
+	const [defense, setDefense] = React.useState<StudentDefenseDetails | null>(
+		null,
+	);
 	const [isLoading, setIsLoading] = React.useState(true);
 	const [isDownloading, setIsDownloading] = React.useState(false);
 
@@ -60,7 +70,7 @@ export default function StudentDashboard() {
 			const message =
 				error instanceof Error
 					? error.message
-					: "Impossible de telecharger la convocation";
+					: "Impossible de télécharger la convocation";
 			toast.error(message);
 		} finally {
 			setIsDownloading(false);
@@ -77,20 +87,21 @@ export default function StudentDashboard() {
 						</Badge>
 						<div className="space-y-2">
 							<h1 className="text-3xl font-bold tracking-tight md:text-4xl">
-								Toutes les informations utiles a votre soutenance, au meme endroit.
+								Toutes les informations utiles à votre soutenance, au même
+								endroit.
 							</h1>
 							<p className="max-w-2xl text-sm text-muted-foreground md:text-base">
 								Consultez votre planning, votre jury, vos documents et votre
-								convocation sans passer par plusieurs ecrans.
+								convocation sans passer par plusieurs écrans.
 							</p>
 						</div>
 					</div>
 
 					<Card className="bg-secondary/40 shadow-none">
 						<CardHeader className="pb-3">
-							<CardTitle className="text-base">Etat du dossier</CardTitle>
+							<CardTitle className="text-base">État du dossier</CardTitle>
 							<CardDescription>
-								Un resume rapide avant la soutenance.
+								Un résumé rapide avant la soutenance.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-3">
@@ -99,7 +110,7 @@ export default function StudentDashboard() {
 									Statut
 								</p>
 								<p className="mt-2 text-2xl font-semibold">
-									{defense?.status === "scheduled" ? "Planifiee" : "En attente"}
+									{defense?.status === "scheduled" ? "Planifiée" : "En attente"}
 								</p>
 							</div>
 							{defense?.date && (
@@ -119,7 +130,9 @@ export default function StudentDashboard() {
 						<div>
 							<p className="text-sm text-muted-foreground">Statut soutenance</p>
 							<p className="mt-2 text-xl font-semibold">
-								{stats?.defenseStatus === "scheduled" ? "Planifiee" : "En attente"}
+								{stats?.defenseStatus === "scheduled"
+									? "Planifiée"
+									: "En attente"}
 							</p>
 						</div>
 						<div className="rounded-2xl bg-secondary p-3 text-primary">
@@ -131,7 +144,9 @@ export default function StudentDashboard() {
 					<CardContent className="flex items-center justify-between p-5">
 						<div>
 							<p className="text-sm text-muted-foreground">Membres du groupe</p>
-							<p className="mt-2 text-3xl font-semibold">{stats?.groupMembers}</p>
+							<p className="mt-2 text-3xl font-semibold">
+								{stats?.groupMembers}
+							</p>
 						</div>
 						<div className="rounded-2xl bg-secondary p-3 text-primary">
 							<Users className="size-5" />
@@ -142,7 +157,9 @@ export default function StudentDashboard() {
 					<CardContent className="flex items-center justify-between p-5">
 						<div>
 							<p className="text-sm text-muted-foreground">Documents suivis</p>
-							<p className="mt-2 text-3xl font-semibold">{stats?.documentCount}</p>
+							<p className="mt-2 text-3xl font-semibold">
+								{stats?.documentCount}
+							</p>
 						</div>
 						<div className="rounded-2xl bg-secondary p-3 text-primary">
 							<Download className="size-5" />
@@ -152,8 +169,10 @@ export default function StudentDashboard() {
 				<Card className="border-0 shadow-sm">
 					<CardContent className="flex items-center justify-between p-5">
 						<div>
-							<p className="text-sm text-muted-foreground">Pieces manquantes</p>
-							<p className="mt-2 text-3xl font-semibold">{stats?.missingDocuments}</p>
+							<p className="text-sm text-muted-foreground">Pièces manquantes</p>
+							<p className="mt-2 text-3xl font-semibold">
+								{stats?.missingDocuments}
+							</p>
 						</div>
 						<div className="rounded-2xl bg-destructive/10 p-3 text-destructive">
 							<CalendarDays className="size-5" />
@@ -167,13 +186,15 @@ export default function StudentDashboard() {
 					<CardHeader>
 						<CardTitle>Fiche de soutenance</CardTitle>
 						<CardDescription>
-							Le sujet, l'encadrement et le planning associes a votre dossier.
+							Le sujet, l'encadrement et le planning associés à votre dossier.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-4">
 						<div className="rounded-2xl border p-5">
 							<p className="text-sm text-muted-foreground">Projet</p>
-							<p className="mt-2 text-xl font-semibold">{defense?.projectTitle}</p>
+							<p className="mt-2 text-xl font-semibold">
+								{defense?.projectTitle}
+							</p>
 							<p className="mt-3 text-sm text-muted-foreground">
 								{defense?.projectDescription}
 							</p>
@@ -199,17 +220,16 @@ export default function StudentDashboard() {
 								variant="outline"
 								className="w-fit"
 								onClick={handleConvocationDownload}
-								disabled={isDownloading}
+								isLoading={isDownloading}
 							>
-								{isDownloading && <Loader2 className="mr-2 size-4 animate-spin" />}
-								Telecharger la convocation
+								Télécharger la convocation
 							</Button>
 						) : (
 							<Link
 								to="/student/group"
 								className={buttonVariants({ variant: "outline" })}
 							>
-								Creez ou rejoignez un groupe
+								Créez ou rejoignez un groupe
 							</Link>
 						)}
 					</CardContent>
@@ -219,12 +239,15 @@ export default function StudentDashboard() {
 					<CardHeader>
 						<CardTitle>Composition du jury</CardTitle>
 						<CardDescription>
-							Les membres actuellement associes a votre soutenance.
+							Les membres actuellement associés à votre soutenance.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-3">
 						{defense?.juryMembers.map((member) => (
-							<div key={`${member.role}-${member.name}`} className="rounded-2xl border p-4">
+							<div
+								key={`${member.role}-${member.name}`}
+								className="rounded-2xl border p-4"
+							>
 								<div className="flex flex-wrap items-center justify-between gap-3">
 									<p className="font-medium">{member.name}</p>
 									<Badge variant="outline">{member.role}</Badge>
@@ -233,7 +256,7 @@ export default function StudentDashboard() {
 						))}
 						{defense?.result && (
 							<div className="rounded-2xl border bg-secondary p-4">
-								<p className="text-sm text-muted-foreground">Resultat</p>
+								<p className="text-sm text-muted-foreground">Résultat</p>
 								<p className="mt-2 font-semibold">{defense.result.decision}</p>
 								{defense.result.score !== undefined && (
 									<p className="mt-1 text-sm text-muted-foreground">

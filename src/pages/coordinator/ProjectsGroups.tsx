@@ -5,15 +5,15 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { deleteProject, getProjects } from "@/lib/api";
 import type { Project } from "@/types";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
+	Badge,
+	Button,
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+	CardTitle
+} from "@/components/primitive";
 import { DataTable } from "@/components/ui/data-table";
 import { CreateProjectDialog } from "@/components/academic/CreateProjectDialog";
 import { EditProjectDialog } from "@/components/academic/EditProjectDialog";
