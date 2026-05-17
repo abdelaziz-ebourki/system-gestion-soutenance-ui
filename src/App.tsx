@@ -24,45 +24,54 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import DashboardLayout from "./components/layout/DashboardLayout";
 
 export default function App() {
-	return (
-		<Routes>
-			<Route path="/login" element={<Login />} />
-			<Route path="/verify-account" element={<VerifyAccount />} />
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/verify-account" element={<VerifyAccount />} />
 
-			<Route element={<DashboardLayout />}>
-				<Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-					<Route path="/admin" element={<AdminDashboard />} />
-					<Route path="/admin/departments" element={<Departments />} />
-					<Route path="/admin/sessions" element={<Sessions />} />
-					<Route path="/admin/rooms" element={<Rooms />} />
-					<Route path="/admin/users/students" element={<Students />} />
-					<Route path="/admin/users/teachers" element={<Teachers />} />
-					<Route path="/admin/users/coordinators" element={<Coordinators />} />
-					<Route path="/admin/config" element={<Configuration />} />
-				</Route>
+      <Route element={<DashboardLayout />}>
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/departments" element={<Departments />} />
+          <Route path="/admin/sessions" element={<Sessions />} />
+          <Route path="/admin/rooms" element={<Rooms />} />
+          <Route path="/admin/users/students" element={<Students />} />
+          <Route path="/admin/users/teachers" element={<Teachers />} />
+          <Route path="/admin/users/coordinators" element={<Coordinators />} />
+          <Route path="/admin/config" element={<Configuration />} />
+        </Route>
 
-				<Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>
-					<Route path="/coordinator" element={<CoordinatorDashboard />} />
-					<Route path="/coordinator/schedule" element={<SoutenanceDesigner />} />
-					<Route path="/coordinator/projects" element={<CoordinatorProjects />} />
-					<Route path="/coordinator/jurys" element={<Jurys />} />
-				</Route>
+        <Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>
+          <Route path="/coordinator" element={<CoordinatorDashboard />} />
+          <Route
+            path="/coordinator/schedule"
+            element={<SoutenanceDesigner />}
+          />
+          <Route
+            path="/coordinator/projects"
+            element={<CoordinatorProjects />}
+          />
+          <Route path="/coordinator/jurys" element={<Jurys />} />
+        </Route>
 
-				<Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
-					<Route path="/teacher" element={<TeacherDashboard />} />
-					<Route path="/teacher/schedule" element={<TeacherSchedule />} />
-					<Route path="/teacher/evaluations" element={<TeacherEvaluations />} />
-					<Route path="/teacher/unavailability" element={<TeacherUnavailability />} />
-				</Route>
+        <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
+          <Route path="/teacher" element={<TeacherDashboard />} />
+          <Route path="/teacher/schedule" element={<TeacherSchedule />} />
+          <Route path="/teacher/evaluations" element={<TeacherEvaluations />} />
+          <Route
+            path="/teacher/unavailability"
+            element={<TeacherUnavailability />}
+          />
+        </Route>
 
-				<Route element={<ProtectedRoute allowedRoles={["student"]} />}>
-					<Route path="/student" element={<StudentDashboard />} />
-					<Route path="/student/group" element={<StudentGroup />} />
-					<Route path="/student/documents" element={<StudentDocuments />} />
-				</Route>
-			</Route>
+        <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+          <Route path="/student" element={<StudentDashboard />} />
+          <Route path="/student/group" element={<StudentGroup />} />
+          <Route path="/student/documents" element={<StudentDocuments />} />
+        </Route>
+      </Route>
 
-			<Route path="/" element={<Navigate to="/login" replace />} />
-		</Routes>
-	);
+      <Route path="/" element={<Navigate to="/login" replace />} />
+    </Routes>
+  );
 }
