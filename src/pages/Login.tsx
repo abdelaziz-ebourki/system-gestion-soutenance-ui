@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useNavigate } from "react-router-dom";
+import { authenticate } from "@/lib/api";
 
 export default function Login() {
 	const [email, setEmail] = React.useState("");
@@ -27,26 +28,13 @@ export default function Login() {
 		setIsLoading(true);
 
 		try {
-			const response = await fetch("/api/login", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ email, password }),
-			});
+			const data = await authenticate({ email, password });
 
-			const data = await response.json();
+			toast.success(`Bienvenue, ${data.user.firstName} ${data.user.lastName}`);
 
-			if (!response.ok) {
-				throw new Error(data.message || "Erreur de connexion");
-			}
-
-			toast.success(`Bienvenue, ${data.user.name}`);
-
-			// Store token and user info (simplified for now)
 			localStorage.setItem("token", data.token);
 			localStorage.setItem("user", JSON.stringify(data.user));
 			localStorage.setItem("expiresAt", data.expiresAt.toString());
-
-			// Navigate based on role
 
 			const roleRoutes: Record<string, string> = {
 				admin: "/admin",
@@ -155,7 +143,8 @@ export default function Login() {
 						<CardFooter className="mt-6">
 							<Button
 								type="submit"
-								variant="action"
+                                className="w-full"
+								variant="default"
 								isLoading={isLoading}
 								loadingText="Connexion en cours..."
 							>

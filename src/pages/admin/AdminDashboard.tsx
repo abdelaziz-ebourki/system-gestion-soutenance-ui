@@ -224,7 +224,7 @@ export default function AdminDashboard() {
 									<CalendarCheck className="h-5 w-5 text-primary" />
 								</div>
 								<div className="ml-4">
-									<p className="text-sm font-medium">{stats?.activeSessions ?? <Skeleton className="h-4 w-12" />} Sessions Actives</p>
+									<div className="text-sm font-medium">{stats?.activeSessions ?? <Skeleton className="inline-block h-4 w-12" />} Sessions Actives</div>
 								</div>
 							</div>
 							<div className="flex items-center">
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
 									<History className="h-5 w-5 text-primary" />
 								</div>
 								<div className="ml-4">
-									<p className="text-sm font-medium">{stats?.upcomingDefenses ?? <Skeleton className="h-4 w-12" />} Soutenances</p>
+									<div className="text-sm font-medium">{stats?.upcomingDefenses ?? <Skeleton className="inline-block h-4 w-12" />} Soutenances</div>
 								</div>
 							</div>
 						</div>

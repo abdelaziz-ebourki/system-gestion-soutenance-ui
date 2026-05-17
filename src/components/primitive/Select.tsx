@@ -201,7 +201,7 @@ interface SimpleSelectProps {
   placeholder?: string
   options: Option[]
   value?: string
-  onChange?: (value: string) => void
+  onChange?: (value: string | null) => void
   disabled?: boolean
   error?: string
   fullWidth?: boolean
@@ -226,7 +226,7 @@ function SimpleSelect({
           {label}
         </label>
       )}
-      <Select value={value} onValueChange={onChange} disabled={disabled}>
+      <Select value={value} onValueChange={(val) => onChange?.(val)} disabled={disabled}>
         <SelectTrigger fullWidth={fullWidth} className={error ? "border-destructive ring-destructive/20" : ""}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>

@@ -6,7 +6,6 @@ import type {
 	Student,
 	Teacher,
 	Coordinator,
-	DashboardStats,
 	Filiere,
 	Level,
 	Grade,
@@ -24,6 +23,7 @@ import type {
 	StudentStats,
 } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
+import type { DashboardStats } from "@/types";
 
 const BASE_URL = "/api";
 
@@ -73,6 +73,20 @@ export async function api<T>(endpoint: string, options: ApiOptions = {}): Promis
 		throw new Error("Une erreur inattendue est survenue.", { cause: error });
 	}
 }
+
+// --- Authentication ---
+export interface AuthResponse {
+	user: User;
+	token: string;
+	expiresAt: number;
+}
+
+export const authenticate = (credentials: { email: string; password?: string }) =>
+	api<AuthResponse>("/login", {
+		method: "POST",
+		body: JSON.stringify(credentials),
+		requiresAuth: false,
+	});
 
 // --- Dashboard Services ---
 export const getAdminStats = () => api<DashboardStats>("/admin/stats");
