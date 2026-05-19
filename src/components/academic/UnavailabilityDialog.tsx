@@ -3,13 +3,14 @@ import {
   Calendar as CalendarIcon,
   AlertTriangle,
   CheckCircle2,
-  X,
 } from "lucide-react";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
   Button,
+  Dialog,
+  DialogContent,
   Input,
   Label,
 } from "@/components/ui";
@@ -30,8 +31,6 @@ export default function UnavailabilityDialog({
   const [submitted, setSubmitted] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  if (!isOpen) return null;
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -51,25 +50,15 @@ export default function UnavailabilityDialog({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="relative w-full max-w-md bg-card shadow-2xl rounded-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 border border-border">
-        <div className="p-6 border-b flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-destructive/10 rounded-lg">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-            </div>
-            <h2 className="text-xl font-heading font-bold">
-              Déclarer une Indisponibilité
-            </h2>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="sm:max-w-md overflow-hidden p-0 gap-0">
+        <div className="p-6 border-b flex items-center gap-2">
+          <div className="p-2 bg-destructive/10 rounded-lg">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="rounded-full"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          <h2 className="text-xl font-heading font-bold">
+            Déclarer une Indisponibilité
+          </h2>
         </div>
 
         {submitted ? (
@@ -176,24 +165,21 @@ export default function UnavailabilityDialog({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => {
-                  setSubmitted(false);
-                  onClose();
-                }}
+                onClick={onClose}
                 className="flex-1"
               >
                 Annuler
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                className="flex-1"
               >
                 Confirmer
               </Button>
             </div>
           </form>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

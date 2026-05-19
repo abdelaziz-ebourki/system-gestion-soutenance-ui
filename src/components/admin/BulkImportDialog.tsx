@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import { Upload, FileUp, AlertCircle } from "lucide-react";
 import {
   Alert,
@@ -25,7 +26,7 @@ interface BulkImportDialogProps {
 const ENTITY_HEADERS: Record<string, string[]> = {
   student: ["prénom", "nom", "email", "cne", "filière", "niveau"],
   teacher: ["prénom", "nom", "email", "département", "grade"],
-  room: ["nom", "bâtiment", "capacité"],
+  room: ["nom", "département", "capacité"],
 };
 
 export function BulkImportDialog({
@@ -98,12 +99,12 @@ export function BulkImportDialog({
             newItem.filiereName = item[key];
           else if (normalizedKey.includes("niveau"))
             newItem.levelName = item[key];
-          else if (normalizedKey.includes("département"))
-            newItem.departmentName = item[key];
+          else if (normalizedKey.includes("département")) {
+            if (entity === "room") newItem.departmentId = item[key];
+            else newItem.departmentName = item[key];
+          }
           else if (normalizedKey.includes("grade"))
             newItem.gradeName = item[key];
-          else if (normalizedKey.includes("bâtiment"))
-            newItem.building = item[key];
           else if (normalizedKey.includes("capacité"))
             newItem.capacity = item[key];
           else newItem[normalizedKey] = item[key];
@@ -158,8 +159,7 @@ export function BulkImportDialog({
       setData([]);
       onSuccess?.();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Échec de l'importation.";
-      toast.error(message);
+      toastError(error, "Échec de l'importation.");
     } finally {
       setIsSubmitting(false);
     }

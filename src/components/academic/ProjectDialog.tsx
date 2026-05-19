@@ -1,11 +1,10 @@
-"use client";
-
 import * as React from "react";
 
-import { useTeachersList, useStudentsList, useUpdateProject } from "@/hooks/use-queries";
+import { useTeachersList, useStudentsList, useCreateProject, useUpdateProject } from "@/hooks/use-queries";
 import { validate, projectSchema } from "@/lib/validations";
-import type { Project, Teacher, Student } from "@/types";
+import type { Project } from "@/types";
 import { toast } from "sonner";
+import { getFullName, toastError } from "@/lib/utils";
 import {
   Button,
   Dialog,
@@ -25,24 +24,22 @@ import {
   Textarea,
 } from "@/components/ui";
 
-interface EditProjectDialogProps {
+interface ProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  project: Project | null;
+  project?: Project | null;
 }
 
-const getFullName = (user?: Teacher | Student) =>
-  user ? `${user.lastName} ${user.firstName}` : "";
-
-export function EditProjectDialog({
+export function ProjectDialog({
   open,
   onOpenChange,
   onSuccess,
   project,
-}: EditProjectDialogProps) {
+}: ProjectDialogProps) {
   const teachersQuery = useTeachersList();
   const studentsQuery = useStudentsList();
+  const createProjectMutation = useCreateProject();
   const updateProjectMutation = useUpdateProject();
   const teachers = teachersQuery.data ?? [];
   const students = studentsQuery.data ?? [];
@@ -55,23 +52,30 @@ export function EditProjectDialog({
   const [studentIds, setStudentIds] = React.useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
+  const isEdit = !!project;
+
   React.useEffect(() => {
-    if (!open || !project) {
+    if (!open) {
       return;
     }
 
-    setTitle(project.title);
-    setDescription(project.description || "");
-    setSupervisorId(project.supervisorId);
-    setStudentIds(project.studentIds);
+    if (project) {
+      setTitle(project.title);
+      setDescription(project.description || "");
+      setSupervisorId(project.supervisorId);
+      setStudentIds(project.studentIds);
+    } else {
+      setTitle("");
+      setDescription("");
+      setSupervisorId("");
+      setStudentIds([]);
+    }
+    setSupervisorSearch("");
+    setFieldErrors({});
   }, [open, project]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    if (!project) {
-      return;
-    }
 
     const errors = validate(projectSchema, {
       title,
@@ -93,46 +97,63 @@ export function EditProjectDialog({
         studentIds.includes(student.id),
       );
 
-      await updateProjectMutation.mutateAsync({
-        id: project.id,
-        data: {
+      if (isEdit && project) {
+        await updateProjectMutation.mutateAsync({
+          id: project.id,
+          data: {
+            title,
+            description,
+            supervisorId,
+            studentIds,
+            studentNames: selectedStudents.map(getFullName),
+            supervisorName: getFullName(supervisor),
+            status: project.status,
+          },
+        });
+        toast.success("Projet mis a jour");
+      } else {
+        await createProjectMutation.mutateAsync({
           title,
           description,
           supervisorId,
           studentIds,
           studentNames: selectedStudents.map(getFullName),
           supervisorName: getFullName(supervisor),
-          status: project.status,
-        },
-      });
+          status: "pending",
+        });
+        toast.success("Projet cree avec succes");
+      }
+
       setFieldErrors({});
-      toast.success("Projet mis a jour");
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la mise a jour du projet";
-      toast.error(message);
+      toastError(error, isEdit ? "Erreur lors de la mise a jour du projet" : "Erreur lors de la creation du projet");
     }
   };
+
+  const formId = isEdit ? "edit-project-form" : "create-project-form";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-160">
         <DialogHeader>
-          <DialogTitle>Modifier le projet</DialogTitle>
+          <DialogTitle>{isEdit ? "Modifier le projet" : "Nouveau projet"}</DialogTitle>
           <DialogDescription>
-            Mettez a jour le sujet, l'encadrement et la composition du groupe.
+            {isEdit
+              ? "Mettez a jour le sujet, l'encadrement et la composition du groupe."
+              : "Ajoutez un sujet, son encadrant et le groupe d'etudiants associe."}
           </DialogDescription>
         </DialogHeader>
         <form
-          id="edit-project-form"
+          id={formId}
           className="grid gap-4"
           onSubmit={handleSubmit}
         >
           <div className="grid gap-2">
-            <Label htmlFor="edit-project-title">Titre</Label>
+            <Label htmlFor={`${formId}-title`}>Titre</Label>
             <Input
-              id="edit-project-title"
+              id={`${formId}-title`}
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               required
@@ -141,9 +162,9 @@ export function EditProjectDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="edit-project-description">Description</Label>
+            <Label htmlFor={`${formId}-description`}>Description</Label>
             <Textarea
-              id="edit-project-description"
+              id={`${formId}-description`}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               className="min-h-28"
@@ -151,7 +172,7 @@ export function EditProjectDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="edit-project-supervisor">Encadrant</Label>
+            <Label htmlFor={`${formId}-supervisor`}>Encadrant</Label>
             <Input
               placeholder="Rechercher un encadrant..."
               value={supervisorSearch}
@@ -162,7 +183,7 @@ export function EditProjectDialog({
               onValueChange={(val) => setSupervisorId(val || "")}
               disabled={isLoadingOptions}
             >
-              <SelectTrigger id="edit-project-supervisor" fullWidth>
+              <SelectTrigger id={`${formId}-supervisor`} fullWidth>
                 <SelectValue placeholder="Selectionner un encadrant" />
               </SelectTrigger>
               <SelectContent>
@@ -183,7 +204,7 @@ export function EditProjectDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="edit-project-students">Etudiants</Label>
+            <Label htmlFor={`${formId}-students`}>Etudiants</Label>
             <MultiSelect
               options={students.map((s) => ({
                 value: s.id,
@@ -202,11 +223,11 @@ export function EditProjectDialog({
         <DialogFooter>
           <Button
             type="submit"
-            form="edit-project-form"
-            isLoading={updateProjectMutation.isPending}
+            form={formId}
+            isLoading={isEdit ? updateProjectMutation.isPending : createProjectMutation.isPending}
             disabled={isLoadingOptions}
           >
-            Sauvegarder
+            {isEdit ? "Sauvegarder" : "Creer le projet"}
           </Button>
         </DialogFooter>
       </DialogContent>

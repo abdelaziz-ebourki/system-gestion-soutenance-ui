@@ -1,11 +1,10 @@
-"use client";
 
 import * as React from "react";
 
 import { useTeachersList, useProjects, useCreateJury } from "@/hooks/use-queries";
 import { validate, jurySchema } from "@/lib/validations";
-import type { Teacher } from "@/types";
 import { toast } from "sonner";
+import { getFullName, toastError } from "@/lib/utils";
 import {
   Button,
   Dialog,
@@ -28,9 +27,6 @@ interface CreateJuryDialogProps {
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }
-
-const getFullName = (teacher?: Teacher) =>
-  teacher ? `${teacher.lastName} ${teacher.firstName}` : "";
 
 export function CreateJuryDialog({
   open,
@@ -102,8 +98,7 @@ export function CreateJuryDialog({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la creation du jury";
-      toast.error(message);
+      toastError(error, "Erreur lors de la creation du jury");
     }
   };
 

@@ -1,4 +1,3 @@
-"use client";
 
 import * as React from "react";
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";

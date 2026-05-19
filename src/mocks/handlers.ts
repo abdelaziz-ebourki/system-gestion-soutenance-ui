@@ -187,11 +187,11 @@ const mockSessions: Session[] = [
 ];
 
 const mockRooms: Room[] = [
-  { id: "1", name: "TD-1", capacity: 30, building: "Bloc A" },
-  { id: "2", name: "TD-2", capacity: 30, building: "Bloc A" },
-  { id: "3", name: "Amphi-1", capacity: 150, building: "Bloc B" },
-  { id: "4", name: "TP-1", capacity: 20, building: "Bloc C" },
-  { id: "5", name: "TP-2", capacity: 20, building: "Bloc C" },
+  { id: "1", name: "TD-1", capacity: 30, departmentId: "1" },
+  { id: "2", name: "TD-2", capacity: 30, departmentId: "1" },
+  { id: "3", name: "Amphi-1", capacity: 150, departmentId: "2" },
+  { id: "4", name: "TP-1", capacity: 20, departmentId: "1" },
+  { id: "5", name: "TP-2", capacity: 20, departmentId: "2" },
 ];
 
 let defenseSettings = {
@@ -597,7 +597,7 @@ export const handlers = [
   http.post("/api/admin/users/bulk", async ({ request }) => {
     await delay(MOCK_DELAY);
     const { users, role } = (await request.json()) as {
-      users: any[];
+      users: Record<string, string>[];
       role: "student" | "teacher" | "coordinator";
     };
 
@@ -757,12 +757,12 @@ export const handlers = [
 
   http.post("/api/admin/rooms/bulk", async ({ request }) => {
     await delay(MOCK_DELAY);
-    const { rooms } = (await request.json()) as { rooms: any[] };
+    const { rooms } = (await request.json()) as { rooms: Record<string, unknown>[] };
     const createdRooms: Room[] = rooms.map((r) => ({
       id: Math.random().toString(36).substr(2, 9),
-      name: r.name,
-      building: r.building,
-      capacity: Number(r.capacity),
+      name: String(r.name ?? ""),
+      departmentId: String(r.departmentId ?? ""),
+      capacity: Number(r.capacity) || 0,
     }));
     mockRooms.push(...createdRooms);
     return HttpResponse.json(createdRooms, { status: 201 });

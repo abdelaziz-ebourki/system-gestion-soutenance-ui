@@ -20,6 +20,7 @@ import { useJurys, useProjects, useRooms, useSaveSoutenanceSchedule } from "@/ho
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { Project } from "@/types";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -212,8 +213,7 @@ export default function SoutenanceDesigner() {
       );
       toast.success("Planning valide avec succes");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la sauvegarde";
-      toast.error(message);
+      toastError(error, "Erreur lors de la sauvegarde");
     }
   };
 

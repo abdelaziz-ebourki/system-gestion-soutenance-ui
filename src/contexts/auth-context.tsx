@@ -6,6 +6,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 interface User {
   id: string;
@@ -14,6 +15,18 @@ interface User {
   email: string;
   role: "admin" | "coordinator" | "teacher" | "student";
   avatar?: string;
+}
+
+function isValidUser(data: unknown): data is User {
+  if (!data || typeof data !== "object") return false;
+  const obj = data as Record<string, unknown>;
+  return (
+    typeof obj.id === "string" &&
+    typeof obj.firstName === "string" &&
+    typeof obj.lastName === "string" &&
+    typeof obj.email === "string" &&
+    ["admin", "coordinator", "teacher", "student"].includes(obj.role as string)
+  );
 }
 
 interface AuthContextValue {
@@ -35,9 +48,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [wasExpired, setWasExpired] = useState(false);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
-    const expiresAt = localStorage.getItem("expiresAt");
+    const storedToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
+    const expiresAt = localStorage.getItem(STORAGE_KEYS.EXPIRES_AT);
 
     if (
       storedToken &&
@@ -45,22 +58,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       expiresAt &&
       Date.now() < Number.parseInt(expiresAt)
     ) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsed = JSON.parse(storedUser);
+        if (isValidUser(parsed)) {
+          setToken(storedToken);
+          setUser(parsed);
+        } else {
+          localStorage.removeItem(STORAGE_KEYS.TOKEN);
+          localStorage.removeItem(STORAGE_KEYS.USER);
+          localStorage.removeItem(STORAGE_KEYS.EXPIRES_AT);
+        }
+      } catch {
+        localStorage.removeItem(STORAGE_KEYS.TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.USER);
+        localStorage.removeItem(STORAGE_KEYS.EXPIRES_AT);
+      }
     } else if (storedToken) {
       setWasExpired(true);
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.removeItem("expiresAt");
+      localStorage.removeItem(STORAGE_KEYS.TOKEN);
+      localStorage.removeItem(STORAGE_KEYS.USER);
+      localStorage.removeItem(STORAGE_KEYS.EXPIRES_AT);
     }
     setIsLoading(false);
   }, []);
 
   const login = useCallback(
     (newToken: string, newUser: User, expiresAt: number) => {
-      localStorage.setItem("token", newToken);
-      localStorage.setItem("user", JSON.stringify(newUser));
-      localStorage.setItem("expiresAt", expiresAt.toString());
+      localStorage.setItem(STORAGE_KEYS.TOKEN, newToken);
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(newUser));
+      localStorage.setItem(STORAGE_KEYS.EXPIRES_AT, expiresAt.toString());
       setToken(newToken);
       setUser(newUser);
     },
@@ -68,9 +94,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const logout = useCallback(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("expiresAt");
+    localStorage.removeItem(STORAGE_KEYS.TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER);
+    localStorage.removeItem(STORAGE_KEYS.EXPIRES_AT);
     setToken(null);
     setUser(null);
   }, []);

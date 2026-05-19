@@ -12,6 +12,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { useProjects, useDeleteProject } from "@/hooks/use-queries";
 import type { Project } from "@/types";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -22,8 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui";
 import { DataTable } from "@/components/ui/data-table";
-import { CreateProjectDialog } from "@/components/academic/CreateProjectDialog";
-import { EditProjectDialog } from "@/components/academic/EditProjectDialog";
+import { ProjectDialog } from "@/components/academic/ProjectDialog";
 
 const statusLabel: Record<Project["status"], string> = {
   pending: "En attente",
@@ -50,8 +50,7 @@ export default function CoordinatorProjects() {
       await deleteProjectMutation.mutateAsync(id);
       toast.success("Projet supprime");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
-      toast.error(message);
+      toastError(error, "Erreur lors de la suppression");
     }
   };
 
@@ -203,23 +202,17 @@ export default function CoordinatorProjects() {
         </CardContent>
       </Card>
 
-      <CreateProjectDialog
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
+      <ProjectDialog
+        open={isCreateOpen || Boolean(editingProject)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsCreateOpen(false);
+            setEditingProject(null);
+          }
+        }}
+        project={editingProject}
         onSuccess={() => {}}
       />
-      {editingProject && (
-        <EditProjectDialog
-          project={editingProject}
-          open={Boolean(editingProject)}
-          onOpenChange={(open) => {
-            if (!open) {
-              setEditingProject(null);
-            }
-          }}
-          onSuccess={() => {}}
-        />
-      )}
     </div>
   );
 }

@@ -24,6 +24,7 @@ import type {
 } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import type { DashboardStats } from "@/types";
+import { STORAGE_KEYS } from "@/lib/constants";
 
 const BASE_URL = "/api";
 
@@ -40,7 +41,7 @@ export async function api<T>(
   const headers = {
     "Content-Type": "application/json",
     ...(requiresAuth
-      ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      ? { Authorization: `Bearer ${localStorage.getItem(STORAGE_KEYS.TOKEN)}` }
       : {}),
     ...customConfig.headers,
   };
@@ -172,7 +173,7 @@ export const bulkCreateUsers = (
 export interface RoomImportData {
   name: string;
   capacity: number;
-  building: string;
+  departmentId: string;
   [key: string]: string | number;
 }
 
@@ -424,7 +425,7 @@ export const joinStudentGroup = (groupId: string) =>
 export const getStudentConvocation = () =>
   fetch("/api/student/convocation", {
     headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      Authorization: `Bearer ${localStorage.getItem(STORAGE_KEYS.TOKEN)}`,
     },
   }).then(async (response) => {
     if (!response.ok) {

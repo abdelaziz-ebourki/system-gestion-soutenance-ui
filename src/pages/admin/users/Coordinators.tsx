@@ -1,4 +1,3 @@
-"use client";
 
 import * as React from "react";
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
@@ -36,6 +35,7 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 import { validate, coordinatorSchema } from "@/lib/validations";
+import { toastError } from "@/lib/utils";
 
 export default function Coordinators() {
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -81,8 +81,7 @@ export default function Coordinators() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la création";
-      toast.error(message);
+      toastError(error, "Erreur lors de la création");
     }
   };
 
@@ -100,8 +99,7 @@ export default function Coordinators() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la modification";
-      toast.error(message);
+      toastError(error, "Erreur lors de la modification");
     }
   };
 
@@ -119,8 +117,7 @@ export default function Coordinators() {
       setIsDeleteDialogOpen(false);
       setSelectedCoord(null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
-      toast.error(message);
+      toastError(error, "Erreur lors de la suppression");
     }
   };
 

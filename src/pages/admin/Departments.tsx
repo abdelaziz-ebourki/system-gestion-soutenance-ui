@@ -1,4 +1,3 @@
-"use client";
 
 import * as React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
@@ -46,6 +45,7 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 import { validate, departmentSchema } from "@/lib/validations";
+import { toastError } from "@/lib/utils";
 
 export default function Departments() {
   const { data, isLoading } = useDepartments();
@@ -84,8 +84,7 @@ export default function Departments() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la création";
-      toast.error(message);
+      toastError(error, "Erreur lors de la création");
     }
   };
 
@@ -100,8 +99,7 @@ export default function Departments() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la modification";
-      toast.error(message);
+      toastError(error, "Erreur lors de la modification");
     }
   };
 
@@ -119,8 +117,7 @@ export default function Departments() {
       setIsDeleteDialogOpen(false);
       setSelectedDept(null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
-      toast.error(message);
+      toastError(error, "Erreur lors de la suppression");
     }
   };
 

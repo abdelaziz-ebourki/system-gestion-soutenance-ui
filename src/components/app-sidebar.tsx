@@ -1,4 +1,3 @@
-"use client";
 
 import { siteConfig } from "@/config/site";
 import * as React from "react";

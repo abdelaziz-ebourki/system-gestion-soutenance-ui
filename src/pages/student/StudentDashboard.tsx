@@ -1,11 +1,10 @@
-"use client";
 
 import { useState } from "react";
 import { CalendarDays, Download, GraduationCap, Users } from "lucide-react";
 
 import { getStudentConvocation } from "@/lib/api";
 import { useStudentStats, useStudentDefense } from "@/hooks/use-queries";
-import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -38,11 +37,7 @@ export default function StudentDashboard() {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Impossible de télécharger la convocation";
-      toast.error(message);
+      toastError(error, "Impossible de télécharger la convocation");
     } finally {
       setIsDownloading(false);
     }

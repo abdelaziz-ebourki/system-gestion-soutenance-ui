@@ -53,7 +53,7 @@ export const sessionSchema = z
 
 export const roomSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
-  building: z.string().min(1, "Le bâtiment est requis"),
+  departmentId: z.string().min(1, "Le département est requis"),
   capacity: z.coerce.number().min(1, "La capacité doit être supérieure à 0"),
 });
 

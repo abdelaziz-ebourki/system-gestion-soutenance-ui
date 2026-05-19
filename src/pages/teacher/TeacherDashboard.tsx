@@ -1,7 +1,7 @@
 import { ClipboardCheck, Clock3, FileCheck2, ShieldCheck } from "lucide-react";
 
 import { useTeacherStats, useTeacherSchedule, useTeacherEvaluations } from "@/hooks/use-queries";
-import type { TeacherDefense } from "@/types";
+import { DEFENSE_ROLE_LABELS } from "@/lib/constants";
 
 import {
   Badge,
@@ -12,13 +12,6 @@ import {
   CardTitle,
   Skeleton,
 } from "@/components/ui";
-
-const roleLabel: Record<TeacherDefense["role"], string> = {
-  president: "Président",
-  reporter: "Rapporteur",
-  examiner: "Examinateur",
-  supervisor: "Encadrant",
-};
 
 export default function TeacherDashboard() {
   const statsQuery = useTeacherStats();
@@ -150,7 +143,7 @@ export default function TeacherDashboard() {
                     </p>
                   </div>
                   <Badge className="bg-secondary text-secondary-foreground">
-                    {roleLabel[defense.role]}
+                    {DEFENSE_ROLE_LABELS[defense.role]}
                   </Badge>
                 </div>
                 <div className="mt-3 text-sm text-muted-foreground">
@@ -177,7 +170,7 @@ export default function TeacherDashboard() {
                   {evaluation.studentNames.join(", ")}
                 </p>
                 <div className="mt-3">
-                  <Badge variant="outline">{roleLabel[evaluation.role]}</Badge>
+                  <Badge variant="outline">{DEFENSE_ROLE_LABELS[evaluation.role]}</Badge>
                 </div>
               </div>
             ))}

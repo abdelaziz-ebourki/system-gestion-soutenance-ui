@@ -1,4 +1,3 @@
-"use client";
 
 import * as React from "react";
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
@@ -45,6 +44,7 @@ import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 import { validate, studentSchema } from "@/lib/validations";
+import { toastError } from "@/lib/utils";
 
 export default function Students() {
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -102,8 +102,7 @@ export default function Students() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la création de l'étudiant";
-      toast.error(message);
+      toastError(error, "Erreur lors de la création de l'étudiant");
     }
   };
 
@@ -121,8 +120,7 @@ export default function Students() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la modification de l'étudiant";
-      toast.error(message);
+      toastError(error, "Erreur lors de la modification de l'étudiant");
     }
   };
 
@@ -140,8 +138,7 @@ export default function Students() {
       setIsDeleteDialogOpen(false);
       setSelectedStudent(null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
-      toast.error(message);
+      toastError(error, "Erreur lors de la suppression");
     }
   };
 

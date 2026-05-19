@@ -3,6 +3,7 @@ import { CalendarDays, MapPin, ShieldCheck, Timer } from "lucide-react";
 
 import { useTeacherSchedule } from "@/hooks/use-queries";
 import type { TeacherDefense } from "@/types";
+import { DEFENSE_ROLE_LABELS } from "@/lib/constants";
 
 import {
   Badge,
@@ -13,13 +14,6 @@ import {
   CardTitle,
 } from "@/components/ui";
 import { DataTable } from "@/components/ui/data-table";
-
-const roleLabel: Record<TeacherDefense["role"], string> = {
-  president: "Président",
-  reporter: "Rapporteur",
-  examiner: "Examinateur",
-  supervisor: "Encadrant",
-};
 
 const statusLabel: Record<TeacherDefense["status"], string> = {
   scheduled: "Planifiée",
@@ -61,7 +55,7 @@ export default function TeacherSchedule() {
       accessorKey: "role",
       header: "Rôle",
       cell: ({ row }) => (
-        <Badge variant="outline">{roleLabel[row.original.role]}</Badge>
+        <Badge variant="outline">{DEFENSE_ROLE_LABELS[row.original.role]}</Badge>
       ),
     },
     {
@@ -178,7 +172,7 @@ export default function TeacherSchedule() {
                   </div>
                 </div>
                 <Badge className="bg-secondary text-secondary-foreground">
-                  {roleLabel[defense.role]}
+                  {DEFENSE_ROLE_LABELS[defense.role]}
                 </Badge>
               </CardContent>
             </Card>

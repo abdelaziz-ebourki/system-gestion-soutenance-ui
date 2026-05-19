@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import {
@@ -10,7 +8,7 @@ import {
   BuildingIcon,
 } from "lucide-react";
 
-import { useRooms, useCreateRoom, useUpdateRoom, useDeleteRoom } from "@/hooks/use-queries";
+import { useRooms, useCreateRoom, useUpdateRoom, useDeleteRoom, useDepartments } from "@/hooks/use-queries";
 import type { Room } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -37,15 +35,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Skeleton,
 } from "@/components/ui";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 import { validate, roomSchema } from "@/lib/validations";
+import { toastError } from "@/lib/utils";
 
 export default function Rooms() {
   const { data, isLoading, refetch } = useRooms();
+  const { data: departments = [] } = useDepartments();
   const createRoomMut = useCreateRoom();
   const updateRoomMut = useUpdateRoom();
   const deleteRoomMut = useDeleteRoom();
@@ -59,11 +64,11 @@ export default function Rooms() {
   const [formData, setFormData] = React.useState({
     name: "",
     capacity: 0,
-    building: "",
+    departmentId: "",
   });
 
   const resetForm = () => {
-    setFormData({ name: "", capacity: 0, building: "" });
+    setFormData({ name: "", capacity: 0, departmentId: departments?.[0]?.id || "" });
     setSelectedRoom(null);
     setFieldErrors({});
   };
@@ -78,8 +83,7 @@ export default function Rooms() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la création de la salle";
-      toast.error(message);
+      toastError(error, "Erreur lors de la création de la salle");
     }
   };
 
@@ -94,8 +98,7 @@ export default function Rooms() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la modification de la salle";
-      toast.error(message);
+      toastError(error, "Erreur lors de la modification de la salle");
     }
   };
 
@@ -116,10 +119,12 @@ export default function Rooms() {
       setIsDeleteDialogOpen(false);
       setSelectedRoom(null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la suppression de la salle";
-      toast.error(message);
+      toastError(error, "Erreur lors de la suppression de la salle");
     }
   };
+
+  const getDepartmentName = (id: string) =>
+    departments.find((d) => d.id === id)?.name || id;
 
   const columns: ColumnDef<Room>[] = [
     {
@@ -130,12 +135,12 @@ export default function Rooms() {
       ),
     },
     {
-      accessorKey: "building",
-      header: "Bâtiment",
+      accessorKey: "departmentId",
+      header: "Département",
       cell: ({ row }) => (
         <div className="flex items-center text-muted-foreground">
           <BuildingIcon className="mr-2 h-4 w-4" />
-          {row.getValue("building")}
+          {getDepartmentName(row.getValue("departmentId"))}
         </div>
       ),
     },
@@ -171,7 +176,7 @@ export default function Rooms() {
                     setFormData({
                       name: room.name,
                       capacity: room.capacity,
-                      building: room.building,
+                      departmentId: room.departmentId,
                     });
                     setIsDialogOpen(true);
                   }}
@@ -255,16 +260,27 @@ export default function Rooms() {
                     />
                   </Field>
                   <Field>
-                    <FieldLabel>Bâtiment</FieldLabel>
-                    <Input
-                      placeholder="ex: Bloc A"
-                      value={formData.building}
-                      onChange={(e) =>
-                        setFormData({ ...formData, building: e.target.value })
+                    <FieldLabel>Département</FieldLabel>
+                    <Select
+                      value={formData.departmentId}
+                      onValueChange={(v) =>
+                        setFormData({ ...formData, departmentId: v || "" })
                       }
-                      required
-                      error={fieldErrors?.building}
-                    />
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choisir un département" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {departments.map((d) => (
+                          <SelectItem key={d.id} value={d.id}>
+                            {d.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {fieldErrors?.departmentId && (
+                      <p className="text-sm font-medium text-destructive">{fieldErrors.departmentId}</p>
+                    )}
                   </Field>
                   <Field>
                     <FieldLabel>Capacité (places)</FieldLabel>

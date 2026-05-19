@@ -1,4 +1,3 @@
-"use client";
 
 import * as React from "react";
 import {
@@ -46,6 +45,7 @@ import {
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import { validate, configNameSchema, defenseSettingsSchema } from "@/lib/validations";
 
 type ConfigType = "filiere" | "level" | "grade";
@@ -129,8 +129,7 @@ export default function Configuration() {
       }
       setIsDialogOpen(false);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Une erreur est survenue";
-      toast.error(message);
+      toastError(error, "Une erreur est survenue");
     }
   };
 
@@ -143,8 +142,7 @@ export default function Configuration() {
       toast.success("Supprimé avec succès");
       setIsDeleteDialogOpen(false);
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
-      toast.error(message);
+      toastError(error, "Erreur lors de la suppression");
     }
   };
 
@@ -157,8 +155,7 @@ export default function Configuration() {
       await updateSettingsMut.mutateAsync(settings);
       toast.success("Paramètres mis à jour");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la mise à jour des paramètres";
-      toast.error(message);
+      toastError(error, "Erreur lors de la mise à jour des paramètres");
     }
   };
 

@@ -80,7 +80,5 @@ export interface Room {
   id: string;
   name: string;
   capacity: number;
-  building: string;
+  departmentId: string;
 }
-
-export const BUILDINGS = ["Bloc A", "Bloc B", "Bloc C", "Amphi"] as const;

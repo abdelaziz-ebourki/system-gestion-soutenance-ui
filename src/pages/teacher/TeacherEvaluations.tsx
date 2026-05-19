@@ -5,6 +5,8 @@ import { useTeacherEvaluations, useSubmitTeacherEvaluation } from "@/hooks/use-q
 import { validate, evaluationSchema } from "@/lib/validations";
 import type { TeacherEvaluation } from "@/types";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
+import { DEFENSE_ROLE_LABELS } from "@/lib/constants";
 import {
   Badge,
   Button,
@@ -24,12 +26,7 @@ import {
   Textarea,
 } from "@/components/ui";
 
-const roleLabel: Record<TeacherEvaluation["role"], string> = {
-  president: "Président",
-  reporter: "Rapporteur",
-  examiner: "Examinateur",
-  supervisor: "Encadrant",
-};
+
 
 export default function TeacherEvaluations() {
   const evaluationsQuery = useTeacherEvaluations();
@@ -83,8 +80,7 @@ export default function TeacherEvaluations() {
       toast.success("Évaluation enregistrée");
       closeEvaluation();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de l'enregistrement";
-      toast.error(message);
+      toastError(error, "Erreur lors de l'enregistrement");
     }
   };
 
@@ -170,7 +166,7 @@ export default function TeacherEvaluations() {
                       </p>
                     </div>
                     <Badge variant="outline">
-                      {roleLabel[evaluation.role]}
+                      {DEFENSE_ROLE_LABELS[evaluation.role]}
                     </Badge>
                   </div>
                   <div className="mt-4">
@@ -202,7 +198,7 @@ export default function TeacherEvaluations() {
                     </p>
                   </div>
                   <Badge className="bg-secondary text-secondary-foreground">
-                    {roleLabel[evaluation.role]}
+                    {DEFENSE_ROLE_LABELS[evaluation.role]}
                   </Badge>
                 </div>
                 {evaluation.comment && (

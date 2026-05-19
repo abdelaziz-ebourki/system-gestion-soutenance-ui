@@ -1,4 +1,3 @@
-"use client";
 
 import * as React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
@@ -41,6 +40,7 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 import { validate, sessionSchema } from "@/lib/validations";
+import { toastError } from "@/lib/utils";
 import {
   useSessions,
   useCreateSession,
@@ -91,8 +91,7 @@ export default function Sessions() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la création de la session";
-      toast.error(message);
+      toastError(error, "Erreur lors de la création de la session");
     }
   };
 
@@ -110,8 +109,7 @@ export default function Sessions() {
       setIsDialogOpen(false);
       resetForm();
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la modification de la session";
-      toast.error(message);
+      toastError(error, "Erreur lors de la modification de la session");
     }
   };
 
@@ -130,8 +128,7 @@ export default function Sessions() {
       await deleteSession.mutateAsync(selectedSession.id);
       toast.success("Session supprimée");
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Erreur lors de la suppression de la session";
-      toast.error(message);
+      toastError(error, "Erreur lors de la suppression de la session");
     } finally {
       setIsDeleteDialogOpen(false);
       setSelectedSession(null);
