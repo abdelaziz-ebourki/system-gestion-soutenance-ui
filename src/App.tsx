@@ -22,6 +22,7 @@ import StudentGroup from "./pages/student/StudentGroup";
 import StudentDocuments from "./pages/student/StudentDocuments";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import DashboardLayout from "./components/layout/DashboardLayout";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -72,6 +73,7 @@ export default function App() {
       </Route>
 
       <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

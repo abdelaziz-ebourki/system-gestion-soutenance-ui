@@ -11,17 +11,19 @@ import {
   CardTitle,
   Input,
   PasswordInput,
-} from "@/components/primitive";
+} from "@/components/ui";
 import { toast } from "sonner";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useNavigate } from "react-router-dom";
 import { authenticate } from "@/lib/api";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,9 +34,7 @@ export default function Login() {
 
       toast.success(`Bienvenue, ${data.user.firstName} ${data.user.lastName}`);
 
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("expiresAt", data.expiresAt.toString());
+      login(data.token, data.user, data.expiresAt);
 
       const roleRoutes: Record<string, string> = {
         admin: "/admin",

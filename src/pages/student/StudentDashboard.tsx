@@ -19,7 +19,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/primitive";
+} from "@/components/ui";
 import { Link } from "react-router-dom";
 
 export default function StudentDashboard() {

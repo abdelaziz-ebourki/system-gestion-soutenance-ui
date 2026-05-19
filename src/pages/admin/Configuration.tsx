@@ -51,7 +51,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   Skeleton,
-} from "@/components/primitive";
+} from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 

@@ -16,7 +16,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 type CalendarSession = {
   dateKey: string;

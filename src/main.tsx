@@ -6,6 +6,7 @@ import App from "./App.tsx";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { Toaster } from "./components/ui/sonner";
 import { ThemeProvider } from "./components/theme-provider";
+import { AuthProvider } from "./contexts/auth-context";
 
 async function enableMocking() {
   if (import.meta.env.DEV) {
@@ -20,8 +21,10 @@ enableMocking().then(() => {
       <ThemeProvider>
         <BrowserRouter>
           <TooltipProvider>
-            <App />
-            <Toaster position="top-center" />
+            <AuthProvider>
+              <App />
+              <Toaster position="top-center" />
+            </AuthProvider>
           </TooltipProvider>
         </BrowserRouter>
       </ThemeProvider>

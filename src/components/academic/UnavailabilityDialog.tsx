@@ -12,7 +12,7 @@ import {
   Button,
   Input,
   Label,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 interface UnavailabilityDialogProps {
   isOpen: boolean;

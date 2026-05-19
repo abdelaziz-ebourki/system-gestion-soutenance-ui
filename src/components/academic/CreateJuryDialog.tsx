@@ -19,7 +19,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 interface CreateJuryDialogProps {
   open: boolean;

@@ -32,6 +32,9 @@ export function PasswordInput({
   onChange,
   value,
   defaultValue,
+  label,
+  error,
+  description,
   ...props
 }: Omit<ComponentProps<typeof Input>, "type"> & {
   children?: ReactNode;
@@ -47,31 +50,52 @@ export function PasswordInput({
     onChange?.(e);
   };
 
+  const input = (
+    <div className="space-y-3">
+      <InputGroup>
+        <InputGroupInput
+          {...props}
+          value={value}
+          defaultValue={defaultValue}
+          type={showPassword ? "text" : "password"}
+          onChange={handleChange}
+        />
+        <InputGroupAddon align="inline-end">
+          <InputGroupButton
+            size="icon-xs"
+            onClick={() => setShowPassword((p) => !p)}
+          >
+            <Icon className="size-4.5" />
+            <span className="sr-only">
+              {showPassword ? "Hide password" : "Show password"}
+            </span>
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+      {children}
+    </div>
+  );
+
   return (
     <PasswordInputContext value={{ password: currentValue.toString() }}>
-      <div className="space-y-3">
-        <InputGroup>
-          <InputGroupInput
-            {...props}
-            value={value}
-            defaultValue={defaultValue}
-            type={showPassword ? "text" : "password"}
-            onChange={handleChange}
-          />
-          <InputGroupAddon align="inline-end">
-            <InputGroupButton
-              size="icon-xs"
-              onClick={() => setShowPassword((p) => !p)}
-            >
-              <Icon className="size-4.5" />
-              <span className="sr-only">
-                {showPassword ? "Hide password" : "Show password"}
-              </span>
-            </InputGroupButton>
-          </InputGroupAddon>
-        </InputGroup>
-        {children}
-      </div>
+      {!label && !error && !description ? (
+        input
+      ) : (
+        <div className="flex flex-col gap-1.5 w-full">
+          {label && (
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              {label}
+            </label>
+          )}
+          {input}
+          {description && (
+            <p className="text-xs text-muted-foreground">{description}</p>
+          )}
+          {error && (
+            <p className="text-sm font-medium text-destructive">{error}</p>
+          )}
+        </div>
+      )}
     </PasswordInputContext>
   );
 }

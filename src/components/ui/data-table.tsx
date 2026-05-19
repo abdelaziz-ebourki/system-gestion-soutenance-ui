@@ -23,7 +23,7 @@ import {
   TableRow,
   Button,
   Input,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

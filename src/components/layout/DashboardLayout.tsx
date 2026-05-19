@@ -10,7 +10,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   Separator,
-} from "@/components/primitive";
+} from "@/components/ui";
 import { Outlet } from "react-router-dom";
 
 export default function DashboardLayout() {

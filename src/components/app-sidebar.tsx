@@ -26,18 +26,17 @@ import {
   LayersIcon,
   University,
 } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const userStr = localStorage.getItem("user");
-  const user = userStr
-    ? JSON.parse(userStr)
-    : {
-        lastName: "Guest",
-        firstName: "",
-        email: "",
-        role: "guest",
-        avatar: "",
-      };
+  const { user } = useAuth();
+  const displayUser = user ?? {
+    lastName: "Guest",
+    firstName: "",
+    email: "",
+    role: "guest" as const,
+    avatar: "",
+  };
 
   const getNavItems = (role: string) => {
     switch (role) {
@@ -83,7 +82,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/admin/config",
             icon: <Settings2Icon />,
           },
-          { title: "Audit Logs", url: "/admin/audit", icon: <HistoryIcon /> },
         ];
       case "coordinator":
         return [
@@ -166,10 +164,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={getNavItems(user.role)} />
+        <NavMain items={getNavItems(displayUser.role)} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser user={displayUser} />
       </SidebarFooter>
     </Sidebar>
   );

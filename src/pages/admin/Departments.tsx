@@ -42,7 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
   Skeleton,
-} from "@/components/primitive";
+} from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
 

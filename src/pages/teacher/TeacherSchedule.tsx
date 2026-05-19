@@ -12,7 +12,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/primitive";
+} from "@/components/ui";
 import { DataTable } from "@/components/ui/data-table";
 
 const roleLabel: Record<TeacherDefense["role"], string> = {

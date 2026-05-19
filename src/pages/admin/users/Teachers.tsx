@@ -44,7 +44,7 @@ import {
   SelectValue,
   Badge,
   Skeleton,
-} from "@/components/primitive";
+} from "@/components/ui";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";

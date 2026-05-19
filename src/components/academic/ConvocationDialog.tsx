@@ -1,5 +1,5 @@
 import { Download, Users } from "lucide-react";
-import { Button } from "@/components/primitive";
+import { Button } from "@/components/ui";
 
 interface Student {
   name: string;

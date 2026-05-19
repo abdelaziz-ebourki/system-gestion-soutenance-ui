@@ -26,7 +26,7 @@ import {
   CardHeader,
   CardTitle,
   Skeleton,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 const DAYS = ["2026-06-10", "2026-06-11"];
 const SLOTS = ["08:30", "10:15", "12:00", "13:45", "15:30"];

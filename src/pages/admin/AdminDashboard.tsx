@@ -24,7 +24,7 @@ import {
   CardHeader,
   CardTitle,
   Skeleton,
-} from "@/components/primitive";
+} from "@/components/ui";
 import {
   type ChartConfig,
   ChartContainer,

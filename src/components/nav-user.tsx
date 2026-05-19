@@ -24,7 +24,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/primitive";
+} from "@/components/ui";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -44,6 +44,7 @@ import {
 import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/auth-context";
 
 export function NavUser({
   user,
@@ -58,14 +59,13 @@ export function NavUser({
   const { isMobile } = useSidebar();
   const navigate = useNavigate();
   const { setTheme, theme } = useTheme();
+  const { logout } = useAuth();
 
   const displayName = `${user.lastName} ${user.firstName}`.trim() || "User";
   const initials = displayName.charAt(0).toUpperCase() || "U";
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("expiresAt");
+    logout();
     toast.success("Déconnexion réussie");
     navigate("/login");
   };

@@ -16,7 +16,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 export default function StudentGroup() {
   const [workspace, setWorkspace] =

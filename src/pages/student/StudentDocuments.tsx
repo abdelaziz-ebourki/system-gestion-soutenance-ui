@@ -20,7 +20,7 @@ import {
   CardTitle,
   Input,
   Label,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 const documentIcons: Record<string, typeof FileText> = {
   Rapport: FileText,

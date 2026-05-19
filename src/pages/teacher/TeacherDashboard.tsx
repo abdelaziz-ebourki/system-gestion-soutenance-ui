@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
   Skeleton,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 const roleLabel: Record<TeacherDefense["role"], string> = {
   president: "Président",

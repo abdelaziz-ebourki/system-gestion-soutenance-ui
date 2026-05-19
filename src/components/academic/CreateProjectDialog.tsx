@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
   Textarea,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 interface CreateProjectDialogProps {
   open: boolean;

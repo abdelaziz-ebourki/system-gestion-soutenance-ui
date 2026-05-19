@@ -21,7 +21,7 @@ import {
   Input,
   Label,
   Textarea,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 const roleLabel: Record<TeacherEvaluation["role"], string> = {
   president: "Président",

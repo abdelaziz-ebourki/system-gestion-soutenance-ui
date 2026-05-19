@@ -10,7 +10,7 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import { Badge, Button, Card } from "@/components/primitive";
+import { Badge, Button, Card } from "@/components/ui";
 
 interface Session {
   dateKey: string;

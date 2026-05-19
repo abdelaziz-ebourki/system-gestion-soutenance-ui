@@ -20,7 +20,7 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@/components/primitive";
+} from "@/components/ui";
 import { PanelLeftIcon } from "lucide-react";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";

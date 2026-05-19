@@ -23,7 +23,7 @@ import {
   CardHeader,
   CardTitle,
   Skeleton,
-} from "@/components/primitive";
+} from "@/components/ui";
 
 const actionCards = [
   {

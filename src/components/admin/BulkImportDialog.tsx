@@ -13,7 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/primitive";
+} from "@/components/ui";
 import { bulkCreateUsers, bulkCreateRooms } from "@/lib/api";
 
 interface BulkImportDialogProps {

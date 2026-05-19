@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
   Input,
-} from "@/components/primitive";
+} from "@/components/ui";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { api } from "@/lib/api";
 

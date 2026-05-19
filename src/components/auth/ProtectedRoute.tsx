@@ -1,4 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
 
 interface ProtectedRouteProps {
@@ -6,24 +7,20 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
-  const token = localStorage.getItem("token");
-  const userStr = localStorage.getItem("user");
-  const expiresAt = localStorage.getItem("expiresAt");
-  const user = userStr ? JSON.parse(userStr) : null;
+  const { user, isAuthenticated, isLoading, wasExpired } = useAuth();
 
-  const isExpired = expiresAt ? Date.now() > Number.parseInt(expiresAt) : true;
+  if (isLoading) {
+    return null;
+  }
 
-  if (!token || !user || isExpired) {
-    if (isExpired && token) {
-      localStorage.removeItem("token");
-      localStorage.setItem("user", "");
-      localStorage.removeItem("expiresAt");
+  if (!isAuthenticated) {
+    if (wasExpired) {
       toast.error("Votre session a expiré. Veuillez vous reconnecter.");
     }
     return <Navigate to="/login" replace />;
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  if (!allowedRoles.includes(user!.role)) {
     return <Navigate to="/login" replace />;
   }
 
