@@ -23,7 +23,7 @@ import type {
 } from "@/types";
 import { auditLogHandlers } from "./audit-log-handlers";
 
-const MOCK_DELAY = 1000;
+const MOCK_DELAY = Number(import.meta.env.VITE_MOCK_DELAY) || 1000;
 
 const mockFilieres: Filiere[] = [
   { id: "f1", name: "Génie Informatique" },
@@ -456,7 +456,7 @@ const mapGroupDetails = (
 };
 
 const isGroupCreationOpen = () => {
-  const today = "2026-05-15";
+  const today = new Date().toISOString().slice(0, 10);
   return (
     today >= defenseSettings.groupCreationStartDate &&
     today <= defenseSettings.groupCreationEndDate

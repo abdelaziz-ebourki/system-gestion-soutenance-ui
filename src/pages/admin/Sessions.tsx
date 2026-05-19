@@ -90,8 +90,9 @@ export default function Sessions() {
       toast.success("Session créée avec succès");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la création de la session");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la création de la session";
+      toast.error(message);
     }
   };
 
@@ -108,8 +109,9 @@ export default function Sessions() {
       toast.success("Session modifiée avec succès");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la modification de la session");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la modification de la session";
+      toast.error(message);
     }
   };
 
@@ -127,8 +129,9 @@ export default function Sessions() {
     try {
       await deleteSession.mutateAsync(selectedSession.id);
       toast.success("Session supprimée");
-    } catch {
-      toast.error("Erreur lors de la suppression de la session");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la suppression de la session";
+      toast.error(message);
     } finally {
       setIsDeleteDialogOpen(false);
       setSelectedSession(null);

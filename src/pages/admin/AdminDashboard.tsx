@@ -15,6 +15,7 @@ import { format } from "date-fns";
 
 import { useAdminStats, useUsers, useAuditLogs } from "@/hooks/use-queries";
 import type { User } from "@/types";
+import type { AuditLog } from "@/types/audit-log";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Badge,
@@ -30,7 +31,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { toast } from "sonner";
 
 export default function AdminDashboard() {
   const [pagination, setPagination] = React.useState<PaginationState>({

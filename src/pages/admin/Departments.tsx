@@ -83,8 +83,9 @@ export default function Departments() {
       toast.success("Département ajouté avec succès");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la création");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la création";
+      toast.error(message);
     }
   };
 
@@ -98,8 +99,9 @@ export default function Departments() {
       toast.success("Département modifié avec succès");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la modification");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la modification";
+      toast.error(message);
     }
   };
 
@@ -116,8 +118,9 @@ export default function Departments() {
       toast.success("Département supprimé");
       setIsDeleteDialogOpen(false);
       setSelectedDept(null);
-    } catch {
-      toast.error("Erreur lors de la suppression");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
+      toast.error(message);
     }
   };
 

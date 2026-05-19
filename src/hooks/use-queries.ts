@@ -1,19 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
-import type { PaginatedResponse } from "@/lib/api";
 import type {
   Session, Room, Department, Filiere, Level, Grade,
-  User, Student, Teacher, Coordinator,
   Project, Group, Jury,
-  DefenseSettings, DashboardStats,
+  TeacherEvaluation, TeacherUnavailability,
 } from "@/types";
-import type { AuditLog } from "@/types/audit-log";
-import type {
-  CoordinatorStats,
-  TeacherStats, TeacherDefense, TeacherEvaluation, TeacherUnavailability,
-  StudentStats, StudentDefenseDetails, StudentDocument,
-  StudentGroupWorkspace, StudentGroupDetails,
-} from "@/lib/api";
+import type { DefenseSettings } from "@/lib/api";
 
 // === Admin ===
 

@@ -2,7 +2,7 @@ import * as React from "react";
 import { Ban, CalendarClock, Save } from "lucide-react";
 
 import { useTeacherSchedule, useTeacherUnavailability, useSaveTeacherUnavailability } from "@/hooks/use-queries";
-import type { TeacherDefense, TeacherUnavailability } from "@/types";
+import type { TeacherUnavailability } from "@/types";
 import { toast } from "sonner";
 import AvailabilityCalendar from "@/components/academic/AvailabilityCalendar";
 import {
@@ -60,8 +60,9 @@ export default function TeacherUnavailability() {
     try {
       await saveMutation.mutateAsync(unavailability);
       toast.success("Indisponibilites enregistrees");
-    } catch {
-      toast.error("Erreur lors de l'enregistrement");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de l'enregistrement";
+      toast.error(message);
     }
   };
 

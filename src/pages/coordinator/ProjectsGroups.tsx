@@ -49,8 +49,9 @@ export default function CoordinatorProjects() {
     try {
       await deleteProjectMutation.mutateAsync(id);
       toast.success("Projet supprime");
-    } catch {
-      toast.error("Erreur lors de la suppression");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
+      toast.error(message);
     }
   };
 

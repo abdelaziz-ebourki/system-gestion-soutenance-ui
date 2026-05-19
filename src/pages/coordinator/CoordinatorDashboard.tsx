@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -11,8 +10,7 @@ import {
 } from "lucide-react";
 
 import { useCoordinatorStats, useProjects, useJurys } from "@/hooks/use-queries";
-import type { Jury, Project } from "@/types";
-import { toast } from "sonner";
+
 import {
   Badge,
   buttonVariants,

@@ -1,10 +1,9 @@
-import * as React from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CalendarDays, MapPin, ShieldCheck, Timer } from "lucide-react";
 
 import { useTeacherSchedule } from "@/hooks/use-queries";
 import type { TeacherDefense } from "@/types";
-import { toast } from "sonner";
+
 import {
   Badge,
   Card,

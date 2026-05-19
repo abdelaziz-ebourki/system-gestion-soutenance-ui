@@ -99,8 +99,9 @@ export default function Teachers() {
       toast.success("Enseignant ajouté avec succès");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la création");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la création";
+      toast.error(message);
     }
   };
 
@@ -117,8 +118,9 @@ export default function Teachers() {
       toast.success("Profil enseignant mis à jour");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la modification");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la modification";
+      toast.error(message);
     }
   };
 
@@ -135,8 +137,9 @@ export default function Teachers() {
       toast.success("Enseignant supprimé");
       setIsDeleteDialogOpen(false);
       setSelectedTeacher(null);
-    } catch {
-      toast.error("Erreur lors de la suppression");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
+      toast.error(message);
     }
   };
 

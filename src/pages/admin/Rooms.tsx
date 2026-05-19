@@ -77,8 +77,9 @@ export default function Rooms() {
       toast.success("Salle ajoutée avec succès");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la création de la salle");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la création de la salle";
+      toast.error(message);
     }
   };
 
@@ -92,8 +93,9 @@ export default function Rooms() {
       toast.success("Salle modifiée avec succès");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la modification de la salle");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la modification de la salle";
+      toast.error(message);
     }
   };
 
@@ -113,8 +115,9 @@ export default function Rooms() {
       toast.success("Salle supprimée");
       setIsDeleteDialogOpen(false);
       setSelectedRoom(null);
-    } catch {
-      toast.error("Erreur lors de la suppression de la salle");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la suppression de la salle";
+      toast.error(message);
     }
   };
 

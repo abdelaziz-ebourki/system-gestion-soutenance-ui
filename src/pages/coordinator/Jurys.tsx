@@ -3,8 +3,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
 
 import { useJurys, useProjects, useTeachersList } from "@/hooks/use-queries";
-import type { Jury, Project, Teacher } from "@/types";
-import { toast } from "sonner";
+import type { Jury } from "@/types";
+
 import {
   Badge,
   Button,

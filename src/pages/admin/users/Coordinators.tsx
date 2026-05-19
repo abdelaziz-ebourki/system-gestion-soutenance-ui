@@ -80,8 +80,9 @@ export default function Coordinators() {
       toast.success("Coordinateur ajouté avec succès");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la création");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la création";
+      toast.error(message);
     }
   };
 
@@ -98,8 +99,9 @@ export default function Coordinators() {
       toast.success("Profil coordinateur mis à jour");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la modification");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la modification";
+      toast.error(message);
     }
   };
 
@@ -116,8 +118,9 @@ export default function Coordinators() {
       toast.success("Coordinateur supprimé");
       setIsDeleteDialogOpen(false);
       setSelectedCoord(null);
-    } catch {
-      toast.error("Erreur lors de la suppression");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
+      toast.error(message);
     }
   };
 

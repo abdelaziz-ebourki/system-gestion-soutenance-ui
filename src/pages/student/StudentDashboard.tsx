@@ -214,9 +214,9 @@ export default function StudentDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {defense?.juryMembers.map((member) => (
+            {defense?.juryMembers.map((member, index) => (
               <div
-                key={`${member.role}-${member.name}`}
+                key={`${member.role}-${member.name}-${index}`}
                 className="rounded-2xl border p-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">

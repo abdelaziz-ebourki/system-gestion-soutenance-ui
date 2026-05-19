@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { useTeachersList, useStudentsList, useCreateProject } from "@/hooks/use-queries";
 import { validate, projectSchema } from "@/lib/validations";
+import type { Teacher, Student } from "@/types";
 import { toast } from "sonner";
 import {
   Button,
@@ -48,6 +49,7 @@ export function CreateProjectDialog({
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [supervisorId, setSupervisorId] = React.useState("");
+  const [supervisorSearch, setSupervisorSearch] = React.useState("");
   const [studentIds, setStudentIds] = React.useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
@@ -98,8 +100,9 @@ export function CreateProjectDialog({
       toast.success("Projet cree avec succes");
       onSuccess();
       onOpenChange(false);
-    } catch {
-      toast.error("Erreur lors de la creation du projet");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la creation du projet";
+      toast.error(message);
     }
   };
 
@@ -140,6 +143,11 @@ export function CreateProjectDialog({
 
           <div className="grid gap-2">
             <Label htmlFor="project-supervisor">Encadrant</Label>
+            <Input
+              placeholder="Rechercher un encadrant..."
+              value={supervisorSearch}
+              onChange={(e) => setSupervisorSearch(e.target.value)}
+            />
             <Select
               value={supervisorId}
               onValueChange={(val) => setSupervisorId(val || "")}
@@ -149,11 +157,15 @@ export function CreateProjectDialog({
                 <SelectValue placeholder="Selectionner un encadrant" />
               </SelectTrigger>
               <SelectContent>
-                {teachers.map((teacher) => (
-                  <SelectItem key={teacher.id} value={teacher.id}>
-                    {getFullName(teacher)}
-                  </SelectItem>
-                ))}
+                {teachers
+                  .filter((teacher) =>
+                    getFullName(teacher).toLowerCase().includes(supervisorSearch.toLowerCase()),
+                  )
+                  .map((teacher) => (
+                    <SelectItem key={teacher.id} value={teacher.id}>
+                      {getFullName(teacher)}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
             {fieldErrors?.supervisorId && (

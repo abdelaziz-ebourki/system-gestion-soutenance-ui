@@ -1,79 +1,91 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import Login from "./pages/Login";
-import VerifyAccount from "./pages/auth/VerifyAccount";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import Departments from "./pages/admin/Departments";
-import Sessions from "./pages/admin/Sessions";
-import Rooms from "./pages/admin/Rooms";
-import Students from "./pages/admin/users/Students";
-import Teachers from "./pages/admin/users/Teachers";
-import Coordinators from "./pages/admin/users/Coordinators";
-import Configuration from "./pages/admin/Configuration";
-import CoordinatorDashboard from "./pages/coordinator/CoordinatorDashboard";
-import CoordinatorProjects from "./pages/coordinator/ProjectsGroups";
-import Jurys from "./pages/coordinator/Jurys";
-import SoutenanceDesigner from "./pages/coordinator/SoutenanceDesigner";
-import TeacherDashboard from "./pages/teacher/TeacherDashboard";
-import TeacherSchedule from "./pages/teacher/TeacherSchedule";
-import TeacherEvaluations from "./pages/teacher/TeacherEvaluations";
-import TeacherUnavailability from "./pages/teacher/TeacherUnavailability";
-import StudentDashboard from "./pages/student/StudentDashboard";
-import StudentGroup from "./pages/student/StudentGroup";
-import StudentDocuments from "./pages/student/StudentDocuments";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import DashboardLayout from "./components/layout/DashboardLayout";
-import NotFound from "./pages/NotFound";
+
+const Login = lazy(() => import("./pages/Login"));
+const VerifyAccount = lazy(() => import("./pages/auth/VerifyAccount"));
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const Departments = lazy(() => import("./pages/admin/Departments"));
+const Sessions = lazy(() => import("./pages/admin/Sessions"));
+const Rooms = lazy(() => import("./pages/admin/Rooms"));
+const Students = lazy(() => import("./pages/admin/users/Students"));
+const Teachers = lazy(() => import("./pages/admin/users/Teachers"));
+const Coordinators = lazy(() => import("./pages/admin/users/Coordinators"));
+const Configuration = lazy(() => import("./pages/admin/Configuration"));
+const CoordinatorDashboard = lazy(() => import("./pages/coordinator/CoordinatorDashboard"));
+const CoordinatorProjects = lazy(() => import("./pages/coordinator/ProjectsGroups"));
+const Jurys = lazy(() => import("./pages/coordinator/Jurys"));
+const SoutenanceDesigner = lazy(() => import("./pages/coordinator/SoutenanceDesigner"));
+const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
+const TeacherSchedule = lazy(() => import("./pages/teacher/TeacherSchedule"));
+const TeacherEvaluations = lazy(() => import("./pages/teacher/TeacherEvaluations"));
+const TeacherUnavailability = lazy(() => import("./pages/teacher/TeacherUnavailability"));
+const StudentDashboard = lazy(() => import("./pages/student/StudentDashboard"));
+const StudentGroup = lazy(() => import("./pages/student/StudentGroup"));
+const StudentDocuments = lazy(() => import("./pages/student/StudentDocuments"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+function PageLoader() {
+  return (
+    <div className="flex h-[60vh] items-center justify-center">
+      <div className="size-10 animate-pulse rounded-full bg-muted" />
+    </div>
+  );
+}
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/verify-account" element={<VerifyAccount />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/verify-account" element={<VerifyAccount />} />
 
-      <Route element={<DashboardLayout />}>
-        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/departments" element={<Departments />} />
-          <Route path="/admin/sessions" element={<Sessions />} />
-          <Route path="/admin/rooms" element={<Rooms />} />
-          <Route path="/admin/users/students" element={<Students />} />
-          <Route path="/admin/users/teachers" element={<Teachers />} />
-          <Route path="/admin/users/coordinators" element={<Coordinators />} />
-          <Route path="/admin/config" element={<Configuration />} />
+        <Route element={<DashboardLayout />}>
+          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/departments" element={<Departments />} />
+            <Route path="/admin/sessions" element={<Sessions />} />
+            <Route path="/admin/rooms" element={<Rooms />} />
+            <Route path="/admin/users/students" element={<Students />} />
+            <Route path="/admin/users/teachers" element={<Teachers />} />
+            <Route path="/admin/users/coordinators" element={<Coordinators />} />
+            <Route path="/admin/config" element={<Configuration />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>
+            <Route path="/coordinator" element={<CoordinatorDashboard />} />
+            <Route
+              path="/coordinator/schedule"
+              element={<SoutenanceDesigner />}
+            />
+            <Route
+              path="/coordinator/projects"
+              element={<CoordinatorProjects />}
+            />
+            <Route path="/coordinator/jurys" element={<Jurys />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
+            <Route path="/teacher" element={<TeacherDashboard />} />
+            <Route path="/teacher/schedule" element={<TeacherSchedule />} />
+            <Route path="/teacher/evaluations" element={<TeacherEvaluations />} />
+            <Route
+              path="/teacher/unavailability"
+              element={<TeacherUnavailability />}
+            />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
+            <Route path="/student" element={<StudentDashboard />} />
+            <Route path="/student/group" element={<StudentGroup />} />
+            <Route path="/student/documents" element={<StudentDocuments />} />
+          </Route>
         </Route>
 
-        <Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>
-          <Route path="/coordinator" element={<CoordinatorDashboard />} />
-          <Route
-            path="/coordinator/schedule"
-            element={<SoutenanceDesigner />}
-          />
-          <Route
-            path="/coordinator/projects"
-            element={<CoordinatorProjects />}
-          />
-          <Route path="/coordinator/jurys" element={<Jurys />} />
-        </Route>
-
-        <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
-          <Route path="/teacher" element={<TeacherDashboard />} />
-          <Route path="/teacher/schedule" element={<TeacherSchedule />} />
-          <Route path="/teacher/evaluations" element={<TeacherEvaluations />} />
-          <Route
-            path="/teacher/unavailability"
-            element={<TeacherUnavailability />}
-          />
-        </Route>
-
-        <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
-          <Route path="/student" element={<StudentDashboard />} />
-          <Route path="/student/group" element={<StudentGroup />} />
-          <Route path="/student/documents" element={<StudentDocuments />} />
-        </Route>
-      </Route>
-
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }

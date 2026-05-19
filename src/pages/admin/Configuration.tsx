@@ -128,8 +128,9 @@ export default function Configuration() {
         toast.success("Ajouté avec succès");
       }
       setIsDialogOpen(false);
-    } catch {
-      toast.error("Une erreur est survenue");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Une erreur est survenue";
+      toast.error(message);
     }
   };
 
@@ -141,8 +142,9 @@ export default function Configuration() {
       else await deleteGradeMut.mutateAsync(selectedItem.id);
       toast.success("Supprimé avec succès");
       setIsDeleteDialogOpen(false);
-    } catch {
-      toast.error("Erreur lors de la suppression");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
+      toast.error(message);
     }
   };
 
@@ -154,8 +156,9 @@ export default function Configuration() {
     try {
       await updateSettingsMut.mutateAsync(settings);
       toast.success("Paramètres mis à jour");
-    } catch {
-      toast.error("Erreur lors de la mise à jour des paramètres");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la mise à jour des paramètres";
+      toast.error(message);
     }
   };
 

@@ -169,7 +169,14 @@ export const bulkCreateUsers = (
     body: JSON.stringify({ users, role }),
   });
 
-export const bulkCreateRooms = (rooms: Record<string, string | number>[]) =>
+export interface RoomImportData {
+  name: string;
+  capacity: number;
+  building: string;
+  [key: string]: string | number;
+}
+
+export const bulkCreateRooms = (rooms: RoomImportData[]) =>
   api<Room[]>("/admin/rooms/bulk", {
     method: "POST",
     body: JSON.stringify({ rooms }),

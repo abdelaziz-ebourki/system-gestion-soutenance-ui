@@ -82,8 +82,9 @@ export default function TeacherEvaluations() {
       setFieldErrors({});
       toast.success("Évaluation enregistrée");
       closeEvaluation();
-    } catch {
-      toast.error("Erreur lors de l'enregistrement");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de l'enregistrement";
+      toast.error(message);
     }
   };
 

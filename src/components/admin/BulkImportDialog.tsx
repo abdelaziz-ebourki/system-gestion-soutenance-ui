@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui";
-import { bulkCreateUsers, bulkCreateRooms } from "@/lib/api";
+import { bulkCreateUsers, bulkCreateRooms, type RoomImportData } from "@/lib/api";
 
 interface BulkImportDialogProps {
   entity: "student" | "teacher" | "coordinator" | "room";
@@ -60,7 +60,7 @@ export function BulkImportDialog({
       const wb = XLSX.read(bstr, { type: "binary" });
       const wsname = wb.SheetNames[0];
       const ws = wb.Sheets[wsname];
-      const rawData = XLSX.utils.sheet_to_json(ws) as any[];
+      const rawData = XLSX.utils.sheet_to_json(ws) as Record<string, string | number>[];
 
       if (rawData.length === 0) {
         toast.error("Le fichier semble être vide.");
@@ -146,7 +146,7 @@ export function BulkImportDialog({
     setIsSubmitting(true);
     try {
       if (entity === "room") {
-        await bulkCreateRooms(data);
+        await bulkCreateRooms(data as RoomImportData[]);
       } else {
         await bulkCreateUsers(data, entity);
       }
@@ -157,8 +157,9 @@ export function BulkImportDialog({
       setFile(null);
       setData([]);
       onSuccess?.();
-    } catch {
-      toast.error("Échec de l'importation.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Échec de l'importation.";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

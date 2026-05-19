@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { useTeachersList, useProjects, useCreateJury } from "@/hooks/use-queries";
 import { validate, jurySchema } from "@/lib/validations";
+import type { Teacher } from "@/types";
 import { toast } from "sonner";
 import {
   Button,
@@ -13,6 +14,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  Input,
   Label,
   Select,
   SelectContent,
@@ -46,6 +48,9 @@ export function CreateJuryDialog({
   const [presidentId, setPresidentId] = React.useState("");
   const [reporterId, setReporterId] = React.useState("");
   const [examinerId, setExaminerId] = React.useState("");
+  const [presidentSearch, setPresidentSearch] = React.useState("");
+  const [reporterSearch, setReporterSearch] = React.useState("");
+  const [examinerSearch, setExaminerSearch] = React.useState("");
   const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   React.useEffect(() => {
@@ -96,14 +101,42 @@ export function CreateJuryDialog({
       toast.success("Jury cree avec succes");
       onSuccess();
       onOpenChange(false);
-    } catch {
-      toast.error("Erreur lors de la creation du jury");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la creation du jury";
+      toast.error(message);
     }
   };
 
   const availableProjects = projects.filter(
     (project) => project.status !== "rejected",
   );
+
+  const filteredPresidents = teachers
+    .filter(
+      (teacher) =>
+        teacher.id !== reporterId && teacher.id !== examinerId,
+    )
+    .filter((teacher) =>
+      getFullName(teacher).toLowerCase().includes(presidentSearch.toLowerCase()),
+    );
+
+  const filteredReporters = teachers
+    .filter(
+      (teacher) =>
+        teacher.id !== presidentId && teacher.id !== examinerId,
+    )
+    .filter((teacher) =>
+      getFullName(teacher).toLowerCase().includes(reporterSearch.toLowerCase()),
+    );
+
+  const filteredExaminers = teachers
+    .filter(
+      (teacher) =>
+        teacher.id !== presidentId && teacher.id !== reporterId,
+    )
+    .filter((teacher) =>
+      getFullName(teacher).toLowerCase().includes(examinerSearch.toLowerCase()),
+    );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -144,6 +177,11 @@ export function CreateJuryDialog({
 
           <div className="grid gap-2">
             <Label htmlFor="jury-president">President</Label>
+            <Input
+              placeholder="Rechercher un president..."
+              value={presidentSearch}
+              onChange={(e) => setPresidentSearch(e.target.value)}
+            />
             <Select
               value={presidentId}
               onValueChange={(val) => setPresidentId(val || "")}
@@ -153,16 +191,11 @@ export function CreateJuryDialog({
                 <SelectValue placeholder="Selectionner un president" />
               </SelectTrigger>
               <SelectContent>
-                {teachers
-                  .filter(
-                    (teacher) =>
-                      teacher.id !== reporterId && teacher.id !== examinerId,
-                  )
-                  .map((teacher) => (
-                    <SelectItem key={teacher.id} value={teacher.id}>
-                      {getFullName(teacher)}
-                    </SelectItem>
-                  ))}
+                {filteredPresidents.map((teacher) => (
+                  <SelectItem key={teacher.id} value={teacher.id}>
+                    {getFullName(teacher)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {fieldErrors?.presidentId && (
@@ -172,6 +205,11 @@ export function CreateJuryDialog({
 
           <div className="grid gap-2">
             <Label htmlFor="jury-reporter">Rapporteur</Label>
+            <Input
+              placeholder="Rechercher un rapporteur..."
+              value={reporterSearch}
+              onChange={(e) => setReporterSearch(e.target.value)}
+            />
             <Select
               value={reporterId}
               onValueChange={(val) => setReporterId(val || "")}
@@ -181,16 +219,11 @@ export function CreateJuryDialog({
                 <SelectValue placeholder="Selectionner un rapporteur" />
               </SelectTrigger>
               <SelectContent>
-                {teachers
-                  .filter(
-                    (teacher) =>
-                      teacher.id !== presidentId && teacher.id !== examinerId,
-                  )
-                  .map((teacher) => (
-                    <SelectItem key={teacher.id} value={teacher.id}>
-                      {getFullName(teacher)}
-                    </SelectItem>
-                  ))}
+                {filteredReporters.map((teacher) => (
+                  <SelectItem key={teacher.id} value={teacher.id}>
+                    {getFullName(teacher)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {fieldErrors?.reporterId && (
@@ -200,6 +233,11 @@ export function CreateJuryDialog({
 
           <div className="grid gap-2">
             <Label htmlFor="jury-examiner">Examinateur</Label>
+            <Input
+              placeholder="Rechercher un examinateur..."
+              value={examinerSearch}
+              onChange={(e) => setExaminerSearch(e.target.value)}
+            />
             <Select
               value={examinerId}
               onValueChange={(val) => setExaminerId(val || "")}
@@ -209,16 +247,11 @@ export function CreateJuryDialog({
                 <SelectValue placeholder="Selectionner un examinateur" />
               </SelectTrigger>
               <SelectContent>
-                {teachers
-                  .filter(
-                    (teacher) =>
-                      teacher.id !== presidentId && teacher.id !== reporterId,
-                  )
-                  .map((teacher) => (
-                    <SelectItem key={teacher.id} value={teacher.id}>
-                      {getFullName(teacher)}
-                    </SelectItem>
-                  ))}
+                {filteredExaminers.map((teacher) => (
+                  <SelectItem key={teacher.id} value={teacher.id}>
+                    {getFullName(teacher)}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {fieldErrors?.examinerId && (

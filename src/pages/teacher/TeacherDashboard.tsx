@@ -1,9 +1,8 @@
-import * as React from "react";
 import { ClipboardCheck, Clock3, FileCheck2, ShieldCheck } from "lucide-react";
 
 import { useTeacherStats, useTeacherSchedule, useTeacherEvaluations } from "@/hooks/use-queries";
-import type { TeacherDefense, TeacherEvaluation } from "@/types";
-import { toast } from "sonner";
+import type { TeacherDefense } from "@/types";
+
 import {
   Badge,
   Card,

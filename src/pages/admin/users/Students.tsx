@@ -101,8 +101,9 @@ export default function Students() {
       toast.success("Étudiant créé avec succès");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la création de l'étudiant");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la création de l'étudiant";
+      toast.error(message);
     }
   };
 
@@ -119,8 +120,9 @@ export default function Students() {
       toast.success("Étudiant modifié avec succès");
       setIsDialogOpen(false);
       resetForm();
-    } catch {
-      toast.error("Erreur lors de la modification de l'étudiant");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la modification de l'étudiant";
+      toast.error(message);
     }
   };
 
@@ -137,8 +139,9 @@ export default function Students() {
       toast.success("Étudiant supprimé");
       setIsDeleteDialogOpen(false);
       setSelectedStudent(null);
-    } catch {
-      toast.error("Erreur lors de la suppression");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Erreur lors de la suppression";
+      toast.error(message);
     }
   };
 
