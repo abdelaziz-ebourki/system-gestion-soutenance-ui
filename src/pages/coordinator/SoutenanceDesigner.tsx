@@ -8,12 +8,7 @@ import {
   X,
 } from "lucide-react";
 
-import {
-  getJurys,
-  getProjects,
-  getRooms,
-  saveSoutenanceSchedule,
-} from "@/lib/api";
+import { useJurys, useProjects, useRooms, useSaveSoutenanceSchedule } from "@/hooks/use-queries";
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { Jury, Project, Room } from "@/types";
 import { toast } from "sonner";
@@ -40,36 +35,18 @@ type ScheduledCard = {
 };
 
 export default function SoutenanceDesigner() {
-  const [projects, setProjects] = React.useState<Project[]>([]);
-  const [rooms, setRooms] = React.useState<Room[]>([]);
-  const [jurys, setJurys] = React.useState<Jury[]>([]);
+  const projectsQuery = useProjects();
+  const roomsQuery = useRooms();
+  const jurysQuery = useJurys();
+  const saveMutation = useSaveSoutenanceSchedule();
+  const projects = projectsQuery.data ?? [];
+  const rooms = (roomsQuery.data ?? []).slice(0, 3);
+  const jurys = jurysQuery.data ?? [];
+  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || jurysQuery.isLoading;
   const [scheduledProjects, setScheduledProjects] = React.useState<
     Record<string, ScheduledCard>
   >({});
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isSaving, setIsSaving] = React.useState(false);
   const [dragOverSlot, setDragOverSlot] = React.useState<string | null>(null);
-
-  React.useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [projectsData, roomsData, jurysData] = await Promise.all([
-          getProjects(),
-          getRooms(),
-          getJurys(),
-        ]);
-        setProjects(projectsData);
-        setRooms(roomsData.slice(0, 3));
-        setJurys(jurysData);
-      } catch {
-        toast.error("Erreur lors du chargement du planning");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
 
   const assignedProjectIds = new Set(
     Object.values(scheduledProjects).map((project) => project.id),
@@ -148,9 +125,8 @@ export default function SoutenanceDesigner() {
   };
 
   const handleSave = async () => {
-    setIsSaving(true);
     try {
-      await saveSoutenanceSchedule(
+      await saveMutation.mutateAsync(
         Object.fromEntries(
           Object.entries(scheduledProjects).map(([key, value]) => [
             key,
@@ -161,8 +137,6 @@ export default function SoutenanceDesigner() {
       toast.success("Planning valide avec succes");
     } catch {
       toast.error("Erreur lors de la sauvegarde");
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -188,7 +162,7 @@ export default function SoutenanceDesigner() {
         </div>
         <Button
           onClick={handleSave}
-          isLoading={isSaving}
+          isLoading={saveMutation.isPending}
           loadingText="Validation..."
         >
           <Save className="mr-2 size-4" />

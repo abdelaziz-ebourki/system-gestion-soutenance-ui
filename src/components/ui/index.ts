@@ -13,6 +13,7 @@ export * from "./dropdown-menu";
 export * from "./input";
 export * from "./input-group";
 export * from "./label";
+export * from "./multi-select";
 export * from "./password-input";
 export * from "./progress";
 export * from "./select";

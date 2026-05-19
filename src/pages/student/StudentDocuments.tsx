@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import {
   CalendarClock,
   FileCheck2,
@@ -7,7 +7,7 @@ import {
   Upload,
 } from "lucide-react";
 
-import { getStudentDocuments } from "@/lib/api";
+import { useStudentDocuments } from "@/hooks/use-queries";
 import type { StudentDocument } from "@/types";
 import { toast } from "sonner";
 import {
@@ -41,25 +41,8 @@ const statusClass: Record<StudentDocument["status"], string> = {
 };
 
 export default function StudentDocuments() {
-  const [documents, setDocuments] = React.useState<StudentDocument[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isUploading, setIsUploading] = React.useState<Record<string, boolean>>(
-    {},
-  );
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setDocuments(await getStudentDocuments());
-      } catch {
-        toast.error("Erreur lors du chargement des documents");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const { data: documents = [], isLoading } = useStudentDocuments();
+  const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
 
   const handleUpload = (documentId: string) => {
     setIsUploading((prev) => ({ ...prev, [documentId]: true }));

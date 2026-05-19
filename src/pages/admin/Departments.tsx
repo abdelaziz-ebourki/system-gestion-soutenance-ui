@@ -5,13 +5,13 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 import {
-  getDepartments,
-  createDepartment,
-  updateDepartment,
-  deleteDepartment,
-  getTeachersList,
-} from "@/lib/api";
-import { type Department, type Teacher } from "@/types";
+  useDepartments,
+  useCreateDepartment,
+  useUpdateDepartment,
+  useDeleteDepartment,
+  useTeachersList,
+} from "@/hooks/use-queries";
+import { type Department } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Button,
@@ -45,79 +45,61 @@ import {
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
+import { validate, departmentSchema } from "@/lib/validations";
 
 export default function Departments() {
-  const [data, setData] = React.useState<Department[]>([]);
-  const [teachers, setTeachers] = React.useState<Teacher[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const { data, isLoading } = useDepartments();
+  const { data: teachers = [] } = useTeachersList();
+  const createDeptMut = useCreateDepartment();
+  const updateDeptMut = useUpdateDepartment();
+  const deleteDeptMut = useDeleteDepartment();
+
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
   const [selectedDept, setSelectedDept] = React.useState<Department | null>(
     null,
   );
 
   // Form state
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
   const [formData, setFormData] = React.useState({
     name: "",
     code: "",
     headId: "",
   });
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [deptRes, teachersRes] = await Promise.all([
-        getDepartments(),
-        getTeachersList(),
-      ]);
-      setData(deptRes);
-      setTeachers(teachersRes);
-    } catch {
-      toast.error("Erreur lors du chargement des données");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchData();
-  }, []);
 
   const resetForm = () => {
-    setFormData({ name: "", code: "", headId: teachers[0]?.id || "" });
+    setFormData({ name: "", code: "", headId: teachers?.[0]?.id || "" });
     setSelectedDept(null);
+    setFieldErrors({});
   };
 
   const handleCreate = async () => {
-    setIsSubmitting(true);
+    const errors = validate(departmentSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
-      await createDepartment(formData);
+      await createDeptMut.mutateAsync(formData);
       toast.success("Département ajouté avec succès");
       setIsDialogOpen(false);
       resetForm();
-      fetchData();
     } catch {
       toast.error("Erreur lors de la création");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleUpdate = async () => {
     if (!selectedDept) return;
-    setIsSubmitting(true);
+    const errors = validate(departmentSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
-      await updateDepartment(selectedDept.id, formData);
+      await updateDeptMut.mutateAsync({ id: selectedDept.id, data: formData });
       toast.success("Département modifié avec succès");
       setIsDialogOpen(false);
       resetForm();
-      fetchData();
     } catch {
       toast.error("Erreur lors de la modification");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -129,17 +111,13 @@ export default function Departments() {
 
   const handleDelete = async () => {
     if (!selectedDept) return;
-    setIsDeleting(true);
     try {
-      await deleteDepartment(selectedDept.id);
+      await deleteDeptMut.mutateAsync(selectedDept.id);
       toast.success("Département supprimé");
-      fetchData();
-    } catch {
-      toast.error("Erreur lors de la suppression");
-    } finally {
-      setIsDeleting(false);
       setIsDeleteDialogOpen(false);
       setSelectedDept(null);
+    } catch {
+      toast.error("Erreur lors de la suppression");
     }
   };
 
@@ -160,7 +138,7 @@ export default function Departments() {
       header: "Chef de Département",
       cell: ({ row }) => {
         const id = row.getValue("headId") as string;
-        const teacher = teachers.find((t) => t.id === id);
+        const teacher = (teachers ?? []).find((t) => t.id === id);
         return teacher ? `${teacher.lastName} ${teacher.firstName}` : id;
       },
     },
@@ -233,7 +211,7 @@ export default function Departments() {
       ) : (
         <DataTable
           columns={columns}
-          data={data}
+          data={data ?? []}
           filterColumn="name"
           filterPlaceholder="Rechercher par nom..."
         />
@@ -260,6 +238,7 @@ export default function Departments() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   required
+                  error={fieldErrors?.name}
                 />
               </Field>
               <Field>
@@ -271,6 +250,7 @@ export default function Departments() {
                     setFormData({ ...formData, code: e.target.value })
                   }
                   required
+                  error={fieldErrors?.code}
                 />
               </Field>
               <Field>
@@ -292,12 +272,13 @@ export default function Departments() {
                     ))}
                   </SelectContent>
                 </Select>
+                {fieldErrors?.headId && <p className="text-sm font-medium text-destructive">{fieldErrors.headId}</p>}
               </Field>
             </FieldGroup>
             <DialogFooter>
               <Button
                 type="submit"
-                isLoading={isSubmitting}
+                isLoading={selectedDept ? updateDeptMut.isPending : createDeptMut.isPending}
                 loadingText="Enregistrement..."
               >
                 Enregistrer
@@ -326,7 +307,7 @@ export default function Departments() {
                 handleDelete();
               }}
               variant="destructive"
-              isLoading={isDeleting}
+              isLoading={deleteDeptMut.isPending}
             >
               Supprimer
             </AlertDialogAction>

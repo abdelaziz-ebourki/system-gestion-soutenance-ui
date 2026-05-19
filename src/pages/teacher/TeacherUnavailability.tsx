@@ -1,11 +1,7 @@
 import * as React from "react";
 import { Ban, CalendarClock, Save } from "lucide-react";
 
-import {
-  getTeacherSchedule,
-  getTeacherUnavailability,
-  saveTeacherUnavailability,
-} from "@/lib/api";
+import { useTeacherSchedule, useTeacherUnavailability, useSaveTeacherUnavailability } from "@/hooks/use-queries";
 import type { TeacherDefense, TeacherUnavailability } from "@/types";
 import { toast } from "sonner";
 import AvailabilityCalendar from "@/components/academic/AvailabilityCalendar";
@@ -26,32 +22,21 @@ type CalendarSession = {
 };
 
 export default function TeacherUnavailability() {
-  const [schedule, setSchedule] = React.useState<TeacherDefense[]>([]);
+  const scheduleQuery = useTeacherSchedule();
+  const unavailabilityQuery = useTeacherUnavailability();
+  const saveMutation = useSaveTeacherUnavailability();
+  const schedule = scheduleQuery.data ?? [];
+  const isLoading = scheduleQuery.isLoading || unavailabilityQuery.isLoading;
   const [unavailability, setUnavailability] =
     React.useState<TeacherUnavailability>({
       slotsByDate: {},
     });
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isSaving, setIsSaving] = React.useState(false);
 
   React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [scheduleData, unavailabilityData] = await Promise.all([
-          getTeacherSchedule(),
-          getTeacherUnavailability(),
-        ]);
-        setSchedule(scheduleData);
-        setUnavailability(unavailabilityData);
-      } catch {
-        toast.error("Erreur lors du chargement des indisponibilites");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+    if (unavailabilityQuery.data) {
+      setUnavailability(unavailabilityQuery.data);
+    }
+  }, [unavailabilityQuery.data]);
 
   const handleToggleSlot = (dateKey: string, slot: string) => {
     setUnavailability((current) => {
@@ -72,14 +57,11 @@ export default function TeacherUnavailability() {
   };
 
   const handleSave = async () => {
-    setIsSaving(true);
     try {
-      await saveTeacherUnavailability(unavailability);
+      await saveMutation.mutateAsync(unavailability);
       toast.success("Indisponibilites enregistrees");
     } catch {
       toast.error("Erreur lors de l'enregistrement");
-    } finally {
-      setIsSaving(false);
     }
   };
 
@@ -109,7 +91,7 @@ export default function TeacherUnavailability() {
         </div>
         <Button
           onClick={handleSave}
-          isLoading={isSaving}
+          isLoading={saveMutation.isPending}
           loadingText="Enregistrement..."
         >
           <Save className="mr-2 size-4" />

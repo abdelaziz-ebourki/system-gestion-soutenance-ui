@@ -160,13 +160,16 @@ export const createUser = (data: UserCreateParams) =>
     body: JSON.stringify(data),
   });
 
-export const bulkCreateUsers = (users: any[], role: string) =>
+export const bulkCreateUsers = (
+  users: Record<string, string | number>[],
+  role: string,
+) =>
   api<User[]>("/admin/users/bulk", {
     method: "POST",
     body: JSON.stringify({ users, role }),
   });
 
-export const bulkCreateRooms = (rooms: any[]) =>
+export const bulkCreateRooms = (rooms: Record<string, string | number>[]) =>
   api<Room[]>("/admin/rooms/bulk", {
     method: "POST",
     body: JSON.stringify({ rooms }),

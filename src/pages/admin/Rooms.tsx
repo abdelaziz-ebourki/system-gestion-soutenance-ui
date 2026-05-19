@@ -10,7 +10,7 @@ import {
   BuildingIcon,
 } from "lucide-react";
 
-import { getRooms, createRoom, updateRoom, deleteRoom } from "@/lib/api";
+import { useRooms, useCreateRoom, useUpdateRoom, useDeleteRoom } from "@/hooks/use-queries";
 import type { Room } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -42,72 +42,58 @@ import {
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
+import { validate, roomSchema } from "@/lib/validations";
 
 export default function Rooms() {
-  const [data, setData] = React.useState<Room[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const { data, isLoading, refetch } = useRooms();
+  const createRoomMut = useCreateRoom();
+  const updateRoomMut = useUpdateRoom();
+  const deleteRoomMut = useDeleteRoom();
+
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
   const [selectedRoom, setSelectedRoom] = React.useState<Room | null>(null);
 
   // Form state
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
   const [formData, setFormData] = React.useState({
     name: "",
     capacity: 0,
     building: "",
   });
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const fetchRooms = async () => {
-    setIsLoading(true);
-    try {
-      const result = await getRooms();
-      setData(result);
-    } catch {
-      toast.error("Erreur lors du chargement des salles");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchRooms();
-  }, []);
 
   const resetForm = () => {
     setFormData({ name: "", capacity: 0, building: "" });
     setSelectedRoom(null);
+    setFieldErrors({});
   };
 
   const handleCreateRoom = async () => {
-    setIsSubmitting(true);
+    const errors = validate(roomSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
-      await createRoom(formData);
+      await createRoomMut.mutateAsync(formData);
       toast.success("Salle ajoutée avec succès");
       setIsDialogOpen(false);
       resetForm();
-      fetchRooms();
     } catch {
       toast.error("Erreur lors de la création de la salle");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleUpdateRoom = async () => {
     if (!selectedRoom) return;
-    setIsSubmitting(true);
+    const errors = validate(roomSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
-      await updateRoom(selectedRoom.id, formData);
+      await updateRoomMut.mutateAsync({ id: selectedRoom.id, data: formData });
       toast.success("Salle modifiée avec succès");
       setIsDialogOpen(false);
       resetForm();
-      fetchRooms();
     } catch {
       toast.error("Erreur lors de la modification de la salle");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -122,17 +108,13 @@ export default function Rooms() {
 
   const handleDelete = async () => {
     if (!selectedRoom) return;
-    setIsDeleting(true);
     try {
-      await deleteRoom(selectedRoom.id);
+      await deleteRoomMut.mutateAsync(selectedRoom.id);
       toast.success("Salle supprimée");
-      fetchRooms();
-    } catch {
-      toast.error("Erreur lors de la suppression de la salle");
-    } finally {
-      setIsDeleting(false);
       setIsDeleteDialogOpen(false);
       setSelectedRoom(null);
+    } catch {
+      toast.error("Erreur lors de la suppression de la salle");
     }
   };
 
@@ -225,7 +207,7 @@ export default function Rooms() {
           <BulkImportDialog
             entity="room"
             triggerButtonText="Importation en masse"
-            onSuccess={fetchRooms}
+            onSuccess={refetch}
           />
           <Dialog
             open={isDialogOpen}
@@ -266,6 +248,7 @@ export default function Rooms() {
                         setFormData({ ...formData, name: e.target.value })
                       }
                       required
+                      error={fieldErrors?.name}
                     />
                   </Field>
                   <Field>
@@ -277,6 +260,7 @@ export default function Rooms() {
                         setFormData({ ...formData, building: e.target.value })
                       }
                       required
+                      error={fieldErrors?.building}
                     />
                   </Field>
                   <Field>
@@ -292,6 +276,7 @@ export default function Rooms() {
                         })
                       }
                       required
+                      error={fieldErrors?.capacity}
                     />
                   </Field>
                 </FieldGroup>
@@ -305,7 +290,7 @@ export default function Rooms() {
                   </Button>
                   <Button
                     type="submit"
-                    isLoading={isSubmitting}
+                    isLoading={selectedRoom ? updateRoomMut.isPending : createRoomMut.isPending}
                     loadingText="Enregistrement..."
                   >
                     Enregistrer
@@ -337,7 +322,7 @@ export default function Rooms() {
                 handleDelete();
               }}
               variant="destructive"
-              isLoading={isDeleting}
+              isLoading={deleteRoomMut.isPending}
             >
               Supprimer
             </AlertDialogAction>
@@ -350,7 +335,7 @@ export default function Rooms() {
       ) : (
         <DataTable
           columns={columns}
-          data={data}
+          data={data ?? []}
           filterColumn="name"
           filterPlaceholder="Rechercher une salle..."
         />

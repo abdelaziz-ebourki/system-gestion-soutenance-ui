@@ -1,14 +1,10 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import { CalendarDays, Download, GraduationCap, Users } from "lucide-react";
 
-import {
-  getStudentConvocation,
-  getStudentDefense,
-  getStudentStats,
-} from "@/lib/api";
-import type { StudentDefenseDetails, StudentStats } from "@/types";
+import { getStudentConvocation } from "@/lib/api";
+import { useStudentStats, useStudentDefense } from "@/hooks/use-queries";
 import { toast } from "sonner";
 import {
   Badge,
@@ -23,31 +19,11 @@ import {
 import { Link } from "react-router-dom";
 
 export default function StudentDashboard() {
-  const [stats, setStats] = React.useState<StudentStats | null>(null);
-  const [defense, setDefense] = React.useState<StudentDefenseDetails | null>(
-    null,
-  );
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isDownloading, setIsDownloading] = React.useState(false);
+  const { data: stats } = useStudentStats();
+  const { data: defense, isLoading: isDefenseLoading } = useStudentDefense();
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsData, defenseData] = await Promise.all([
-          getStudentStats(),
-          getStudentDefense(),
-        ]);
-        setStats(statsData);
-        setDefense(defenseData);
-      } catch {
-        toast.error("Erreur lors du chargement de votre espace");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const isLoading = isDefenseLoading;
 
   const handleConvocationDownload = async () => {
     setIsDownloading(true);

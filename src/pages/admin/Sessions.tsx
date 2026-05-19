@@ -4,12 +4,6 @@ import * as React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, MoreHorizontal, Pencil, Trash2, Calendar } from "lucide-react";
 
-import {
-  getSessions,
-  createSession,
-  updateSession,
-  deleteSession,
-} from "@/lib/api";
 import type { Session } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -46,18 +40,27 @@ import {
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
+import { validate, sessionSchema } from "@/lib/validations";
+import {
+  useSessions,
+  useCreateSession,
+  useUpdateSession,
+  useDeleteSession,
+} from "@/hooks/use-queries";
 
 export default function Sessions() {
-  const [data, setData] = React.useState<Session[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const { data, isLoading } = useSessions();
+  const createSession = useCreateSession();
+  const updateSession = useUpdateSession();
+  const deleteSession = useDeleteSession();
+
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
   const [selectedSession, setSelectedSession] = React.useState<Session | null>(
     null,
   );
 
-  // Form state
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
   const [formData, setFormData] = React.useState<Omit<Session, "id">>({
     name: "",
     type: "Normale",
@@ -65,23 +68,6 @@ export default function Sessions() {
     startDate: "",
     endDate: "",
   });
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const fetchSessions = async () => {
-    setIsLoading(true);
-    try {
-      const result = await getSessions();
-      setData(result);
-    } catch {
-      toast.error("Erreur lors du chargement des sessions");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchSessions();
-  }, []);
 
   const resetForm = () => {
     setFormData({
@@ -92,36 +78,38 @@ export default function Sessions() {
       endDate: "",
     });
     setSelectedSession(null);
+    setFieldErrors({});
   };
 
   const handleCreateSession = async () => {
-    setIsSubmitting(true);
+    const errors = validate(sessionSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
-      await createSession(formData);
+      await createSession.mutateAsync(formData);
       toast.success("Session créée avec succès");
       setIsDialogOpen(false);
       resetForm();
-      fetchSessions();
     } catch {
       toast.error("Erreur lors de la création de la session");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleUpdateSession = async () => {
     if (!selectedSession) return;
-    setIsSubmitting(true);
+    const errors = validate(sessionSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
-      await updateSession(selectedSession.id, formData);
+      await updateSession.mutateAsync({
+        id: selectedSession.id,
+        data: formData,
+      });
       toast.success("Session modifiée avec succès");
       setIsDialogOpen(false);
       resetForm();
-      fetchSessions();
     } catch {
       toast.error("Erreur lors de la modification de la session");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -136,15 +124,12 @@ export default function Sessions() {
 
   const handleDelete = async () => {
     if (!selectedSession) return;
-    setIsDeleting(true);
     try {
-      await deleteSession(selectedSession.id);
+      await deleteSession.mutateAsync(selectedSession.id);
       toast.success("Session supprimée");
-      fetchSessions();
     } catch {
       toast.error("Erreur lors de la suppression de la session");
     } finally {
-      setIsDeleting(false);
       setIsDeleteDialogOpen(false);
       setSelectedSession(null);
     }
@@ -314,6 +299,7 @@ export default function Sessions() {
                       setFormData({ ...formData, name: e.target.value })
                     }
                     required
+                    error={fieldErrors?.name}
                   />
                 </Field>
                 <div className="grid grid-cols-2 gap-4">
@@ -334,6 +320,7 @@ export default function Sessions() {
                         <SelectItem value="Spéciale">Spéciale</SelectItem>
                       </SelectContent>
                     </Select>
+                    {fieldErrors?.type && <p className="text-sm font-medium text-destructive">{fieldErrors.type}</p>}
                   </Field>
                   <Field>
                     <FieldLabel>Statut Initial</FieldLabel>
@@ -348,7 +335,12 @@ export default function Sessions() {
                       onValueChange={(val) =>
                         setFormData({
                           ...formData,
-                          status: val === "Active" ? "active" : "draft",
+                          status:
+                            val === "Active"
+                              ? "active"
+                              : val === "Brouillon"
+                                ? "draft"
+                                : "archived",
                         })
                       }
                     >
@@ -358,8 +350,10 @@ export default function Sessions() {
                       <SelectContent>
                         <SelectItem value="Brouillon">Brouillon</SelectItem>
                         <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Archivée">Archivée</SelectItem>
                       </SelectContent>
                     </Select>
+                    {fieldErrors?.status && <p className="text-sm font-medium text-destructive">{fieldErrors.status}</p>}
                   </Field>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -375,6 +369,7 @@ export default function Sessions() {
                         })
                       }
                       required
+                      error={fieldErrors?.startDate}
                     />
                   </Field>
                   <Field>
@@ -389,6 +384,7 @@ export default function Sessions() {
                         })
                       }
                       required
+                      error={fieldErrors?.endDate}
                     />
                   </Field>
                 </div>
@@ -403,7 +399,7 @@ export default function Sessions() {
                 </Button>
                 <Button
                   type="submit"
-                  isLoading={isSubmitting}
+                  isLoading={createSession.isPending || updateSession.isPending}
                   loadingText="Enregistrement..."
                 >
                   Enregistrer
@@ -434,7 +430,7 @@ export default function Sessions() {
                 handleDelete();
               }}
               variant="destructive"
-              isLoading={isDeleting}
+              isLoading={deleteSession.isPending}
             >
               Supprimer
             </AlertDialogAction>
@@ -447,7 +443,7 @@ export default function Sessions() {
       ) : (
         <DataTable
           columns={columns}
-          data={data}
+          data={data ?? []}
           filterColumn="name"
           filterPlaceholder="Rechercher une session..."
         />

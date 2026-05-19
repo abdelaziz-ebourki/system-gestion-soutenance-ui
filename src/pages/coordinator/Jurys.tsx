@@ -2,7 +2,7 @@ import * as React from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
 
-import { getJurys, getProjects, getTeachersList } from "@/lib/api";
+import { useJurys, useProjects, useTeachersList } from "@/hooks/use-queries";
 import type { Jury, Project, Teacher } from "@/types";
 import { toast } from "sonner";
 import {
@@ -18,33 +18,14 @@ import { DataTable } from "@/components/ui/data-table";
 import { CreateJuryDialog } from "@/components/academic/CreateJuryDialog";
 
 export default function Jurys() {
-  const [jurys, setJurys] = React.useState<Jury[]>([]);
-  const [teachers, setTeachers] = React.useState<Teacher[]>([]);
-  const [projects, setProjects] = React.useState<Project[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const jurysQuery = useJurys();
+  const teachersQuery = useTeachersList();
+  const projectsQuery = useProjects();
+  const jurys = jurysQuery.data ?? [];
+  const teachers = teachersQuery.data ?? [];
+  const projects = projectsQuery.data ?? [];
+  const isLoading = jurysQuery.isLoading || teachersQuery.isLoading || projectsQuery.isLoading;
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [juryRes, teachersRes, projectsRes] = await Promise.all([
-        getJurys(),
-        getTeachersList(),
-        getProjects(),
-      ]);
-      setJurys(juryRes);
-      setTeachers(teachersRes);
-      setProjects(projectsRes);
-    } catch {
-      toast.error("Erreur lors du chargement des jurys");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchData();
-  }, []);
 
   const teachersLoad = React.useMemo(() => {
     const counts = new Map<string, number>();
@@ -228,7 +209,7 @@ export default function Jurys() {
       <CreateJuryDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
-        onSuccess={fetchData}
+        onSuccess={() => {}}
       />
     </div>
   );

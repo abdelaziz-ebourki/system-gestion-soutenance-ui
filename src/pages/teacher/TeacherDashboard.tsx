@@ -1,12 +1,8 @@
 import * as React from "react";
 import { ClipboardCheck, Clock3, FileCheck2, ShieldCheck } from "lucide-react";
 
-import {
-  getTeacherEvaluations,
-  getTeacherSchedule,
-  getTeacherStats,
-} from "@/lib/api";
-import type { TeacherDefense, TeacherEvaluation, TeacherStats } from "@/types";
+import { useTeacherStats, useTeacherSchedule, useTeacherEvaluations } from "@/hooks/use-queries";
+import type { TeacherDefense, TeacherEvaluation } from "@/types";
 import { toast } from "sonner";
 import {
   Badge,
@@ -26,31 +22,13 @@ const roleLabel: Record<TeacherDefense["role"], string> = {
 };
 
 export default function TeacherDashboard() {
-  const [stats, setStats] = React.useState<TeacherStats | null>(null);
-  const [schedule, setSchedule] = React.useState<TeacherDefense[]>([]);
-  const [evaluations, setEvaluations] = React.useState<TeacherEvaluation[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsData, scheduleData, evaluationsData] = await Promise.all([
-          getTeacherStats(),
-          getTeacherSchedule(),
-          getTeacherEvaluations(),
-        ]);
-        setStats(statsData);
-        setSchedule(scheduleData);
-        setEvaluations(evaluationsData);
-      } catch {
-        toast.error("Erreur lors du chargement de l'espace enseignant");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const statsQuery = useTeacherStats();
+  const scheduleQuery = useTeacherSchedule();
+  const evaluationsQuery = useTeacherEvaluations();
+  const stats = statsQuery.data ?? null;
+  const schedule = scheduleQuery.data ?? [];
+  const evaluations = evaluationsQuery.data ?? [];
+  const isLoading = statsQuery.isLoading || scheduleQuery.isLoading || evaluationsQuery.isLoading;
 
   const upcomingDefenses = schedule
     .filter((defense) => defense.status === "scheduled")

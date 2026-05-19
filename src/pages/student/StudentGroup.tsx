@@ -1,12 +1,10 @@
-import * as React from "react";
 import { FolderKanban, Mail, Plus, UserRound, Users } from "lucide-react";
 
 import {
-  createStudentGroup,
-  getStudentGroup,
-  joinStudentGroup,
-} from "@/lib/api";
-import type { StudentGroupWorkspace } from "@/types";
+  useStudentGroup,
+  useCreateStudentGroup,
+  useJoinStudentGroup,
+} from "@/hooks/use-queries";
 import { toast } from "sonner";
 import {
   Badge,
@@ -19,53 +17,31 @@ import {
 } from "@/components/ui";
 
 export default function StudentGroup() {
-  const [workspace, setWorkspace] =
-    React.useState<StudentGroupWorkspace | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { data: workspace, isLoading } = useStudentGroup();
+  const createGroup = useCreateStudentGroup();
+  const joinGroup = useJoinStudentGroup();
 
-  const loadWorkspace = async () => {
-    setIsLoading(true);
-    try {
-      setWorkspace(await getStudentGroup());
-    } catch {
-      toast.error("Erreur lors du chargement du groupe");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    loadWorkspace();
-  }, []);
+  const isSubmitting = createGroup.isPending || joinGroup.isPending;
 
   const handleCreateGroup = async () => {
-    setIsSubmitting(true);
     try {
-      await createStudentGroup();
+      await createGroup.mutateAsync();
       toast.success("Votre groupe a été créé automatiquement");
-      await loadWorkspace();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Erreur lors de la création";
       toast.error(message);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleJoinGroup = async (groupId: string) => {
-    setIsSubmitting(true);
     try {
-      await joinStudentGroup(groupId);
+      await joinGroup.mutateAsync(groupId);
       toast.success("Vous avez rejoint le groupe sélectionné");
-      await loadWorkspace();
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Erreur lors de la jonction";
       toast.error(message);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

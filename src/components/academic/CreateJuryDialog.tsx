@@ -2,8 +2,8 @@
 
 import * as React from "react";
 
-import { createJury, getProjects, getTeachersList } from "@/lib/api";
-import type { Project, Teacher } from "@/types";
+import { useTeachersList, useProjects, useCreateJury } from "@/hooks/use-queries";
+import { validate, jurySchema } from "@/lib/validations";
 import { toast } from "sonner";
 import {
   Button,
@@ -35,14 +35,18 @@ export function CreateJuryDialog({
   onOpenChange,
   onSuccess,
 }: CreateJuryDialogProps) {
+  const teachersQuery = useTeachersList();
+  const projectsQuery = useProjects();
+  const createJuryMutation = useCreateJury();
+  const teachers = teachersQuery.data ?? [];
+  const projects = projectsQuery.data ?? [];
+  const isLoadingOptions = teachersQuery.isLoading || projectsQuery.isLoading;
+
   const [projectId, setProjectId] = React.useState("");
   const [presidentId, setPresidentId] = React.useState("");
   const [reporterId, setReporterId] = React.useState("");
   const [examinerId, setExaminerId] = React.useState("");
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [teachers, setTeachers] = React.useState<Teacher[]>([]);
-  const [projects, setProjects] = React.useState<Project[]>([]);
-  const [isLoadingOptions, setIsLoadingOptions] = React.useState(false);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   React.useEffect(() => {
     if (!open) {
@@ -53,40 +57,23 @@ export function CreateJuryDialog({
     setPresidentId("");
     setReporterId("");
     setExaminerId("");
-
-    const fetchData = async () => {
-      setIsLoadingOptions(true);
-      try {
-        const [teachersData, projectsData] = await Promise.all([
-          getTeachersList(),
-          getProjects(),
-        ]);
-        setTeachers(teachersData);
-        setProjects(projectsData);
-      } catch {
-        toast.error("Erreur lors du chargement des donnees");
-      } finally {
-        setIsLoadingOptions(false);
-      }
-    };
-
-    fetchData();
   }, [open]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!projectId || !presidentId || !reporterId || !examinerId) {
-      toast.error("Veuillez remplir tous les champs requis.");
+    const errors = validate(jurySchema, {
+      projectId,
+      presidentId,
+      reporterId,
+      examinerId,
+    });
+
+    if (errors) {
+      setFieldErrors(errors);
       return;
     }
 
-    if (new Set([presidentId, reporterId, examinerId]).size < 3) {
-      toast.error("Chaque role doit etre attribue a un enseignant different.");
-      return;
-    }
-
-    setIsSubmitting(true);
     try {
       const selectedProject = projects.find(
         (project) => project.id === projectId,
@@ -95,7 +82,7 @@ export function CreateJuryDialog({
       const reporter = teachers.find((teacher) => teacher.id === reporterId);
       const examiner = teachers.find((teacher) => teacher.id === examinerId);
 
-      await createJury({
+      await createJuryMutation.mutateAsync({
         projectId,
         projectTitle: selectedProject?.title || "",
         presidentId,
@@ -105,13 +92,12 @@ export function CreateJuryDialog({
         examinerId,
         examinerName: getFullName(examiner),
       });
+      setFieldErrors({});
       toast.success("Jury cree avec succes");
       onSuccess();
       onOpenChange(false);
     } catch {
       toast.error("Erreur lors de la creation du jury");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -151,6 +137,9 @@ export function CreateJuryDialog({
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors?.projectId && (
+              <p className="text-sm font-medium text-destructive">{fieldErrors.projectId}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -176,6 +165,9 @@ export function CreateJuryDialog({
                   ))}
               </SelectContent>
             </Select>
+            {fieldErrors?.presidentId && (
+              <p className="text-sm font-medium text-destructive">{fieldErrors.presidentId}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -201,6 +193,9 @@ export function CreateJuryDialog({
                   ))}
               </SelectContent>
             </Select>
+            {fieldErrors?.reporterId && (
+              <p className="text-sm font-medium text-destructive">{fieldErrors.reporterId}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -226,13 +221,16 @@ export function CreateJuryDialog({
                   ))}
               </SelectContent>
             </Select>
+            {fieldErrors?.examinerId && (
+              <p className="text-sm font-medium text-destructive">{fieldErrors.examinerId}</p>
+            )}
           </div>
         </form>
         <DialogFooter>
           <Button
             type="submit"
             form="create-jury-form"
-            isLoading={isSubmitting}
+            isLoading={createJuryMutation.isPending}
             disabled={isLoadingOptions}
           >
             Creer le jury

@@ -10,8 +10,7 @@ import {
   Users,
 } from "lucide-react";
 
-import { getCoordinatorStats, getProjects, getJurys } from "@/lib/api";
-import type { CoordinatorStats } from "@/lib/api";
+import { useCoordinatorStats, useProjects, useJurys } from "@/hooks/use-queries";
 import type { Jury, Project } from "@/types";
 import { toast } from "sonner";
 import {
@@ -47,31 +46,13 @@ const actionCards = [
 ];
 
 export default function CoordinatorDashboard() {
-  const [stats, setStats] = React.useState<CoordinatorStats | null>(null);
-  const [projects, setProjects] = React.useState<Project[]>([]);
-  const [jurys, setJurys] = React.useState<Jury[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [statsData, projectsData, jurysData] = await Promise.all([
-          getCoordinatorStats(),
-          getProjects(),
-          getJurys(),
-        ]);
-        setStats(statsData);
-        setProjects(projectsData);
-        setJurys(jurysData);
-      } catch {
-        toast.error("Erreur lors du chargement de l'espace coordinateur");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const statsQuery = useCoordinatorStats();
+  const projectsQuery = useProjects();
+  const jurysQuery = useJurys();
+  const stats = statsQuery.data;
+  const projects = projectsQuery.data ?? [];
+  const jurys = jurysQuery.data ?? [];
+  const isLoading = statsQuery.isLoading || projectsQuery.isLoading || jurysQuery.isLoading;
 
   const readyProjects = projects.filter(
     (project) => project.status === "approved",

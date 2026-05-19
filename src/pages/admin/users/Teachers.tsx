@@ -5,14 +5,10 @@ import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 import {
-  getTeachers,
-  createUser,
-  updateUser,
-  deleteUser,
-  getGrades,
-  getDepartments,
-} from "@/lib/api";
-import { type Teacher, type Grade, type Department } from "@/types";
+  useTeachers, useGrades, useDepartments,
+  useCreateUser, useUpdateUser, useDeleteUser,
+} from "@/hooks/use-queries";
+import { type Teacher } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Button,
@@ -48,26 +44,32 @@ import {
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
+import { validate, teacherSchema } from "@/lib/validations";
 
 export default function Teachers() {
-  const [data, setData] = React.useState<Teacher[]>([]);
-  const [grades, setGrades] = React.useState<Grade[]>([]);
-  const [departments, setDepartments] = React.useState<Department[]>([]);
-  const [pageCount, setPageCount] = React.useState(0);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
-  const [selectedTeacher, setSelectedTeacher] = React.useState<Teacher | null>(
-    null,
-  );
-
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
 
+  const { data: teachersData, isLoading, refetch } = useTeachers(pagination.pageIndex, pagination.pageSize);
+  const { data: grades = [] } = useGrades();
+  const { data: departments = [] } = useDepartments();
+  const createUserMut = useCreateUser();
+  const updateUserMut = useUpdateUser();
+  const deleteUserMut = useDeleteUser();
+
+  const data = teachersData?.items ?? [];
+  const pageCount = teachersData?.pageCount ?? 0;
+
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [selectedTeacher, setSelectedTeacher] = React.useState<Teacher | null>(
+    null,
+  );
+
   // Form state
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
   const [formData, setFormData] = React.useState({
     lastName: "",
     firstName: "",
@@ -75,30 +77,6 @@ export default function Teachers() {
     gradeId: "",
     departmentId: "",
   });
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [teachersRes, gradesRes, deptRes] = await Promise.all([
-        getTeachers(pagination.pageIndex, pagination.pageSize),
-        getGrades(),
-        getDepartments(),
-      ]);
-      setData(teachersRes.items);
-      setPageCount(teachersRes.pageCount);
-      setGrades(gradesRes);
-      setDepartments(deptRes);
-    } catch {
-      toast.error("Erreur lors du chargement des données");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchData();
-  }, [pagination]);
 
   const resetForm = () => {
     setFormData({
@@ -109,39 +87,38 @@ export default function Teachers() {
       departmentId: departments[0]?.id || "",
     });
     setSelectedTeacher(null);
+    setFieldErrors({});
   };
 
   const handleCreate = async () => {
-    setIsSubmitting(true);
+    const errors = validate(teacherSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
-      await createUser({ ...formData, role: "teacher", isActive: false });
+      await createUserMut.mutateAsync({ ...formData, role: "teacher", isActive: false });
       toast.success("Enseignant ajouté avec succès");
       setIsDialogOpen(false);
       resetForm();
-      fetchData();
     } catch {
       toast.error("Erreur lors de la création");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleUpdate = async () => {
     if (!selectedTeacher) return;
-    setIsSubmitting(true);
+    const errors = validate(teacherSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
-      await updateUser(selectedTeacher.id, {
-        ...formData,
-        role: "teacher" as const,
+      await updateUserMut.mutateAsync({
+        id: selectedTeacher.id,
+        data: { ...formData, role: "teacher" as const },
       });
       toast.success("Profil enseignant mis à jour");
       setIsDialogOpen(false);
       resetForm();
-      fetchData();
     } catch {
       toast.error("Erreur lors de la modification");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -153,17 +130,13 @@ export default function Teachers() {
 
   const handleDelete = async () => {
     if (!selectedTeacher) return;
-    setIsDeleting(true);
     try {
-      await deleteUser(selectedTeacher.id);
+      await deleteUserMut.mutateAsync(selectedTeacher.id);
       toast.success("Enseignant supprimé");
-      fetchData();
-    } catch {
-      toast.error("Erreur lors de la suppression");
-    } finally {
-      setIsDeleting(false);
       setIsDeleteDialogOpen(false);
       setSelectedTeacher(null);
+    } catch {
+      toast.error("Erreur lors de la suppression");
     }
   };
 
@@ -267,7 +240,7 @@ export default function Teachers() {
           <BulkImportDialog
             entity="teacher"
             triggerButtonText="Importation en masse"
-            onSuccess={fetchData}
+            onSuccess={refetch}
           />
           <Button
             onClick={() => {
@@ -315,6 +288,7 @@ export default function Teachers() {
                     setFormData({ ...formData, lastName: e.target.value })
                   }
                   required
+                  error={fieldErrors?.lastName}
                 />
               </Field>
               <Field>
@@ -325,6 +299,7 @@ export default function Teachers() {
                     setFormData({ ...formData, firstName: e.target.value })
                   }
                   required
+                  error={fieldErrors?.firstName}
                 />
               </Field>
               <Field className="col-span-2">
@@ -336,6 +311,7 @@ export default function Teachers() {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   required
+                  error={fieldErrors?.email}
                 />
               </Field>
               <Field>
@@ -360,6 +336,7 @@ export default function Teachers() {
                     ))}
                   </SelectContent>
                 </Select>
+                {fieldErrors?.gradeId && <p className="text-sm font-medium text-destructive">{fieldErrors.gradeId}</p>}
               </Field>
               <Field>
                 <FieldLabel>Département</FieldLabel>
@@ -384,10 +361,11 @@ export default function Teachers() {
                     ))}
                   </SelectContent>
                 </Select>
+                {fieldErrors?.departmentId && <p className="text-sm font-medium text-destructive">{fieldErrors.departmentId}</p>}
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <Button type="submit" isLoading={isSubmitting}>
+              <Button type="submit" isLoading={selectedTeacher ? updateUserMut.isPending : createUserMut.isPending}>
                 Enregistrer
               </Button>
             </DialogFooter>
@@ -415,7 +393,7 @@ export default function Teachers() {
                 handleDelete();
               }}
               variant="destructive"
-              isLoading={isDeleting}
+              isLoading={deleteUserMut.isPending}
             >
               Supprimer
             </AlertDialogAction>

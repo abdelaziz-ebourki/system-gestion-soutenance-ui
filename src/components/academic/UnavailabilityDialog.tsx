@@ -13,6 +13,7 @@ import {
   Input,
   Label,
 } from "@/components/ui";
+import { validate, unavailabilitySchema } from "@/lib/validations";
 
 interface UnavailabilityDialogProps {
   isOpen: boolean;
@@ -27,11 +28,25 @@ export default function UnavailabilityDialog({
   const [endDate, setEndDate] = useState("");
   const [reason, setReason] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const errors = validate(unavailabilitySchema, {
+      startDate,
+      endDate,
+      reason,
+    });
+
+    if (errors) {
+      setFieldErrors(errors);
+      return;
+    }
+
+    setFieldErrors({});
     setSubmitted(true);
   };
 
@@ -100,6 +115,7 @@ export default function UnavailabilityDialog({
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
                       required
+                      error={fieldErrors?.startDate}
                     />
                   </div>
                 </div>
@@ -119,6 +135,7 @@ export default function UnavailabilityDialog({
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
                       required
+                      error={fieldErrors?.endDate}
                     />
                   </div>
                 </div>
@@ -139,6 +156,9 @@ export default function UnavailabilityDialog({
                   onChange={(e) => setReason(e.target.value)}
                   required
                 />
+                {fieldErrors?.reason && (
+                  <p className="text-sm font-medium text-destructive">{fieldErrors.reason}</p>
+                )}
               </div>
             </div>
 

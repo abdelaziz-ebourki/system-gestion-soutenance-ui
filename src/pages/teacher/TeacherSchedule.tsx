@@ -2,7 +2,7 @@ import * as React from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CalendarDays, MapPin, ShieldCheck, Timer } from "lucide-react";
 
-import { getTeacherSchedule } from "@/lib/api";
+import { useTeacherSchedule } from "@/hooks/use-queries";
 import type { TeacherDefense } from "@/types";
 import { toast } from "sonner";
 import {
@@ -28,22 +28,9 @@ const statusLabel: Record<TeacherDefense["status"], string> = {
 };
 
 export default function TeacherSchedule() {
-  const [schedule, setSchedule] = React.useState<TeacherDefense[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setSchedule(await getTeacherSchedule());
-      } catch {
-        toast.error("Erreur lors du chargement du planning");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
+  const scheduleQuery = useTeacherSchedule();
+  const schedule = scheduleQuery.data ?? [];
+  const isLoading = scheduleQuery.isLoading;
 
   const columns: ColumnDef<TeacherDefense>[] = [
     {

@@ -1,0 +1,167 @@
+import { z } from "zod";
+
+type Errors<T> = Partial<Record<keyof T, string>>;
+
+export function validate<T>(schema: z.ZodType<T>, data: T): Errors<T> | null {
+  const result = schema.safeParse(data);
+  if (result.success) return null;
+  const errors: Errors<T> = {};
+  for (const issue of result.error.issues) {
+    const path = issue.path.join(".") as keyof T;
+    if (path && !errors[path]) {
+      errors[path] = issue.message;
+    }
+  }
+  return Object.keys(errors).length > 0 ? errors : null;
+}
+
+// --- Auth ---
+
+export const loginSchema = z.object({
+  email: z.string().min(1, "L'email est requis").email("Email invalide"),
+  password: z.string().min(1, "Le mot de passe est requis"),
+});
+
+export const verifyAccountSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+    confirmPassword: z.string().min(1, "Confirmez le mot de passe"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  });
+
+// --- Admin: Sessions ---
+
+export const sessionSchema = z
+  .object({
+    name: z.string().min(1, "Le nom est requis"),
+    type: z.string().min(1, "Le type est requis"),
+    status: z.enum(["active", "draft", "archived"]),
+    startDate: z.string().min(1, "La date de début est requise"),
+    endDate: z.string().min(1, "La date de fin est requise"),
+  })
+  .refine((data) => !data.startDate || !data.endDate || data.startDate <= data.endDate, {
+    message: "La date de fin doit être postérieure à la date de début",
+    path: ["endDate"],
+  });
+
+// --- Admin: Rooms ---
+
+export const roomSchema = z.object({
+  name: z.string().min(1, "Le nom est requis"),
+  building: z.string().min(1, "Le bâtiment est requis"),
+  capacity: z.coerce.number().min(1, "La capacité doit être supérieure à 0"),
+});
+
+// --- Admin: Departments ---
+
+export const departmentSchema = z.object({
+  name: z.string().min(1, "Le nom est requis"),
+  code: z.string().min(1, "Le code est requis"),
+  headId: z.string().min(1, "Le chef est requis"),
+});
+
+// --- Admin: Users ---
+
+export const userBaseSchema = z.object({
+  lastName: z.string().min(1, "Le nom est requis"),
+  firstName: z.string().min(1, "Le prénom est requis"),
+  email: z.string().min(1, "L'email est requis").email("Email invalide"),
+});
+
+export const studentSchema = userBaseSchema.extend({
+  cne: z.string().min(1, "Le CNE est requis"),
+  filiereId: z.string().min(1, "La filière est requise"),
+  levelId: z.string().min(1, "Le niveau est requis"),
+});
+
+export const teacherSchema = userBaseSchema.extend({
+  gradeId: z.string().min(1, "Le grade est requis"),
+  departmentId: z.string().min(1, "Le département est requis"),
+});
+
+export const coordinatorSchema = userBaseSchema;
+
+// --- Admin: Configuration ---
+
+export const configNameSchema = z.object({
+  name: z.string().min(1, "Le nom est requis"),
+});
+
+export const defenseSettingsSchema = z
+  .object({
+    startTime: z.string().min(1, "L'heure de début est requise"),
+    endTime: z.string().min(1, "L'heure de fin est requise"),
+    defenseDuration: z.coerce
+      .number()
+      .min(1, "Doit être supérieure à 0")
+      .max(180, "Ne peut pas dépasser 180 minutes"),
+    breakDuration: z.coerce.number().min(0, "Ne peut pas être négative"),
+    groupCreationStartDate: z
+      .string()
+      .min(1, "La date de début est requise"),
+    groupCreationEndDate: z.string().min(1, "La date de fin est requise"),
+  })
+  .refine(
+    (data) =>
+      !data.groupCreationStartDate ||
+      !data.groupCreationEndDate ||
+      data.groupCreationStartDate <= data.groupCreationEndDate,
+    {
+      message:
+        "La date de fin doit être postérieure à la date de début",
+      path: ["groupCreationEndDate"],
+    },
+  );
+
+// --- Teacher: Evaluations ---
+
+export const evaluationSchema = z.object({
+  score: z.coerce
+    .number()
+    .min(0, "La note doit être entre 0 et 20")
+    .max(20, "La note doit être entre 0 et 20"),
+  comment: z.string().optional(),
+});
+
+// --- Coordinator: Projects ---
+
+export const projectSchema = z.object({
+  title: z.string().min(1, "Le titre est requis"),
+  description: z.string().optional(),
+  supervisorId: z.string().min(1, "L'encadrant est requis"),
+  studentIds: z.array(z.string()).min(1, "Au moins un étudiant est requis"),
+});
+
+// --- Coordinator: Jury ---
+
+export const jurySchema = z
+  .object({
+    projectId: z.string().min(1, "Le projet est requis"),
+    presidentId: z.string().min(1, "Le président est requis"),
+    reporterId: z.string().min(1, "Le rapporteur est requis"),
+    examinerId: z.string().min(1, "L'examinateur est requis"),
+  })
+  .refine(
+    (data) => {
+      const ids = [data.presidentId, data.reporterId, data.examinerId];
+      return new Set(ids).size === 3;
+    },
+    {
+      message:
+        "Les membres du jury doivent être des personnes différentes",
+      path: ["examinerId"],
+    },
+  );
+
+// --- Teacher: Unavailability ---
+
+export const unavailabilitySchema = z.object({
+  startDate: z.string().min(1, "La date de début est requise"),
+  endDate: z.string().min(1, "La date de fin est requise"),
+  reason: z.string().min(1, "La raison est requise"),
+});

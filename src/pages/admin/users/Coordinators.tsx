@@ -4,7 +4,7 @@ import * as React from "react";
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
-import { getCoordinators, createUser, updateUser, deleteUser } from "@/lib/api";
+import { useCoordinators, useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/use-queries";
 import { type Coordinator } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -35,87 +35,71 @@ import {
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
+import { validate, coordinatorSchema } from "@/lib/validations";
 
 export default function Coordinators() {
-  const [data, setData] = React.useState<Coordinator[]>([]);
-  const [pageCount, setPageCount] = React.useState(0);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
-  const [selectedCoord, setSelectedCoord] = React.useState<Coordinator | null>(
-    null,
-  );
-
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
 
+  const { data: coordinatorsData, isLoading } = useCoordinators(pagination.pageIndex, pagination.pageSize);
+  const createUserMut = useCreateUser();
+  const updateUserMut = useUpdateUser();
+  const deleteUserMut = useDeleteUser();
+
+  const data = coordinatorsData?.items ?? [];
+  const pageCount = coordinatorsData?.pageCount ?? 0;
+
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+  const [selectedCoord, setSelectedCoord] = React.useState<Coordinator | null>(
+    null,
+  );
+
   // Form state
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
   const [formData, setFormData] = React.useState({
     lastName: "",
     firstName: "",
     email: "",
   });
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const fetchCoordinators = async () => {
-    setIsLoading(true);
-    try {
-      const result = await getCoordinators(
-        pagination.pageIndex,
-        pagination.pageSize,
-      );
-      setData(result.items);
-      setPageCount(result.pageCount);
-    } catch {
-      toast.error("Erreur lors du chargement des coordinateurs");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    fetchCoordinators();
-  }, [pagination]);
 
   const resetForm = () => {
     setFormData({ lastName: "", firstName: "", email: "" });
     setSelectedCoord(null);
+    setFieldErrors({});
   };
 
   const handleCreate = async () => {
-    setIsSubmitting(true);
+    const errors = validate(coordinatorSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
-      await createUser({ ...formData, role: "coordinator", isActive: false });
+      await createUserMut.mutateAsync({ ...formData, role: "coordinator", isActive: false });
       toast.success("Coordinateur ajouté avec succès");
       setIsDialogOpen(false);
       resetForm();
-      fetchCoordinators();
     } catch {
       toast.error("Erreur lors de la création");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleUpdate = async () => {
     if (!selectedCoord) return;
-    setIsSubmitting(true);
+    const errors = validate(coordinatorSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
-      await updateUser(selectedCoord.id, {
-        ...formData,
-        role: "coordinator" as const,
+      await updateUserMut.mutateAsync({
+        id: selectedCoord.id,
+        data: { ...formData, role: "coordinator" as const },
       });
       toast.success("Profil coordinateur mis à jour");
       setIsDialogOpen(false);
       resetForm();
-      fetchCoordinators();
     } catch {
       toast.error("Erreur lors de la modification");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -127,17 +111,13 @@ export default function Coordinators() {
 
   const handleDelete = async () => {
     if (!selectedCoord) return;
-    setIsDeleting(true);
     try {
-      await deleteUser(selectedCoord.id);
+      await deleteUserMut.mutateAsync(selectedCoord.id);
       toast.success("Coordinateur supprimé");
-      fetchCoordinators();
-    } catch {
-      toast.error("Erreur lors de la suppression");
-    } finally {
-      setIsDeleting(false);
       setIsDeleteDialogOpen(false);
       setSelectedCoord(null);
+    } catch {
+      toast.error("Erreur lors de la suppression");
     }
   };
 
@@ -265,6 +245,7 @@ export default function Coordinators() {
                     setFormData({ ...formData, lastName: e.target.value })
                   }
                   required
+                  error={fieldErrors?.lastName}
                 />
               </Field>
               <Field>
@@ -275,6 +256,7 @@ export default function Coordinators() {
                     setFormData({ ...formData, firstName: e.target.value })
                   }
                   required
+                  error={fieldErrors?.firstName}
                 />
               </Field>
               <Field className="col-span-2">
@@ -286,13 +268,14 @@ export default function Coordinators() {
                     setFormData({ ...formData, email: e.target.value })
                   }
                   required
+                  error={fieldErrors?.email}
                 />
               </Field>
             </FieldGroup>
             <DialogFooter>
               <Button
                 type="submit"
-                isLoading={isSubmitting}
+                isLoading={selectedCoord ? updateUserMut.isPending : createUserMut.isPending}
                 loadingText="Enregistrement..."
               >
                 Enregistrer
@@ -321,7 +304,7 @@ export default function Coordinators() {
                 handleDelete();
               }}
               variant="destructive"
-              isLoading={isDeleting}
+              isLoading={deleteUserMut.isPending}
             >
               Supprimer
             </AlertDialogAction>

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { api } from "@/lib/api";
+import { validate, verifyAccountSchema } from "@/lib/validations";
 
 export default function VerifyAccount() {
   const [searchParams] = useSearchParams();
@@ -21,6 +22,7 @@ export default function VerifyAccount() {
   const [password, setPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   React.useEffect(() => {
     if (!token) {
@@ -30,11 +32,9 @@ export default function VerifyAccount() {
 
   const handleVerify = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      toast.error("Les mots de passe ne correspondent pas");
-      return;
-    }
-
+    const errors = validate(verifyAccountSchema, { password, confirmPassword });
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     setIsSubmitting(true);
     try {
       await api("/auth/verify-account", {
@@ -74,6 +74,7 @@ export default function VerifyAccount() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                error={fieldErrors?.password}
               />
             </Field>
             <Field>
@@ -83,6 +84,7 @@ export default function VerifyAccount() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                error={fieldErrors?.confirmPassword}
               />
             </Field>
             <Button

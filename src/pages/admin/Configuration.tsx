@@ -12,23 +12,15 @@ import {
 } from "lucide-react";
 
 import {
-  getFilieres,
-  createFiliere,
-  updateFiliere,
-  deleteFiliere,
-  getLevels,
-  createLevel,
-  updateLevel,
-  deleteLevel,
-  getGrades,
-  createGrade,
-  updateGrade,
-  deleteGrade,
-  getDefenseSettings,
-  updateDefenseSettings,
   type DefenseSettings,
 } from "@/lib/api";
 import { type Filiere, type Level, type Grade } from "@/types";
+import {
+  useFilieres, useCreateFiliere, useUpdateFiliere, useDeleteFiliere,
+  useLevels, useCreateLevel, useUpdateLevel, useDeleteLevel,
+  useGrades, useCreateGrade, useUpdateGrade, useDeleteGrade,
+  useDefenseSettings, useUpdateDefenseSettings,
+} from "@/hooks/use-queries";
 import {
   Button,
   Card,
@@ -54,13 +46,26 @@ import {
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { toast } from "sonner";
+import { validate, configNameSchema, defenseSettingsSchema } from "@/lib/validations";
 
 type ConfigType = "filiere" | "level" | "grade";
 
 export default function Configuration() {
-  const [filieres, setFilieres] = React.useState<Filiere[]>([]);
-  const [levels, setLevels] = React.useState<Level[]>([]);
-  const [grades, setGrades] = React.useState<Grade[]>([]);
+  const { data: filieres } = useFilieres();
+  const { data: levels } = useLevels();
+  const { data: grades } = useGrades();
+  const { data: defSettings, isLoading } = useDefenseSettings();
+  const createFiliereMut = useCreateFiliere();
+  const updateFiliereMut = useUpdateFiliere();
+  const deleteFiliereMut = useDeleteFiliere();
+  const createLevelMut = useCreateLevel();
+  const updateLevelMut = useUpdateLevel();
+  const deleteLevelMut = useDeleteLevel();
+  const createGradeMut = useCreateGrade();
+  const updateGradeMut = useUpdateGrade();
+  const deleteGradeMut = useDeleteGrade();
+  const updateSettingsMut = useUpdateDefenseSettings();
+
   const [settings, setSettings] = React.useState<DefenseSettings>({
     startTime: "08:00",
     endTime: "18:00",
@@ -69,42 +74,33 @@ export default function Configuration() {
     groupCreationStartDate: "2026-05-01",
     groupCreationEndDate: "2026-06-20",
   });
-  const [isLoading, setIsLoading] = React.useState(true);
 
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
+  const [settingsFieldErrors, setSettingsFieldErrors] = React.useState<Record<string, string>>({});
 
   const [activeType, setActiveType] = React.useState<ConfigType>("filiere");
-  const [selectedItem, setSelectedItem] = React.useState<any | null>(null);
+  const [selectedItem, setSelectedItem] = React.useState<Filiere | Level | Grade | null>(null);
   const [formData, setFormData] = React.useState({ name: "" });
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      const [fRes, lRes, gRes, sRes] = await Promise.all([
-        getFilieres(),
-        getLevels(),
-        getGrades(),
-        getDefenseSettings().catch(() => settings),
-      ]);
-      setFilieres(fRes);
-      setLevels(lRes);
-      setGrades(gRes);
-      setSettings(sRes);
-    } catch {
-      toast.error("Erreur lors du chargement des configurations");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   React.useEffect(() => {
-    fetchData();
-  }, []);
+    if (defSettings) {
+      setSettings(defSettings);
+    }
+  }, [defSettings]);
 
-  const handleOpenDialog = (type: ConfigType, item: any = null) => {
+  const isSubmitting =
+    (activeType === "filiere" && (selectedItem ? updateFiliereMut.isPending : createFiliereMut.isPending)) ||
+    (activeType === "level" && (selectedItem ? updateLevelMut.isPending : createLevelMut.isPending)) ||
+    (activeType === "grade" && (selectedItem ? updateGradeMut.isPending : createGradeMut.isPending));
+
+  const isDeleting =
+    (activeType === "filiere" && deleteFiliereMut.isPending) ||
+    (activeType === "level" && deleteLevelMut.isPending) ||
+    (activeType === "grade" && deleteGradeMut.isPending);
+
+  const handleOpenDialog = (type: ConfigType, item: Filiere | Level | Grade | null = null) => {
     setActiveType(type);
     setSelectedItem(item);
     setFormData({ name: item?.name || "" });
@@ -113,64 +109,60 @@ export default function Configuration() {
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    const errors = validate(configNameSchema, formData);
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     try {
       if (selectedItem) {
         if (activeType === "filiere")
-          await updateFiliere(selectedItem.id, formData);
+          await updateFiliereMut.mutateAsync({ id: selectedItem.id, data: formData });
         else if (activeType === "level")
-          await updateLevel(selectedItem.id, formData);
-        else await updateGrade(selectedItem.id, formData);
+          await updateLevelMut.mutateAsync({ id: selectedItem.id, data: formData });
+        else
+          await updateGradeMut.mutateAsync({ id: selectedItem.id, data: formData });
         toast.success("Modifié avec succès");
       } else {
-        if (activeType === "filiere") await createFiliere(formData);
-        else if (activeType === "level") await createLevel(formData);
-        else await createGrade(formData);
+        if (activeType === "filiere") await createFiliereMut.mutateAsync(formData);
+        else if (activeType === "level") await createLevelMut.mutateAsync(formData);
+        else await createGradeMut.mutateAsync(formData);
         toast.success("Ajouté avec succès");
       }
       setIsDialogOpen(false);
-      fetchData();
     } catch {
       toast.error("Une erreur est survenue");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
     if (!selectedItem) return;
-    setIsDeleting(true);
     try {
-      if (activeType === "filiere") await deleteFiliere(selectedItem.id);
-      else if (activeType === "level") await deleteLevel(selectedItem.id);
-      else await deleteGrade(selectedItem.id);
+      if (activeType === "filiere") await deleteFiliereMut.mutateAsync(selectedItem.id);
+      else if (activeType === "level") await deleteLevelMut.mutateAsync(selectedItem.id);
+      else await deleteGradeMut.mutateAsync(selectedItem.id);
       toast.success("Supprimé avec succès");
-      fetchData();
+      setIsDeleteDialogOpen(false);
     } catch {
       toast.error("Erreur lors de la suppression");
-    } finally {
-      setIsDeleting(false);
-      setIsDeleteDialogOpen(false);
     }
   };
 
   const handleSettingsUpdate = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    const errors = validate(defenseSettingsSchema, settings);
+    if (errors) { setSettingsFieldErrors(errors); return; }
+    setSettingsFieldErrors({});
     try {
-      await updateDefenseSettings(settings);
+      await updateSettingsMut.mutateAsync(settings);
       toast.success("Paramètres mis à jour");
     } catch {
       toast.error("Erreur lors de la mise à jour des paramètres");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const renderConfigCard = (
     title: string,
     description: string,
-    items: any[],
+    items: Array<{ id: string; name: string }>,
     type: ConfigType,
     icon: React.ReactNode,
   ) => (
@@ -249,21 +241,21 @@ export default function Configuration() {
           {renderConfigCard(
             "Filières",
             "Liste des filières disponibles.",
-            filieres,
+            filieres ?? [],
             "filiere",
             <BookOpen className="h-5 w-5" />,
           )}
           {renderConfigCard(
             "Niveaux",
             "Cycles universitaires.",
-            levels,
+            levels ?? [],
             "level",
             <Layers className="h-5 w-5" />,
           )}
           {renderConfigCard(
             "Grades",
             "Titres académiques.",
-            grades,
+            grades ?? [],
             "grade",
             <GraduationCap className="h-5 w-5" />,
           )}
@@ -289,6 +281,7 @@ export default function Configuration() {
                         setSettings({ ...settings, startTime: e.target.value })
                       }
                       required
+                      error={settingsFieldErrors?.startTime}
                     />
                   </Field>
                   <Field>
@@ -300,6 +293,7 @@ export default function Configuration() {
                         setSettings({ ...settings, endTime: e.target.value })
                       }
                       required
+                      error={settingsFieldErrors?.endTime}
                     />
                   </Field>
                 </div>
@@ -316,6 +310,7 @@ export default function Configuration() {
                         })
                       }
                       required
+                      error={settingsFieldErrors?.defenseDuration}
                     />
                   </Field>
                   <Field>
@@ -330,6 +325,7 @@ export default function Configuration() {
                         })
                       }
                       required
+                      error={settingsFieldErrors?.breakDuration}
                     />
                   </Field>
                 </div>
@@ -346,6 +342,7 @@ export default function Configuration() {
                         })
                       }
                       required
+                      error={settingsFieldErrors?.groupCreationStartDate}
                     />
                   </Field>
                   <Field>
@@ -360,13 +357,14 @@ export default function Configuration() {
                         })
                       }
                       required
+                      error={settingsFieldErrors?.groupCreationEndDate}
                     />
                   </Field>
                 </div>
                 <Button
                   type="submit"
                   className="mt-2"
-                  isLoading={isSubmitting}
+                  isLoading={updateSettingsMut.isPending}
                   loadingText="Sauvegarde en cours..."
                 >
                   Sauvegarder
@@ -397,6 +395,7 @@ export default function Configuration() {
                   value={formData.name}
                   onChange={(e) => setFormData({ name: e.target.value })}
                   required
+                  error={fieldErrors?.name}
                 />
               </Field>
             </FieldGroup>

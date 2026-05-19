@@ -20,6 +20,8 @@
     "@fontsource-variable/space-grotesk": "^5.2.10",
     "@phosphor-icons/react": "^2.1.10",
     "@tailwindcss/vite": "^4.3.0",
+    "@tanstack/react-query": "^5.100.11",
+    "@tanstack/react-query-devtools": "^5.100.11",
     "@tanstack/react-table": "^8.21.3",
     "@zxcvbn-ts/core": "^3.0.4",
     "@zxcvbn-ts/language-common": "^3.0.4",

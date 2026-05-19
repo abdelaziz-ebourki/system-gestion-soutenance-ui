@@ -13,9 +13,8 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { format } from "date-fns";
 
-import { getAdminStats, getUsers, getAuditLogs } from "@/lib/api";
-import type { DashboardStats, User } from "@/types";
-import { type AuditLog } from "@/types/audit-log";
+import { useAdminStats, useUsers, useAuditLogs } from "@/hooks/use-queries";
+import type { User } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Badge,
@@ -34,63 +33,21 @@ import {
 import { toast } from "sonner";
 
 export default function AdminDashboard() {
-  const [stats, setStats] = React.useState<DashboardStats | null>(null);
-  const [users, setUsers] = React.useState<User[]>([]);
-  const [pageCount, setPageCount] = React.useState(0);
-  const [logs, setLogs] = React.useState<AuditLog[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isLogsLoading, setIsLogsLoading] = React.useState(true);
-
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 5,
   });
 
-  React.useEffect(() => {
-    const fetchBaseData = async () => {
-      try {
-        const statsData = await getAdminStats();
-        setStats(statsData);
-      } catch {
-        toast.error("Erreur lors du chargement des statistiques");
-      }
-    };
-    fetchBaseData();
-  }, []);
+  const { data: stats } = useAdminStats();
+  const { data: usersData, isLoading: isLoading } = useUsers({
+    page: pagination.pageIndex,
+    limit: pagination.pageSize,
+  });
+  const { data: logs, isLoading: isLogsLoading } = useAuditLogs();
 
-  React.useEffect(() => {
-    const fetchUsers = async () => {
-      setIsLoading(true);
-      try {
-        const usersData = await getUsers({
-          page: pagination.pageIndex,
-          limit: pagination.pageSize,
-        });
-        setUsers(usersData.items);
-        setPageCount(usersData.pageCount);
-      } catch {
-        toast.error("Erreur lors du chargement des utilisateurs");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchUsers();
-  }, [pagination]);
-
-  React.useEffect(() => {
-    const fetchLogs = async () => {
-      setIsLogsLoading(true);
-      try {
-        const logsData = await getAuditLogs();
-        setLogs(logsData);
-      } catch {
-        toast.error("Erreur lors du chargement des logs");
-      } finally {
-        setIsLogsLoading(false);
-      }
-    };
-    fetchLogs();
-  }, []);
+  const users = usersData?.items ?? [];
+  const pageCount = usersData?.pageCount ?? 0;
+  const auditLogs = logs ?? [];
 
   const userColumns: ColumnDef<User>[] = [
     {
@@ -304,8 +261,8 @@ export default function AdminDashboard() {
               <Skeleton className="h-75 w-full" />
             ) : (
               <DataTable
-                columns={logColumns}
-                data={logs}
+                  columns={logColumns}
+                  data={auditLogs}
                 filterColumn="action"
                 filterPlaceholder="Rechercher par action..."
               />

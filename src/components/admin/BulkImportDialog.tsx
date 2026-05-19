@@ -34,7 +34,7 @@ export function BulkImportDialog({
   onSuccess,
 }: BulkImportDialogProps) {
   const [file, setFile] = useState<File | null>(null);
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<Record<string, string | number>[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -85,7 +85,7 @@ export function BulkImportDialog({
       }
 
       const mappedData = rawData.map((item) => {
-        const newItem: any = {};
+        const newItem: Record<string, string | number> = {};
         Object.keys(item).forEach((key) => {
           const normalizedKey = key.toLowerCase().trim();
           if (normalizedKey.includes("prénom")) newItem.firstName = item[key];
@@ -196,7 +196,7 @@ export function BulkImportDialog({
             className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
               isDragging
                 ? "border-primary bg-primary/5"
-                : "border-gray-300 bg-gray-50 hover:bg-gray-100"
+                : "border-border bg-muted hover:bg-accent"
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -204,8 +204,8 @@ export function BulkImportDialog({
             onClick={() => fileInputRef.current?.click()}
           >
             <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <Upload className="w-8 h-8 mb-2 text-gray-500" />
-              <p className="text-sm text-gray-500">
+              <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">
                 {file
                   ? file.name
                   : "Glissez-déposez ou cliquez pour télécharger le fichier"}
@@ -223,7 +223,7 @@ export function BulkImportDialog({
           </div>
 
           {data.length > 0 && (
-            <div className="text-sm text-muted-foreground p-2 bg-gray-50 rounded">
+            <div className="text-sm text-muted-foreground p-2 bg-muted rounded">
               {data.length} enregistrements trouvés.
             </div>
           )}

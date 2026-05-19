@@ -2,8 +2,8 @@
 
 import * as React from "react";
 
-import { createProject, getStudentsList, getTeachersList } from "@/lib/api";
-import type { Student, Teacher } from "@/types";
+import { useTeachersList, useStudentsList, useCreateProject } from "@/hooks/use-queries";
+import { validate, projectSchema } from "@/lib/validations";
 import { toast } from "sonner";
 import {
   Button,
@@ -15,6 +15,7 @@ import {
   DialogTitle,
   Input,
   Label,
+  MultiSelect,
   Select,
   SelectContent,
   SelectItem,
@@ -37,14 +38,18 @@ export function CreateProjectDialog({
   onOpenChange,
   onSuccess,
 }: CreateProjectDialogProps) {
+  const teachersQuery = useTeachersList();
+  const studentsQuery = useStudentsList();
+  const createProjectMutation = useCreateProject();
+  const teachers = teachersQuery.data ?? [];
+  const students = studentsQuery.data ?? [];
+  const isLoadingOptions = teachersQuery.isLoading || studentsQuery.isLoading;
+
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [supervisorId, setSupervisorId] = React.useState("");
   const [studentIds, setStudentIds] = React.useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [teachers, setTeachers] = React.useState<Teacher[]>([]);
-  const [students, setStudents] = React.useState<Student[]>([]);
-  const [isLoadingOptions, setIsLoadingOptions] = React.useState(false);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   React.useEffect(() => {
     if (!open) {
@@ -55,44 +60,23 @@ export function CreateProjectDialog({
     setDescription("");
     setSupervisorId("");
     setStudentIds([]);
-
-    const fetchOptions = async () => {
-      setIsLoadingOptions(true);
-      try {
-        const [teachersData, studentsData] = await Promise.all([
-          getTeachersList(),
-          getStudentsList(),
-        ]);
-        setTeachers(teachersData);
-        setStudents(studentsData);
-      } catch {
-        toast.error("Erreur lors du chargement des utilisateurs");
-      } finally {
-        setIsLoadingOptions(false);
-      }
-    };
-
-    fetchOptions();
   }, [open]);
-
-  const handleStudentSelection = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    const selectedOptions = Array.from(event.target.selectedOptions).map(
-      (option) => option.value,
-    );
-    setStudentIds(selectedOptions);
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!title || !supervisorId || studentIds.length === 0) {
-      toast.error("Veuillez remplir tous les champs requis.");
+    const errors = validate(projectSchema, {
+      title,
+      description,
+      supervisorId,
+      studentIds,
+    });
+
+    if (errors) {
+      setFieldErrors(errors);
       return;
     }
 
-    setIsSubmitting(true);
     try {
       const supervisor = teachers.find(
         (teacher) => teacher.id === supervisorId,
@@ -101,7 +85,7 @@ export function CreateProjectDialog({
         studentIds.includes(student.id),
       );
 
-      await createProject({
+      await createProjectMutation.mutateAsync({
         title,
         description,
         supervisorId,
@@ -110,13 +94,12 @@ export function CreateProjectDialog({
         supervisorName: getFullName(supervisor),
         status: "pending",
       });
+      setFieldErrors({});
       toast.success("Projet cree avec succes");
       onSuccess();
       onOpenChange(false);
     } catch {
       toast.error("Erreur lors de la creation du projet");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -141,6 +124,7 @@ export function CreateProjectDialog({
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               required
+              error={fieldErrors?.title}
             />
           </div>
 
@@ -172,32 +156,33 @@ export function CreateProjectDialog({
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors?.supervisorId && (
+              <p className="text-sm font-medium text-destructive">{fieldErrors.supervisorId}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="project-students">Etudiants</Label>
-            <select
-              id="project-students"
-              multiple
+            <MultiSelect
+              options={students.map((s) => ({
+                value: s.id,
+                label: getFullName(s),
+              }))}
               value={studentIds}
-              onChange={handleStudentSelection}
-              className="min-h-40 rounded-md border bg-background px-3 py-2 text-sm"
+              onChange={setStudentIds}
+              placeholder="Sélectionner des étudiants..."
               disabled={isLoadingOptions}
-              required
-            >
-              {students.map((student) => (
-                <option key={student.id} value={student.id}>
-                  {getFullName(student)}
-                </option>
-              ))}
-            </select>
+            />
+            {fieldErrors?.studentIds && (
+              <p className="text-sm font-medium text-destructive">{fieldErrors.studentIds}</p>
+            )}
           </div>
         </form>
         <DialogFooter>
           <Button
             type="submit"
             form="create-project-form"
-            isLoading={isSubmitting}
+            isLoading={createProjectMutation.isPending}
             disabled={isLoadingOptions}
           >
             Creer le projet

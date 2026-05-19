@@ -17,16 +17,21 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useNavigate } from "react-router-dom";
 import { authenticate } from "@/lib/api";
 import { useAuth } from "@/contexts/auth-context";
+import { validate, loginSchema } from "@/lib/validations";
 
 export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleLogin = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const errors = validate(loginSchema, { email, password });
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
     setIsLoading(true);
 
     try {
@@ -126,6 +131,7 @@ export default function Login() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     disabled={isLoading}
+                    error={fieldErrors?.email}
                   />
                 </Field>
                 <Field>
@@ -136,6 +142,7 @@ export default function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     disabled={isLoading}
+                    error={fieldErrors?.password}
                   />
                 </Field>
               </FieldGroup>

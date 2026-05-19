@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Plus,
   Pencil,
@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 
-import { deleteProject, getProjects } from "@/lib/api";
+import { useProjects, useDeleteProject } from "@/hooks/use-queries";
 import type { Project } from "@/types";
 import { toast } from "sonner";
 import {
@@ -38,32 +38,17 @@ const statusClass: Record<Project["status"], string> = {
 };
 
 export default function CoordinatorProjects() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const projectsQuery = useProjects();
+  const deleteProjectMutation = useDeleteProject();
+  const projects = projectsQuery.data ?? [];
+  const isLoading = projectsQuery.isLoading;
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
-  const loadProjects = async () => {
-    setIsLoading(true);
-    try {
-      const data = await getProjects();
-      setProjects(data);
-    } catch {
-      toast.error("Erreur lors du chargement des projets");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadProjects();
-  }, []);
-
   const handleDelete = async (id: string) => {
     try {
-      await deleteProject(id);
+      await deleteProjectMutation.mutateAsync(id);
       toast.success("Projet supprime");
-      await loadProjects();
     } catch {
       toast.error("Erreur lors de la suppression");
     }
@@ -220,7 +205,7 @@ export default function CoordinatorProjects() {
       <CreateProjectDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
-        onSuccess={loadProjects}
+        onSuccess={() => {}}
       />
       {editingProject && (
         <EditProjectDialog
@@ -231,7 +216,7 @@ export default function CoordinatorProjects() {
               setEditingProject(null);
             }
           }}
-          onSuccess={loadProjects}
+          onSuccess={() => {}}
         />
       )}
     </div>

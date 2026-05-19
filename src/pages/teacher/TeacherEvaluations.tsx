@@ -1,7 +1,8 @@
 import * as React from "react";
 import { FileCheck2, MessageSquareText, PencilLine } from "lucide-react";
 
-import { getTeacherEvaluations, submitTeacherEvaluation } from "@/lib/api";
+import { useTeacherEvaluations, useSubmitTeacherEvaluation } from "@/hooks/use-queries";
+import { validate, evaluationSchema } from "@/lib/validations";
 import type { TeacherEvaluation } from "@/types";
 import { toast } from "sonner";
 import {
@@ -31,28 +32,15 @@ const roleLabel: Record<TeacherEvaluation["role"], string> = {
 };
 
 export default function TeacherEvaluations() {
-  const [evaluations, setEvaluations] = React.useState<TeacherEvaluation[]>([]);
+  const evaluationsQuery = useTeacherEvaluations();
+  const submitMutation = useSubmitTeacherEvaluation();
+  const evaluations = evaluationsQuery.data ?? [];
+  const isLoading = evaluationsQuery.isLoading;
   const [selectedEvaluation, setSelectedEvaluation] =
     React.useState<TeacherEvaluation | null>(null);
   const [score, setScore] = React.useState("");
   const [comment, setComment] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
-  const loadEvaluations = async () => {
-    setIsLoading(true);
-    try {
-      setEvaluations(await getTeacherEvaluations());
-    } catch {
-      toast.error("Erreur lors du chargement des évaluations");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  React.useEffect(() => {
-    loadEvaluations();
-  }, []);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   const openEvaluation = (evaluation: TeacherEvaluation) => {
     setSelectedEvaluation(evaluation);
@@ -73,19 +61,29 @@ export default function TeacherEvaluations() {
       return;
     }
 
-    setIsSubmitting(true);
+    const errors = validate(evaluationSchema, {
+      score: Number(score),
+      comment,
+    });
+
+    if (errors) {
+      setFieldErrors(errors);
+      return;
+    }
+
     try {
-      await submitTeacherEvaluation(selectedEvaluation.id, {
-        score: Number(score),
-        comment,
+      await submitMutation.mutateAsync({
+        id: selectedEvaluation.id,
+        data: {
+          score: Number(score),
+          comment,
+        },
       });
+      setFieldErrors({});
       toast.success("Évaluation enregistrée");
       closeEvaluation();
-      await loadEvaluations();
     } catch {
       toast.error("Erreur lors de l'enregistrement");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -254,6 +252,7 @@ export default function TeacherEvaluations() {
                 value={score}
                 onChange={(event) => setScore(event.target.value)}
                 required
+                error={fieldErrors?.score}
               />
             </div>
             <div className="grid gap-2">
@@ -271,7 +270,7 @@ export default function TeacherEvaluations() {
             <Button
               type="submit"
               form="teacher-evaluation-form"
-              isLoading={isSubmitting}
+              isLoading={submitMutation.isPending}
               loadingText="Enregistrement..."
             >
               Enregistrer

@@ -2,8 +2,9 @@
 
 import * as React from "react";
 
-import { getStudentsList, getTeachersList, updateProject } from "@/lib/api";
-import type { Project, Student, Teacher } from "@/types";
+import { useTeachersList, useStudentsList, useUpdateProject } from "@/hooks/use-queries";
+import { validate, projectSchema } from "@/lib/validations";
+import type { Project } from "@/types";
 import { toast } from "sonner";
 import {
   Button,
@@ -15,6 +16,7 @@ import {
   DialogTitle,
   Input,
   Label,
+  MultiSelect,
   Select,
   SelectContent,
   SelectItem,
@@ -39,14 +41,18 @@ export function EditProjectDialog({
   onSuccess,
   project,
 }: EditProjectDialogProps) {
+  const teachersQuery = useTeachersList();
+  const studentsQuery = useStudentsList();
+  const updateProjectMutation = useUpdateProject();
+  const teachers = teachersQuery.data ?? [];
+  const students = studentsQuery.data ?? [];
+  const isLoadingOptions = teachersQuery.isLoading || studentsQuery.isLoading;
+
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [supervisorId, setSupervisorId] = React.useState("");
   const [studentIds, setStudentIds] = React.useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [teachers, setTeachers] = React.useState<Teacher[]>([]);
-  const [students, setStudents] = React.useState<Student[]>([]);
-  const [isLoadingOptions, setIsLoadingOptions] = React.useState(false);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   React.useEffect(() => {
     if (!open || !project) {
@@ -57,34 +63,7 @@ export function EditProjectDialog({
     setDescription(project.description || "");
     setSupervisorId(project.supervisorId);
     setStudentIds(project.studentIds);
-
-    const fetchOptions = async () => {
-      setIsLoadingOptions(true);
-      try {
-        const [teachersData, studentsData] = await Promise.all([
-          getTeachersList(),
-          getStudentsList(),
-        ]);
-        setTeachers(teachersData);
-        setStudents(studentsData);
-      } catch {
-        toast.error("Erreur lors du chargement des utilisateurs");
-      } finally {
-        setIsLoadingOptions(false);
-      }
-    };
-
-    fetchOptions();
   }, [open, project]);
-
-  const handleStudentSelection = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-  ) => {
-    const selectedOptions = Array.from(event.target.selectedOptions).map(
-      (option) => option.value,
-    );
-    setStudentIds(selectedOptions);
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -93,12 +72,18 @@ export function EditProjectDialog({
       return;
     }
 
-    if (!title || !supervisorId || studentIds.length === 0) {
-      toast.error("Veuillez remplir tous les champs requis.");
+    const errors = validate(projectSchema, {
+      title,
+      description,
+      supervisorId,
+      studentIds,
+    });
+
+    if (errors) {
+      setFieldErrors(errors);
       return;
     }
 
-    setIsSubmitting(true);
     try {
       const supervisor = teachers.find(
         (teacher) => teacher.id === supervisorId,
@@ -107,22 +92,24 @@ export function EditProjectDialog({
         studentIds.includes(student.id),
       );
 
-      await updateProject(project.id, {
-        title,
-        description,
-        supervisorId,
-        studentIds,
-        studentNames: selectedStudents.map(getFullName),
-        supervisorName: getFullName(supervisor),
-        status: project.status,
+      await updateProjectMutation.mutateAsync({
+        id: project.id,
+        data: {
+          title,
+          description,
+          supervisorId,
+          studentIds,
+          studentNames: selectedStudents.map(getFullName),
+          supervisorName: getFullName(supervisor),
+          status: project.status,
+        },
       });
+      setFieldErrors({});
       toast.success("Projet mis a jour");
       onSuccess();
       onOpenChange(false);
     } catch {
       toast.error("Erreur lors de la mise a jour du projet");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -147,6 +134,7 @@ export function EditProjectDialog({
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               required
+              error={fieldErrors?.title}
             />
           </div>
 
@@ -178,32 +166,33 @@ export function EditProjectDialog({
                 ))}
               </SelectContent>
             </Select>
+            {fieldErrors?.supervisorId && (
+              <p className="text-sm font-medium text-destructive">{fieldErrors.supervisorId}</p>
+            )}
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="edit-project-students">Etudiants</Label>
-            <select
-              id="edit-project-students"
-              multiple
+            <MultiSelect
+              options={students.map((s) => ({
+                value: s.id,
+                label: getFullName(s),
+              }))}
               value={studentIds}
-              onChange={handleStudentSelection}
-              className="min-h-40 rounded-md border bg-background px-3 py-2 text-sm"
+              onChange={setStudentIds}
+              placeholder="Sélectionner des étudiants..."
               disabled={isLoadingOptions}
-              required
-            >
-              {students.map((student) => (
-                <option key={student.id} value={student.id}>
-                  {getFullName(student)}
-                </option>
-              ))}
-            </select>
+            />
+            {fieldErrors?.studentIds && (
+              <p className="text-sm font-medium text-destructive">{fieldErrors.studentIds}</p>
+            )}
           </div>
         </form>
         <DialogFooter>
           <Button
             type="submit"
             form="edit-project-form"
-            isLoading={isSubmitting}
+            isLoading={updateProjectMutation.isPending}
             disabled={isLoadingOptions}
           >
             Sauvegarder
