@@ -54,9 +54,12 @@ export default function Coordinators() {
 
   const columns = useMemo<ColumnDef<Coordinator>[]>(() => [
     {
-      id: "full_name",
-      header: "Nom Complet",
-      cell: ({ row }) => <div className="font-medium">{row.original.lastName} {row.original.firstName}</div>,
+      accessorKey: "lastName",
+      header: "Nom",
+    },
+    {
+      accessorKey: "firstName",
+      header: "Prénom",
     },
     {
       accessorKey: "email",

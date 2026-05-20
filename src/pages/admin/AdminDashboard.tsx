@@ -51,13 +51,12 @@ export default function AdminDashboard() {
 
   const userColumns: ColumnDef<User>[] = [
     {
-      id: "full_name",
-      header: "Utilisateur",
-      cell: ({ row }) => (
-        <div className="font-medium">
-          {row.original.lastName} {row.original.firstName}
-        </div>
-      ),
+      accessorKey: "lastName",
+      header: "Nom",
+    },
+    {
+      accessorKey: "firstName",
+      header: "Prénom",
     },
     {
       accessorKey: "email",
@@ -246,7 +245,7 @@ export default function AdminDashboard() {
                 pageCount={pageCount}
                 pagination={pagination}
                 onPaginationChange={setPagination}
-                filterColumn="full_name"
+                filterColumn="lastName"
                 filterPlaceholder="Rechercher par nom..."
               />
             )}
