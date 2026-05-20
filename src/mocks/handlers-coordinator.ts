@@ -2,7 +2,7 @@ import { http, HttpResponse, delay } from "msw";
 import type { Project, Jury } from "@/types";
 import {
   MOCK_DELAY,
-  mockProjects, mockJurys,
+  mockProjects, mockJuries,
   prependProject, prependJury, removeJuryByProject,
 } from "./data";
 
@@ -12,7 +12,7 @@ export const coordinatorHandlers = [
     return HttpResponse.json({
       totalProjects: mockProjects.length,
       totalGroups: mockProjects.length,
-      totalJuries: mockJurys.length,
+      totalJuries: mockJuries.length,
       scheduledDefenses: 6,
     });
   }),
@@ -55,17 +55,17 @@ export const coordinatorHandlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
-  http.get("/api/coordinator/jurys", async () => {
+  http.get("/api/coordinator/juries", async () => {
     await delay(MOCK_DELAY);
-    return HttpResponse.json(mockJurys);
+    return HttpResponse.json(mockJuries);
   }),
 
-  http.post("/api/coordinator/jurys", async ({ request }) => {
+  http.post("/api/coordinator/juries", async ({ request }) => {
     await delay(MOCK_DELAY);
     const body = (await request.json()) as Omit<Jury, "id">;
     const newJury: Jury = {
       ...body,
-      id: `j${mockJurys.length + 1}`,
+      id: `j${mockJuries.length + 1}`,
     };
     prependJury(newJury);
     return HttpResponse.json(newJury, { status: 201 });

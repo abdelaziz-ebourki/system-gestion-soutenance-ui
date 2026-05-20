@@ -49,7 +49,7 @@ export const studentHandlers = [
 
     if (getCurrentStudentGroup()) {
       return HttpResponse.json(
-        { message: "Vous appartenez deja a un groupe pour cette session." },
+        { message: "Vous appartenez déjà à un groupe pour cette session." },
         { status: 400 },
       );
     }
@@ -87,7 +87,7 @@ export const studentHandlers = [
 
     if (getCurrentStudentGroup()) {
       return HttpResponse.json(
-        { message: "Vous appartenez deja a un groupe pour cette session." },
+        { message: "Vous appartenez déjà à un groupe pour cette session." },
         { status: 400 },
       );
     }

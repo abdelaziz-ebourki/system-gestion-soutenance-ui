@@ -13,9 +13,9 @@ import {
 import {
   type DefenseSettings,
 } from "@/lib/api";
-import { type Filiere, type Level, type Grade } from "@/types";
+import { type Major, type Level, type Grade } from "@/types";
 import {
-  useFilieres, useCreateFiliere, useUpdateFiliere, useDeleteFiliere,
+  useMajors, useCreateMajor, useUpdateMajor, useDeleteMajor,
   useLevels, useCreateLevel, useUpdateLevel, useDeleteLevel,
   useGrades, useCreateGrade, useUpdateGrade, useDeleteGrade,
   useDefenseSettings, useUpdateDefenseSettings,
@@ -48,16 +48,16 @@ import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
 import { validate, configNameSchema, defenseSettingsSchema } from "@/lib/validations";
 
-type ConfigType = "filiere" | "level" | "grade";
+type ConfigType = "major" | "level" | "grade";
 
 export default function Configuration() {
-  const { data: filieres } = useFilieres();
+  const { data: majors } = useMajors();
   const { data: levels } = useLevels();
   const { data: grades } = useGrades();
   const { data: defSettings, isLoading } = useDefenseSettings();
-  const createFiliereMut = useCreateFiliere();
-  const updateFiliereMut = useUpdateFiliere();
-  const deleteFiliereMut = useDeleteFiliere();
+  const createMajorMut = useCreateMajor();
+  const updateMajorMut = useUpdateMajor();
+  const deleteMajorMut = useDeleteMajor();
   const createLevelMut = useCreateLevel();
   const updateLevelMut = useUpdateLevel();
   const deleteLevelMut = useDeleteLevel();
@@ -80,8 +80,8 @@ export default function Configuration() {
   const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
   const [settingsFieldErrors, setSettingsFieldErrors] = React.useState<Record<string, string>>({});
 
-  const [activeType, setActiveType] = React.useState<ConfigType>("filiere");
-  const [selectedItem, setSelectedItem] = React.useState<Filiere | Level | Grade | null>(null);
+  const [activeType, setActiveType] = React.useState<ConfigType>("major");
+  const [selectedItem, setSelectedItem] = React.useState<Major | Level | Grade | null>(null);
   const [formData, setFormData] = React.useState({ name: "" });
 
   React.useEffect(() => {
@@ -91,16 +91,16 @@ export default function Configuration() {
   }, [defSettings]);
 
   const isSubmitting =
-    (activeType === "filiere" && (selectedItem ? updateFiliereMut.isPending : createFiliereMut.isPending)) ||
+    (activeType === "major" && (selectedItem ? updateMajorMut.isPending : createMajorMut.isPending)) ||
     (activeType === "level" && (selectedItem ? updateLevelMut.isPending : createLevelMut.isPending)) ||
     (activeType === "grade" && (selectedItem ? updateGradeMut.isPending : createGradeMut.isPending));
 
   const isDeleting =
-    (activeType === "filiere" && deleteFiliereMut.isPending) ||
+    (activeType === "major" && deleteMajorMut.isPending) ||
     (activeType === "level" && deleteLevelMut.isPending) ||
     (activeType === "grade" && deleteGradeMut.isPending);
 
-  const handleOpenDialog = (type: ConfigType, item: Filiere | Level | Grade | null = null) => {
+  const handleOpenDialog = (type: ConfigType, item: Major | Level | Grade | null = null) => {
     setActiveType(type);
     setSelectedItem(item);
     setFormData({ name: item?.name || "" });
@@ -114,15 +114,15 @@ export default function Configuration() {
     setFieldErrors({});
     try {
       if (selectedItem) {
-        if (activeType === "filiere")
-          await updateFiliereMut.mutateAsync({ id: selectedItem.id, data: formData });
+        if (activeType === "major")
+          await updateMajorMut.mutateAsync({ id: selectedItem.id, data: formData });
         else if (activeType === "level")
           await updateLevelMut.mutateAsync({ id: selectedItem.id, data: formData });
         else
           await updateGradeMut.mutateAsync({ id: selectedItem.id, data: formData });
         toast.success("Modifié avec succès");
       } else {
-        if (activeType === "filiere") await createFiliereMut.mutateAsync(formData);
+        if (activeType === "major") await createMajorMut.mutateAsync(formData);
         else if (activeType === "level") await createLevelMut.mutateAsync(formData);
         else await createGradeMut.mutateAsync(formData);
         toast.success("Ajouté avec succès");
@@ -136,7 +136,7 @@ export default function Configuration() {
   const handleDelete = async () => {
     if (!selectedItem) return;
     try {
-      if (activeType === "filiere") await deleteFiliereMut.mutateAsync(selectedItem.id);
+      if (activeType === "major") await deleteMajorMut.mutateAsync(selectedItem.id);
       else if (activeType === "level") await deleteLevelMut.mutateAsync(selectedItem.id);
       else await deleteGradeMut.mutateAsync(selectedItem.id);
       toast.success("Supprimé avec succès");
@@ -240,9 +240,9 @@ export default function Configuration() {
         <div className="grid md:grid-cols-2 gap-6">
           {renderConfigCard(
             "Filières",
-            "Liste des filières disponibles.",
-            filieres ?? [],
-            "filiere",
+            "Liste des majors disponibles.",
+            majors ?? [],
+            "major",
             <BookOpen className="h-5 w-5" />,
           )}
           {renderConfigCard(
@@ -380,7 +380,7 @@ export default function Configuration() {
           <DialogHeader>
             <DialogTitle>
               {selectedItem ? "Modifier" : "Ajouter"}{" "}
-              {activeType === "filiere"
+              {activeType === "major"
                 ? "Filière"
                 : activeType === "level"
                   ? "Niveau"

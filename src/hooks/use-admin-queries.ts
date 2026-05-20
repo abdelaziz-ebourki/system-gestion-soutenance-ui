@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import type {
-  Session, Room, Department, Filiere, Level, Grade,
+  Session, Room, Department, Major, Level, Grade,
 } from "@/types";
 import type { DefenseSettings } from "@/lib/api";
 
@@ -100,32 +100,32 @@ export function useDeleteDepartment() {
   });
 }
 
-export function useFilieres() {
-  return useQuery({ queryKey: ["filieres"], queryFn: api.getFilieres });
+export function useMajors() {
+  return useQuery({ queryKey: ["majors"], queryFn: api.getMajors });
 }
 
-export function useCreateFiliere() {
+export function useCreateMajor() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Filiere, "id">) => api.createFiliere(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["filieres"] }),
+    mutationFn: (data: Omit<Major, "id">) => api.createMajor(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"] }),
   });
 }
 
-export function useUpdateFiliere() {
+export function useUpdateMajor() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<Filiere, "id"> }) =>
-      api.updateFiliere(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["filieres"] }),
+    mutationFn: ({ id, data }: { id: string; data: Omit<Major, "id"> }) =>
+      api.updateMajor(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"] }),
   });
 }
 
-export function useDeleteFiliere() {
+export function useDeleteMajor() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteFiliere(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["filieres"] }),
+    mutationFn: (id: string) => api.deleteMajor(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"] }),
   });
 }
 

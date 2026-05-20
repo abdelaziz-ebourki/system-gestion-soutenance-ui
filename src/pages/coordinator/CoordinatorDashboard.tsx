@@ -10,7 +10,7 @@ import {
   Users,
 } from "lucide-react";
 
-import { useCoordinatorStats, useProjects, useJurys } from "@/hooks/use-queries";
+import { useCoordinatorStats, useProjects, useJuries } from "@/hooks/use-queries";
 
 import {
   Badge,
@@ -32,13 +32,13 @@ const actionCards = [
   },
   {
     title: "Jurys",
-    description: "Composer les jurys et equilibrer les roles.",
-    to: "/coordinator/jurys",
+    description: "Composer les jurys et équilibrer les rôles.",
+    to: "/coordinator/juries",
     icon: Users,
   },
   {
     title: "Planification",
-    description: "Orchestrer les salles, creneaux et passages.",
+    description: "Orchestrer les salles, créneaux et passages.",
     to: "/coordinator/schedule",
     icon: CalendarDays,
   },
@@ -47,23 +47,23 @@ const actionCards = [
 export default function CoordinatorDashboard() {
   const statsQuery = useCoordinatorStats();
   const projectsQuery = useProjects();
-  const jurysQuery = useJurys();
+  const juriesQuery = useJuries();
   const stats = statsQuery.data;
   const projects = projectsQuery.data ?? [];
-  const jurys = jurysQuery.data ?? [];
-  const isLoading = statsQuery.isLoading || projectsQuery.isLoading || jurysQuery.isLoading;
+  const juries = juriesQuery.data ?? [];
+  const isLoading = statsQuery.isLoading || projectsQuery.isLoading || juriesQuery.isLoading;
 
   const readyProjects = useMemo(() => projects.filter(
     (project) => project.status === "approved",
   ), [projects]);
   const projectsWithoutJury = useMemo(() => projects.filter(
-    (project) => !jurys.some((jury) => jury.projectId === project.id),
-  ), [projects, jurys]);
+    (project) => !juries.some((jury) => jury.projectId === project.id),
+  ), [projects, juries]);
   const juryCoverage = useMemo(() =>
     projects.length > 0
-      ? Math.round((jurys.length / projects.length) * 100)
+      ? Math.round((juries.length / projects.length) * 100)
       : 0,
-  [projects.length, jurys.length]);
+  [projects.length, juries.length]);
 
   return (
     <div className="space-y-6">
@@ -91,7 +91,7 @@ export default function CoordinatorDashboard() {
                 Ouvrir le planificateur
               </Link>
               <Link
-                to="/coordinator/jurys"
+                to="/coordinator/juries"
                 className={buttonVariants({ variant: "outline", size: "lg" })}
               >
                 Verifier les jurys
@@ -125,7 +125,7 @@ export default function CoordinatorDashboard() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="rounded-lg border bg-background/80 p-4">
                   <p className="text-xs uppercase tracking-widest text-muted-foreground">
-                    Prets
+                    Prêts
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
                     {isLoading ? (
@@ -252,7 +252,7 @@ export default function CoordinatorDashboard() {
             ))}
             {!isLoading && projectsWithoutJury.length === 0 && (
               <div className="rounded-lg border bg-secondary p-4 text-sm text-secondary-foreground">
-                Tous les projets disposent deja d'un jury.
+                Tous les projets disposent déjà d'un jury.
               </div>
             )}
           </CardContent>

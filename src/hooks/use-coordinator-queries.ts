@@ -38,15 +38,15 @@ export function useDeleteProject() {
   });
 }
 
-export function useJurys() {
-  return useQuery({ queryKey: ["jurys"], queryFn: api.getJurys });
+export function useJuries() {
+  return useQuery({ queryKey: ["juries"], queryFn: api.getJuries });
 }
 
 export function useCreateJury() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Omit<Jury, "id">) => api.createJury(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["jurys"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["juries"] }),
   });
 }
 
@@ -55,7 +55,7 @@ export function useUpdateJury() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Jury> }) =>
       api.updateJury(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["jurys"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["juries"] }),
   });
 }
 
@@ -63,7 +63,7 @@ export function useDeleteJury() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.deleteJury(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["jurys"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["juries"] }),
   });
 }
 
@@ -87,11 +87,11 @@ export function useDeleteGroup() {
   });
 }
 
-export function useSaveSoutenanceSchedule() {
+export function useSaveDefenseSchedule() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (schedule: Record<string, { id: string; title: string }>) =>
-      api.saveSoutenanceSchedule(schedule),
+      api.saveDefenseSchedule(schedule),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["coordinator", "stats"] });
     },

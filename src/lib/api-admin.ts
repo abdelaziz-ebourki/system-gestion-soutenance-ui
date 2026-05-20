@@ -3,7 +3,7 @@ import type { DashboardStats } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import type {
   User, Student, Teacher, Coordinator,
-  Department, Session, Room, Filiere, Level, Grade,
+  Department, Session, Room, Major, Level, Grade,
 } from "@/types";
 
 export const getAdminStats = () => api<DashboardStats>("/admin/stats");
@@ -141,19 +141,19 @@ export const updateRoom = (id: string, data: Omit<Room, "id">) =>
 export const deleteRoom = (id: string) =>
   api<void>(`/admin/rooms/${id}`, { method: "DELETE" });
 
-export const getFilieres = () => api<Filiere[]>("/admin/config/filieres");
-export const createFiliere = (data: Omit<Filiere, "id">) =>
-  api<Filiere>("/admin/config/filieres", {
+export const getMajors = () => api<Major[]>("/admin/config/majors");
+export const createMajor = (data: Omit<Major, "id">) =>
+  api<Major>("/admin/config/majors", {
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateFiliere = (id: string, data: Omit<Filiere, "id">) =>
-  api<Filiere>(`/admin/config/filieres/${id}`, {
+export const updateMajor = (id: string, data: Omit<Major, "id">) =>
+  api<Major>(`/admin/config/majors/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
-export const deleteFiliere = (id: string) =>
-  api<void>(`/admin/config/filieres/${id}`, { method: "DELETE" });
+export const deleteMajor = (id: string) =>
+  api<void>(`/admin/config/majors/${id}`, { method: "DELETE" });
 
 export const getLevels = () => api<Level[]>("/admin/config/levels");
 export const createLevel = (data: Omit<Level, "id">) =>

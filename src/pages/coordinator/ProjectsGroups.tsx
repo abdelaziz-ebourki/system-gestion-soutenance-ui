@@ -64,7 +64,7 @@ export default function CoordinatorProjects() {
   const handleDelete = async (id: string) => {
     try {
       await deleteProjectMutation.mutateAsync(id);
-      toast.success("Projet supprime");
+      toast.success("Projet supprimé");
     } catch (error) {
       toastError(error, "Erreur lors de la suppression");
     }
@@ -88,7 +88,7 @@ export default function CoordinatorProjects() {
       header: "Groupe",
       cell: ({ row }) => (
         <div className="max-w-65 text-sm">
-          {row.original.studentNames?.join(", ") || "Etudiants non renseignes"}
+          {row.original.studentNames?.join(", ") || "Étudiants non renseignés"}
         </div>
       ),
     },
@@ -144,7 +144,7 @@ export default function CoordinatorProjects() {
             Projets & Groupes
           </h1>
           <p className="text-muted-foreground">
-            Pilotez les sujets, les groupes d'etudiants et la maturite des
+            Pilotez les sujets, les groupes d'étudiants et la maturité des
             dossiers avant composition des jurys.
           </p>
         </div>
@@ -198,7 +198,7 @@ export default function CoordinatorProjects() {
         <CardHeader>
           <CardTitle>Catalogue des projets</CardTitle>
           <CardDescription>
-            Recherchez, mettez a jour ou supprimez un dossier depuis la meme
+            Recherchez, mettez à jour ou supprimez un dossier depuis la même
             table.
           </CardDescription>
         </CardHeader>

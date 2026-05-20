@@ -139,7 +139,7 @@ export default function Coordinators() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{crud.selected ? "Modifier" : "Ajouter"} Coordinateur</DialogTitle>
-            <DialogDescription>Compte administratif de gestion de filière.</DialogDescription>
+            <DialogDescription>Compte administratif de gestion de major.</DialogDescription>
           </DialogHeader>
           <form onSubmit={crud.handleSubmit}>
             <FieldGroup className="grid grid-cols-2 gap-4 py-4">

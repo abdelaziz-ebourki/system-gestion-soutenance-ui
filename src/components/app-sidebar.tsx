@@ -99,7 +99,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/coordinator/schedule",
             icon: <CalendarIcon />,
           },
-          { title: "Jurys", url: "/coordinator/jurys", icon: <UsersIcon /> },
+          { title: "Jurys", url: "/coordinator/juries", icon: <UsersIcon /> },
         ];
       case "teacher":
         return [

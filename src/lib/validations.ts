@@ -75,7 +75,7 @@ export const userBaseSchema = z.object({
 
 export const studentSchema = userBaseSchema.extend({
   cne: z.string().min(1, "Le CNE est requis"),
-  filiereId: z.string().min(1, "La filière est requise"),
+  majorId: z.string().min(1, "La major est requise"),
   levelId: z.string().min(1, "Le niveau est requis"),
 });
 

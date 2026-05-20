@@ -94,7 +94,7 @@ export function CreateJuryDialog({
         examinerName: getFullName(examiner),
       });
       setFieldErrors({});
-      toast.success("Jury cree avec succes");
+      toast.success("Jury créé avec succès");
       onSuccess();
       onOpenChange(false);
     } catch (error) {
@@ -149,7 +149,7 @@ export function CreateJuryDialog({
         <DialogHeader>
           <DialogTitle>Nouveau jury</DialogTitle>
           <DialogDescription>
-            Associez un projet a trois enseignants avec des roles distincts.
+            Associez un projet à trois enseignants avec des rôles distincts.
           </DialogDescription>
         </DialogHeader>
         <form

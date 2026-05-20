@@ -34,21 +34,21 @@ export const createGroup = (data: Omit<Group, "id">) =>
 export const deleteGroup = (id: string) =>
   api<void>(`/coordinator/groups/${id}`, { method: "DELETE" });
 
-export const getJurys = () => api<Jury[]>("/coordinator/jurys");
+export const getJuries = () => api<Jury[]>("/coordinator/juries");
 export const createJury = (data: Omit<Jury, "id">) =>
-  api<Jury>("/coordinator/jurys", {
+  api<Jury>("/coordinator/juries", {
     method: "POST",
     body: JSON.stringify(data),
   });
 export const updateJury = (id: string, data: Partial<Jury>) =>
-  api<Jury>(`/coordinator/jurys/${id}`, {
+  api<Jury>(`/coordinator/juries/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
 export const deleteJury = (id: string) =>
-  api<void>(`/coordinator/jurys/${id}`, { method: "DELETE" });
+  api<void>(`/coordinator/juries/${id}`, { method: "DELETE" });
 
-export const saveSoutenanceSchedule = (
+export const saveDefenseSchedule = (
   schedule: Record<string, { id: string; title: string }>,
 ) =>
   api<void>("/coordinator/schedule", {

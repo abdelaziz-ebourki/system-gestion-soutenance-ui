@@ -21,7 +21,7 @@ export const validateSlotAssignment = (
   if (isProjectAlreadyScheduled) {
     return {
       isValid: false,
-      reason: "Ce projet est deja planifie sur un autre creneau.",
+      reason: "Ce projet est déjà planifié sur un autre créneau.",
     };
   }
 

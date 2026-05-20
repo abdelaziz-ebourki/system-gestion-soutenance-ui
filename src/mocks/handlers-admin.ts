@@ -1,9 +1,9 @@
 import { http, HttpResponse, delay } from "msw";
-import type { User, Department, Session, Room, Filiere, Level, Grade, Student } from "@/types";
+import type { User, Department, Session, Room, Major, Level, Grade, Student } from "@/types";
 import {
   MOCK_DELAY,
   mockUsers, mockDepartments, mockSessions, mockRooms,
-  mockFilieres, mockLevels, mockGrades,
+  mockMajors, mockLevels, mockGrades,
   defenseSettings,
 } from "./data";
 import { auditLogHandlers } from "./audit-log-handlers";
@@ -100,8 +100,8 @@ export const adminHandlers = [
       if (role === "student") {
         const student = newUser as Student;
         student.cne = u.cne;
-        student.filiereId =
-          mockFilieres.find((f) => f.name === u.filiereName)?.id || "f1";
+        student.majorId =
+          mockMajors.find((f) => f.name === u.majorName)?.id || "f1";
         student.levelId =
           mockLevels.find((l) => l.name === u.levelName)?.id || "n1";
         return student;
@@ -295,29 +295,29 @@ export const adminHandlers = [
     });
   }),
 
-  http.get("/api/admin/config/filieres", async () => {
+  http.get("/api/admin/config/majors", async () => {
     await delay(MOCK_DELAY);
-    return HttpResponse.json(mockFilieres);
+    return HttpResponse.json(mockMajors);
   }),
-  http.post("/api/admin/config/filieres", async ({ request }) => {
-    const body = (await request.json()) as Omit<Filiere, "id">;
-    const newItem = { ...body, id: `f${mockFilieres.length + 1}` };
-    mockFilieres.push(newItem);
+  http.post("/api/admin/config/majors", async ({ request }) => {
+    const body = (await request.json()) as Omit<Major, "id">;
+    const newItem = { ...body, id: `f${mockMajors.length + 1}` };
+    mockMajors.push(newItem);
     return HttpResponse.json(newItem);
   }),
-  http.put("/api/admin/config/filieres/:id", async ({ params, request }) => {
+  http.put("/api/admin/config/majors/:id", async ({ params, request }) => {
     const { id } = params;
-    const body = (await request.json()) as Omit<Filiere, "id">;
-    const idx = mockFilieres.findIndex((f) => f.id === id);
+    const body = (await request.json()) as Omit<Major, "id">;
+    const idx = mockMajors.findIndex((f) => f.id === id);
     if (idx === -1) return new HttpResponse(null, { status: 404 });
-    mockFilieres[idx] = { ...mockFilieres[idx], ...body };
-    return HttpResponse.json(mockFilieres[idx]);
+    mockMajors[idx] = { ...mockMajors[idx], ...body };
+    return HttpResponse.json(mockMajors[idx]);
   }),
-  http.delete("/api/admin/config/filieres/:id", async ({ params }) => {
+  http.delete("/api/admin/config/majors/:id", async ({ params }) => {
     const { id } = params;
-    const idx = mockFilieres.findIndex((f) => f.id === id);
+    const idx = mockMajors.findIndex((f) => f.id === id);
     if (idx === -1) return new HttpResponse(null, { status: 404 });
-    mockFilieres.splice(idx, 1);
+    mockMajors.splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),
 

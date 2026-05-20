@@ -1,5 +1,5 @@
 import type {
-  User, Student, Filiere, Level, Grade,
+  User, Student, Major, Level, Grade,
   Department, Session, Room,
   Project, Jury,
   TeacherDefense, TeacherEvaluation, TeacherUnavailability,
@@ -8,7 +8,7 @@ import type {
 
 export const MOCK_DELAY = Number(import.meta.env.VITE_MOCK_DELAY) || 1000;
 
-export const mockFilieres: Filiere[] = [
+export const mockMajors: Major[] = [
   { id: "f1", name: "Génie Informatique" },
   { id: "f2", name: "Génie Industriel" },
   { id: "f3", name: "Génie Civil" },
@@ -51,7 +51,7 @@ const generateStudents = (count: number): Student[] =>
     role: "student",
     isActive: true,
     cne: `E13000${i + 1}`,
-    filiereId: mockFilieres[i % mockFilieres.length].id,
+    majorId: mockMajors[i % mockMajors.length].id,
     levelId: mockLevels[i % mockLevels.length].id,
   }));
 
@@ -77,7 +77,7 @@ export const mockUsers: User[] = [
   {
     id: "std-demo", lastName: "Mohamed", firstName: "Khalid",
     email: "student@univ.com", password: "1234", role: "student",
-    isActive: true, cne: "E13000999", filiereId: "f1", levelId: "n2",
+    isActive: true, cne: "E13000999", majorId: "f1", levelId: "n2",
   } as User,
   ...generateStudents(50),
 ];
@@ -149,7 +149,7 @@ export let mockProjects: Project[] = [
   },
 ];
 
-export let mockJurys: Jury[] = [
+export let mockJuries: Jury[] = [
   {
     id: "j1", projectId: "p1", projectTitle: "Systeme de Gestion des Soutenances",
     presidentId: "3", presidentName: "Ali Ben Ali",
@@ -306,11 +306,11 @@ export const prependProject = (project: Project) => {
 };
 
 export const prependJury = (jury: Jury) => {
-  mockJurys = [jury, ...mockJurys];
+  mockJuries = [jury, ...mockJuries];
 };
 
 export const removeJuryByProject = (projectId: string) => {
-  mockJurys = mockJurys.filter((j) => j.projectId !== projectId);
+  mockJuries = mockJuries.filter((j) => j.projectId !== projectId);
 };
 
 export const replaceTeacherUnavailability = (data: TeacherUnavailability) => {
@@ -323,7 +323,7 @@ export const getStudentDefenseDetails = (): StudentDefenseDetails => {
     ? mockProjects.find((item) => item.id === currentGroup.projectId)
     : undefined;
   const jury = project
-    ? mockJurys.find((item) => item.projectId === project.id)
+    ? mockJuries.find((item) => item.projectId === project.id)
     : undefined;
 
   if (!project) {

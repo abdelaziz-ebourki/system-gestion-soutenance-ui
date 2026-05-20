@@ -129,7 +129,7 @@ export function ProjectDialog({
             status: project.status,
           },
         });
-        toast.success("Projet mis a jour");
+        toast.success("Projet mis à jour");
       } else {
         await createProjectMutation.mutateAsync({
           title,
@@ -140,14 +140,14 @@ export function ProjectDialog({
           supervisorName: getFullName(supervisor),
           status: "pending",
         });
-        toast.success("Projet cree avec succes");
+        toast.success("Projet créé avec succès");
       }
 
       setFieldErrors({});
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      toastError(error, isEdit ? "Erreur lors de la mise a jour du projet" : "Erreur lors de la creation du projet");
+      toastError(error, isEdit ? "Erreur lors de la mise à jour du projet" : "Erreur lors de la creation du projet");
     }
   };
 
@@ -160,8 +160,8 @@ export function ProjectDialog({
           <DialogTitle>{isEdit ? "Modifier le projet" : "Nouveau projet"}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Mettez a jour le sujet, l'encadrement et la composition du groupe."
-              : "Ajoutez un sujet, son encadrant et le groupe d'etudiants associe."}
+              ? "Mettez à jour le sujet, l'encadrement et la composition du groupe."
+              : "Ajoutez un sujet, son encadrant et le groupe d'étudiants associé."}
           </DialogDescription>
         </DialogHeader>
         <form

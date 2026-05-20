@@ -17,7 +17,7 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 
-import { useJurys, useProjects, useRooms, useSaveSoutenanceSchedule } from "@/hooks/use-queries";
+import { useJuries, useProjects, useRooms, useSaveDefenseSchedule } from "@/hooks/use-queries";
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { Project } from "@/types";
 import { toast } from "sonner";
@@ -78,7 +78,7 @@ function BacklogProject({
         <div>
           <p className="font-medium">{project.title}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {project.studentNames?.join(", ") || "Groupe non renseigne"}
+            {project.studentNames?.join(", ") || "Groupe non renseigné"}
           </p>
         </div>
         <Badge variant="outline">{project.supervisorName}</Badge>
@@ -114,22 +114,22 @@ function SlotTarget({
     >
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>{time}</span>
-        <span>{scheduled ? "Occupe" : "Libre"}</span>
+        <span>{scheduled ? "Occupé" : "Libre"}</span>
       </div>
       {children}
     </div>
   );
 }
 
-export default function SoutenanceDesigner() {
+export default function DefenseDesigner() {
   const projectsQuery = useProjects();
   const roomsQuery = useRooms();
-  const jurysQuery = useJurys();
-  const saveMutation = useSaveSoutenanceSchedule();
+  const juriesQuery = useJuries();
+  const saveMutation = useSaveDefenseSchedule();
   const projects = projectsQuery.data ?? [];
   const rooms = (roomsQuery.data ?? []).slice(0, 3);
-  const jurys = jurysQuery.data ?? [];
-  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || jurysQuery.isLoading;
+  const juries = juriesQuery.data ?? [];
+  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading;
   const [scheduledProjects, setScheduledProjects] = React.useState<
     Record<string, ScheduledCard>
   >({});
@@ -140,8 +140,8 @@ export default function SoutenanceDesigner() {
   );
 
   const readyProjects = useMemo(() => projects.filter((project) =>
-    jurys.some((jury) => jury.projectId === project.id),
-  ), [projects, jurys]);
+    juries.some((jury) => jury.projectId === project.id),
+  ), [projects, juries]);
   const backlogProjects = useMemo(() => readyProjects.filter(
     (project) => !assignedProjectIds.has(project.id),
   ), [readyProjects, assignedProjectIds]);
@@ -174,7 +174,7 @@ export default function SoutenanceDesigner() {
     );
 
     if (!validation.isValid) {
-      toast.error(validation.reason || "Conflit detecte");
+      toast.error(validation.reason || "Conflit détecté");
       return;
     }
 
@@ -191,7 +191,7 @@ export default function SoutenanceDesigner() {
         time,
       },
     }));
-    toast.success(`"${project.title}" positionne le ${date} a ${time}`);
+    toast.success(`"${project.title}" positionné le ${date} à ${time}`);
   };
 
   const handleRemove = (slotKey: string) => {
@@ -212,7 +212,7 @@ export default function SoutenanceDesigner() {
           ]),
         ),
       );
-      toast.success("Planning valide avec succes");
+      toast.success("Planning validé avec succès");
     } catch (error) {
       toastError(error, "Erreur lors de la sauvegarde");
     }
@@ -235,8 +235,8 @@ export default function SoutenanceDesigner() {
               Designer de soutenances
             </h1>
             <p className="text-muted-foreground">
-              Glissez les projets prets vers les salles et creneaux pour
-              construire un planning defendable.
+              Glissez les projets prêts vers les salles et créneaux pour
+              construire un planning défendable.
             </p>
           </div>
           <Button
@@ -257,14 +257,14 @@ export default function SoutenanceDesigner() {
                 File de planification
               </CardTitle>
               <CardDescription>
-                Seuls les projets avec jury constitue sont proposes ici.
+                Seuls les projets avec jury constitué sont proposés ici.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg bg-secondary p-4">
                   <p className="text-xs uppercase tracking-widest text-muted-foreground">
-                    Prets
+                    Prêts
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
                     {readyProjects.length}
@@ -290,7 +290,7 @@ export default function SoutenanceDesigner() {
                 ))}
                 {backlogProjects.length === 0 && (
                   <div className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">
-                    Tous les projets prets ont deja ete places.
+                    Tous les projets prêts ont déjà été placés.
                   </div>
                 )}
               </div>
@@ -307,7 +307,7 @@ export default function SoutenanceDesigner() {
                       {day}
                     </CardTitle>
                     <CardDescription>
-                      Repartissez les passages salle par salle.
+                      Répartissez les passages salle par salle.
                     </CardDescription>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -325,7 +325,7 @@ export default function SoutenanceDesigner() {
                       <div className="rounded-lg bg-muted/50 p-4">
                         <p className="font-medium">{room.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          Capacite {room.capacity} places
+                          Capacité {room.capacity} places
                         </p>
                       </div>
 
@@ -354,7 +354,7 @@ export default function SoutenanceDesigner() {
                                             project.id === scheduled.id,
                                         )
                                         ?.studentNames?.join(", ") ||
-                                        "Groupe non renseigne"}
+                                        "Groupe non renseigné"}
                                     </p>
                                   </div>
                                   <button
@@ -368,7 +368,7 @@ export default function SoutenanceDesigner() {
                                 <div className="mt-3 flex items-center gap-2 text-xs text-primary-foreground/80">
                                   <Users className="size-3" />
                                   {
-                                    jurys.find(
+                                    juries.find(
                                       (jury) => jury.projectId === scheduled.id,
                                     )?.presidentName
                                   }
@@ -395,7 +395,7 @@ export default function SoutenanceDesigner() {
                 <p className="font-medium">{activeProject.title}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {activeProject.studentNames?.join(", ") ||
-                    "Groupe non renseigne"}
+                    "Groupe non renseigné"}
                 </p>
               </div>
               <Badge variant="outline">{activeProject.supervisorName}</Badge>

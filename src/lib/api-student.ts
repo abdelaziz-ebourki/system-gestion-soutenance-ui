@@ -35,7 +35,7 @@ export const getStudentConvocation = () =>
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
       throw new Error(
-        data.message || "Impossible de telecharger la convocation",
+        data.message || "Impossible de télécharger la convocation",
       );
     }
     return response.blob();

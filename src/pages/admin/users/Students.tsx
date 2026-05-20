@@ -2,7 +2,7 @@ import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 
 import {
-  useStudents, useFilieres, useLevels,
+  useStudents, useMajors, useLevels,
   useCreateUser, useUpdateUser, useDeleteUser,
 } from "@/hooks/use-queries";
 import { type Student } from "@/types";
@@ -41,14 +41,14 @@ export default function Students() {
   });
   const [isFiltering, setIsFiltering] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
-  const [batchDialog, setBatchDialog] = useState<"filiere" | "level" | "delete" | null>(null);
+  const [batchDialog, setBatchDialog] = useState<"major" | "level" | "delete" | null>(null);
   const [batchValue, setBatchValue] = useState("");
 
   const { data: studentsData, isLoading, refetch } = useStudents(
     isFiltering ? 0 : pagination.pageIndex,
     isFiltering ? FILTER_LIMIT : pagination.pageSize,
   );
-  const { data: filieres = [] } = useFilieres();
+  const { data: majors = [] } = useMajors();
   const { data: levels = [] } = useLevels();
   const create = useCreateUser();
   const update = useUpdateUser();
@@ -59,12 +59,12 @@ export default function Students() {
 
   const crud = useCrud({
     schema: studentSchema,
-    defaultForm: { lastName: "", firstName: "", email: "", cne: "", filiereId: "", levelId: "" },
+    defaultForm: { lastName: "", firstName: "", email: "", cne: "", majorId: "", levelId: "" },
     onCreate: (d) => create.mutateAsync({ ...d, role: "student", isActive: false }),
     onUpdate: (id, d) => update.mutateAsync({ id, data: { ...d, role: "student" as const } }),
     onDelete: (id) => del.mutateAsync(id),
     entityName: (s: Student) => `${s.lastName} ${s.firstName}`,
-    mapToForm: (s: Student) => ({ lastName: s.lastName, firstName: s.firstName, email: s.email, cne: s.cne, filiereId: s.filiereId, levelId: s.levelId }),
+    mapToForm: (s: Student) => ({ lastName: s.lastName, firstName: s.firstName, email: s.email, cne: s.cne, majorId: s.majorId, levelId: s.levelId }),
     successMessages: {
       create: "Étudiant créé avec succès",
       update: "Étudiant modifié avec succès",
@@ -77,11 +77,11 @@ export default function Students() {
     { accessorKey: "lastName", header: "Nom", cell: ({ row }) => <div className="font-medium">{row.original.lastName}</div> },
     { accessorKey: "firstName", header: "Prénom", cell: ({ row }) => <div className="font-medium">{row.original.firstName}</div> },
     {
-      accessorKey: "filiereId",
+      accessorKey: "majorId",
       header: "Filière",
       cell: ({ row }) => {
-        const id = row.getValue("filiereId") as string;
-        return filieres.find((f) => f.id === id)?.name || id;
+        const id = row.getValue("majorId") as string;
+        return majors.find((f) => f.id === id)?.name || id;
       },
     },
     {
@@ -98,7 +98,7 @@ export default function Students() {
       header: "Action",
       cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
     },
-  ], [crud, filieres, levels]);
+  ], [crud, majors, levels]);
 
   return (
     <div className="space-y-6 pb-20">
@@ -121,7 +121,7 @@ export default function Students() {
           onFiltering={setIsFiltering}
           filterColumns={["lastName", "firstName", "email"]} filterPlaceholder="Rechercher par nom, prénom ou email..."
           filters={[
-            { column: "filiereId", label: "Filière", options: filieres.map(f => ({ value: f.id, label: f.name })) },
+            { column: "majorId", label: "Filière", options: majors.map(f => ({ value: f.id, label: f.name })) },
             { column: "levelId", label: "Niveau", options: levels.map(l => ({ value: l.id, label: l.name })) },
           ]} />
 
@@ -131,8 +131,8 @@ export default function Students() {
             {selectedStudents.length} étudiant(s) sélectionné(s)
           </span>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => { setBatchDialog("filiere"); setBatchValue(""); }}>
-              Modifier la filière
+            <Button variant="outline" size="sm" onClick={() => { setBatchDialog("major"); setBatchValue(""); }}>
+              Modifier la major
             </Button>
             <Button variant="outline" size="sm" onClick={() => { setBatchDialog("level"); setBatchValue(""); }}>
               Modifier le niveau
@@ -144,19 +144,19 @@ export default function Students() {
         </div>
       )}
 
-      <Dialog open={batchDialog === "filiere"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
+      <Dialog open={batchDialog === "major"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Modifier la filière</DialogTitle>
+            <DialogTitle>Modifier la major</DialogTitle>
             <DialogDescription>
-              {selectedStudents.length} étudiant(s) sélectionné(s). Choisissez la nouvelle filière.
+              {selectedStudents.length} étudiant(s) sélectionné(s). Choisissez la nouvelle major.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
-              <SelectTrigger><SelectValue placeholder="Choisir une filière" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Choisir une major" /></SelectTrigger>
               <SelectContent>
-                {filieres.map((f) => (
+                {majors.map((f) => (
                   <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
                 ))}
               </SelectContent>
@@ -167,7 +167,7 @@ export default function Students() {
             <Button onClick={async () => {
               if (!batchValue) return;
               try {
-                await Promise.all(selectedStudents.map((s) => update.mutateAsync({ id: s.id, data: { filiereId: batchValue, role: "student" as const } })));
+                await Promise.all(selectedStudents.map((s) => update.mutateAsync({ id: s.id, data: { majorId: batchValue, role: "student" as const } })));
                 toast.success(`${selectedStudents.length} étudiant(s) mis à jour`);
                 setSelectedStudents([]);
                 setBatchDialog(null);
@@ -279,14 +279,14 @@ export default function Students() {
               </Field>
               <Field className="col-span-2">
                 <FieldLabel>Filière</FieldLabel>
-                <Select value={crud.formData.filiereId}
-                  onValueChange={(v) => crud.setFormData({ ...crud.formData, filiereId: v || "" })}>
-                  <SelectTrigger><SelectValue placeholder="Choisir une filière" /></SelectTrigger>
+                <Select value={crud.formData.majorId}
+                  onValueChange={(v) => crud.setFormData({ ...crud.formData, majorId: v || "" })}>
+                  <SelectTrigger><SelectValue placeholder="Choisir une major" /></SelectTrigger>
                   <SelectContent>
-                    {filieres.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}
+                    {majors.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
-                {crud.fieldErrors?.filiereId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.filiereId}</p>}
+                {crud.fieldErrors?.majorId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.majorId}</p>}
               </Field>
             </FieldGroup>
             <DialogFooter>

@@ -61,7 +61,7 @@ export default function TeacherUnavailability() {
   const handleSave = async () => {
     try {
       await saveMutation.mutateAsync(unavailability);
-      toast.success("Indisponibilites enregistrees");
+      toast.success("Indisponibilités enregistrées");
     } catch (error) {
       toastError(error, "Erreur lors de l'enregistrement");
     }
@@ -84,10 +84,10 @@ export default function TeacherUnavailability() {
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            Mes indisponibilites
+            Mes indisponibilités
           </h1>
           <p className="text-muted-foreground">
-            Gerez vos creneaux d'indisponibilite pour la planification des
+            Gérez vos créneaux d'indisponibilité pour la planification des
             soutenances.
           </p>
         </div>
@@ -105,7 +105,7 @@ export default function TeacherUnavailability() {
         <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
-              <p className="text-sm text-muted-foreground">Creneaux bloques</p>
+              <p className="text-sm text-muted-foreground">Créneaux bloqués</p>
               <p className="mt-2 text-3xl font-semibold">{totalBlockedSlots}</p>
             </div>
             <div className="rounded-lg bg-secondary p-3 text-primary">
@@ -130,7 +130,7 @@ export default function TeacherUnavailability() {
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Rappel</CardTitle>
             <CardDescription>
-              Les creneaux deja associes a une soutenance sont verrouilles.
+              Les créneaux déjà associés à une soutenance sont verrouillés.
             </CardDescription>
           </CardHeader>
         </Card>

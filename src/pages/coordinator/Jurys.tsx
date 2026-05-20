@@ -3,7 +3,7 @@ import * as React from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
 
-import { useJurys, useProjects, useTeachersList } from "@/hooks/use-queries";
+import { useJuries, useProjects, useTeachersList } from "@/hooks/use-queries";
 import type { Jury } from "@/types";
 
 import {
@@ -19,18 +19,18 @@ import { DataTable } from "@/components/ui/data-table";
 import { CreateJuryDialog } from "@/components/academic/CreateJuryDialog";
 
 export default function Jurys() {
-  const jurysQuery = useJurys();
+  const juriesQuery = useJuries();
   const teachersQuery = useTeachersList();
   const projectsQuery = useProjects();
-  const jurys = jurysQuery.data ?? [];
+  const juries = juriesQuery.data ?? [];
   const teachers = teachersQuery.data ?? [];
   const projects = projectsQuery.data ?? [];
-  const isLoading = jurysQuery.isLoading || teachersQuery.isLoading || projectsQuery.isLoading;
+  const isLoading = juriesQuery.isLoading || teachersQuery.isLoading || projectsQuery.isLoading;
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
 
   const teachersLoad = React.useMemo(() => {
     const counts = new Map<string, number>();
-    jurys.forEach((jury) => {
+    juries.forEach((jury) => {
       [jury.presidentId, jury.reporterId, jury.examinerId].forEach(
         (teacherId) => {
           counts.set(teacherId, (counts.get(teacherId) || 0) + 1);
@@ -38,11 +38,11 @@ export default function Jurys() {
       );
     });
     return counts;
-  }, [jurys]);
+  }, [juries]);
 
   const projectsWithoutJury = useMemo(() => projects.filter(
-    (project) => !jurys.some((jury) => jury.projectId === project.id),
-  ), [projects, jurys]);
+    (project) => !juries.some((jury) => jury.projectId === project.id),
+  ), [projects, juries]);
 
   const columns: ColumnDef<Jury>[] = [
     {
@@ -54,7 +54,7 @@ export default function Jurys() {
           <div className="text-xs text-muted-foreground">
             {projects
               .find((project) => project.id === row.original.projectId)
-              ?.studentNames?.join(", ") || "Groupe non renseigne"}
+              ?.studentNames?.join(", ") || "Groupe non renseigné"}
           </div>
         </div>
       ),
@@ -99,7 +99,7 @@ export default function Jurys() {
             Gestion des jurys
           </h1>
           <p className="text-muted-foreground">
-            Composez des jurys lisibles, repartissez la charge et fermez les
+            Composez des jurys lisibles, répartissez la charge et fermez les
             trous avant la planification.
           </p>
         </div>
@@ -113,8 +113,8 @@ export default function Jurys() {
         <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
-              <p className="text-sm text-muted-foreground">Jurys composes</p>
-              <p className="mt-2 text-3xl font-semibold">{jurys.length}</p>
+              <p className="text-sm text-muted-foreground">Jurys composés</p>
+              <p className="mt-2 text-3xl font-semibold">{juries.length}</p>
             </div>
             <div className="rounded-lg bg-primary p-3 text-primary-foreground">
               <ShieldCheck className="size-5" />
@@ -162,7 +162,7 @@ export default function Jurys() {
           <CardContent>
               <DataTable
                 columns={columns}
-                data={jurys}
+                data={juries}
                 loading={isLoading}
                 getRowId={(row) => row.id}
                 filterColumns="projectTitle"
@@ -175,7 +175,7 @@ export default function Jurys() {
           <CardHeader>
             <CardTitle>Charge enseignants</CardTitle>
             <CardDescription>
-              Un apercu rapide pour eviter de surcharger toujours les memes.
+              Un aperçu rapide pour éviter de surcharger toujours les mêmes.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">

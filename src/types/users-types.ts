@@ -10,7 +10,7 @@ export interface User {
   password?: string;
 }
 
-export interface Filiere {
+export interface Major {
   id: string;
   name: string;
 }
@@ -28,7 +28,7 @@ export interface Grade {
 export interface Student extends User {
   role: "student";
   cne: string;
-  filiereId: string;
+  majorId: string;
   levelId: string;
   projectId?: string;
 }
