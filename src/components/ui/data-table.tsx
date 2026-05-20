@@ -10,6 +10,8 @@ import {
   type ColumnFiltersState,
   getFilteredRowModel,
   type PaginationState,
+  type Table as TanStackTable,
+  type Row,
 } from "@tanstack/react-table";
 
 import {
@@ -30,6 +32,7 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
   Skeleton,
+  Checkbox,
 } from "@/components/ui";
 import { RotateCcw, ArrowUpDown, ArrowUp, ArrowDown, Columns } from "lucide-react";
 
@@ -69,6 +72,8 @@ interface DataTableProps<TData, TValue> {
   getRowId?: (row: TData) => string;
   pageSizeOptions?: number[];
   columnVisibility?: boolean;
+  enableRowSelection?: boolean;
+  onSelectedRowsChange?: (rows: TData[]) => void;
   labels?: DataTableLabels;
 }
 
@@ -117,6 +122,8 @@ export function DataTable<TData, TValue>({
   getRowId,
   pageSizeOptions = [10, 20, 50],
   columnVisibility,
+  enableRowSelection,
+  onSelectedRowsChange,
   labels: labelsProp,
 }: DataTableProps<TData, TValue>) {
   const labels = React.useMemo<Required<DataTableLabels>>(
@@ -134,6 +141,38 @@ export function DataTable<TData, TValue>({
       pageIndex: 0,
       pageSize,
     });
+  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
+
+  const mergedColumns = React.useMemo(() => {
+    if (!enableRowSelection) return columns;
+    return [
+      {
+        id: "select",
+        header: ({ table }: { table: TanStackTable<TData> }) => {
+          const isAllSelected = table.getIsAllPageRowsSelected();
+          const isSomeSelected = !isAllSelected && table.getIsSomePageRowsSelected();
+          return (
+            <Checkbox
+              checked={isAllSelected}
+              indeterminate={isSomeSelected}
+              onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+              aria-label="Select all"
+            />
+          );
+        },
+        cell: ({ row }: { row: Row<TData> }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            aria-label="Select row"
+          />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+      } as ColumnDef<TData, unknown>,
+      ...columns,
+    ];
+  }, [columns, enableRowSelection]);
 
   const searchCols = React.useMemo(
     () => (typeof filterColumns === "string" ? [filterColumns] : filterColumns),
@@ -142,7 +181,7 @@ export function DataTable<TData, TValue>({
 
   const table = useReactTable({
     data,
-    columns,
+    columns: mergedColumns,
     getRowId,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: manualPagination
@@ -156,6 +195,8 @@ export function DataTable<TData, TValue>({
     pageCount,
     onPaginationChange: onPaginationChange ?? setInternalPagination,
     onGlobalFilterChange: setGlobalFilter,
+    enableRowSelection: !!enableRowSelection,
+    onRowSelectionChange: setRowSelection,
     globalFilterFn: searchCols
       ? (row, _id, value) => {
           const query = String(value).toLowerCase();
@@ -170,6 +211,7 @@ export function DataTable<TData, TValue>({
       columnFilters,
       globalFilter,
       pagination: pagination ?? internalPagination,
+      rowSelection,
     },
   });
 
@@ -183,6 +225,11 @@ export function DataTable<TData, TValue>({
       onFiltering?.(hasActiveFilters);
     }
   }, [hasActiveFilters, onFiltering]);
+
+  React.useEffect(() => {
+    if (!onSelectedRowsChange) return;
+    onSelectedRowsChange(table.getSelectedRowModel().rows.map((r) => r.original));
+  }, [rowSelection, onSelectedRowsChange]);
 
   const totalPages = table.getPageCount();
 
@@ -353,7 +400,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={mergedColumns.length}
                   className="h-24 text-center"
                 >
                   {emptyMessage ?? labels.noResults}
@@ -368,6 +415,11 @@ export function DataTable<TData, TValue>({
           <div className="text-sm text-muted-foreground">
             {labels.pageXofY(table.getState().pagination.pageIndex + 1, totalPages)}
           </div>
+          {enableRowSelection && table.getFilteredSelectedRowModel().rows.length > 0 && (
+            <div className="text-sm font-medium text-primary">
+              {table.getFilteredSelectedRowModel().rows.length} sélectionné(s)
+            </div>
+          )}
           <Select
             value={String(table.getState().pagination.pageSize)}
             onValueChange={(v) => table.setPageSize(Number(v))}

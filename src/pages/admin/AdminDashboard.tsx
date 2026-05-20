@@ -13,18 +13,32 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { format } from "date-fns";
 
-import { useAdminStats, useUsers, useAuditLogs } from "@/hooks/use-queries";
+import { useAdminStats, useUsers, useAuditLogs, useUpdateUser, useDeleteUser } from "@/hooks/use-queries";
 import type { User } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import { DataTable } from "@/components/ui/data-table";
+import { toast } from "sonner";
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
   Skeleton,
 } from "@/components/ui";
+import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import {
   type ChartConfig,
   ChartContainer,
@@ -47,6 +61,11 @@ export default function AdminDashboard() {
     limit: isFiltering ? FILTER_LIMIT : pagination.pageSize,
   });
   const { data: logs, isLoading: isLogsLoading } = useAuditLogs();
+  const updateUser = useUpdateUser();
+  const deleteUser = useDeleteUser();
+  const [selectedUsers, setSelectedUsers] = React.useState<User[]>([]);
+  const [batchDialog, setBatchDialog] = React.useState<"role" | "delete" | null>(null);
+  const [batchValue, setBatchValue] = React.useState("");
 
   const users = usersData?.items ?? [];
   const pageCount = usersData?.pageCount ?? 0;
@@ -114,7 +133,7 @@ export default function AdminDashboard() {
   } satisfies ChartConfig), []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Tableau de Bord</h1>
         <p className="text-muted-foreground">
@@ -243,6 +262,8 @@ export default function AdminDashboard() {
                 data={users}
                 loading={isLoading}
                 getRowId={(row) => row.id}
+                enableRowSelection
+                onSelectedRowsChange={setSelectedUsers}
                 manualPagination={!isFiltering}
                 pageCount={!isFiltering ? pageCount : undefined}
                 pagination={!isFiltering ? pagination : undefined}
@@ -254,6 +275,72 @@ export default function AdminDashboard() {
                   { column: "role", label: "Rôle", options: [{ value: "admin", label: "Admin" }, { value: "coordinator", label: "Coordinateur" }, { value: "teacher", label: "Enseignant" }, { value: "student", label: "Étudiant" }] },
                 ]}
               />
+
+              {selectedUsers.length > 0 && (
+                <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between border-t bg-background p-4 shadow-lg">
+                  <span className="text-sm font-medium">{selectedUsers.length} utilisateur(s) sélectionné(s)</span>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => { setBatchDialog("role"); setBatchValue(""); }}>
+                      Changer le rôle
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => setBatchDialog("delete")}>
+                      Supprimer
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              <Dialog open={batchDialog === "role"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Changer le rôle</DialogTitle>
+                    <DialogDescription>{selectedUsers.length} utilisateur(s) sélectionné(s).</DialogDescription>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
+                      <SelectTrigger><SelectValue placeholder="Choisir un rôle" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="coordinator">Coordinateur</SelectItem>
+                        <SelectItem value="teacher">Enseignant</SelectItem>
+                        <SelectItem value="student">Étudiant</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setBatchDialog(null)}>Annuler</Button>
+                    <Button onClick={async () => {
+                      if (!batchValue) return;
+                      try {
+                        await Promise.all(selectedUsers.map((u) => updateUser.mutateAsync({ id: u.id, data: { role: batchValue as "coordinator" | "teacher" | "student" } })));
+                        toast.success(`${selectedUsers.length} utilisateur(s) mis à jour`);
+                        setSelectedUsers([]);
+                        setBatchDialog(null);
+                      } catch {
+                        toast.error("Erreur lors de la mise à jour");
+                      }
+                    }} isLoading={updateUser.isPending}>Enregistrer</Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
+              <DeleteAlert
+                isOpen={batchDialog === "delete"}
+                onOpenChange={(o) => { if (!o) setBatchDialog(null); }}
+                entityName={`${selectedUsers.length} utilisateur(s)`}
+                onDelete={async () => {
+                  try {
+                    await Promise.all(selectedUsers.map((u) => deleteUser.mutateAsync(u.id)));
+                    toast.success(`${selectedUsers.length} utilisateur(s) supprimé(s)`);
+                    setSelectedUsers([]);
+                    setBatchDialog(null);
+                  } catch {
+                    toast.error("Erreur lors de la suppression");
+                  }
+                }}
+                isPending={deleteUser.isPending}
+              />
+
           </CardContent>
         </Card>
         <Card>

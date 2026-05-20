@@ -30,6 +30,7 @@ import { useCrud } from "@/hooks/use-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 const FILTER_LIMIT = 5000;
 
@@ -39,6 +40,9 @@ export default function Students() {
     pageSize: 10,
   });
   const [isFiltering, setIsFiltering] = useState(false);
+  const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
+  const [batchDialog, setBatchDialog] = useState<"filiere" | "level" | "delete" | null>(null);
+  const [batchValue, setBatchValue] = useState("");
 
   const { data: studentsData, isLoading, refetch } = useStudents(
     isFiltering ? 0 : pagination.pageIndex,
@@ -97,7 +101,7 @@ export default function Students() {
   ], [crud, filieres, levels]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Étudiants</h1>
@@ -111,7 +115,7 @@ export default function Students() {
         </div>
       </div>
 
-        <DataTable columns={columns} data={data} loading={isLoading} getRowId={(row) => row.id}
+        <DataTable columns={columns} data={data} loading={isLoading} getRowId={(row) => row.id} enableRowSelection onSelectedRowsChange={setSelectedStudents}
           manualPagination={!isFiltering} pageCount={!isFiltering ? pageCount : undefined}
           pagination={!isFiltering ? pagination : undefined} onPaginationChange={!isFiltering ? setPagination : undefined}
           onFiltering={setIsFiltering}
@@ -120,6 +124,115 @@ export default function Students() {
             { column: "filiereId", label: "Filière", options: filieres.map(f => ({ value: f.id, label: f.name })) },
             { column: "levelId", label: "Niveau", options: levels.map(l => ({ value: l.id, label: l.name })) },
           ]} />
+
+      {selectedStudents.length > 0 && (
+        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between border-t bg-background p-4 shadow-lg">
+          <span className="text-sm font-medium">
+            {selectedStudents.length} étudiant(s) sélectionné(s)
+          </span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setBatchDialog("filiere"); setBatchValue(""); }}>
+              Modifier la filière
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => { setBatchDialog("level"); setBatchValue(""); }}>
+              Modifier le niveau
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => setBatchDialog("delete")}>
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <Dialog open={batchDialog === "filiere"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier la filière</DialogTitle>
+            <DialogDescription>
+              {selectedStudents.length} étudiant(s) sélectionné(s). Choisissez la nouvelle filière.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
+              <SelectTrigger><SelectValue placeholder="Choisir une filière" /></SelectTrigger>
+              <SelectContent>
+                {filieres.map((f) => (
+                  <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBatchDialog(null)}>Annuler</Button>
+            <Button onClick={async () => {
+              if (!batchValue) return;
+              try {
+                await Promise.all(selectedStudents.map((s) => update.mutateAsync({ id: s.id, data: { filiereId: batchValue, role: "student" as const } })));
+                toast.success(`${selectedStudents.length} étudiant(s) mis à jour`);
+                setSelectedStudents([]);
+                setBatchDialog(null);
+                refetch();
+              } catch {
+                toast.error("Erreur lors de la mise à jour");
+              }
+            }} isLoading={update.isPending}>Enregistrer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={batchDialog === "level"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier le niveau</DialogTitle>
+            <DialogDescription>
+              {selectedStudents.length} étudiant(s) sélectionné(s). Choisissez le nouveau niveau.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
+              <SelectTrigger><SelectValue placeholder="Choisir un niveau" /></SelectTrigger>
+              <SelectContent>
+                {levels.map((l) => (
+                  <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBatchDialog(null)}>Annuler</Button>
+            <Button onClick={async () => {
+              if (!batchValue) return;
+              try {
+                await Promise.all(selectedStudents.map((s) => update.mutateAsync({ id: s.id, data: { levelId: batchValue, role: "student" as const } })));
+                toast.success(`${selectedStudents.length} étudiant(s) mis à jour`);
+                setSelectedStudents([]);
+                setBatchDialog(null);
+                refetch();
+              } catch {
+                toast.error("Erreur lors de la mise à jour");
+              }
+            }} isLoading={update.isPending}>Enregistrer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <DeleteAlert
+        isOpen={batchDialog === "delete"}
+        onOpenChange={(o) => { if (!o) setBatchDialog(null); }}
+        entityName={`${selectedStudents.length} étudiant(s)`}
+        onDelete={async () => {
+          try {
+            await Promise.all(selectedStudents.map((s) => del.mutateAsync(s.id)));
+            toast.success(`${selectedStudents.length} étudiant(s) supprimé(s)`);
+            setSelectedStudents([]);
+            setBatchDialog(null);
+            refetch();
+          } catch {
+            toast.error("Erreur lors de la suppression");
+          }
+        }}
+        isPending={del.isPending}
+      />
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
         <DialogContent className="max-w-2xl">

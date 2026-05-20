@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, Calendar, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
@@ -48,7 +49,10 @@ const statusLabel: Record<string, string> = {
 };
 
 export default function Sessions() {
-  const { data, isLoading } = useSessions();
+  const { data, isLoading, refetch } = useSessions();
+  const [selectedSessions, setSelectedSessions] = useState<Session[]>([]);
+  const [batchDialog, setBatchDialog] = useState<"status" | "delete" | null>(null);
+  const [batchValue, setBatchValue] = useState("");
   const create = useCreateSession();
   const update = useUpdateSession();
   const del = useDeleteSession();
@@ -133,7 +137,7 @@ export default function Sessions() {
   ], []);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Sessions Globales</h1>
@@ -211,11 +215,77 @@ export default function Sessions() {
         </Dialog>
       </div>
 
-        <DataTable columns={columns} data={data ?? []} loading={isLoading} getRowId={(row) => row.id} filterColumns="name" filterPlaceholder="Rechercher une session..."
+        <DataTable columns={columns} data={data ?? []} loading={isLoading} getRowId={(row) => row.id} enableRowSelection onSelectedRowsChange={setSelectedSessions} filterColumns="name" filterPlaceholder="Rechercher une session..."
           filters={[
             { column: "type", label: "Type", options: [{ value: "Normale", label: "Normale" }, { value: "Rattrapage", label: "Rattrapage" }, { value: "Spéciale", label: "Spéciale" }] },
             { column: "status", label: "Statut", options: [{ value: "active", label: "Active" }, { value: "draft", label: "Brouillon" }, { value: "archived", label: "Archivée" }] },
           ]} />
+
+      {selectedSessions.length > 0 && (
+        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between border-t bg-background p-4 shadow-lg">
+          <span className="text-sm font-medium">{selectedSessions.length} session(s) sélectionnée(s)</span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setBatchDialog("status"); setBatchValue(""); }}>
+              Changer le statut
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => setBatchDialog("delete")}>
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <Dialog open={batchDialog === "status"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Changer le statut</DialogTitle>
+            <DialogDescription>{selectedSessions.length} session(s) sélectionnée(s).</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
+              <SelectTrigger><SelectValue placeholder="Choisir un statut" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="draft">Brouillon</SelectItem>
+                <SelectItem value="archived">Archivée</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBatchDialog(null)}>Annuler</Button>
+            <Button onClick={async () => {
+              if (!batchValue) return;
+              try {
+                await Promise.all(selectedSessions.map((s) => update.mutateAsync({ id: s.id, data: { ...s, status: batchValue as Session["status"] } })));
+                toast.success(`${selectedSessions.length} session(s) mise(s) à jour`);
+                setSelectedSessions([]);
+                setBatchDialog(null);
+                refetch();
+              } catch {
+                toast.error("Erreur lors de la mise à jour");
+              }
+            }} isLoading={update.isPending}>Enregistrer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <DeleteAlert
+        isOpen={batchDialog === "delete"}
+        onOpenChange={(o) => { if (!o) setBatchDialog(null); }}
+        entityName={`${selectedSessions.length} session(s)`}
+        onDelete={async () => {
+          try {
+            await Promise.all(selectedSessions.map((s) => del.mutateAsync(s.id)));
+            toast.success(`${selectedSessions.length} session(s) supprimée(s)`);
+            setSelectedSessions([]);
+            setBatchDialog(null);
+            refetch();
+          } catch {
+            toast.error("Erreur lors de la suppression");
+          }
+        }}
+        isPending={del.isPending}
+      />
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
         onDelete={crud.handleDelete} entityName={crud.selected?.name} isPending={del.isPending} />

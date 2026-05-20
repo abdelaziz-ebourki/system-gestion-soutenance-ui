@@ -28,6 +28,7 @@ import { useCrud } from "@/hooks/use-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 
 const FILTER_LIMIT = 5000;
 
@@ -37,6 +38,9 @@ export default function Teachers() {
     pageSize: 10,
   });
   const [isFiltering, setIsFiltering] = useState(false);
+  const [selectedTeachers, setSelectedTeachers] = useState<Teacher[]>([]);
+  const [batchDialog, setBatchDialog] = useState<"department" | "delete" | null>(null);
+  const [batchValue, setBatchValue] = useState("");
 
   const { data: teachersData, isLoading, refetch } = useTeachers(
     isFiltering ? 0 : pagination.pageIndex,
@@ -86,7 +90,7 @@ export default function Teachers() {
   ], [crud, departments]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Enseignants</h1>
@@ -100,7 +104,7 @@ export default function Teachers() {
         </div>
       </div>
 
-        <DataTable columns={columns} data={data} loading={isLoading} getRowId={(row) => row.id}
+        <DataTable columns={columns} data={data} loading={isLoading} getRowId={(row) => row.id} enableRowSelection onSelectedRowsChange={setSelectedTeachers}
           manualPagination={!isFiltering} pageCount={!isFiltering ? pageCount : undefined}
           pagination={!isFiltering ? pagination : undefined} onPaginationChange={!isFiltering ? setPagination : undefined}
           onFiltering={setIsFiltering}
@@ -108,6 +112,72 @@ export default function Teachers() {
           filters={[
             { column: "departmentId", label: "Département", options: departments.map(d => ({ value: d.id, label: d.name })) },
           ]} />
+
+      {selectedTeachers.length > 0 && (
+        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between border-t bg-background p-4 shadow-lg">
+          <span className="text-sm font-medium">{selectedTeachers.length} enseignant(s) sélectionné(s)</span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setBatchDialog("department"); setBatchValue(""); }}>
+              Modifier le département
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => setBatchDialog("delete")}>
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <Dialog open={batchDialog === "department"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier le département</DialogTitle>
+            <DialogDescription>{selectedTeachers.length} enseignant(s) sélectionné(s).</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
+              <SelectTrigger><SelectValue placeholder="Choisir un département" /></SelectTrigger>
+              <SelectContent>
+                {departments.map((d) => (
+                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBatchDialog(null)}>Annuler</Button>
+            <Button onClick={async () => {
+              if (!batchValue) return;
+              try {
+                await Promise.all(selectedTeachers.map((t) => update.mutateAsync({ id: t.id, data: { departmentId: batchValue, role: "teacher" as const } })));
+                toast.success(`${selectedTeachers.length} enseignant(s) mis à jour`);
+                setSelectedTeachers([]);
+                setBatchDialog(null);
+                refetch();
+              } catch {
+                toast.error("Erreur lors de la mise à jour");
+              }
+            }} isLoading={update.isPending}>Enregistrer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <DeleteAlert
+        isOpen={batchDialog === "delete"}
+        onOpenChange={(o) => { if (!o) setBatchDialog(null); }}
+        entityName={`${selectedTeachers.length} enseignant(s)`}
+        onDelete={async () => {
+          try {
+            await Promise.all(selectedTeachers.map((t) => del.mutateAsync(t.id)));
+            toast.success(`${selectedTeachers.length} enseignant(s) supprimé(s)`);
+            setSelectedTeachers([]);
+            setBatchDialog(null);
+            refetch();
+          } catch {
+            toast.error("Erreur lors de la suppression");
+          }
+        }}
+        isPending={del.isPending}
+      />
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
         <DialogContent>

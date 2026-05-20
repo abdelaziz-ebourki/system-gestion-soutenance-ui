@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 
-import { useProjects, useDeleteProject } from "@/hooks/use-queries";
+import { useProjects, useUpdateProject, useDeleteProject } from "@/hooks/use-queries";
 import type { Project } from "@/types";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
@@ -21,7 +21,19 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui";
+import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { DataTable } from "@/components/ui/data-table";
 import { ProjectDialog } from "@/components/academic/ProjectDialog";
 
@@ -39,9 +51,13 @@ const statusClass: Record<Project["status"], string> = {
 
 export default function CoordinatorProjects() {
   const projectsQuery = useProjects();
+  const updateProjectMutation = useUpdateProject();
   const deleteProjectMutation = useDeleteProject();
   const projects = projectsQuery.data ?? [];
   const isLoading = projectsQuery.isLoading;
+  const [selectedProjects, setSelectedProjects] = useState<Project[]>([]);
+  const [batchDialog, setBatchDialog] = useState<"status" | "delete" | null>(null);
+  const [batchValue, setBatchValue] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
 
@@ -121,7 +137,7 @@ export default function CoordinatorProjects() {
   ), [projects]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -192,6 +208,8 @@ export default function CoordinatorProjects() {
               data={projects}
               loading={isLoading}
               getRowId={(row) => row.id}
+              enableRowSelection
+              onSelectedRowsChange={setSelectedProjects}
               filterColumns="title"
               filterPlaceholder="Rechercher un projet..."
               filters={[
@@ -200,6 +218,70 @@ export default function CoordinatorProjects() {
             />
         </CardContent>
       </Card>
+
+      {selectedProjects.length > 0 && (
+        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between border-t bg-background p-4 shadow-lg">
+          <span className="text-sm font-medium">{selectedProjects.length} projet(s) sélectionné(s)</span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => { setBatchDialog("status"); setBatchValue(""); }}>
+              Changer le statut
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => setBatchDialog("delete")}>
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <Dialog open={batchDialog === "status"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Changer le statut</DialogTitle>
+            <DialogDescription>{selectedProjects.length} projet(s) sélectionné(s).</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
+              <SelectTrigger><SelectValue placeholder="Choisir un statut" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">En attente</SelectItem>
+                <SelectItem value="approved">Valide</SelectItem>
+                <SelectItem value="rejected">Refuse</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setBatchDialog(null)}>Annuler</Button>
+            <Button onClick={async () => {
+              if (!batchValue) return;
+              try {
+                await Promise.all(selectedProjects.map((p) => updateProjectMutation.mutateAsync({ id: p.id, data: { status: batchValue as Project["status"] } })));
+                toast.success(`${selectedProjects.length} projet(s) mis à jour`);
+                setSelectedProjects([]);
+                setBatchDialog(null);
+              } catch {
+                toast.error("Erreur lors de la mise à jour");
+              }
+            }} isLoading={updateProjectMutation.isPending}>Enregistrer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <DeleteAlert
+        isOpen={batchDialog === "delete"}
+        onOpenChange={(o) => { if (!o) setBatchDialog(null); }}
+        entityName={`${selectedProjects.length} projet(s)`}
+        onDelete={async () => {
+          try {
+            await Promise.all(selectedProjects.map((p) => deleteProjectMutation.mutateAsync(p.id)));
+            toast.success(`${selectedProjects.length} projet(s) supprimé(s)`);
+            setSelectedProjects([]);
+            setBatchDialog(null);
+          } catch {
+            toast.error("Erreur lors de la suppression");
+          }
+        }}
+        isPending={deleteProjectMutation.isPending}
+      />
 
       <ProjectDialog
         open={isCreateOpen || Boolean(editingProject)}
