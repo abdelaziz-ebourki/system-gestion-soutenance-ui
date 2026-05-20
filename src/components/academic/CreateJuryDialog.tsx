@@ -1,5 +1,5 @@
-
 import * as React from "react";
+import { useMemo } from "react";
 
 import { useTeachersList, useProjects, useCreateJury } from "@/hooks/use-queries";
 import { validate, jurySchema } from "@/lib/validations";
@@ -102,36 +102,46 @@ export function CreateJuryDialog({
     }
   };
 
-  const availableProjects = projects.filter(
-    (project) => project.status !== "rejected",
+  const availableProjects = useMemo(
+    () => projects.filter((project) => project.status !== "rejected"),
+    [projects],
   );
 
-  const filteredPresidents = teachers
-    .filter(
-      (teacher) =>
-        teacher.id !== reporterId && teacher.id !== examinerId,
-    )
-    .filter((teacher) =>
-      getFullName(teacher).toLowerCase().includes(presidentSearch.toLowerCase()),
-    );
+  const filteredPresidents = useMemo(
+    () => teachers
+      .filter(
+        (teacher) =>
+          teacher.id !== reporterId && teacher.id !== examinerId,
+      )
+      .filter((teacher) =>
+        getFullName(teacher).toLowerCase().includes(presidentSearch.toLowerCase()),
+      ),
+    [teachers, reporterId, examinerId, presidentSearch],
+  );
 
-  const filteredReporters = teachers
-    .filter(
-      (teacher) =>
-        teacher.id !== presidentId && teacher.id !== examinerId,
-    )
-    .filter((teacher) =>
-      getFullName(teacher).toLowerCase().includes(reporterSearch.toLowerCase()),
-    );
+  const filteredReporters = useMemo(
+    () => teachers
+      .filter(
+        (teacher) =>
+          teacher.id !== presidentId && teacher.id !== examinerId,
+      )
+      .filter((teacher) =>
+        getFullName(teacher).toLowerCase().includes(reporterSearch.toLowerCase()),
+      ),
+    [teachers, presidentId, examinerId, reporterSearch],
+  );
 
-  const filteredExaminers = teachers
-    .filter(
-      (teacher) =>
-        teacher.id !== presidentId && teacher.id !== reporterId,
-    )
-    .filter((teacher) =>
-      getFullName(teacher).toLowerCase().includes(examinerSearch.toLowerCase()),
-    );
+  const filteredExaminers = useMemo(
+    () => teachers
+      .filter(
+        (teacher) =>
+          teacher.id !== presidentId && teacher.id !== reporterId,
+      )
+      .filter((teacher) =>
+        getFullName(teacher).toLowerCase().includes(examinerSearch.toLowerCase()),
+      ),
+    [teachers, presidentId, reporterId, examinerSearch],
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   CalendarClock,
   FileCheck2,
@@ -44,6 +44,15 @@ export default function StudentDocuments() {
   const { data: documents = [], isLoading } = useStudentDocuments();
   const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
 
+  const validatedCount = useMemo(
+    () => documents.filter((document) => document.status === "validated").length,
+    [documents],
+  );
+  const missingCount = useMemo(
+    () => documents.filter((document) => document.status === "missing").length,
+    [documents],
+  );
+
   const handleUpload = (documentId: string) => {
     setIsUploading((prev) => ({ ...prev, [documentId]: true }));
     setTimeout(() => {
@@ -79,13 +88,7 @@ export default function StudentDocuments() {
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Validés</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {
-                  documents.filter(
-                    (document) => document.status === "validated",
-                  ).length
-                }
-              </p>
+              <p className="mt-2 text-3xl font-semibold">{validatedCount}</p>
             </div>
             <div className="rounded-lg bg-secondary p-3 text-primary">
               <FileCheck2 className="size-5" />
@@ -98,12 +101,7 @@ export default function StudentDocuments() {
               <p className="text-sm text-muted-foreground">
                 Échéances ouvertes
               </p>
-              <p className="mt-2 text-3xl font-semibold">
-                {
-                  documents.filter((document) => document.status === "missing")
-                    .length
-                }
-              </p>
+              <p className="mt-2 text-3xl font-semibold">{missingCount}</p>
             </div>
             <div className="rounded-lg bg-destructive/10 p-3 text-destructive">
               <CalendarClock className="size-5" />

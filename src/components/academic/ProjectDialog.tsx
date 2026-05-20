@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMemo } from "react";
 
 import { useTeachersList, useStudentsList, useCreateProject, useUpdateProject } from "@/hooks/use-queries";
 import { validate, projectSchema } from "@/lib/validations";
@@ -54,6 +55,27 @@ export function ProjectDialog({
 
   const isEdit = !!project;
 
+  const selectedStudents = useMemo(
+    () => students.filter((student) => studentIds.includes(student.id)),
+    [students, studentIds],
+  );
+
+  const filteredSupervisors = useMemo(
+    () => teachers
+      .filter((teacher) =>
+        getFullName(teacher).toLowerCase().includes(supervisorSearch.toLowerCase()),
+      ),
+    [teachers, supervisorSearch],
+  );
+
+  const studentOptions = useMemo(
+    () => students.map((s) => ({
+      value: s.id,
+      label: getFullName(s),
+    })),
+    [students],
+  );
+
   React.useEffect(() => {
     if (!open) {
       return;
@@ -92,9 +114,6 @@ export function ProjectDialog({
     try {
       const supervisor = teachers.find(
         (teacher) => teacher.id === supervisorId,
-      );
-      const selectedStudents = students.filter((student) =>
-        studentIds.includes(student.id),
       );
 
       if (isEdit && project) {
@@ -187,11 +206,7 @@ export function ProjectDialog({
                 <SelectValue placeholder="Selectionner un encadrant" />
               </SelectTrigger>
               <SelectContent>
-                {teachers
-                  .filter((teacher) =>
-                    getFullName(teacher).toLowerCase().includes(supervisorSearch.toLowerCase()),
-                  )
-                  .map((teacher) => (
+                {filteredSupervisors.map((teacher) => (
                     <SelectItem key={teacher.id} value={teacher.id}>
                       {getFullName(teacher)}
                     </SelectItem>
@@ -206,10 +221,7 @@ export function ProjectDialog({
           <div className="grid gap-2">
             <Label htmlFor={`${formId}-students`}>Etudiants</Label>
             <MultiSelect
-              options={students.map((s) => ({
-                value: s.id,
-                label: getFullName(s),
-              }))}
+              options={studentOptions}
               value={studentIds}
               onChange={setStudentIds}
               placeholder="Sélectionner des étudiants..."
