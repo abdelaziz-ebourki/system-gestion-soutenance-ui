@@ -195,6 +195,7 @@ export default function CoordinatorProjects() {
             <DataTable
               columns={columns}
               data={projects}
+              getRowId={(row) => row.id}
               filterColumns="title"
               filterPlaceholder="Rechercher un projet..."
               filters={[

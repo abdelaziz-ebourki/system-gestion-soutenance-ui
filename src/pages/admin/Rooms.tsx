@@ -143,7 +143,7 @@ export default function Rooms() {
       </div>
 
       {isLoading ? <Skeleton className="h-64 w-full" /> : (
-        <DataTable columns={columns} data={data ?? []} filterColumns="name" filterPlaceholder="Rechercher une salle..." />
+        <DataTable columns={columns} data={data ?? []} getRowId={(row) => row.id} filterColumns="name" filterPlaceholder="Rechercher une salle..." />
       )}
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}

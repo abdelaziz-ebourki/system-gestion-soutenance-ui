@@ -26,7 +26,7 @@ import {
   SelectItem,
   SelectTrigger,
 } from "@/components/ui";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
 interface DataTableFilter {
   column: string;
@@ -46,6 +46,7 @@ interface DataTableProps<TData, TValue> {
   pagination?: PaginationState;
   onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
   onFiltering?: (active: boolean) => void;
+  getRowId?: (row: TData) => string;
 }
 
 function getPageNumbers(current: number, total: number): (number | "...")[] {
@@ -75,6 +76,7 @@ export function DataTable<TData, TValue>({
   pagination,
   onPaginationChange,
   onFiltering,
+  getRowId,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -96,6 +98,7 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    getRowId,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: manualPagination
       ? undefined
@@ -203,7 +206,7 @@ export function DataTable<TData, TValue>({
           )}
         </div>
       ) : null}
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -212,6 +215,13 @@ export function DataTable<TData, TValue>({
                   <TableHead
                     key={header.id}
                     onClick={header.column.getToggleSortingHandler()}
+                    aria-sort={
+                      header.column.getIsSorted() === "asc"
+                        ? "ascending"
+                        : header.column.getIsSorted() === "desc"
+                          ? "descending"
+                          : undefined
+                    }
                     className={
                       header.column.getCanSort()
                         ? "cursor-pointer select-none"
@@ -224,12 +234,15 @@ export function DataTable<TData, TValue>({
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
-                    {header.column.getIsSorted() === "asc"
-                      ? " \u2191"
-                      : null}
-                    {header.column.getIsSorted() === "desc"
-                      ? " \u2193"
-                      : null}
+                    {header.column.getCanSort() && !header.column.getIsSorted() ? (
+                      <ArrowUpDown className="ml-1 inline size-3 opacity-40" />
+                    ) : null}
+                    {header.column.getIsSorted() === "asc" ? (
+                      <ArrowUp className="ml-1 inline size-3" />
+                    ) : null}
+                    {header.column.getIsSorted() === "desc" ? (
+                      <ArrowDown className="ml-1 inline size-3" />
+                    ) : null}
                   </TableHead>
                 ))}
               </TableRow>

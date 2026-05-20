@@ -244,6 +244,7 @@ export default function AdminDashboard() {
               <DataTable
                 columns={userColumns}
                 data={users}
+                getRowId={(row) => row.id}
                 manualPagination={!isFiltering}
                 pageCount={!isFiltering ? pageCount : undefined}
                 pagination={!isFiltering ? pagination : undefined}
@@ -269,6 +270,7 @@ export default function AdminDashboard() {
               <DataTable
                   columns={logColumns}
                   data={auditLogs}
+                  getRowId={(row) => row.id}
                 filterColumns="action"
                 filterPlaceholder="Rechercher par action..."
               />

@@ -113,7 +113,7 @@ export default function Students() {
       </div>
 
       {isLoading ? <Skeleton className="h-64 w-full" /> : (
-        <DataTable columns={columns} data={data}
+        <DataTable columns={columns} data={data} getRowId={(row) => row.id}
           manualPagination={!isFiltering} pageCount={!isFiltering ? pageCount : undefined}
           pagination={!isFiltering ? pagination : undefined} onPaginationChange={!isFiltering ? setPagination : undefined}
           onFiltering={setIsFiltering}

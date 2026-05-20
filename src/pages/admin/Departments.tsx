@@ -103,6 +103,7 @@ export default function Departments() {
         <DataTable
           columns={columns}
           data={data ?? []}
+          getRowId={(row) => row.id}
           filterColumns="name"
           filterPlaceholder="Rechercher par nom..."
         />
