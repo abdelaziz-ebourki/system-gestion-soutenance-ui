@@ -123,20 +123,10 @@ export function DataTable<TData, TValue>({
     },
   });
 
-  const isFirstRender = React.useRef(true);
   const hasActiveFilters =
     columnFilters.length > 0 || globalFilter.length > 0;
 
   const totalPages = table.getPageCount();
-
-  React.useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    table.setPageIndex(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [columnFilters, globalFilter]);
 
   return (
     <div>
@@ -146,7 +136,10 @@ export function DataTable<TData, TValue>({
             <Input
               placeholder={filterPlaceholder}
               value={globalFilter ?? ""}
-              onChange={(event) => setGlobalFilter(event.target.value)}
+              onChange={(event) => {
+                setGlobalFilter(event.target.value);
+                table.setPageIndex(0);
+              }}
               className="max-w-sm"
             />
           )}
@@ -158,9 +151,10 @@ export function DataTable<TData, TValue>({
               <Select
                 key={f.column}
                 value={currentValue}
-                onValueChange={(v) =>
-                  column.setFilterValue(v || undefined)
-                }
+                onValueChange={(v) => {
+                  column.setFilterValue(v || undefined);
+                  table.setPageIndex(0);
+                }}
               >
                 <SelectTrigger className="w-44">
                   <span className="flex-1 text-left truncate">
@@ -190,6 +184,7 @@ export function DataTable<TData, TValue>({
               onClick={() => {
                 setGlobalFilter("");
                 table.resetColumnFilters();
+                table.setPageIndex(0);
               }}
             >
               <RotateCcw className="mr-1 size-3" />
