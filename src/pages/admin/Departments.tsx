@@ -1,7 +1,5 @@
-
-import * as React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import {
   useDepartments,
@@ -14,26 +12,12 @@ import { type Department } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
   Input,
   Select,
   SelectContent,
@@ -43,83 +27,32 @@ import {
   Skeleton,
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { toast } from "sonner";
-import { validate, departmentSchema } from "@/lib/validations";
-import { toastError } from "@/lib/utils";
+import { departmentSchema } from "@/lib/validations";
+import { useCrud } from "@/hooks/use-crud";
+import { CrudActions } from "@/components/admin/CrudActions";
+import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
 export default function Departments() {
   const { data, isLoading } = useDepartments();
   const { data: teachers = [] } = useTeachersList();
-  const createDeptMut = useCreateDepartment();
-  const updateDeptMut = useUpdateDepartment();
-  const deleteDeptMut = useDeleteDepartment();
+  const create = useCreateDepartment();
+  const update = useUpdateDepartment();
+  const del = useDeleteDepartment();
 
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [selectedDept, setSelectedDept] = React.useState<Department | null>(
-    null,
-  );
-
-  // Form state
-  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
-  const [formData, setFormData] = React.useState({
-    name: "",
-    code: "",
-    headId: "",
+  const crud = useCrud({
+    schema: departmentSchema,
+    defaultForm: { name: "", code: "", headId: "" },
+    onCreate: (d) => create.mutateAsync(d),
+    onUpdate: (id, d) => update.mutateAsync({ id, data: d }),
+    onDelete: (id) => del.mutateAsync(id),
+    entityName: (d: Department) => d.name,
+    mapToForm: (d: Department) => ({ name: d.name, code: d.code, headId: d.headId }),
+    successMessages: {
+      create: "Département ajouté avec succès",
+      update: "Département modifié avec succès",
+      delete: "Département supprimé",
+    },
   });
-
-  const resetForm = () => {
-    setFormData({ name: "", code: "", headId: teachers?.[0]?.id || "" });
-    setSelectedDept(null);
-    setFieldErrors({});
-  };
-
-  const handleCreate = async () => {
-    const errors = validate(departmentSchema, formData);
-    if (errors) { setFieldErrors(errors); return; }
-    setFieldErrors({});
-    try {
-      await createDeptMut.mutateAsync(formData);
-      toast.success("Département ajouté avec succès");
-      setIsDialogOpen(false);
-      resetForm();
-    } catch (error) {
-      toastError(error, "Erreur lors de la création");
-    }
-  };
-
-  const handleUpdate = async () => {
-    if (!selectedDept) return;
-    const errors = validate(departmentSchema, formData);
-    if (errors) { setFieldErrors(errors); return; }
-    setFieldErrors({});
-    try {
-      await updateDeptMut.mutateAsync({ id: selectedDept.id, data: formData });
-      toast.success("Département modifié avec succès");
-      setIsDialogOpen(false);
-      resetForm();
-    } catch (error) {
-      toastError(error, "Erreur lors de la modification");
-    }
-  };
-
-  const handleSubmit = (e: React.SubmitEvent) => {
-    e.preventDefault();
-    if (selectedDept) handleUpdate();
-    else handleCreate();
-  };
-
-  const handleDelete = async () => {
-    if (!selectedDept) return;
-    try {
-      await deleteDeptMut.mutateAsync(selectedDept.id);
-      toast.success("Département supprimé");
-      setIsDeleteDialogOpen(false);
-      setSelectedDept(null);
-    } catch (error) {
-      toastError(error, "Erreur lors de la suppression");
-    }
-  };
 
   const columns: ColumnDef<Department>[] = [
     {
@@ -138,54 +71,16 @@ export default function Departments() {
       header: "Chef de Département",
       cell: ({ row }) => {
         const id = row.getValue("headId") as string;
-        const teacher = (teachers ?? []).find((t) => t.id === id);
+        const teacher = teachers.find((t) => t.id === id);
         return teacher ? `${teacher.lastName} ${teacher.firstName}` : id;
       },
     },
     {
       id: "actions",
       header: "Action",
-      cell: ({ row }) => {
-        const department = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedDept(department);
-                    setFormData({
-                      name: department.name,
-                      code: department.code,
-                      headId: department.headId,
-                    });
-                    setIsDialogOpen(true);
-                  }}
-                >
-                  <Pencil className="mr-2 h-4 w-4" /> Modifier
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={() => {
-                    setSelectedDept(department);
-                    setIsDeleteDialogOpen(true);
-                  }}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" /> Supprimer
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
+      cell: ({ row }) => (
+        <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />
+      ),
     },
   ];
 
@@ -196,12 +91,7 @@ export default function Departments() {
           <h1 className="text-3xl font-bold tracking-tight">Départements</h1>
           <p className="text-muted-foreground">Structure académique.</p>
         </div>
-        <Button
-          onClick={() => {
-            resetForm();
-            setIsDialogOpen(true);
-          }}
-        >
+        <Button onClick={crud.openCreate}>
           <Plus className="h-4 w-4" /> Nouveau Département
         </Button>
       </div>
@@ -217,48 +107,48 @@ export default function Departments() {
         />
       )}
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {selectedDept ? "Modifier" : "Ajouter"} Département
+              {crud.selected ? "Modifier" : "Ajouter"} Département
             </DialogTitle>
             <DialogDescription>
               Détails de l'unité académique.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={crud.handleSubmit}>
             <FieldGroup className="py-4">
               <Field>
                 <FieldLabel>Nom du Département</FieldLabel>
                 <Input
                   placeholder="ex: Informatique"
-                  value={formData.name}
+                  value={crud.formData.name}
                   onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
+                    crud.setFormData({ ...crud.formData, name: e.target.value })
                   }
                   required
-                  error={fieldErrors?.name}
+                  error={crud.fieldErrors?.name}
                 />
               </Field>
               <Field>
                 <FieldLabel>Code</FieldLabel>
                 <Input
                   placeholder="ex: INFO"
-                  value={formData.code}
+                  value={crud.formData.code}
                   onChange={(e) =>
-                    setFormData({ ...formData, code: e.target.value })
+                    crud.setFormData({ ...crud.formData, code: e.target.value })
                   }
                   required
-                  error={fieldErrors?.code}
+                  error={crud.fieldErrors?.code}
                 />
               </Field>
               <Field>
                 <FieldLabel>Chef de Département</FieldLabel>
                 <Select
-                  value={formData.headId}
+                  value={crud.formData.headId}
                   onValueChange={(v) =>
-                    setFormData({ ...formData, headId: v || "" })
+                    crud.setFormData({ ...crud.formData, headId: v || "" })
                   }
                 >
                   <SelectTrigger>
@@ -272,13 +162,15 @@ export default function Departments() {
                     ))}
                   </SelectContent>
                 </Select>
-                {fieldErrors?.headId && <p className="text-sm font-medium text-destructive">{fieldErrors.headId}</p>}
+                {crud.fieldErrors?.headId && (
+                  <p className="text-sm font-medium text-destructive">{crud.fieldErrors.headId}</p>
+                )}
               </Field>
             </FieldGroup>
             <DialogFooter>
               <Button
                 type="submit"
-                isLoading={selectedDept ? updateDeptMut.isPending : createDeptMut.isPending}
+                isLoading={update.isPending || create.isPending}
                 loadingText="Enregistrement..."
               >
                 Enregistrer
@@ -288,32 +180,13 @@ export default function Departments() {
         </DialogContent>
       </Dialog>
 
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmation</AlertDialogTitle>
-            <AlertDialogDescription>
-              Supprimer le département {selectedDept?.name} ?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleDelete();
-              }}
-              variant="destructive"
-              isLoading={deleteDeptMut.isPending}
-            >
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteAlert
+        isOpen={crud.isDeleteDialogOpen}
+        onOpenChange={crud.setIsDeleteDialogOpen}
+        onDelete={crud.handleDelete}
+        entityName={crud.selected?.name}
+        isPending={del.isPending}
+      />
     </div>
   );
 }

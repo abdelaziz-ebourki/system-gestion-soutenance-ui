@@ -1,135 +1,62 @@
-
-import * as React from "react";
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
-import { Plus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { useCoordinators, useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/use-queries";
-import { type Coordinator } from "@/types";
+import type { Coordinator } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
+  Badge,
   Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
   Input,
-  Badge,
   Skeleton,
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { toast } from "sonner";
-import { validate, coordinatorSchema } from "@/lib/validations";
-import { toastError } from "@/lib/utils";
+import { coordinatorSchema } from "@/lib/validations";
+import { useCrud } from "@/hooks/use-crud";
+import { CrudActions } from "@/components/admin/CrudActions";
+import { DeleteAlert } from "@/components/admin/DeleteAlert";
+import { useState } from "react";
 
 export default function Coordinators() {
-  const [pagination, setPagination] = React.useState<PaginationState>({
+  const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
 
   const { data: coordinatorsData, isLoading } = useCoordinators(pagination.pageIndex, pagination.pageSize);
-  const createUserMut = useCreateUser();
-  const updateUserMut = useUpdateUser();
-  const deleteUserMut = useDeleteUser();
+  const create = useCreateUser();
+  const update = useUpdateUser();
+  const del = useDeleteUser();
 
   const data = coordinatorsData?.items ?? [];
   const pageCount = coordinatorsData?.pageCount ?? 0;
 
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [selectedCoord, setSelectedCoord] = React.useState<Coordinator | null>(
-    null,
-  );
-
-  // Form state
-  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
-  const [formData, setFormData] = React.useState({
-    lastName: "",
-    firstName: "",
-    email: "",
+  const crud = useCrud({
+    schema: coordinatorSchema,
+    defaultForm: { lastName: "", firstName: "", email: "" },
+    onCreate: (d) => create.mutateAsync({ ...d, role: "coordinator", isActive: false }),
+    onUpdate: (id, d) => update.mutateAsync({ id, data: { ...d, role: "coordinator" as const } }),
+    onDelete: (id) => del.mutateAsync(id),
+    entityName: (c: Coordinator) => `${c.lastName} ${c.firstName}`,
+    mapToForm: (c: Coordinator) => ({ lastName: c.lastName, firstName: c.firstName, email: c.email }),
+    successMessages: {
+      create: "Coordinateur ajouté avec succès",
+      update: "Coordinateur modifié avec succès",
+      delete: "Coordinateur supprimé",
+    },
   });
-
-  const resetForm = () => {
-    setFormData({ lastName: "", firstName: "", email: "" });
-    setSelectedCoord(null);
-    setFieldErrors({});
-  };
-
-  const handleCreate = async () => {
-    const errors = validate(coordinatorSchema, formData);
-    if (errors) { setFieldErrors(errors); return; }
-    setFieldErrors({});
-    try {
-      await createUserMut.mutateAsync({ ...formData, role: "coordinator", isActive: false });
-      toast.success("Coordinateur ajouté avec succès");
-      setIsDialogOpen(false);
-      resetForm();
-    } catch (error) {
-      toastError(error, "Erreur lors de la création");
-    }
-  };
-
-  const handleUpdate = async () => {
-    if (!selectedCoord) return;
-    const errors = validate(coordinatorSchema, formData);
-    if (errors) { setFieldErrors(errors); return; }
-    setFieldErrors({});
-    try {
-      await updateUserMut.mutateAsync({
-        id: selectedCoord.id,
-        data: { ...formData, role: "coordinator" as const },
-      });
-      toast.success("Profil coordinateur mis à jour");
-      setIsDialogOpen(false);
-      resetForm();
-    } catch (error) {
-      toastError(error, "Erreur lors de la modification");
-    }
-  };
-
-  const handleSubmit = (e: React.SubmitEvent) => {
-    e.preventDefault();
-    if (selectedCoord) handleUpdate();
-    else handleCreate();
-  };
-
-  const handleDelete = async () => {
-    if (!selectedCoord) return;
-    try {
-      await deleteUserMut.mutateAsync(selectedCoord.id);
-      toast.success("Coordinateur supprimé");
-      setIsDeleteDialogOpen(false);
-      setSelectedCoord(null);
-    } catch (error) {
-      toastError(error, "Erreur lors de la suppression");
-    }
-  };
 
   const columns: ColumnDef<Coordinator>[] = [
     {
       id: "full_name",
       header: "Nom Complet",
-      cell: ({ row }) => (
-        <div className="font-medium">
-          {row.original.lastName} {row.original.firstName}
-        </div>
-      ),
+      cell: ({ row }) => <div className="font-medium">{row.original.lastName} {row.original.firstName}</div>,
     },
     {
       accessorKey: "email",
@@ -147,47 +74,7 @@ export default function Coordinators() {
     {
       id: "actions",
       header: "Action",
-      cell: ({ row }) => {
-        const coord = row.original;
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem
-                  onClick={() => {
-                    setSelectedCoord(coord);
-                    setFormData({
-                      lastName: coord.lastName,
-                      firstName: coord.firstName,
-                      email: coord.email,
-                    });
-                    setIsDialogOpen(true);
-                  }}
-                >
-                  <Pencil className="mr-2 h-4 w-4" /> Modifier
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="text-destructive"
-                  onClick={() => {
-                    setSelectedCoord(coord);
-                    setIsDeleteDialogOpen(true);
-                  }}
-                >
-                  <Trash2 className="mr-2 h-4 w-4" /> Supprimer
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
+      cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
     },
   ];
 
@@ -196,121 +83,55 @@ export default function Coordinators() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Coordinateurs</h1>
-          <p className="text-muted-foreground">
-            Gestion des responsables des soutenances.
-          </p>
+          <p className="text-muted-foreground">Gestion des responsables des soutenances.</p>
         </div>
-        <Button
-          onClick={() => {
-            resetForm();
-            setIsDialogOpen(true);
-          }}
-        >
+        <Button onClick={crud.openCreate}>
           <Plus className="h-4 w-4" /> Nouveau Coordinateur
         </Button>
       </div>
 
-      {isLoading ? (
-        <Skeleton className="h-64 w-full" />
-      ) : (
-        <DataTable
-          columns={columns}
-          data={data}
-          manualPagination
-          pageCount={pageCount}
-          pagination={pagination}
-          onPaginationChange={setPagination}
-          filterColumn="lastName"
-          filterPlaceholder="Rechercher par nom..."
-        />
+      {isLoading ? <Skeleton className="h-64 w-full" /> : (
+        <DataTable columns={columns} data={data} manualPagination pageCount={pageCount}
+          pagination={pagination} onPaginationChange={setPagination}
+          filterColumn="lastName" filterPlaceholder="Rechercher par nom..." />
       )}
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {selectedCoord ? "Modifier" : "Ajouter"} Coordinateur
-            </DialogTitle>
-            <DialogDescription>
-              Compte administratif de gestion de filière.
-            </DialogDescription>
+            <DialogTitle>{crud.selected ? "Modifier" : "Ajouter"} Coordinateur</DialogTitle>
+            <DialogDescription>Compte administratif de gestion de filière.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={crud.handleSubmit}>
             <FieldGroup className="grid grid-cols-2 gap-4 py-4">
               <Field>
                 <FieldLabel>Nom</FieldLabel>
-                <Input
-                  value={formData.lastName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
-                  }
-                  required
-                  error={fieldErrors?.lastName}
-                />
+                <Input value={crud.formData.lastName}
+                  onChange={(e) => crud.setFormData({ ...crud.formData, lastName: e.target.value })}
+                  required error={crud.fieldErrors?.lastName} />
               </Field>
               <Field>
                 <FieldLabel>Prénom</FieldLabel>
-                <Input
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, firstName: e.target.value })
-                  }
-                  required
-                  error={fieldErrors?.firstName}
-                />
+                <Input value={crud.formData.firstName}
+                  onChange={(e) => crud.setFormData({ ...crud.formData, firstName: e.target.value })}
+                  required error={crud.fieldErrors?.firstName} />
               </Field>
               <Field className="col-span-2">
                 <FieldLabel>Email</FieldLabel>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  required
-                  error={fieldErrors?.email}
-                />
+                <Input type="email" value={crud.formData.email}
+                  onChange={(e) => crud.setFormData({ ...crud.formData, email: e.target.value })}
+                  required error={crud.fieldErrors?.email} />
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <Button
-                type="submit"
-                isLoading={selectedCoord ? updateUserMut.isPending : createUserMut.isPending}
-                loadingText="Enregistrement..."
-              >
-                Enregistrer
-              </Button>
+              <Button type="submit" isLoading={create.isPending || update.isPending} loadingText="Enregistrement...">Enregistrer</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      <AlertDialog
-        open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmation</AlertDialogTitle>
-            <AlertDialogDescription>
-              Supprimer {selectedCoord?.lastName} {selectedCoord?.firstName} ?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={(e) => {
-                e.preventDefault();
-                handleDelete();
-              }}
-              variant="destructive"
-              isLoading={deleteUserMut.isPending}
-            >
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
+        onDelete={crud.handleDelete} entityName={crud.selected ? `${crud.selected.lastName} ${crud.selected.firstName}` : undefined} isPending={del.isPending} />
     </div>
   );
 }
