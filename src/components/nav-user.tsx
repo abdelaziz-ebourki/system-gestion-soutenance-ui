@@ -182,7 +182,7 @@ export function NavUser({
               <DropdownMenuSeparator />
               <AlertDialogTrigger
                 render={
-                  <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer" />
+                  <DropdownMenuItem variant="destructive" className="cursor-pointer" />
                 }
               >
                 <LogOutIcon className="size-4" />
