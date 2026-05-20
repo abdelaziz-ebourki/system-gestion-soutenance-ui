@@ -76,7 +76,7 @@ export default function CoordinatorDashboard() {
             <div className="space-y-2">
               <h1 className="max-w-2xl text-3xl font-bold tracking-tight md:text-4xl">
                 Coordination des soutenances, pensee comme une salle de
-                controle.
+                contrôle.
               </h1>
               <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
                 Suivez la progression des projets, la couverture des jurys et la
@@ -177,7 +177,7 @@ export default function CoordinatorDashboard() {
             icon: ClipboardCheck,
           },
           {
-            label: "Creneaux planifies",
+            label: "Créneaux planifies",
             value: stats?.scheduledDefenses,
             icon: Clock3,
           },

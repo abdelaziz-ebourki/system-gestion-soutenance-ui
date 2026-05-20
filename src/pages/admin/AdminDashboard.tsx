@@ -247,6 +247,9 @@ export default function AdminDashboard() {
                 onPaginationChange={setPagination}
                 filterColumn="lastName"
                 filterPlaceholder="Rechercher par nom..."
+                filters={[
+                  { column: "role", label: "Rôle", options: [{ value: "admin", label: "Admin" }, { value: "coordinator", label: "Coordinateur" }, { value: "teacher", label: "Enseignant" }, { value: "student", label: "Étudiant" }] },
+                ]}
               />
             )}
           </CardContent>

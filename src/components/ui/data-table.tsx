@@ -1,4 +1,3 @@
-
 import * as React from "react";
 import {
   type ColumnDef,
@@ -22,18 +21,44 @@ import {
   TableRow,
   Button,
   Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui";
+
+interface DataTableFilter {
+  column: string;
+  label: string;
+  options: { value: string; label: string }[];
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   filterColumn?: string;
   filterPlaceholder?: string;
-  // Pagination props for lazy loading
+  filters?: DataTableFilter[];
   manualPagination?: boolean;
   pageCount?: number;
   pagination?: PaginationState;
   onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
+}
+
+function getPageNumbers(current: number, total: number): (number | "...")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+
+  const pages: (number | "...")[] = [1];
+  const start = Math.max(2, current - 2);
+  const end = Math.min(total - 1, current + 2);
+
+  if (start > 2) pages.push("...");
+  for (let i = start; i <= end; i++) pages.push(i);
+  if (end < total - 1) pages.push("...");
+  pages.push(total);
+
+  return pages;
 }
 
 export function DataTable<TData, TValue>({
@@ -41,6 +66,7 @@ export function DataTable<TData, TValue>({
   data,
   filterColumn,
   filterPlaceholder = "Filtrer...",
+  filters,
   manualPagination = false,
   pageCount,
   pagination,
@@ -51,7 +77,6 @@ export function DataTable<TData, TValue>({
     [],
   );
 
-  // Local state for pagination if not controlled externally
   const [internalPagination, setInternalPagination] =
     React.useState<PaginationState>({
       pageIndex: 0,
@@ -79,10 +104,12 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const totalPages = table.getPageCount();
+
   return (
     <div>
-      {filterColumn && (
-        <div className="flex items-center py-4">
+      <div className="flex flex-wrap items-center gap-4 py-4">
+        {filterColumn && (
           <Input
             placeholder={filterPlaceholder}
             value={
@@ -93,25 +120,63 @@ export function DataTable<TData, TValue>({
             }
             className="max-w-sm"
           />
-        </div>
-      )}
+        )}
+        {filters?.map((f) => {
+          const column = table.getColumn(f.column);
+          if (!column) return null;
+          const currentValue = (column.getFilterValue() as string) ?? "";
+          return (
+            <Select
+              key={f.column}
+              value={currentValue || "all"}
+              onValueChange={(v) =>
+                column.setFilterValue(v === "all" ? undefined : v)
+              }
+            >
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder={f.label} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les {f.label.toLowerCase()}</SelectItem>
+                {f.options.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+        })}
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    onClick={header.column.getToggleSortingHandler()}
+                    className={
+                      header.column.getCanSort()
+                        ? "cursor-pointer select-none"
+                        : ""
+                    }
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                    {header.column.getIsSorted() === "asc"
+                      ? " \u2191"
+                      : null}
+                    {header.column.getIsSorted() === "desc"
+                      ? " \u2193"
+                      : null}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
@@ -145,12 +210,11 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-between py-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 py-4">
         <div className="text-sm text-muted-foreground">
-          Page {table.getState().pagination.pageIndex + 1} sur{" "}
-          {table.getPageCount()}
+          Page {table.getState().pagination.pageIndex + 1} sur {totalPages}
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-1">
           <Button
             variant="outline"
             size="sm"
@@ -159,6 +223,31 @@ export function DataTable<TData, TValue>({
           >
             Précédent
           </Button>
+          {totalPages > 1 &&
+            getPageNumbers(
+              table.getState().pagination.pageIndex + 1,
+              totalPages,
+            ).map((page, i) =>
+              page === "..." ? (
+                <span key={`ellipsis-${i}`} className="px-1 text-muted-foreground">
+                  ...
+                </span>
+              ) : (
+                <Button
+                  key={page}
+                  variant={
+                    page === table.getState().pagination.pageIndex + 1
+                      ? "default"
+                      : "outline"
+                  }
+                  size="sm"
+                  className="min-w-9"
+                  onClick={() => table.setPageIndex(page - 1)}
+                >
+                  {page}
+                </Button>
+              ),
+            )}
           <Button
             variant="outline"
             size="sm"

@@ -197,6 +197,9 @@ export default function CoordinatorProjects() {
               data={projects}
               filterColumn="title"
               filterPlaceholder="Rechercher un projet..."
+              filters={[
+                { column: "status", label: "Statut", options: [{ value: "pending", label: "En attente" }, { value: "approved", label: "Valide" }, { value: "rejected", label: "Refuse" }] },
+              ]}
             />
           )}
         </CardContent>
