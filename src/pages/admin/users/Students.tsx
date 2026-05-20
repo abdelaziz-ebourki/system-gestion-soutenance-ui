@@ -89,7 +89,7 @@ export default function Students() {
       header: "Action",
       cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
     },
-  ], []);
+  ], [crud, filieres, levels]);
 
   return (
     <div className="space-y-6">
@@ -146,28 +146,22 @@ export default function Students() {
               </Field>
               <Field>
                 <FieldLabel>Niveau</FieldLabel>
-                <Select value={levels.find((l) => l.id === crud.formData.levelId)?.name || ""}
-                  onValueChange={(name) => {
-                    const level = levels.find((l) => l.name === name);
-                    crud.setFormData({ ...crud.formData, levelId: level?.id || "" });
-                  }}>
+                <Select value={crud.formData.levelId}
+                  onValueChange={(v) => crud.setFormData({ ...crud.formData, levelId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un niveau" /></SelectTrigger>
                   <SelectContent>
-                    {levels.map((n) => <SelectItem key={n.id} value={n.name}>{n.name}</SelectItem>)}
+                    {levels.map((n) => <SelectItem key={n.id} value={n.id}>{n.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.levelId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.levelId}</p>}
               </Field>
               <Field className="col-span-2">
                 <FieldLabel>Filière</FieldLabel>
-                <Select value={filieres.find((f) => f.id === crud.formData.filiereId)?.name || ""}
-                  onValueChange={(name) => {
-                    const filiere = filieres.find((f) => f.name === name);
-                    crud.setFormData({ ...crud.formData, filiereId: filiere?.id || "" });
-                  }}>
+                <Select value={crud.formData.filiereId}
+                  onValueChange={(v) => crud.setFormData({ ...crud.formData, filiereId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir une filière" /></SelectTrigger>
                   <SelectContent>
-                    {filieres.map((f) => <SelectItem key={f.id} value={f.name}>{f.name}</SelectItem>)}
+                    {filieres.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.filiereId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.filiereId}</p>}

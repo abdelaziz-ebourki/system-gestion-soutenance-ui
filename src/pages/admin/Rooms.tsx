@@ -51,38 +51,40 @@ export default function Rooms() {
     },
   });
 
-  const getDepartmentName = (id: string) =>
-    departments.find((d) => d.id === id)?.name || id;
+  const columns = useMemo<ColumnDef<Room>[]>(() => {
+    const getDepartmentName = (id: string) =>
+      departments.find((d) => d.id === id)?.name || id;
 
-  const columns = useMemo<ColumnDef<Room>[]>(() => [
-    {
-      accessorKey: "name",
-      header: "Nom de la Salle",
-      cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
-    },
-    {
-      accessorKey: "departmentId",
-      header: "Département",
-      cell: ({ row }) => (
-        <div className="flex items-center text-muted-foreground">
-          <BuildingIcon className="mr-2 h-4 w-4" />
-          {getDepartmentName(row.getValue("departmentId"))}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "capacity",
-      header: "Capacité",
-      cell: ({ row }) => (
-        <div className="font-mono">{row.getValue("capacity")} places</div>
-      ),
-    },
-    {
-      id: "actions",
-      header: "Action",
-      cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
-    },
-  ], []);
+    return [
+      {
+        accessorKey: "name",
+        header: "Nom de la Salle",
+        cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+      },
+      {
+        accessorKey: "departmentId",
+        header: "Département",
+        cell: ({ row }) => (
+          <div className="flex items-center text-muted-foreground">
+            <BuildingIcon className="mr-2 h-4 w-4" />
+            {getDepartmentName(row.getValue("departmentId"))}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "capacity",
+        header: "Capacité",
+        cell: ({ row }) => (
+          <div className="font-mono">{row.getValue("capacity")} places</div>
+        ),
+      },
+      {
+        id: "actions",
+        header: "Action",
+        cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
+      },
+    ];
+  }, [crud, departments]);
 
   return (
     <div className="space-y-6">

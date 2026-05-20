@@ -78,7 +78,7 @@ export default function Teachers() {
       header: "Action",
       cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
     },
-  ], []);
+  ], [crud, departments]);
 
   return (
     <div className="space-y-6">
@@ -131,28 +131,22 @@ export default function Teachers() {
               </Field>
               <Field>
                 <FieldLabel>Grade</FieldLabel>
-                <Select value={grades.find((g) => g.id === crud.formData.gradeId)?.name || ""}
-                  onValueChange={(name) => {
-                    const grade = grades.find((g) => g.name === name);
-                    crud.setFormData({ ...crud.formData, gradeId: grade?.id || "" });
-                  }}>
+                <Select value={crud.formData.gradeId}
+                  onValueChange={(v) => crud.setFormData({ ...crud.formData, gradeId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un grade" /></SelectTrigger>
                   <SelectContent>
-                    {grades.map((g) => <SelectItem key={g.id} value={g.name}>{g.name}</SelectItem>)}
+                    {grades.map((g) => <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.gradeId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.gradeId}</p>}
               </Field>
               <Field>
                 <FieldLabel>Département</FieldLabel>
-                <Select value={departments.find((d) => d.id === crud.formData.departmentId)?.name || ""}
-                  onValueChange={(name) => {
-                    const dept = departments.find((d) => d.name === name);
-                    crud.setFormData({ ...crud.formData, departmentId: dept?.id || "" });
-                  }}>
+                <Select value={crud.formData.departmentId}
+                  onValueChange={(v) => crud.setFormData({ ...crud.formData, departmentId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un département" /></SelectTrigger>
                   <SelectContent>
-                    {departments.map((d) => <SelectItem key={d.id} value={d.name}>{d.name}</SelectItem>)}
+                    {departments.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.departmentId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.departmentId}</p>}

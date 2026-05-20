@@ -83,7 +83,7 @@ export default function Departments() {
         <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />
       ),
     },
-  ], []);
+  ], [crud, teachers]);
 
   return (
     <div className="space-y-6">
