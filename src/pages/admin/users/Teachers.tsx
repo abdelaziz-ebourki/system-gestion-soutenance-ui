@@ -98,7 +98,7 @@ export default function Teachers() {
       {isLoading ? <Skeleton className="h-64 w-full" /> : (
         <DataTable columns={columns} data={data} manualPagination pageCount={pageCount}
           pagination={pagination} onPaginationChange={setPagination}
-          filterColumn="lastName" filterPlaceholder="Rechercher par nom..."
+          filterColumns={["lastName", "firstName", "email"]} filterPlaceholder="Rechercher par nom, prénom ou email..."
           filters={[
             { column: "departmentId", label: "Département", options: departments.map(d => ({ value: d.id, label: d.name })) },
           ]} />

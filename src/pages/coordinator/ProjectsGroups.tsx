@@ -195,7 +195,7 @@ export default function CoordinatorProjects() {
             <DataTable
               columns={columns}
               data={projects}
-              filterColumn="title"
+              filterColumns="title"
               filterPlaceholder="Rechercher un projet..."
               filters={[
                 { column: "status", label: "Statut", options: [{ value: "pending", label: "En attente" }, { value: "approved", label: "Valide" }, { value: "rejected", label: "Refuse" }] },

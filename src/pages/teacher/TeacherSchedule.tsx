@@ -145,7 +145,7 @@ export default function TeacherSchedule() {
             <DataTable
               columns={columns}
               data={schedule}
-              filterColumn="projectTitle"
+              filterColumns="projectTitle"
               filterPlaceholder="Rechercher un projet..."
             />
           )}

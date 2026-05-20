@@ -245,8 +245,8 @@ export default function AdminDashboard() {
                 pageCount={pageCount}
                 pagination={pagination}
                 onPaginationChange={setPagination}
-                filterColumn="lastName"
-                filterPlaceholder="Rechercher par nom..."
+                filterColumns={["lastName", "firstName", "email"]}
+                filterPlaceholder="Rechercher par nom, prénom ou email..."
                 filters={[
                   { column: "role", label: "Rôle", options: [{ value: "admin", label: "Admin" }, { value: "coordinator", label: "Coordinateur" }, { value: "teacher", label: "Enseignant" }, { value: "student", label: "Étudiant" }] },
                 ]}
@@ -265,7 +265,7 @@ export default function AdminDashboard() {
               <DataTable
                   columns={logColumns}
                   data={auditLogs}
-                filterColumn="action"
+                filterColumns="action"
                 filterPlaceholder="Rechercher par action..."
               />
             )}

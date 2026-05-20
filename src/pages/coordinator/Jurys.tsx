@@ -168,7 +168,7 @@ export default function Jurys() {
               <DataTable
                 columns={columns}
                 data={jurys}
-                filterColumn="projectTitle"
+                filterColumns="projectTitle"
                 filterPlaceholder="Rechercher un projet..."
               />
             )}

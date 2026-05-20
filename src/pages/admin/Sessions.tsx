@@ -213,7 +213,7 @@ export default function Sessions() {
       </div>
 
       {isLoading ? <Skeleton className="h-64 w-full" /> : (
-        <DataTable columns={columns} data={data ?? []} filterColumn="name" filterPlaceholder="Rechercher une session..."
+        <DataTable columns={columns} data={data ?? []} filterColumns="name" filterPlaceholder="Rechercher une session..."
           filters={[
             { column: "type", label: "Type", options: [{ value: "Normale", label: "Normale" }, { value: "Rattrapage", label: "Rattrapage" }, { value: "Spéciale", label: "Spéciale" }] },
             { column: "status", label: "Statut", options: [{ value: "active", label: "Active" }, { value: "draft", label: "Brouillon" }, { value: "archived", label: "Archivée" }] },

@@ -109,7 +109,7 @@ export default function Students() {
       {isLoading ? <Skeleton className="h-64 w-full" /> : (
         <DataTable columns={columns} data={data} manualPagination pageCount={pageCount}
           pagination={pagination} onPaginationChange={setPagination}
-          filterColumn="lastName" filterPlaceholder="Rechercher par nom..."
+          filterColumns={["lastName", "firstName", "email"]} filterPlaceholder="Rechercher par nom, prénom ou email..."
           filters={[
             { column: "filiereId", label: "Filière", options: filieres.map(f => ({ value: f.id, label: f.name })) },
             { column: "levelId", label: "Niveau", options: levels.map(l => ({ value: l.id, label: l.name })) },

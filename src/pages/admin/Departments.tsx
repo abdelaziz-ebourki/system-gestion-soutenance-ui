@@ -103,7 +103,7 @@ export default function Departments() {
         <DataTable
           columns={columns}
           data={data ?? []}
-          filterColumn="name"
+          filterColumns="name"
           filterPlaceholder="Rechercher par nom..."
         />
       )}
