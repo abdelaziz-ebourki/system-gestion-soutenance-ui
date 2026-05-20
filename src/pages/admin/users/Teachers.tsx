@@ -20,7 +20,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Skeleton,
 } from "@/components/ui";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -101,8 +100,7 @@ export default function Teachers() {
         </div>
       </div>
 
-      {isLoading ? <Skeleton className="h-64 w-full" /> : (
-        <DataTable columns={columns} data={data} getRowId={(row) => row.id}
+        <DataTable columns={columns} data={data} loading={isLoading} getRowId={(row) => row.id}
           manualPagination={!isFiltering} pageCount={!isFiltering ? pageCount : undefined}
           pagination={!isFiltering ? pagination : undefined} onPaginationChange={!isFiltering ? setPagination : undefined}
           onFiltering={setIsFiltering}
@@ -110,7 +108,6 @@ export default function Teachers() {
           filters={[
             { column: "departmentId", label: "Département", options: departments.map(d => ({ value: d.id, label: d.name })) },
           ]} />
-      )}
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
         <DialogContent>

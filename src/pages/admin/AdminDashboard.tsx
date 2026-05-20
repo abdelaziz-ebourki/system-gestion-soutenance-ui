@@ -238,12 +238,10 @@ export default function AdminDashboard() {
             <CardTitle>Utilisateurs</CardTitle>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
-              <Skeleton className="h-75 w-full" />
-            ) : (
               <DataTable
                 columns={userColumns}
                 data={users}
+                loading={isLoading}
                 getRowId={(row) => row.id}
                 manualPagination={!isFiltering}
                 pageCount={!isFiltering ? pageCount : undefined}
@@ -256,7 +254,6 @@ export default function AdminDashboard() {
                   { column: "role", label: "Rôle", options: [{ value: "admin", label: "Admin" }, { value: "coordinator", label: "Coordinateur" }, { value: "teacher", label: "Enseignant" }, { value: "student", label: "Étudiant" }] },
                 ]}
               />
-            )}
           </CardContent>
         </Card>
         <Card>
@@ -264,17 +261,14 @@ export default function AdminDashboard() {
             <CardTitle>Audit Log</CardTitle>
           </CardHeader>
           <CardContent>
-            {isLogsLoading ? (
-              <Skeleton className="h-75 w-full" />
-            ) : (
               <DataTable
                   columns={logColumns}
                   data={auditLogs}
+                  loading={isLogsLoading}
                   getRowId={(row) => row.id}
                 filterColumns="action"
                 filterPlaceholder="Rechercher par action..."
               />
-            )}
           </CardContent>
         </Card>
       </div>

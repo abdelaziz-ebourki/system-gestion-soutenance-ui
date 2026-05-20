@@ -20,7 +20,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Skeleton,
 } from "@/components/ui";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -142,9 +141,7 @@ export default function Rooms() {
         </div>
       </div>
 
-      {isLoading ? <Skeleton className="h-64 w-full" /> : (
-        <DataTable columns={columns} data={data ?? []} getRowId={(row) => row.id} filterColumns="name" filterPlaceholder="Rechercher une salle..." />
-      )}
+        <DataTable columns={columns} data={data ?? []} loading={isLoading} getRowId={(row) => row.id} filterColumns="name" filterPlaceholder="Rechercher une salle..." />
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
         onDelete={crud.handleDelete} entityName={crud.selected?.name} isPending={del.isPending} />

@@ -137,19 +137,14 @@ export default function TeacherSchedule() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">
-              Chargement du planning...
-            </div>
-          ) : (
             <DataTable
               columns={columns}
               data={schedule}
+              loading={isLoading}
               getRowId={(row) => row.id}
               filterColumns="projectTitle"
               filterPlaceholder="Rechercher un projet..."
             />
-          )}
         </CardContent>
       </Card>
 

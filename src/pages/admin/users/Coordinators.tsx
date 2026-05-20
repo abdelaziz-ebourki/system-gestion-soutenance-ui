@@ -14,7 +14,6 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  Skeleton,
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { coordinatorSchema } from "@/lib/validations";
@@ -99,13 +98,11 @@ export default function Coordinators() {
         </Button>
       </div>
 
-      {isLoading ? <Skeleton className="h-64 w-full" /> : (
-        <DataTable columns={columns} data={data} getRowId={(row) => row.id}
+        <DataTable columns={columns} data={data} loading={isLoading} getRowId={(row) => row.id}
           manualPagination={!isFiltering} pageCount={!isFiltering ? pageCount : undefined}
           pagination={!isFiltering ? pagination : undefined} onPaginationChange={!isFiltering ? setPagination : undefined}
           onFiltering={setIsFiltering}
           filterColumns={["lastName", "firstName", "email"]} filterPlaceholder="Rechercher par nom, prénom ou email..." />
-      )}
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
         <DialogContent className="max-w-2xl">

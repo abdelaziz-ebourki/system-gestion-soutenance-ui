@@ -20,7 +20,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Skeleton,
 } from "@/components/ui";
 import {
   DropdownMenu,
@@ -212,13 +211,11 @@ export default function Sessions() {
         </Dialog>
       </div>
 
-      {isLoading ? <Skeleton className="h-64 w-full" /> : (
-        <DataTable columns={columns} data={data ?? []} getRowId={(row) => row.id} filterColumns="name" filterPlaceholder="Rechercher une session..."
+        <DataTable columns={columns} data={data ?? []} loading={isLoading} getRowId={(row) => row.id} filterColumns="name" filterPlaceholder="Rechercher une session..."
           filters={[
             { column: "type", label: "Type", options: [{ value: "Normale", label: "Normale" }, { value: "Rattrapage", label: "Rattrapage" }, { value: "Spéciale", label: "Spéciale" }] },
             { column: "status", label: "Statut", options: [{ value: "active", label: "Active" }, { value: "draft", label: "Brouillon" }, { value: "archived", label: "Archivée" }] },
           ]} />
-      )}
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
         onDelete={crud.handleDelete} entityName={crud.selected?.name} isPending={del.isPending} />

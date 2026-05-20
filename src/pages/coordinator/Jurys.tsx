@@ -160,19 +160,14 @@ export default function Jurys() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoading ? (
-              <div className="py-10 text-center text-sm text-muted-foreground">
-                Chargement des jurys...
-              </div>
-            ) : (
               <DataTable
                 columns={columns}
                 data={jurys}
+                loading={isLoading}
                 getRowId={(row) => row.id}
                 filterColumns="projectTitle"
                 filterPlaceholder="Rechercher un projet..."
               />
-            )}
           </CardContent>
         </Card>
 

@@ -25,7 +25,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  Skeleton,
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { departmentSchema } from "@/lib/validations";
@@ -97,17 +96,14 @@ export default function Departments() {
         </Button>
       </div>
 
-      {isLoading ? (
-        <Skeleton className="h-64 w-full" />
-      ) : (
         <DataTable
           columns={columns}
           data={data ?? []}
+          loading={isLoading}
           getRowId={(row) => row.id}
           filterColumns="name"
           filterPlaceholder="Rechercher par nom..."
         />
-      )}
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
         <DialogContent>

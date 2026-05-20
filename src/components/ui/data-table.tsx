@@ -25,8 +25,13 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  Skeleton,
 } from "@/components/ui";
-import { RotateCcw, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { RotateCcw, ArrowUpDown, ArrowUp, ArrowDown, Columns } from "lucide-react";
 
 interface DataTableFilter {
   column: string;
@@ -34,9 +39,23 @@ interface DataTableFilter {
   options: { value: string; label: string }[];
 }
 
+interface DataTableLabels {
+  pageXofY?: (page: number, total: number) => string;
+  itemsPerPage?: string;
+  previous?: string;
+  next?: string;
+  clearFilters?: string;
+  allItems?: (label: string) => string;
+  noResults?: string;
+  columnsToggle?: string;
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  loading?: boolean;
+  error?: string | null;
+  emptyMessage?: string;
   filterColumns?: string | string[];
   filterPlaceholder?: string;
   filters?: DataTableFilter[];
@@ -46,7 +65,11 @@ interface DataTableProps<TData, TValue> {
   pagination?: PaginationState;
   onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
   onFiltering?: (active: boolean) => void;
+  onRowClick?: (row: TData) => void;
   getRowId?: (row: TData) => string;
+  pageSizeOptions?: number[];
+  columnVisibility?: boolean;
+  labels?: DataTableLabels;
 }
 
 function getPageNumbers(current: number, total: number): (number | "...")[] {
@@ -64,9 +87,23 @@ function getPageNumbers(current: number, total: number): (number | "...")[] {
   return pages;
 }
 
+const defaultLabels: Required<DataTableLabels> = {
+  pageXofY: (page, total) => `Page ${page} sur ${total}`,
+  itemsPerPage: "/ page",
+  previous: "Précédent",
+  next: "Suivant",
+  clearFilters: "Effacer les filtres",
+  allItems: (label) => `Tous les ${label.toLowerCase()}`,
+  noResults: "Aucun résultat.",
+  columnsToggle: "Colonnes",
+};
+
 export function DataTable<TData, TValue>({
   columns,
   data,
+  loading,
+  error,
+  emptyMessage,
   filterColumns,
   filterPlaceholder = "Rechercher...",
   filters,
@@ -76,8 +113,16 @@ export function DataTable<TData, TValue>({
   pagination,
   onPaginationChange,
   onFiltering,
+  onRowClick,
   getRowId,
+  pageSizeOptions = [10, 20, 50],
+  columnVisibility,
+  labels: labelsProp,
 }: DataTableProps<TData, TValue>) {
+  const labels = React.useMemo<Required<DataTableLabels>>(
+    () => ({ ...defaultLabels, ...labelsProp }),
+    [labelsProp],
+  );
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -141,9 +186,21 @@ export function DataTable<TData, TValue>({
 
   const totalPages = table.getPageCount();
 
+  if (loading) {
+    return <Skeleton className="h-64 w-full" />;
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-md border border-destructive/50 p-6 text-center text-sm text-destructive">
+        {error}
+      </div>
+    );
+  }
+
   return (
     <div>
-      {searchCols || filters?.length ? (
+      {(searchCols || filters?.length || columnVisibility) ? (
         <div className="flex flex-wrap items-center gap-4 py-4">
           {searchCols && (
             <Input
@@ -179,7 +236,7 @@ export function DataTable<TData, TValue>({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="">
-                    Tous les {f.label.toLowerCase()}
+                    {labels.allItems(f.label)}
                   </SelectItem>
                   {f.options.map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
@@ -190,6 +247,32 @@ export function DataTable<TData, TValue>({
               </Select>
             );
           })}
+          {columnVisibility && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button variant="outline" size="sm">
+                    <Columns className="mr-1 size-3" />
+                    {labels.columnsToggle}
+                  </Button>
+                }
+              />
+              <DropdownMenuContent align="end">
+                {table.getAllLeafColumns().filter((col) => col.getCanHide()).map((col) => {
+                  const label = typeof col.columnDef.header === "string" ? col.columnDef.header : col.id;
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={col.id}
+                      checked={col.getIsVisible()}
+                      onCheckedChange={col.getToggleVisibilityHandler()}
+                    >
+                      {label}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           {hasActiveFilters && (
             <Button
               variant="ghost"
@@ -201,7 +284,7 @@ export function DataTable<TData, TValue>({
               }}
             >
               <RotateCcw className="mr-1 size-3" />
-              Effacer les filtres
+              {labels.clearFilters}
             </Button>
           )}
         </div>
@@ -253,6 +336,8 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
+                  onClick={() => onRowClick?.(row.original)}
+                  className={onRowClick ? "cursor-pointer" : ""}
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell) => (
@@ -271,7 +356,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  Aucun résultat.
+                  {emptyMessage ?? labels.noResults}
                 </TableCell>
               </TableRow>
             )}
@@ -281,18 +366,18 @@ export function DataTable<TData, TValue>({
       <div className="flex flex-wrap items-center justify-between gap-4 py-4">
         <div className="flex items-center gap-4">
           <div className="text-sm text-muted-foreground">
-            Page {table.getState().pagination.pageIndex + 1} sur {totalPages}
+            {labels.pageXofY(table.getState().pagination.pageIndex + 1, totalPages)}
           </div>
           <Select
             value={String(table.getState().pagination.pageSize)}
             onValueChange={(v) => table.setPageSize(Number(v))}
           >
-            <SelectTrigger className="h-8 w-24">
-              <span className="flex-1 text-left">{table.getState().pagination.pageSize} / page</span>
+            <SelectTrigger className="h-8 w-28">
+              <span className="flex-1 text-left">{table.getState().pagination.pageSize}{labels.itemsPerPage}</span>
             </SelectTrigger>
             <SelectContent>
-              {[10, 20, 50].map((size) => (
-                <SelectItem key={size} value={String(size)}>{size} / page</SelectItem>
+              {pageSizeOptions.map((size) => (
+                <SelectItem key={size} value={String(size)}>{size}{labels.itemsPerPage}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -304,7 +389,7 @@ export function DataTable<TData, TValue>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
-            Précédent
+            {labels.previous}
           </Button>
           {totalPages > 1 &&
             getPageNumbers(
@@ -337,7 +422,7 @@ export function DataTable<TData, TValue>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
-            Suivant
+            {labels.next}
           </Button>
         </div>
       </div>

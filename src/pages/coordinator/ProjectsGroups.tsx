@@ -187,14 +187,10 @@ export default function CoordinatorProjects() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">
-              Chargement des projets...
-            </div>
-          ) : (
             <DataTable
               columns={columns}
               data={projects}
+              loading={isLoading}
               getRowId={(row) => row.id}
               filterColumns="title"
               filterPlaceholder="Rechercher un projet..."
@@ -202,7 +198,6 @@ export default function CoordinatorProjects() {
                 { column: "status", label: "Statut", options: [{ value: "pending", label: "En attente" }, { value: "approved", label: "Valide" }, { value: "rejected", label: "Refuse" }] },
               ]}
             />
-          )}
         </CardContent>
       </Card>
 
