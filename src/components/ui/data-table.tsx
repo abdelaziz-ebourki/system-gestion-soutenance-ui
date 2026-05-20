@@ -123,12 +123,17 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const isFirstRender = React.useRef(true);
   const hasActiveFilters =
     columnFilters.length > 0 || globalFilter.length > 0;
 
   const totalPages = table.getPageCount();
 
   React.useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     table.setPageIndex(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [columnFilters, globalFilter]);
