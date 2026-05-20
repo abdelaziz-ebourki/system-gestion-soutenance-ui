@@ -41,6 +41,7 @@ interface DataTableProps<TData, TValue> {
   filterPlaceholder?: string;
   filters?: DataTableFilter[];
   manualPagination?: boolean;
+  pageSize?: number;
   pageCount?: number;
   pagination?: PaginationState;
   onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
@@ -68,6 +69,7 @@ export function DataTable<TData, TValue>({
   filterPlaceholder = "Rechercher...",
   filters,
   manualPagination = false,
+  pageSize = 10,
   pageCount,
   pagination,
   onPaginationChange,
@@ -81,7 +83,7 @@ export function DataTable<TData, TValue>({
   const [internalPagination, setInternalPagination] =
     React.useState<PaginationState>({
       pageIndex: 0,
-      pageSize: 10,
+      pageSize,
     });
 
   const searchCols = React.useMemo(
@@ -254,8 +256,23 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
       <div className="flex flex-wrap items-center justify-between gap-4 py-4">
-        <div className="text-sm text-muted-foreground">
-          Page {table.getState().pagination.pageIndex + 1} sur {totalPages}
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            Page {table.getState().pagination.pageIndex + 1} sur {totalPages}
+          </div>
+          <Select
+            value={String(table.getState().pagination.pageSize)}
+            onValueChange={(v) => table.setPageSize(Number(v))}
+          >
+            <SelectTrigger className="h-8 w-24">
+              <span className="flex-1 text-left">{table.getState().pagination.pageSize} / page</span>
+            </SelectTrigger>
+            <SelectContent>
+              {[10, 20, 50].map((size) => (
+                <SelectItem key={size} value={String(size)}>{size} / page</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="flex flex-wrap items-center gap-1">
           <Button
