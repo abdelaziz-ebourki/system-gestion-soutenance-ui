@@ -44,7 +44,6 @@ export default function Rooms() {
     onCreate: (d) => create.mutateAsync(d),
     onUpdate: (id, d) => update.mutateAsync({ id, data: d }),
     onDelete: (id) => del.mutateAsync(id),
-    entityName: (r: Room) => r.name,
     mapToForm: (r: Room) => ({ name: r.name, capacity: r.capacity, departmentId: r.departmentId }),
     successMessages: {
       create: "Salle ajoutée avec succès",

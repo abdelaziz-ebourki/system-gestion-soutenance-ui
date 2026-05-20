@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import {
   SidebarInset,
   SidebarProvider,
@@ -7,13 +8,75 @@ import { AppSidebar } from "@/components/app-sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
+  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
+  BreadcrumbSeparator,
   Separator,
 } from "@/components/ui";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, Link } from "react-router-dom";
+
+const SEGMENT_LABELS: Record<string, string> = {
+  admin: "Admin",
+  "audit-logs": "Audit Log",
+  config: "Configuration",
+  coordinator: "Coordinateur",
+  departments: "Départements",
+  documents: "Documents",
+  evaluations: "Évaluations",
+  group: "Groupe",
+  juries: "Jurys",
+  notifications: "Notifications",
+  profile: "Profil",
+  projects: "Projets & Groupes",
+  rooms: "Salles",
+  schedule: "Planification",
+  sessions: "Sessions",
+  student: "Étudiant",
+  students: "Étudiants",
+  teacher: "Enseignant",
+  teachers: "Enseignants",
+  coordinators: "Coordinateurs",
+  unavailability: "Indisponibilités",
+  users: "Utilisateurs",
+};
+
+const VALID_ROUTES = new Set([
+  "/admin",
+  "/admin/audit-logs",
+  "/admin/config",
+  "/admin/departments",
+  "/admin/rooms",
+  "/admin/sessions",
+  "/admin/users/students",
+  "/admin/users/teachers",
+  "/admin/users/coordinators",
+  "/coordinator",
+  "/coordinator/juries",
+  "/coordinator/projects",
+  "/coordinator/schedule",
+  "/notifications",
+  "/profile",
+  "/student",
+  "/student/documents",
+  "/student/group",
+  "/teacher",
+  "/teacher/evaluations",
+  "/teacher/schedule",
+  "/teacher/unavailability",
+]);
 
 export default function DashboardLayout() {
+  const location = useLocation();
+  const segments = location.pathname.split("/").filter(Boolean);
+  const breadcrumbs = segments.map((segment, index) => {
+    const label = SEGMENT_LABELS[segment] || segment;
+    const path = "/" + segments.slice(0, index + 1).join("/");
+    const isLast = index === segments.length - 1;
+    const isLinkable = VALID_ROUTES.has(path);
+    return { label, path, isLast, isLinkable };
+  });
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -24,11 +87,24 @@ export default function DashboardLayout() {
             <Separator orientation="vertical" className="mr-2" />
             <Breadcrumb>
               <BreadcrumbList>
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="font-heading font-bold uppercase tracking-widest text-xs text-muted-foreground">
-                    Tableau de Bord
-                  </BreadcrumbPage>
-                </BreadcrumbItem>
+                {breadcrumbs.map((crumb, index) => (
+                  <Fragment key={crumb.path}>
+                    {index > 0 && <BreadcrumbSeparator />}
+                    <BreadcrumbItem>
+                      {crumb.isLast ? (
+                        <BreadcrumbPage className="font-heading font-bold uppercase tracking-widest text-xs text-muted-foreground">
+                          {crumb.label}
+                        </BreadcrumbPage>
+                      ) : crumb.isLinkable ? (
+                        <BreadcrumbLink render={<Link to={crumb.path} />}>
+                          {crumb.label}
+                        </BreadcrumbLink>
+                      ) : (
+                        <span className="text-muted-foreground">{crumb.label}</span>
+                      )}
+                    </BreadcrumbItem>
+                  </Fragment>
+                ))}
               </BreadcrumbList>
             </Breadcrumb>
           </div>

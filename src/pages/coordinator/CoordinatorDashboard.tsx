@@ -21,6 +21,7 @@ import {
   CardHeader,
   CardTitle,
   Skeleton,
+  StatsCard,
 } from "@/components/ui";
 
 const actionCards = [
@@ -160,42 +161,10 @@ export default function CoordinatorDashboard() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: "Projets",
-            value: stats?.totalProjects,
-            icon: BookOpen,
-          },
-          {
-            label: "Groupes",
-            value: stats?.totalGroups,
-            icon: Users,
-          },
-          {
-            label: "Jurys",
-            value: stats?.totalJuries,
-            icon: ClipboardCheck,
-          },
-          {
-            label: "Créneaux planifies",
-            value: stats?.scheduledDefenses,
-            icon: Clock3,
-          },
-        ].map((item) => (
-          <Card key={item.label} className="">
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <p className="text-sm text-muted-foreground">{item.label}</p>
-                <p className="mt-2 text-3xl font-semibold tracking-tight">
-                  {isLoading ? <Skeleton className="h-9 w-14" /> : item.value}
-                </p>
-              </div>
-              <div className="rounded-lg bg-secondary p-3 text-primary">
-                <item.icon className="size-5" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <StatsCard label="Projets" value={stats?.totalProjects} icon={BookOpen} />
+        <StatsCard label="Groupes" value={stats?.totalGroups} icon={Users} />
+        <StatsCard label="Jurys" value={stats?.totalJuries} icon={ClipboardCheck} />
+        <StatsCard label="Créneaux planifiés" value={stats?.scheduledDefenses} icon={Clock3} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">

@@ -63,7 +63,6 @@ export default function Students() {
     onCreate: (d) => create.mutateAsync({ ...d, role: "student", isActive: false }),
     onUpdate: (id, d) => update.mutateAsync({ id, data: { ...d, role: "student" as const } }),
     onDelete: (id) => del.mutateAsync(id),
-    entityName: (s: Student) => `${s.lastName} ${s.firstName}`,
     mapToForm: (s: Student) => ({ lastName: s.lastName, firstName: s.firstName, email: s.email, cne: s.cne, majorId: s.majorId, levelId: s.levelId }),
     successMessages: {
       create: "Étudiant créé avec succès",
@@ -126,13 +125,13 @@ export default function Students() {
           ]} />
 
       {selectedStudents.length > 0 && (
-        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between border-t bg-background p-4 shadow-lg">
+        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4 shadow-lg">
           <span className="text-sm font-medium">
             {selectedStudents.length} étudiant(s) sélectionné(s)
           </span>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => { setBatchDialog("major"); setBatchValue(""); }}>
-              Modifier la major
+              Modifier la filière
             </Button>
             <Button variant="outline" size="sm" onClick={() => { setBatchDialog("level"); setBatchValue(""); }}>
               Modifier le niveau
@@ -147,9 +146,9 @@ export default function Students() {
       <Dialog open={batchDialog === "major"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Modifier la major</DialogTitle>
+            <DialogTitle>Modifier la filière</DialogTitle>
             <DialogDescription>
-              {selectedStudents.length} étudiant(s) sélectionné(s). Choisissez la nouvelle major.
+              {selectedStudents.length} étudiant(s) sélectionné(s). Choisissez la nouvelle filière.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
@@ -281,7 +280,7 @@ export default function Students() {
                 <FieldLabel>Filière</FieldLabel>
                 <Select value={crud.formData.majorId}
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, majorId: v || "" })}>
-                  <SelectTrigger><SelectValue placeholder="Choisir une major" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Choisir une filière" /></SelectTrigger>
                   <SelectContent>
                     {majors.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}
                   </SelectContent>

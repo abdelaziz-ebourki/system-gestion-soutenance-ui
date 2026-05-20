@@ -14,6 +14,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  StatsCard,
 } from "@/components/ui";
 import { Link } from "react-router-dom";
 
@@ -91,60 +92,15 @@ export default function StudentDashboard() {
       </section>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Statut soutenance</p>
-              <p className="mt-2 text-xl font-semibold">
-                {stats?.defenseStatus === "scheduled"
-                  ? "Planifiée"
-                  : "En attente"}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <GraduationCap className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Membres du groupe</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {stats?.groupMembers}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <Users className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Documents suivis</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {stats?.documentCount}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <Download className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Pièces manquantes</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {stats?.missingDocuments}
-              </p>
-            </div>
-            <div className="rounded-lg bg-destructive/10 p-3 text-destructive">
-              <CalendarDays className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard
+          label="Statut soutenance"
+          value={stats?.defenseStatus === "scheduled" ? "Planifiée" : "En attente"}
+          icon={GraduationCap}
+          valueClassName="text-xl font-semibold"
+        />
+        <StatsCard label="Membres du groupe" value={stats?.groupMembers} icon={Users} />
+        <StatsCard label="Documents suivis" value={stats?.documentCount} icon={Download} />
+        <StatsCard label="Pièces manquantes" value={stats?.missingDocuments} icon={CalendarDays} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">

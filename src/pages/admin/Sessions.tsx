@@ -63,7 +63,6 @@ export default function Sessions() {
     onCreate: (d) => create.mutateAsync(d as Parameters<typeof create.mutateAsync>[0]),
     onUpdate: (id, d) => update.mutateAsync({ id, data: d as Parameters<typeof create.mutateAsync>[0] }),
     onDelete: (id) => del.mutateAsync(id),
-    entityName: (s: Session) => s.name,
     mapToForm: (s: Session) => ({ name: s.name, type: s.type, status: s.status, startDate: s.startDate, endDate: s.endDate }),
     successMessages: {
       create: "Session créée avec succès",

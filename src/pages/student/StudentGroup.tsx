@@ -15,6 +15,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  StatsCard,
 } from "@/components/ui";
 
 export default function StudentGroup() {
@@ -55,45 +56,19 @@ export default function StudentGroup() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Nom du groupe</p>
-              <p className="mt-2 text-xl font-semibold">
-                {isLoading ? "..." : group?.groupName || "Aucun groupe"}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <Users className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Membres</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {isLoading ? "..." : group?.members.length || 0}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <UserRound className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Encadrant</p>
-              <p className="mt-2 text-xl font-semibold">
-                {isLoading ? "..." : group?.supervisorName || "En attente"}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <FolderKanban className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard
+          label="Nom du groupe"
+          value={isLoading ? "..." : group?.groupName || "Aucun groupe"}
+          icon={Users}
+          valueClassName="text-xl font-semibold"
+        />
+        <StatsCard label="Membres" value={isLoading ? "..." : group?.members.length || 0} icon={UserRound} />
+        <StatsCard
+          label="Encadrant"
+          value={isLoading ? "..." : group?.supervisorName || "En attente"}
+          icon={FolderKanban}
+          valueClassName="text-xl font-semibold"
+        />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">

@@ -37,6 +37,7 @@ import {
   SelectTrigger,
   SelectValue,
   Skeleton,
+  StatsCard,
 } from "@/components/ui";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import {
@@ -142,50 +143,10 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Étudiants</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.totalStudents ?? <Skeleton className="h-8 w-16" />}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Enseignants</CardTitle>
-            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.totalTeachers ?? <Skeleton className="h-8 w-16" />}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Départements</CardTitle>
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.totalDepartments ?? <Skeleton className="h-8 w-16" />}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Salles</CardTitle>
-            <DoorOpen className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats?.totalRooms ?? <Skeleton className="h-8 w-16" />}
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard label="Étudiants" value={stats?.totalStudents} icon={Users} />
+        <StatsCard label="Enseignants" value={stats?.totalTeachers} icon={GraduationCap} />
+        <StatsCard label="Départements" value={stats?.totalDepartments} icon={Building2} />
+        <StatsCard label="Salles" value={stats?.totalRooms} icon={DoorOpen} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">

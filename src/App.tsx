@@ -25,6 +25,9 @@ const StudentDashboard = lazy(() => import("./pages/student/StudentDashboard"));
 const StudentGroup = lazy(() => import("./pages/student/StudentGroup"));
 const StudentDocuments = lazy(() => import("./pages/student/StudentDocuments"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 
 function PageLoader() {
   return (
@@ -51,6 +54,7 @@ export default function App() {
             <Route path="/admin/users/teachers" element={<Teachers />} />
             <Route path="/admin/users/coordinators" element={<Coordinators />} />
             <Route path="/admin/config" element={<Configuration />} />
+            <Route path="/admin/audit-logs" element={<AuditLogs />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>
@@ -80,6 +84,11 @@ export default function App() {
             <Route path="/student" element={<StudentDashboard />} />
             <Route path="/student/group" element={<StudentGroup />} />
             <Route path="/student/documents" element={<StudentDocuments />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={["admin", "coordinator", "teacher", "student"]} />}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/notifications" element={<Notifications />} />
           </Route>
         </Route>
 

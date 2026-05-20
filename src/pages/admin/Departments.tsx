@@ -48,7 +48,6 @@ export default function Departments() {
     onCreate: (d) => create.mutateAsync(d),
     onUpdate: (id, d) => update.mutateAsync({ id, data: d }),
     onDelete: (id) => del.mutateAsync(id),
-    entityName: (d: Department) => d.name,
     mapToForm: (d: Department) => ({ name: d.name, code: d.code, headId: d.headId }),
     successMessages: {
       create: "Département ajouté avec succès",

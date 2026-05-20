@@ -14,6 +14,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  StatsCard,
 } from "@/components/ui";
 import { DataTable } from "@/components/ui/data-table";
 import { CreateJuryDialog } from "@/components/academic/CreateJuryDialog";
@@ -110,45 +111,9 @@ export default function Jurys() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Jurys composés</p>
-              <p className="mt-2 text-3xl font-semibold">{juries.length}</p>
-            </div>
-            <div className="rounded-lg bg-primary p-3 text-primary-foreground">
-              <ShieldCheck className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Projets sans jury</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {projectsWithoutJury.length}
-              </p>
-            </div>
-            <div className="rounded-lg bg-destructive/10 p-3 text-destructive">
-              <AlertTriangle className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                Enseignants mobilises
-              </p>
-              <p className="mt-2 text-3xl font-semibold">
-                {Array.from(teachersLoad.keys()).length}/{teachers.length}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <Users className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard label="Jurys composés" value={juries.length} icon={ShieldCheck} />
+        <StatsCard label="Projets sans jury" value={projectsWithoutJury.length} icon={AlertTriangle} />
+        <StatsCard label="Enseignants mobilisés" value={`${Array.from(teachersLoad.keys()).length}/${teachers.length}`} icon={Users} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">

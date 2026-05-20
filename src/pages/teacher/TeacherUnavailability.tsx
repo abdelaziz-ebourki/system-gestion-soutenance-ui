@@ -14,6 +14,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  StatsCard,
 } from "@/components/ui";
 
 type CalendarSession = {
@@ -102,30 +103,8 @@ export default function TeacherUnavailability() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Créneaux bloqués</p>
-              <p className="mt-2 text-3xl font-semibold">{totalBlockedSlots}</p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <Ban className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Jours concernes</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {Object.keys(unavailability.slotsByDate).length}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <CalendarClock className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard label="Créneaux bloqués" value={totalBlockedSlots} icon={Ban} />
+        <StatsCard label="Jours concernés" value={Object.keys(unavailability.slotsByDate).length} icon={CalendarClock} />
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Rappel</CardTitle>

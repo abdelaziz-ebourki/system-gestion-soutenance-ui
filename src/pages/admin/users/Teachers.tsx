@@ -61,7 +61,6 @@ export default function Teachers() {
     onCreate: (d) => create.mutateAsync({ ...d, role: "teacher", isActive: false }),
     onUpdate: (id, d) => update.mutateAsync({ id, data: { ...d, role: "teacher" as const } }),
     onDelete: (id) => del.mutateAsync(id),
-    entityName: (s: Teacher) => `${s.lastName} ${s.firstName}`,
     mapToForm: (s: Teacher) => ({ lastName: s.lastName, firstName: s.firstName, email: s.email, gradeId: s.gradeId, departmentId: s.departmentId }),
     successMessages: {
       create: "Enseignant créé avec succès",

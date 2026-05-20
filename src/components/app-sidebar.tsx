@@ -81,6 +81,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/admin/config",
             icon: <Settings2Icon />,
           },
+          {
+            title: "Audit Log",
+            url: "/admin/audit-logs",
+            icon: <HistoryIcon />,
+          },
         ];
       case "coordinator":
         return [

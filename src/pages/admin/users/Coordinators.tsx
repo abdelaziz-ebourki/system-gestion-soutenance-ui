@@ -51,7 +51,6 @@ export default function Coordinators() {
     onCreate: (d) => create.mutateAsync({ ...d, role: "coordinator", isActive: false }),
     onUpdate: (id, d) => update.mutateAsync({ id, data: { ...d, role: "coordinator" as const } }),
     onDelete: (id) => del.mutateAsync(id),
-    entityName: (c: Coordinator) => `${c.lastName} ${c.firstName}`,
     mapToForm: (c: Coordinator) => ({ lastName: c.lastName, firstName: c.firstName, email: c.email }),
     successMessages: {
       create: "Coordinateur ajouté avec succès",

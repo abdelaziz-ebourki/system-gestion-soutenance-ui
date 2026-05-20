@@ -25,6 +25,7 @@ import {
   Input,
   Label,
   Textarea,
+  StatsCard,
 } from "@/components/ui";
 
 
@@ -102,45 +103,9 @@ export default function TeacherEvaluations() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">À compléter</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {pendingEvaluations.length}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <PencilLine className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Soumises</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {submittedEvaluations.length}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <FileCheck2 className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Commentaires</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {evaluations.filter((evaluation) => evaluation.comment).length}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <MessageSquareText className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard label="À compléter" value={pendingEvaluations.length} icon={PencilLine} />
+        <StatsCard label="Soumises" value={submittedEvaluations.length} icon={FileCheck2} />
+        <StatsCard label="Commentaires" value={evaluations.filter((e) => e.comment).length} icon={MessageSquareText} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">

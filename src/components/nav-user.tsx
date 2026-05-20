@@ -124,11 +124,11 @@ export function NavUser({
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/profile")}>
                   <CircleUserRoundIcon className="size-4" />
                   Mon Profil
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/notifications")}>
                   <BellIcon className="size-4" />
                   Notifications
                 </DropdownMenuItem>

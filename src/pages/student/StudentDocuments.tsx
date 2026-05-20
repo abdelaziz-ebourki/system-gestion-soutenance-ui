@@ -20,6 +20,7 @@ import {
   CardTitle,
   Input,
   Label,
+  StatsCard,
 } from "@/components/ui";
 
 const documentIcons: Record<string, typeof FileText> = {
@@ -71,43 +72,9 @@ export default function StudentDocuments() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                Documents attendus
-              </p>
-              <p className="mt-2 text-3xl font-semibold">{documents.length}</p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <FileText className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Validés</p>
-              <p className="mt-2 text-3xl font-semibold">{validatedCount}</p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <FileCheck2 className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                Échéances ouvertes
-              </p>
-              <p className="mt-2 text-3xl font-semibold">{missingCount}</p>
-            </div>
-            <div className="rounded-lg bg-destructive/10 p-3 text-destructive">
-              <CalendarClock className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard label="Documents attendus" value={documents.length} icon={FileText} />
+        <StatsCard label="Validés" value={validatedCount} icon={FileCheck2} />
+        <StatsCard label="Échéances ouvertes" value={missingCount} icon={CalendarClock} />
       </div>
 
       <Card>

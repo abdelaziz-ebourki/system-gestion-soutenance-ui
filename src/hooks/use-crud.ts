@@ -10,7 +10,6 @@ interface CrudConfig<TForm, TEntity extends { id: string }> {
   onCreate: (data: TForm) => Promise<unknown>;
   onUpdate: (id: string, data: TForm) => Promise<unknown>;
   onDelete: (id: string) => Promise<unknown>;
-  entityName: (entity: TEntity) => string;
   mapToForm: (entity: TEntity) => TForm;
   successMessages?: {
     create?: string;
@@ -49,7 +48,6 @@ export function useCrud<TForm, TEntity extends { id: string }>(
     onCreate,
     onUpdate,
     onDelete,
-    entityName,
     mapToForm,
     successMessages = {
       create: "Créé avec succès",
@@ -57,7 +55,6 @@ export function useCrud<TForm, TEntity extends { id: string }>(
       delete: "Supprimé avec succès",
     },
   } = config;
-  void entityName;
 
   const openCreate = () => {
     setFormData(config.defaultForm);

@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import {
   Plus,
   Pencil,
-  Trash,
+  Trash2,
   Users,
   FolderKanban,
   CircleAlert,
@@ -32,6 +32,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  StatsCard,
 } from "@/components/ui";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { DataTable } from "@/components/ui/data-table";
@@ -122,7 +123,7 @@ export default function CoordinatorProjects() {
             size="icon"
             onClick={() => handleDelete(row.original.id)}
           >
-            <Trash className="size-4" />
+            <Trash2 className="size-4" />
           </Button>
         </div>
       ),
@@ -155,43 +156,9 @@ export default function CoordinatorProjects() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Portefeuille</p>
-              <p className="mt-2 text-3xl font-semibold">{projects.length}</p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <FolderKanban className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Groupes complets</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {multiMemberGroups.length}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <Users className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">A valider</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {pendingProjects.length}
-              </p>
-            </div>
-            <div className="rounded-lg bg-destructive/10 p-3 text-destructive">
-              <CircleAlert className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard label="Portefeuille" value={projects.length} icon={FolderKanban} />
+        <StatsCard label="Groupes complets" value={multiMemberGroups.length} icon={Users} />
+        <StatsCard label="A valider" value={pendingProjects.length} icon={CircleAlert} />
       </div>
 
       <Card>
@@ -220,7 +187,7 @@ export default function CoordinatorProjects() {
       </Card>
 
       {selectedProjects.length > 0 && (
-        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 flex items-center justify-between border-t bg-background p-4 shadow-lg">
+        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4 shadow-lg">
           <span className="text-sm font-medium">{selectedProjects.length} projet(s) sélectionné(s)</span>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => { setBatchDialog("status"); setBatchValue(""); }}>

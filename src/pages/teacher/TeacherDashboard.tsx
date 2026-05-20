@@ -12,6 +12,7 @@ import {
   CardHeader,
   CardTitle,
   Skeleton,
+  StatsCard,
 } from "@/components/ui";
 
 export default function TeacherDashboard() {
@@ -87,42 +88,10 @@ export default function TeacherDashboard() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: "Soutenances à venir",
-            value: stats?.upcomingDefenses,
-            icon: Clock3,
-          },
-          {
-            label: "Évaluations en attente",
-            value: stats?.pendingEvaluations,
-            icon: FileCheck2,
-          },
-          {
-            label: "Créneaux bloqués",
-            value: stats?.declaredUnavailabilitySlots,
-            icon: ClipboardCheck,
-          },
-          {
-            label: "Jurys assignés",
-            value: stats?.juryAssignments,
-            icon: ShieldCheck,
-          },
-        ].map((item) => (
-          <Card key={item.label} >
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <p className="text-sm text-muted-foreground">{item.label}</p>
-                <p className="mt-2 text-3xl font-semibold tracking-tight">
-                  {isLoading ? <Skeleton className="h-9 w-14" /> : item.value}
-                </p>
-              </div>
-              <div className="rounded-lg bg-secondary p-3 text-primary">
-                <item.icon className="size-5" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <StatsCard label="Soutenances à venir" value={stats?.upcomingDefenses} icon={Clock3} loading={isLoading} />
+        <StatsCard label="Évaluations en attente" value={stats?.pendingEvaluations} icon={FileCheck2} loading={isLoading} />
+        <StatsCard label="Créneaux bloqués" value={stats?.declaredUnavailabilitySlots} icon={ClipboardCheck} loading={isLoading} />
+        <StatsCard label="Jurys assignés" value={stats?.juryAssignments} icon={ShieldCheck} loading={isLoading} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">

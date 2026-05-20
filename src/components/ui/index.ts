@@ -21,6 +21,7 @@ export * from "./separator";
 export * from "./sheet";
 export * from "./skeleton";
 export * from "./sonner";
+export * from "./stats-card";
 export * from "./table";
 export * from "./tabs";
 export * from "./textarea";

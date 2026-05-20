@@ -13,6 +13,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  StatsCard,
 } from "@/components/ui";
 import { DataTable } from "@/components/ui/data-table";
 
@@ -89,43 +90,9 @@ export default function TeacherSchedule() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card >
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                Soutenances à venir
-              </p>
-              <p className="mt-2 text-3xl font-semibold">{upcomingCount}</p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <CalendarDays className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card >
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Rôles de jury</p>
-              <p className="mt-2 text-3xl font-semibold">
-                {schedule.length - supervisorCount}
-              </p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <ShieldCheck className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card >
-          <CardContent className="flex items-center justify-between p-5">
-            <div>
-              <p className="text-sm text-muted-foreground">Encadrements</p>
-              <p className="mt-2 text-3xl font-semibold">{supervisorCount}</p>
-            </div>
-            <div className="rounded-lg bg-secondary p-3 text-primary">
-              <Timer className="size-5" />
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard label="Soutenances à venir" value={upcomingCount} icon={CalendarDays} />
+        <StatsCard label="Rôles de jury" value={schedule.length - supervisorCount} icon={ShieldCheck} />
+        <StatsCard label="Encadrements" value={supervisorCount} icon={Timer} />
       </div>
 
       <Card >
