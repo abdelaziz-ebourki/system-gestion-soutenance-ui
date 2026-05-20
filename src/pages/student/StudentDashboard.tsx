@@ -48,7 +48,7 @@ export default function StudentDashboard() {
       <section className="rounded-lg border bg-card">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.35fr_1fr] md:px-8">
           <div className="space-y-4">
-            <Badge className="w-fit bg-secondary text-secondary-foreground hover:bg-secondary">
+            <Badge className="w-fit" variant="secondary">
               Ma soutenance
             </Badge>
             <div className="space-y-2">

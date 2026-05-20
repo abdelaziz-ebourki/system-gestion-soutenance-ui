@@ -200,10 +200,7 @@ export function NavUser({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleLogout}
-                className="bg-destructive hover:bg-destructive/90"
-              >
+              <AlertDialogAction variant="destructive" onClick={handleLogout}>
                 Se déconnecter
               </AlertDialogAction>
             </AlertDialogFooter>

@@ -70,7 +70,7 @@ export default function CoordinatorDashboard() {
       <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.5fr_1fr] md:px-8">
           <div className="space-y-4">
-            <Badge className="w-fit bg-secondary text-secondary-foreground hover:bg-secondary">
+            <Badge className="w-fit" variant="secondary">
               Campagne de soutenance 2026
             </Badge>
             <div className="space-y-2">

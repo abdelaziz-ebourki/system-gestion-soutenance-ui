@@ -114,7 +114,7 @@ export default function StudentGroup() {
                   : group?.projectTitle || "Projet non affecté"}
               </p>
               <div className="mt-4">
-                <Badge className="bg-secondary text-secondary-foreground">
+                <Badge variant="secondary">
                   {group?.supervisorName || "Encadrant en attente"}
                 </Badge>
               </div>

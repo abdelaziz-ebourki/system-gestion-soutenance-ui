@@ -107,7 +107,7 @@ export const mockRooms: Room[] = [
   { id: "5", name: "TP-2", capacity: 20, departmentId: "2" },
 ];
 
-export let defenseSettings = {
+export const defenseSettings = {
   startTime: "08:00",
   endTime: "18:00",
   defenseDuration: 30,
@@ -222,7 +222,7 @@ interface StudentGroupData {
   projectId?: string;
 }
 
-export let studentGroups: StudentGroupData[] = [
+export const studentGroups: StudentGroupData[] = [
   { id: "sg1", groupName: "Groupe-1", memberIds: ["std-1", "std-2"], projectId: "p5" },
   { id: "sg2", groupName: "Groupe-2", memberIds: ["std-3"], projectId: "p2" },
 ];

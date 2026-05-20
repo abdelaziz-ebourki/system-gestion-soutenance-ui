@@ -199,7 +199,7 @@ export default function TeacherEvaluations() {
                       Note: {evaluation.score}/20
                     </p>
                   </div>
-                  <Badge className="bg-secondary text-secondary-foreground">
+                  <Badge variant="secondary">
                     {DEFENSE_ROLE_LABELS[evaluation.role]}
                   </Badge>
                 </div>

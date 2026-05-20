@@ -37,7 +37,7 @@ export function CrudActions<TEntity>({
             <Pencil className="mr-2 h-4 w-4" /> Modifier
           </DropdownMenuItem>
           <DropdownMenuItem
-            className="text-destructive"
+            variant="destructive"
             onClick={() => onDelete(entity)}
           >
             <Trash2 className="mr-2 h-4 w-4" /> Supprimer

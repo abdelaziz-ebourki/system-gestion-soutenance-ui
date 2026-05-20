@@ -35,7 +35,7 @@ export default function TeacherDashboard() {
       <section className="rounded-lg border bg-card">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.4fr_1fr] md:px-8">
           <div className="space-y-4">
-            <Badge className="w-fit bg-secondary text-secondary-foreground hover:bg-secondary">
+            <Badge className="w-fit" variant="secondary">
               Session de soutenance
             </Badge>
             <div className="space-y-2">
@@ -144,7 +144,7 @@ export default function TeacherDashboard() {
                       {defense.studentNames.join(", ")}
                     </p>
                   </div>
-                  <Badge className="bg-secondary text-secondary-foreground">
+                  <Badge variant="secondary">
                     {DEFENSE_ROLE_LABELS[defense.role]}
                   </Badge>
                 </div>

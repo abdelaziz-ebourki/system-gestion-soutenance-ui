@@ -64,7 +64,7 @@ export default function Jurys() {
       header: "President",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Badge className="bg-secondary text-secondary-foreground">P</Badge>
+          <Badge variant="secondary">P</Badge>
           <span>{row.original.presidentName}</span>
         </div>
       ),
@@ -74,7 +74,7 @@ export default function Jurys() {
       header: "Rapporteur",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Badge className="bg-secondary text-secondary-foreground">R</Badge>
+          <Badge variant="secondary">R</Badge>
           <span>{row.original.reporterName}</span>
         </div>
       ),
@@ -84,7 +84,7 @@ export default function Jurys() {
       header: "Examinateur",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Badge className="bg-primary text-primary-foreground">E</Badge>
+          <Badge variant="default">E</Badge>
           <span>{row.original.examinerName}</span>
         </div>
       ),

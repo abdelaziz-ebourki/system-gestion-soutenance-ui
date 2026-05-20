@@ -123,7 +123,7 @@ export default function Sessions() {
               <DropdownMenuItem onClick={() => crud.openEdit(row.original)}>
                 <Pencil className="mr-2 h-4 w-4" /> Modifier
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive" onClick={() => crud.openDelete(row.original)}>
+              <DropdownMenuItem variant="destructive" onClick={() => crud.openDelete(row.original)}>
                 <Trash2 className="mr-2 h-4 w-4" /> Supprimer
               </DropdownMenuItem>
             </DropdownMenuGroup>

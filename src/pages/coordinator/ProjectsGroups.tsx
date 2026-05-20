@@ -102,11 +102,11 @@ export default function CoordinatorProjects() {
             <Pencil className="size-4" />
           </Button>
           <Button
-            variant="ghost"
+            variant="destructive"
             size="icon"
             onClick={() => handleDelete(row.original.id)}
           >
-            <Trash className="size-4 text-destructive" />
+            <Trash className="size-4" />
           </Button>
         </div>
       ),

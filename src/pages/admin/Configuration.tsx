@@ -196,9 +196,9 @@ export default function Configuration() {
                   <Pencil className="h-4 w-4" />
                 </Button>
                 <Button
-                  variant="ghost"
+                  variant="destructive"
                   size="icon"
-                  className="h-8 w-8 text-destructive"
+                  className="h-8 w-8"
                   onClick={() => {
                     setActiveType(type);
                     setSelectedItem(item);
@@ -426,12 +426,11 @@ export default function Configuration() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction
+            <AlertDialogAction variant="destructive"
               onClick={(e) => {
                 e.preventDefault();
                 handleDelete();
               }}
-              className="bg-destructive hover:bg-destructive/90"
               disabled={isDeleting}
             >
               {isDeleting ? "Suppression..." : "Supprimer"}

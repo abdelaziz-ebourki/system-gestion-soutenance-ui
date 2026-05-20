@@ -63,7 +63,7 @@ export default function TeacherSchedule() {
       accessorKey: "status",
       header: "Statut",
       cell: ({ row }) => (
-        <Badge className="bg-secondary text-secondary-foreground">
+        <Badge variant="secondary">
           {statusLabel[row.original.status]}
         </Badge>
       ),
@@ -173,7 +173,7 @@ export default function TeacherSchedule() {
                     </span>
                   </div>
                 </div>
-                <Badge className="bg-secondary text-secondary-foreground">
+                <Badge variant="secondary">
                   {DEFENSE_ROLE_LABELS[defense.role]}
                 </Badge>
               </CardContent>
