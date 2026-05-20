@@ -25,7 +25,7 @@ export default function DashboardLayout() {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbPage className="font-heading font-bold uppercase tracking-widest text-[10px] text-muted-foreground">
+                  <BreadcrumbPage className="font-heading font-bold uppercase tracking-widest text-xs text-muted-foreground">
                     Tableau de Bord
                   </BreadcrumbPage>
                 </BreadcrumbItem>

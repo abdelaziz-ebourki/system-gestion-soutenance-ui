@@ -101,18 +101,18 @@ export default function TeacherUnavailability() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Creneaux bloques</p>
               <p className="mt-2 text-3xl font-semibold">{totalBlockedSlots}</p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <Ban className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Jours concernes</p>
@@ -120,12 +120,12 @@ export default function TeacherUnavailability() {
                 {Object.keys(unavailability.slotsByDate).length}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <CalendarClock className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Rappel</CardTitle>
             <CardDescription>
@@ -136,7 +136,7 @@ export default function TeacherUnavailability() {
       </div>
 
       {isLoading ? (
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
             Chargement du calendrier...
           </CardContent>

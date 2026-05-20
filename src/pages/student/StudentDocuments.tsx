@@ -62,7 +62,7 @@ export default function StudentDocuments() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">
@@ -70,12 +70,12 @@ export default function StudentDocuments() {
               </p>
               <p className="mt-2 text-3xl font-semibold">{documents.length}</p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <FileText className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Validés</p>
@@ -87,12 +87,12 @@ export default function StudentDocuments() {
                 }
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <FileCheck2 className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">
@@ -105,14 +105,14 @@ export default function StudentDocuments() {
                 }
               </p>
             </div>
-            <div className="rounded-2xl bg-destructive/10 p-3 text-destructive">
+            <div className="rounded-lg bg-destructive/10 p-3 text-destructive">
               <CalendarClock className="size-5" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card>
         <CardHeader>
           <CardTitle>Suivi des pièces</CardTitle>
           <CardDescription>
@@ -129,10 +129,10 @@ export default function StudentDocuments() {
               const Icon = documentIcons[document.type] || FileText;
 
               return (
-                <div key={document.id} className="rounded-2xl border p-4">
+                <div key={document.id} className="rounded-lg border p-4">
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
-                      <div className="rounded-2xl bg-secondary p-3 text-primary">
+                      <div className="rounded-lg bg-secondary p-3 text-primary">
                         <Icon className="size-5" />
                       </div>
                       <div>

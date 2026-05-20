@@ -86,7 +86,7 @@ export default function TeacherSchedule() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-0 shadow-sm">
+        <Card >
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">
@@ -94,12 +94,12 @@ export default function TeacherSchedule() {
               </p>
               <p className="mt-2 text-3xl font-semibold">{upcomingCount}</p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <CalendarDays className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card >
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Rôles de jury</p>
@@ -107,25 +107,25 @@ export default function TeacherSchedule() {
                 {schedule.length - supervisorCount}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <ShieldCheck className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card >
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Encadrements</p>
               <p className="mt-2 text-3xl font-semibold">{supervisorCount}</p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <Timer className="size-5" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card >
         <CardHeader>
           <CardTitle>Planning détaillé</CardTitle>
           <CardDescription>
@@ -153,7 +153,7 @@ export default function TeacherSchedule() {
         {schedule
           .filter((defense) => defense.status === "scheduled")
           .map((defense) => (
-            <Card key={defense.id} className="border-0 shadow-sm">
+            <Card key={defense.id} >
               <CardContent className="flex items-start justify-between gap-4 p-5">
                 <div>
                   <p className="font-medium">{defense.projectTitle}</p>

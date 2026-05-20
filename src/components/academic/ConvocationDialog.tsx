@@ -41,7 +41,7 @@ export default function ConvocationDialog({
           className="p-12 space-y-8 overflow-y-auto"
         >
           {/* Title Section */}
-          <div className="text-center space-y-4 py-4 border-b-2 border-slate-900 pb-8">
+          <div className="text-center space-y-4 py-4 border-b-2 border-border pb-8">
             <h1 className="text-3xl font-heading font-bold uppercase tracking-widest">
               Convocation de Soutenance
             </h1>
@@ -60,7 +60,7 @@ export default function ConvocationDialog({
                 {students.map((s) => (
                   <div
                     key={s.cne}
-                    className="flex justify-between items-center border-l-4 border-slate-900 pl-4 py-1 bg-muted"
+                    className="flex justify-between items-center border-l-4 border-border pl-4 py-1 bg-muted"
                   >
                     <span className="font-bold underline text-xl">
                       {s.name}
@@ -128,7 +128,7 @@ export default function ConvocationDialog({
           </div>
 
           <div className="pt-12 text-right">
-            <p className="text-sm font-bold uppercase tracking-widest border-t-2 border-slate-900 inline-block pt-2">
+            <p className="text-sm font-bold uppercase tracking-widest border-t-2 border-border inline-block pt-2">
               Le Coordinateur de Filière
             </p>
           </div>

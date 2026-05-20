@@ -68,7 +68,7 @@ export default function Login() {
               <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground">
                 {siteConfig.name}
               </h1>
-              <p className="text-muted-foreground font-medium uppercase tracking-[0.2em] text-xs">
+              <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">
                 {siteConfig.subtitle}
               </p>
             </div>
@@ -100,7 +100,7 @@ export default function Login() {
           </div>
         </div>
 
-        <Card className="shadow-2xl">
+        <Card className="shadow">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-3xl">Connexion</CardTitle>
             <CardDescription>

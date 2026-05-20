@@ -69,8 +69,8 @@ function BacklogProject({
       {...attributes}
       className={
         assigned
-          ? "rounded-[22px] border bg-muted p-4 opacity-50"
-          : "cursor-grab rounded-[22px] border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-sm active:cursor-grabbing"
+          ? "rounded-lg border bg-muted p-4 opacity-50"
+          : "cursor-grab rounded-lg border bg-card p-4 transition hover:-translate-y-0.5 active:cursor-grabbing"
       }
     >
       <div className="flex items-start justify-between gap-3">
@@ -107,8 +107,8 @@ function SlotTarget({
       ref={setNodeRef}
       className={
         isOver
-          ? "min-h-32 rounded-3xl border-2 border-dashed border-primary bg-primary/5 p-4 transition"
-          : "min-h-32 rounded-3xl border-2 border-dashed border-border bg-card p-4 transition"
+          ? "min-h-32 rounded-xl border-2 border-dashed border-primary bg-primary/5 p-4 transition"
+          : "min-h-32 rounded-xl border-2 border-dashed border-border bg-card p-4 transition"
       }
     >
       <div className="flex items-center justify-between text-sm text-muted-foreground">
@@ -249,7 +249,7 @@ export default function SoutenanceDesigner() {
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
-          <Card className="border-0 shadow-sm">
+          <Card className="">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <GripVertical className="size-4" />
@@ -261,16 +261,16 @@ export default function SoutenanceDesigner() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-2xl bg-secondary p-4">
-                  <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                <div className="rounded-lg bg-secondary p-4">
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">
                     Prets
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
                     {readyProjects.length}
                   </p>
                 </div>
-                <div className="rounded-2xl bg-secondary p-4">
-                  <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                <div className="rounded-lg bg-secondary p-4">
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">
                     A placer
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
@@ -288,7 +288,7 @@ export default function SoutenanceDesigner() {
                   />
                 ))}
                 {backlogProjects.length === 0 && (
-                  <div className="rounded-[22px] border border-dashed p-5 text-sm text-muted-foreground">
+                  <div className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">
                     Tous les projets prets ont deja ete places.
                   </div>
                 )}
@@ -298,7 +298,7 @@ export default function SoutenanceDesigner() {
 
           <div className="space-y-6">
             {DAYS.map((day) => (
-              <Card key={day} className="border-0 shadow-sm">
+              <Card key={day} className="">
                 <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
@@ -321,7 +321,7 @@ export default function SoutenanceDesigner() {
                 <CardContent className="grid gap-4 lg:grid-cols-3">
                   {rooms.map((room) => (
                     <div key={room.id} className="space-y-3">
-                      <div className="rounded-2xl bg-muted/50 p-4">
+                      <div className="rounded-lg bg-muted/50 p-4">
                         <p className="font-medium">{room.name}</p>
                         <p className="text-sm text-muted-foreground">
                           Capacite {room.capacity} places
@@ -340,7 +340,7 @@ export default function SoutenanceDesigner() {
                             scheduled={!!scheduled}
                           >
                             {scheduled && (
-                              <div className="mt-4 rounded-2xl border bg-primary p-4 text-primary-foreground">
+                              <div className="mt-4 rounded-lg border bg-primary p-4 text-primary-foreground">
                                 <div className="flex items-start justify-between gap-3">
                                   <div>
                                     <p className="font-medium">
@@ -388,7 +388,7 @@ export default function SoutenanceDesigner() {
 
       <DragOverlay>
         {activeProject ? (
-          <div className="rounded-[22px] border bg-card p-4 shadow-xl">
+          <div className="rounded-lg border bg-card p-4 shadow">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="font-medium">{activeProject.title}</p>

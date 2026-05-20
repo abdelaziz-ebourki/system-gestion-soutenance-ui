@@ -139,18 +139,18 @@ export default function CoordinatorProjects() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Portefeuille</p>
               <p className="mt-2 text-3xl font-semibold">{projects.length}</p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <FolderKanban className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Groupes complets</p>
@@ -158,12 +158,12 @@ export default function CoordinatorProjects() {
                 {multiMemberGroups.length}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <Users className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">A valider</p>
@@ -171,14 +171,14 @@ export default function CoordinatorProjects() {
                 {pendingProjects.length}
               </p>
             </div>
-            <div className="rounded-2xl bg-destructive/10 p-3 text-destructive">
+            <div className="rounded-lg bg-destructive/10 p-3 text-destructive">
               <CircleAlert className="size-5" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card>
         <CardHeader>
           <CardTitle>Catalogue des projets</CardTitle>
           <CardDescription>

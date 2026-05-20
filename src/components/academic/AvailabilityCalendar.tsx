@@ -112,12 +112,12 @@ export default function AvailabilityCalendar({
   };
 
   return (
-    <Card className="border-border shadow-md bg-card overflow-hidden rounded-3xl">
+    <Card className="border-border shadow bg-card overflow-hidden rounded-lg">
       <div className="grid lg:grid-cols-3 border-b border-border">
         <div className="lg:col-span-2 p-10">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-5">
-              <div className="p-4 bg-primary/10 rounded-2xl text-primary">
+              <div className="p-4 bg-primary/10 rounded-lg text-primary">
                 <CalendarIcon className="h-7 w-7" />
               </div>
               <div>
@@ -157,7 +157,7 @@ export default function AvailabilityCalendar({
             {weekDays.map((day) => (
               <div
                 key={day}
-                className="text-center py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground"
+                className="text-center py-3 text-xs font-bold uppercase tracking-widest text-muted-foreground"
               >
                 {day}
               </div>
@@ -175,7 +175,7 @@ export default function AvailabilityCalendar({
                   key={i}
                   onClick={() => day !== 0 && setActiveDay(day)}
                   className={`
-                    relative aspect-square rounded-2xl border transition-all cursor-pointer p-3 group
+                    relative aspect-square rounded-lg border transition-all cursor-pointer p-3 group
                     ${day === 0 ? "invisible" : ""}
                     ${isActive ? "ring-2 ring-primary ring-offset-2 z-10 shadow-sm" : "hover:border-primary/30"}
                     ${status === "full-unavailable" ? "bg-destructive/10 border-destructive/30" : status === "partial" ? "bg-destructive/5 border-destructive/20" : "bg-card border-border"}
@@ -198,7 +198,7 @@ export default function AvailabilityCalendar({
                   </div>
 
                   {session && (
-                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-4 bg-popover text-popover-foreground rounded-2xl text-xs opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-20 shadow-xl scale-95 group-hover:scale-100 origin-bottom">
+                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-4 bg-popover text-popover-foreground rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-20 shadow-xl scale-95 group-hover:scale-100 origin-bottom">
                       <p className="font-bold mb-2 border-b border-border pb-2 flex items-center gap-2">
                         <Clock className="h-3 w-3 text-primary" />{" "}
                         {session.time}
@@ -206,7 +206,7 @@ export default function AvailabilityCalendar({
                       <p className="font-medium mb-1 truncate">
                         {session.student}
                       </p>
-                      <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <MapPin className="h-3 w-3" /> {session.room}
                       </p>
                       <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-popover" />
@@ -248,7 +248,7 @@ export default function AvailabilityCalendar({
                   }
                   disabled={hasSession}
                   className={`
-										w-full flex items-center justify-between p-4 rounded-2xl border transition-all text-left
+										w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left
 										${
                       hasSession
                         ? "bg-primary/5 border-primary/10 opacity-60 cursor-not-allowed"
@@ -267,7 +267,7 @@ export default function AvailabilityCalendar({
                     <span className="text-sm font-bold">{slot}</span>
                   </div>
                   {hasSession ? (
-                    <Badge variant="secondary" className="text-[10px]">
+                    <Badge variant="secondary" className="text-xs">
                       Jury
                     </Badge>
                   ) : isUnavailable ? (
@@ -281,14 +281,14 @@ export default function AvailabilityCalendar({
           </div>
 
           <div className="pt-6 space-y-4">
-            <div className="p-4 bg-card rounded-2xl border border-border space-y-3">
+            <div className="p-4 bg-card rounded-lg border border-border space-y-3">
               <div className="flex items-center gap-2 text-primary">
                 <Info className="h-4 w-4" />
-                <span className="text-[10px] font-bold uppercase tracking-tighter">
+                <span className="text-xs font-bold uppercase tracking-tighter">
                   Information Créneau
                 </span>
               </div>
-              <p className="text-[10px] text-muted-foreground leading-relaxed italic">
+              <p className="text-xs text-muted-foreground leading-relaxed italic">
                 Les créneaux sont fixés à 90min par l'administration avec 15min
                 de repos entre chaque session.
               </p>
@@ -297,7 +297,7 @@ export default function AvailabilityCalendar({
             {onSave && (
               <Button
                 onClick={onSave}
-                className="w-full rounded-2xl h-14 font-bold shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] gap-2"
+                className="w-full rounded-lg h-14 font-bold shadow transition-all hover:scale-105 active:scale-95 gap-2"
               >
                 <CheckCircle2 className="h-5 w-5" />
                 Valider mes choix

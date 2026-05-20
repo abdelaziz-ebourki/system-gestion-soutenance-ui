@@ -101,7 +101,7 @@ export default function TeacherEvaluations() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">À compléter</p>
@@ -109,12 +109,12 @@ export default function TeacherEvaluations() {
                 {pendingEvaluations.length}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <PencilLine className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Soumises</p>
@@ -122,12 +122,12 @@ export default function TeacherEvaluations() {
                 {submittedEvaluations.length}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <FileCheck2 className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Commentaires</p>
@@ -135,7 +135,7 @@ export default function TeacherEvaluations() {
                 {evaluations.filter((evaluation) => evaluation.comment).length}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <MessageSquareText className="size-5" />
             </div>
           </CardContent>
@@ -143,7 +143,7 @@ export default function TeacherEvaluations() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
             <CardTitle>Évaluations en attente</CardTitle>
             <CardDescription>
@@ -157,7 +157,7 @@ export default function TeacherEvaluations() {
               </div>
             ) : (
               pendingEvaluations.map((evaluation) => (
-                <div key={evaluation.id} className="rounded-2xl border p-4">
+                <div key={evaluation.id} className="rounded-lg border p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="font-medium">{evaluation.projectTitle}</p>
@@ -180,7 +180,7 @@ export default function TeacherEvaluations() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
             <CardTitle>Historique récent</CardTitle>
             <CardDescription>
@@ -189,7 +189,7 @@ export default function TeacherEvaluations() {
           </CardHeader>
           <CardContent className="space-y-3">
             {submittedEvaluations.map((evaluation) => (
-              <div key={evaluation.id} className="rounded-2xl border p-4">
+              <div key={evaluation.id} className="rounded-lg border p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-medium">{evaluation.projectTitle}</p>
@@ -232,7 +232,7 @@ export default function TeacherEvaluations() {
             className="grid gap-4"
             onSubmit={handleSubmit}
           >
-            <div className="rounded-2xl border bg-secondary/40 p-4">
+            <div className="rounded-lg border bg-secondary/40 p-4">
               <p className="font-medium">{selectedEvaluation?.projectTitle}</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 {selectedEvaluation?.studentNames.join(", ")}

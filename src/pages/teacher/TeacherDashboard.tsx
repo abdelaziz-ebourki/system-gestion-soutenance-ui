@@ -31,7 +31,7 @@ export default function TeacherDashboard() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[28px] border bg-card shadow-sm">
+      <section className="rounded-lg border bg-card">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.4fr_1fr] md:px-8">
           <div className="space-y-4">
             <Badge className="w-fit bg-secondary text-secondary-foreground hover:bg-secondary">
@@ -56,8 +56,8 @@ export default function TeacherDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border bg-background/80 p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+              <div className="rounded-lg border bg-background/80 p-4">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   À venir
                 </p>
                 <p className="mt-2 text-2xl font-semibold">
@@ -68,8 +68,8 @@ export default function TeacherDashboard() {
                   )}
                 </p>
               </div>
-              <div className="rounded-2xl border bg-background/80 p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+              <div className="rounded-lg border bg-background/80 p-4">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   Notes
                 </p>
                 <p className="mt-2 text-2xl font-semibold">
@@ -108,7 +108,7 @@ export default function TeacherDashboard() {
             icon: ShieldCheck,
           },
         ].map((item) => (
-          <Card key={item.label} className="border-0 shadow-sm">
+          <Card key={item.label} >
             <CardContent className="flex items-center justify-between p-5">
               <div>
                 <p className="text-sm text-muted-foreground">{item.label}</p>
@@ -116,7 +116,7 @@ export default function TeacherDashboard() {
                   {isLoading ? <Skeleton className="h-9 w-14" /> : item.value}
                 </p>
               </div>
-              <div className="rounded-2xl bg-secondary p-3 text-primary">
+              <div className="rounded-lg bg-secondary p-3 text-primary">
                 <item.icon className="size-5" />
               </div>
             </CardContent>
@@ -125,7 +125,7 @@ export default function TeacherDashboard() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card className="border-0 shadow-sm">
+        <Card >
           <CardHeader>
             <CardTitle>Prochaines soutenances</CardTitle>
             <CardDescription>
@@ -134,7 +134,7 @@ export default function TeacherDashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             {upcomingDefenses.map((defense) => (
-              <div key={defense.id} className="rounded-2xl border p-4">
+              <div key={defense.id} className="rounded-lg border p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-medium">{defense.projectTitle}</p>
@@ -155,7 +155,7 @@ export default function TeacherDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm">
+        <Card >
           <CardHeader>
             <CardTitle>Évaluations à rendre</CardTitle>
             <CardDescription>
@@ -164,7 +164,7 @@ export default function TeacherDashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             {pendingEvaluations.map((evaluation) => (
-              <div key={evaluation.id} className="rounded-2xl border p-4">
+              <div key={evaluation.id} className="rounded-lg border p-4">
                 <p className="font-medium">{evaluation.projectTitle}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {evaluation.studentNames.join(", ")}
@@ -175,7 +175,7 @@ export default function TeacherDashboard() {
               </div>
             ))}
             {!isLoading && pendingEvaluations.length === 0 && (
-              <div className="rounded-2xl border bg-secondary p-4 text-sm text-secondary-foreground">
+              <div className="rounded-lg border bg-secondary p-4 text-sm text-secondary-foreground">
                 Aucune évaluation en attente.
               </div>
             )}

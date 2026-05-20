@@ -109,18 +109,18 @@ export default function Jurys() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Jurys composes</p>
               <p className="mt-2 text-3xl font-semibold">{jurys.length}</p>
             </div>
-            <div className="rounded-2xl bg-primary p-3 text-primary-foreground">
+            <div className="rounded-lg bg-primary p-3 text-primary-foreground">
               <ShieldCheck className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Projets sans jury</p>
@@ -128,12 +128,12 @@ export default function Jurys() {
                 {projectsWithoutJury.length}
               </p>
             </div>
-            <div className="rounded-2xl bg-destructive/10 p-3 text-destructive">
+            <div className="rounded-lg bg-destructive/10 p-3 text-destructive">
               <AlertTriangle className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">
@@ -143,7 +143,7 @@ export default function Jurys() {
                 {Array.from(teachersLoad.keys()).length}/{teachers.length}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <Users className="size-5" />
             </div>
           </CardContent>
@@ -151,7 +151,7 @@ export default function Jurys() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
             <CardTitle>Composition des jurys</CardTitle>
             <CardDescription>
@@ -174,7 +174,7 @@ export default function Jurys() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
             <CardTitle>Charge enseignants</CardTitle>
             <CardDescription>
@@ -187,7 +187,7 @@ export default function Jurys() {
               const load = teachersLoad.get(teacher.id) || 0;
 
               return (
-                <div key={teacher.id} className="rounded-2xl border p-4">
+                <div key={teacher.id} className="rounded-lg border p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">{fullName}</p>

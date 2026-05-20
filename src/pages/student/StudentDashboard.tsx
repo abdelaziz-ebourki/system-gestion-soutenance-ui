@@ -45,7 +45,7 @@ export default function StudentDashboard() {
 
   return (
     <div className="space-y-6">
-      <section className="rounded-[28px] border bg-card shadow-sm">
+      <section className="rounded-lg border bg-card">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.35fr_1fr] md:px-8">
           <div className="space-y-4">
             <Badge className="w-fit bg-secondary text-secondary-foreground hover:bg-secondary">
@@ -71,8 +71,8 @@ export default function StudentDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="rounded-2xl border bg-background/80 p-4">
-                <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+              <div className="rounded-lg border bg-background/80 p-4">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   Statut
                 </p>
                 <p className="mt-2 text-2xl font-semibold">
@@ -80,7 +80,7 @@ export default function StudentDashboard() {
                 </p>
               </div>
               {defense?.date && (
-                <div className="rounded-2xl border bg-background/80 p-4 text-sm text-muted-foreground">
+                <div className="rounded-lg border bg-background/80 p-4 text-sm text-muted-foreground">
                   {defense.date} · {defense.startTime} - {defense.endTime} ·{" "}
                   {defense.roomName}
                 </div>
@@ -91,7 +91,7 @@ export default function StudentDashboard() {
       </section>
 
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Statut soutenance</p>
@@ -101,12 +101,12 @@ export default function StudentDashboard() {
                   : "En attente"}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <GraduationCap className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Membres du groupe</p>
@@ -114,12 +114,12 @@ export default function StudentDashboard() {
                 {stats?.groupMembers}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <Users className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Documents suivis</p>
@@ -127,12 +127,12 @@ export default function StudentDashboard() {
                 {stats?.documentCount}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <Download className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Pièces manquantes</p>
@@ -140,7 +140,7 @@ export default function StudentDashboard() {
                 {stats?.missingDocuments}
               </p>
             </div>
-            <div className="rounded-2xl bg-destructive/10 p-3 text-destructive">
+            <div className="rounded-lg bg-destructive/10 p-3 text-destructive">
               <CalendarDays className="size-5" />
             </div>
           </CardContent>
@@ -148,7 +148,7 @@ export default function StudentDashboard() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
             <CardTitle>Fiche de soutenance</CardTitle>
             <CardDescription>
@@ -156,7 +156,7 @@ export default function StudentDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="rounded-2xl border p-5">
+            <div className="rounded-lg border p-5">
               <p className="text-sm text-muted-foreground">Projet</p>
               <p className="mt-2 text-xl font-semibold">
                 {defense?.projectTitle}
@@ -166,11 +166,11 @@ export default function StudentDashboard() {
               </p>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl border p-4">
+              <div className="rounded-lg border p-4">
                 <p className="text-sm text-muted-foreground">Encadrant</p>
                 <p className="mt-2 font-medium">{defense?.supervisorName}</p>
               </div>
-              <div className="rounded-2xl border p-4">
+              <div className="rounded-lg border p-4">
                 <p className="text-sm text-muted-foreground">Horaire</p>
                 <p className="mt-2 font-medium">
                   {isLoading
@@ -201,7 +201,7 @@ export default function StudentDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
             <CardTitle>Composition du jury</CardTitle>
             <CardDescription>
@@ -209,10 +209,10 @@ export default function StudentDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {defense?.juryMembers.map((member, index) => (
+            {defense?.juryMembers.map((member) => (
               <div
-                key={`${member.role}-${member.name}-${index}`}
-                className="rounded-2xl border p-4"
+                key={`${member.role}-${member.name}`}
+                className="rounded-lg border p-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <p className="font-medium">{member.name}</p>
@@ -221,7 +221,7 @@ export default function StudentDashboard() {
               </div>
             ))}
             {defense?.result && (
-              <div className="rounded-2xl border bg-secondary p-4">
+              <div className="rounded-lg border bg-secondary p-4">
                 <p className="text-sm text-muted-foreground">Résultat</p>
                 <p className="mt-2 font-semibold">{defense.result.decision}</p>
                 {defense.result.score !== undefined && (

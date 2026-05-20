@@ -55,7 +55,7 @@ export default function StudentGroup() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Nom du groupe</p>
@@ -63,12 +63,12 @@ export default function StudentGroup() {
                 {isLoading ? "..." : group?.groupName || "Aucun groupe"}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <Users className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Membres</p>
@@ -76,12 +76,12 @@ export default function StudentGroup() {
                 {isLoading ? "..." : group?.members.length || 0}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <UserRound className="size-5" />
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardContent className="flex items-center justify-between p-5">
             <div>
               <p className="text-sm text-muted-foreground">Encadrant</p>
@@ -89,7 +89,7 @@ export default function StudentGroup() {
                 {isLoading ? "..." : group?.supervisorName || "En attente"}
               </p>
             </div>
-            <div className="rounded-2xl bg-secondary p-3 text-primary">
+            <div className="rounded-lg bg-secondary p-3 text-primary">
               <FolderKanban className="size-5" />
             </div>
           </CardContent>
@@ -97,7 +97,7 @@ export default function StudentGroup() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
             <CardTitle>Projet affecté</CardTitle>
             <CardDescription>
@@ -106,7 +106,7 @@ export default function StudentGroup() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-2xl border p-5">
+            <div className="rounded-lg border p-5">
               <p className="text-sm text-muted-foreground">Titre</p>
               <p className="mt-2 text-xl font-semibold">
                 {isLoading
@@ -122,7 +122,7 @@ export default function StudentGroup() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm">
+        <Card>
           <CardHeader>
             <CardTitle>Membres du groupe</CardTitle>
             <CardDescription>
@@ -131,7 +131,7 @@ export default function StudentGroup() {
           </CardHeader>
           <CardContent className="space-y-3">
             {group?.members.map((member) => (
-              <div key={member.id} className="rounded-2xl border p-4">
+              <div key={member.id} className="rounded-lg border p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-medium">{member.fullName}</p>
@@ -149,7 +149,7 @@ export default function StudentGroup() {
               </div>
             ))}
             {!isLoading && !group && (
-              <div className="rounded-2xl border bg-secondary/40 p-4 text-sm text-muted-foreground">
+              <div className="rounded-lg border bg-secondary/40 p-4 text-sm text-muted-foreground">
                 Vous n'appartenez à aucun groupe pour le moment.
               </div>
             )}
@@ -157,7 +157,7 @@ export default function StudentGroup() {
         </Card>
       </div>
 
-      <Card className="border-0 shadow-sm">
+      <Card>
         <CardHeader>
           <CardTitle>Fenêtre de création des groupes</CardTitle>
           <CardDescription>
@@ -166,7 +166,7 @@ export default function StudentGroup() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-2xl border p-4 text-sm text-muted-foreground">
+          <div className="rounded-lg border p-4 text-sm text-muted-foreground">
             Période autorisée: {workspace?.groupCreationStartDate} au{" "}
             {workspace?.groupCreationEndDate}
           </div>
@@ -182,7 +182,7 @@ export default function StudentGroup() {
               </Button>
             </div>
           ) : (
-            <div className="rounded-2xl border bg-destructive/10 p-4 text-sm text-destructive">
+            <div className="rounded-lg border bg-destructive/10 p-4 text-sm text-destructive">
               La création et la jonction des groupes sont actuellement fermées.
             </div>
           )}
@@ -193,7 +193,7 @@ export default function StudentGroup() {
               {workspace.availableGroups.map((availableGroup) => (
                 <div
                   key={availableGroup.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border p-4"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"
                 >
                   <div>
                     <p className="font-medium">{availableGroup.groupName}</p>

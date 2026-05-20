@@ -65,7 +65,7 @@ export default function CoordinatorDashboard() {
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-[28px] border bg-card shadow-sm">
+      <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.5fr_1fr] md:px-8">
           <div className="space-y-4">
             <Badge className="w-fit bg-secondary text-secondary-foreground hover:bg-secondary">
@@ -108,7 +108,7 @@ export default function CoordinatorDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="rounded-2xl border bg-background/80 p-4">
+              <div className="rounded-lg border bg-background/80 p-4">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Couverture des jurys</span>
                   <span>{juryCoverage}%</span>
@@ -121,8 +121,8 @@ export default function CoordinatorDashboard() {
                 </div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border bg-background/80 p-4">
-                  <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                <div className="rounded-lg border bg-background/80 p-4">
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">
                     Prets
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
@@ -136,8 +136,8 @@ export default function CoordinatorDashboard() {
                     Projets approuves
                   </p>
                 </div>
-                <div className="rounded-2xl border bg-background/80 p-4">
-                  <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                <div className="rounded-lg border bg-background/80 p-4">
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground">
                     A completer
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
@@ -180,7 +180,7 @@ export default function CoordinatorDashboard() {
             icon: Clock3,
           },
         ].map((item) => (
-          <Card key={item.label} className="border-0 shadow-sm">
+          <Card key={item.label} className="">
             <CardContent className="flex items-center justify-between p-5">
               <div>
                 <p className="text-sm text-muted-foreground">{item.label}</p>
@@ -188,7 +188,7 @@ export default function CoordinatorDashboard() {
                   {isLoading ? <Skeleton className="h-9 w-14" /> : item.value}
                 </p>
               </div>
-              <div className="rounded-2xl bg-secondary p-3 text-primary">
+              <div className="rounded-lg bg-secondary p-3 text-primary">
                 <item.icon className="size-5" />
               </div>
             </CardContent>
@@ -197,7 +197,7 @@ export default function CoordinatorDashboard() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <Card className="border-0 shadow-sm">
+        <Card className="">
           <CardHeader>
             <CardTitle>Acces directs</CardTitle>
             <CardDescription>
@@ -209,9 +209,9 @@ export default function CoordinatorDashboard() {
               <Link
                 key={card.title}
                 to={card.to}
-                className="group rounded-3xl border bg-card p-5 transition hover:-translate-y-0.5 hover:shadow-md"
+                className="group rounded-xl border bg-card p-5 transition hover:-translate-y-0.5"
               >
-                <div className="mb-4 inline-flex rounded-2xl bg-secondary p-3 text-primary">
+                <div className="mb-4 inline-flex rounded-lg bg-secondary p-3 text-primary">
                   <card.icon className="size-5" />
                 </div>
                 <div className="space-y-2">
@@ -229,7 +229,7 @@ export default function CoordinatorDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-sm">
+        <Card className="">
           <CardHeader>
             <CardTitle>Points d'attention</CardTitle>
             <CardDescription>
@@ -240,7 +240,7 @@ export default function CoordinatorDashboard() {
             {projectsWithoutJury.slice(0, 4).map((project) => (
               <div
                 key={project.id}
-                className="rounded-2xl border border-dashed p-4"
+                className="rounded-lg border border-dashed p-4"
               >
                 <p className="font-medium">{project.title}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
@@ -249,7 +249,7 @@ export default function CoordinatorDashboard() {
               </div>
             ))}
             {!isLoading && projectsWithoutJury.length === 0 && (
-              <div className="rounded-2xl border bg-secondary p-4 text-sm text-secondary-foreground">
+              <div className="rounded-lg border bg-secondary p-4 text-sm text-secondary-foreground">
                 Tous les projets disposent deja d'un jury.
               </div>
             )}
