@@ -45,6 +45,7 @@ interface DataTableProps<TData, TValue> {
   pageCount?: number;
   pagination?: PaginationState;
   onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
+  onFiltering?: (active: boolean) => void;
 }
 
 function getPageNumbers(current: number, total: number): (number | "...")[] {
@@ -73,6 +74,7 @@ export function DataTable<TData, TValue>({
   pageCount,
   pagination,
   onPaginationChange,
+  onFiltering,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -125,6 +127,14 @@ export function DataTable<TData, TValue>({
 
   const hasActiveFilters =
     columnFilters.length > 0 || globalFilter.length > 0;
+
+  const prevFiltering = React.useRef(hasActiveFilters);
+  React.useEffect(() => {
+    if (prevFiltering.current !== hasActiveFilters) {
+      prevFiltering.current = hasActiveFilters;
+      onFiltering?.(hasActiveFilters);
+    }
+  }, [hasActiveFilters, onFiltering]);
 
   const totalPages = table.getPageCount();
 

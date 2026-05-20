@@ -23,13 +23,19 @@ import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { useMemo, useState } from "react";
 
+const FILTER_LIMIT = 5000;
+
 export default function Coordinators() {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
   });
+  const [isFiltering, setIsFiltering] = useState(false);
 
-  const { data: coordinatorsData, isLoading } = useCoordinators(pagination.pageIndex, pagination.pageSize);
+  const { data: coordinatorsData, isLoading } = useCoordinators(
+    isFiltering ? 0 : pagination.pageIndex,
+    isFiltering ? FILTER_LIMIT : pagination.pageSize,
+  );
   const create = useCreateUser();
   const update = useUpdateUser();
   const del = useDeleteUser();
@@ -94,8 +100,10 @@ export default function Coordinators() {
       </div>
 
       {isLoading ? <Skeleton className="h-64 w-full" /> : (
-        <DataTable columns={columns} data={data} manualPagination pageCount={pageCount}
-          pagination={pagination} onPaginationChange={setPagination}
+        <DataTable columns={columns} data={data}
+          manualPagination={!isFiltering} pageCount={!isFiltering ? pageCount : undefined}
+          pagination={!isFiltering ? pagination : undefined} onPaginationChange={!isFiltering ? setPagination : undefined}
+          onFiltering={setIsFiltering}
           filterColumns={["lastName", "firstName", "email"]} filterPlaceholder="Rechercher par nom, prénom ou email..." />
       )}
 

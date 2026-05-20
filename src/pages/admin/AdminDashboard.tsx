@@ -32,16 +32,19 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
+const FILTER_LIMIT = 5000;
+
 export default function AdminDashboard() {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 5,
   });
+  const [isFiltering, setIsFiltering] = React.useState(false);
 
   const { data: stats } = useAdminStats();
   const { data: usersData, isLoading: isLoading } = useUsers({
-    page: pagination.pageIndex,
-    limit: pagination.pageSize,
+    page: isFiltering ? 0 : pagination.pageIndex,
+    limit: isFiltering ? FILTER_LIMIT : pagination.pageSize,
   });
   const { data: logs, isLoading: isLogsLoading } = useAuditLogs();
 
@@ -241,10 +244,11 @@ export default function AdminDashboard() {
               <DataTable
                 columns={userColumns}
                 data={users}
-                manualPagination
-                pageCount={pageCount}
-                pagination={pagination}
-                onPaginationChange={setPagination}
+                manualPagination={!isFiltering}
+                pageCount={!isFiltering ? pageCount : undefined}
+                pagination={!isFiltering ? pagination : undefined}
+                onPaginationChange={!isFiltering ? setPagination : undefined}
+                onFiltering={setIsFiltering}
                 filterColumns={["lastName", "firstName", "email"]}
                 filterPlaceholder="Rechercher par nom, prénom ou email..."
                 filters={[
