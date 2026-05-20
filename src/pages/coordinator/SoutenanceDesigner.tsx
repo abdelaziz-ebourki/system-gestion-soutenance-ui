@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import * as React from "react";
 import {
   CalendarDays,
@@ -138,12 +139,12 @@ export default function SoutenanceDesigner() {
     Object.values(scheduledProjects).map((project) => project.id),
   );
 
-  const readyProjects = projects.filter((project) =>
+  const readyProjects = useMemo(() => projects.filter((project) =>
     jurys.some((jury) => jury.projectId === project.id),
-  );
-  const backlogProjects = readyProjects.filter(
+  ), [projects, jurys]);
+  const backlogProjects = useMemo(() => readyProjects.filter(
     (project) => !assignedProjectIds.has(project.id),
-  );
+  ), [readyProjects, assignedProjectIds]);
 
   const handleDragStart = (event: DragStartEvent) => {
     const data = event.active.data.current as { type: string; project: Project } | undefined;

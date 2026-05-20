@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { ClipboardCheck, Clock3, FileCheck2, ShieldCheck } from "lucide-react";
 
 import { useTeacherStats, useTeacherSchedule, useTeacherEvaluations } from "@/hooks/use-queries";
@@ -22,12 +23,12 @@ export default function TeacherDashboard() {
   const evaluations = evaluationsQuery.data ?? [];
   const isLoading = statsQuery.isLoading || scheduleQuery.isLoading || evaluationsQuery.isLoading;
 
-  const upcomingDefenses = schedule
+  const upcomingDefenses = useMemo(() => schedule
     .filter((defense) => defense.status === "scheduled")
-    .slice(0, 3);
-  const pendingEvaluations = evaluations.filter(
+    .slice(0, 3), [schedule]);
+  const pendingEvaluations = useMemo(() => evaluations.filter(
     (evaluation) => evaluation.status === "pending",
-  );
+  ), [evaluations]);
 
   return (
     <div className="space-y-6">

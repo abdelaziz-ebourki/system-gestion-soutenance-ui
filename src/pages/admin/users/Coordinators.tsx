@@ -21,7 +21,7 @@ import { coordinatorSchema } from "@/lib/validations";
 import { useCrud } from "@/hooks/use-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function Coordinators() {
   const [pagination, setPagination] = useState<PaginationState>({
@@ -52,7 +52,7 @@ export default function Coordinators() {
     },
   });
 
-  const columns: ColumnDef<Coordinator>[] = [
+  const columns = useMemo<ColumnDef<Coordinator>[]>(() => [
     {
       id: "full_name",
       header: "Nom Complet",
@@ -76,7 +76,7 @@ export default function Coordinators() {
       header: "Action",
       cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
     },
-  ];
+  ], []);
 
   return (
     <div className="space-y-6">

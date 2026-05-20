@@ -30,7 +30,7 @@ import { studentSchema } from "@/lib/validations";
 import { useCrud } from "@/hooks/use-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function Students() {
   const [pagination, setPagination] = useState<PaginationState>({
@@ -63,7 +63,7 @@ export default function Students() {
     },
   });
 
-  const columns: ColumnDef<Student>[] = [
+  const columns = useMemo<ColumnDef<Student>[]>(() => [
     { accessorKey: "cne", header: "CNE", cell: ({ row }) => <code className="font-bold">{row.getValue("cne")}</code> },
     { accessorKey: "lastName", header: "Nom", cell: ({ row }) => <div className="font-medium">{row.original.lastName}</div> },
     { accessorKey: "firstName", header: "Prénom", cell: ({ row }) => <div className="font-medium">{row.original.firstName}</div> },
@@ -89,7 +89,7 @@ export default function Students() {
       header: "Action",
       cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
     },
-  ];
+  ], []);
 
   return (
     <div className="space-y-6">

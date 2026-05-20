@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Plus,
   Pencil,
@@ -113,12 +113,12 @@ export default function CoordinatorProjects() {
     },
   ];
 
-  const pendingProjects = projects.filter(
+  const pendingProjects = useMemo(() => projects.filter(
     (project) => project.status === "pending",
-  );
-  const multiMemberGroups = projects.filter(
+  ), [projects]);
+  const multiMemberGroups = useMemo(() => projects.filter(
     (project) => (project.studentIds?.length || 0) > 1,
-  );
+  ), [projects]);
 
   return (
     <div className="space-y-6">

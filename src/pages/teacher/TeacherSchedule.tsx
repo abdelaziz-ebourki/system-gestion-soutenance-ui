@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CalendarDays, MapPin, ShieldCheck, Timer } from "lucide-react";
 
@@ -69,12 +70,12 @@ export default function TeacherSchedule() {
     },
   ];
 
-  const upcomingCount = schedule.filter(
+  const upcomingCount = useMemo(() => schedule.filter(
     (defense) => defense.status === "scheduled",
-  ).length;
-  const supervisorCount = schedule.filter(
+  ).length, [schedule]);
+  const supervisorCount = useMemo(() => schedule.filter(
     (defense) => defense.role === "supervisor",
-  ).length;
+  ).length, [schedule]);
 
   return (
     <div className="space-y-6">

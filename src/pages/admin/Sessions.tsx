@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, Calendar, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
@@ -68,7 +69,7 @@ export default function Sessions() {
     },
   });
 
-  const columns: ColumnDef<Session>[] = [
+  const columns = useMemo<ColumnDef<Session>[]>(() => [
     { accessorKey: "name", header: "Nom de la Session", cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div> },
     {
       accessorKey: "type",
@@ -130,7 +131,7 @@ export default function Sessions() {
         </DropdownMenu>
       ),
     },
-  ];
+  ], []);
 
   return (
     <div className="space-y-6">

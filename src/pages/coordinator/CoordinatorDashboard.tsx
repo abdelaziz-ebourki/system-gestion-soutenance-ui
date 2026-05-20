@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
@@ -52,16 +53,17 @@ export default function CoordinatorDashboard() {
   const jurys = jurysQuery.data ?? [];
   const isLoading = statsQuery.isLoading || projectsQuery.isLoading || jurysQuery.isLoading;
 
-  const readyProjects = projects.filter(
+  const readyProjects = useMemo(() => projects.filter(
     (project) => project.status === "approved",
-  );
-  const projectsWithoutJury = projects.filter(
+  ), [projects]);
+  const projectsWithoutJury = useMemo(() => projects.filter(
     (project) => !jurys.some((jury) => jury.projectId === project.id),
-  );
-  const juryCoverage =
+  ), [projects, jurys]);
+  const juryCoverage = useMemo(() =>
     projects.length > 0
       ? Math.round((jurys.length / projects.length) * 100)
-      : 0;
+      : 0,
+  [projects.length, jurys.length]);
 
   return (
     <div className="space-y-6">

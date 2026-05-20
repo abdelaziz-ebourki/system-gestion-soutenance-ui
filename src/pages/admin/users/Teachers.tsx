@@ -28,7 +28,7 @@ import { teacherSchema } from "@/lib/validations";
 import { useCrud } from "@/hooks/use-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export default function Teachers() {
   const [pagination, setPagination] = useState<PaginationState>({
@@ -61,7 +61,7 @@ export default function Teachers() {
     },
   });
 
-  const columns: ColumnDef<Teacher>[] = [
+  const columns = useMemo<ColumnDef<Teacher>[]>(() => [
     { accessorKey: "lastName", header: "Nom", cell: ({ row }) => <div className="font-medium">{row.original.lastName}</div> },
     { accessorKey: "firstName", header: "Prénom", cell: ({ row }) => <div className="font-medium">{row.original.firstName}</div> },
     { accessorKey: "email", header: "Email" },
@@ -78,7 +78,7 @@ export default function Teachers() {
       header: "Action",
       cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
     },
-  ];
+  ], []);
 
   return (
     <div className="space-y-6">

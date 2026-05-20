@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 
@@ -54,7 +55,7 @@ export default function Departments() {
     },
   });
 
-  const columns: ColumnDef<Department>[] = [
+  const columns = useMemo<ColumnDef<Department>[]>(() => [
     {
       accessorKey: "code",
       header: "Code",
@@ -82,7 +83,7 @@ export default function Departments() {
         <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />
       ),
     },
-  ];
+  ], []);
 
   return (
     <div className="space-y-6">

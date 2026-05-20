@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, BuildingIcon } from "lucide-react";
 
@@ -53,7 +54,7 @@ export default function Rooms() {
   const getDepartmentName = (id: string) =>
     departments.find((d) => d.id === id)?.name || id;
 
-  const columns: ColumnDef<Room>[] = [
+  const columns = useMemo<ColumnDef<Room>[]>(() => [
     {
       accessorKey: "name",
       header: "Nom de la Salle",
@@ -81,7 +82,7 @@ export default function Rooms() {
       header: "Action",
       cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
     },
-  ];
+  ], []);
 
   return (
     <div className="space-y-6">

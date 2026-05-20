@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import * as React from "react";
 import { Ban, CalendarClock, Save } from "lucide-react";
 
@@ -71,12 +72,12 @@ export default function TeacherUnavailability() {
     0,
   );
 
-  const sessions: CalendarSession[] = schedule.map((defense) => ({
+  const sessions: CalendarSession[] = useMemo(() => schedule.map((defense) => ({
     dateKey: defense.date,
     time: `${defense.startTime} - ${defense.endTime}`,
     student: defense.studentNames.join(", "),
     room: defense.roomName,
-  }));
+  })), [schedule]);
 
   return (
     <div className="space-y-6">

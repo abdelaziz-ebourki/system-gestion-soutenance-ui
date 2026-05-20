@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import * as React from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
@@ -39,9 +40,9 @@ export default function Jurys() {
     return counts;
   }, [jurys]);
 
-  const projectsWithoutJury = projects.filter(
+  const projectsWithoutJury = useMemo(() => projects.filter(
     (project) => !jurys.some((jury) => jury.projectId === project.id),
-  );
+  ), [projects, jurys]);
 
   const columns: ColumnDef<Jury>[] = [
     {

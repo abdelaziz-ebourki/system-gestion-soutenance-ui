@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import * as React from "react";
 import { FileCheck2, MessageSquareText, PencilLine } from "lucide-react";
 
@@ -84,12 +85,12 @@ export default function TeacherEvaluations() {
     }
   };
 
-  const pendingEvaluations = evaluations.filter(
+  const pendingEvaluations = useMemo(() => evaluations.filter(
     (evaluation) => evaluation.status === "pending",
-  );
-  const submittedEvaluations = evaluations.filter(
+  ), [evaluations]);
+  const submittedEvaluations = useMemo(() => evaluations.filter(
     (evaluation) => evaluation.status === "submitted",
-  );
+  ), [evaluations]);
 
   return (
     <div className="space-y-6">

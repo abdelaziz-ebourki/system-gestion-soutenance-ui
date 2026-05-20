@@ -1,4 +1,5 @@
 
+import { useMemo } from "react";
 import * as React from "react";
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import {
@@ -99,16 +100,16 @@ export default function AdminDashboard() {
     },
   ];
 
-  const chartData = [
+  const chartData = useMemo(() => [
     { name: "Étudiants", total: stats?.totalStudents || 0 },
     { name: "Enseignants", total: stats?.totalTeachers || 0 },
     { name: "Départements", total: stats?.totalDepartments || 0 },
     { name: "Salles", total: stats?.totalRooms || 0 },
-  ];
+  ], [stats]);
 
-  const chartConfig = {
+  const chartConfig = useMemo(() => ({
     total: { label: "Total", color: "var(--primary)" },
-  } satisfies ChartConfig;
+  } satisfies ChartConfig), []);
 
   return (
     <div className="space-y-6">
