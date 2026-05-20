@@ -183,7 +183,8 @@ export default function Jurys() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {teachers.map((teacher) => {
+            {teachers.length > 0 ? (
+              teachers.map((teacher) => {
               const fullName = `${teacher.lastName} ${teacher.firstName}`;
               const load = teachersLoad.get(teacher.id) || 0;
 
@@ -202,7 +203,12 @@ export default function Jurys() {
                   </div>
                 </div>
               );
-            })}
+            })
+            ) : (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                Aucun enseignant à afficher.
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

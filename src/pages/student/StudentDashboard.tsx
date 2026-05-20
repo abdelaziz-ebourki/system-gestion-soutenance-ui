@@ -209,7 +209,8 @@ export default function StudentDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {defense?.juryMembers.map((member) => (
+            {defense?.juryMembers && defense.juryMembers.length > 0 ? (
+              defense.juryMembers.map((member) => (
               <div
                 key={`${member.role}-${member.name}`}
                 className="rounded-lg border p-4"
@@ -219,7 +220,12 @@ export default function StudentDashboard() {
                   <Badge variant="outline">{member.role}</Badge>
                 </div>
               </div>
-            ))}
+            ))
+            ) : (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                Aucun membre du jury assigné.
+              </div>
+            )}
             {defense?.result && (
               <div className="rounded-lg border bg-secondary p-4">
                 <p className="text-sm text-muted-foreground">Résultat</p>

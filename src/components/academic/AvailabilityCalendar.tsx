@@ -172,7 +172,7 @@ export default function AvailabilityCalendar({
 
               return (
                 <div
-                  key={i}
+                  key={`${day || 0}-${i}`}
                   onClick={() => day !== 0 && setActiveDay(day)}
                   className={`
                     relative aspect-square rounded-lg border transition-all cursor-pointer p-3 group

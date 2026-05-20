@@ -134,7 +134,8 @@ export default function TeacherDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {upcomingDefenses.map((defense) => (
+            {upcomingDefenses.length > 0 ? (
+              upcomingDefenses.map((defense) => (
               <div key={defense.id} className="rounded-lg border p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
@@ -152,7 +153,12 @@ export default function TeacherDashboard() {
                   {defense.roomName}
                 </div>
               </div>
-            ))}
+            ))
+            ) : (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                Aucune soutenance prévue.
+              </div>
+            )}
           </CardContent>
         </Card>
 

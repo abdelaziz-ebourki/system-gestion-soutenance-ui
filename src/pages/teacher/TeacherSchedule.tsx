@@ -70,9 +70,11 @@ export default function TeacherSchedule() {
     },
   ];
 
-  const upcomingCount = useMemo(() => schedule.filter(
-    (defense) => defense.status === "scheduled",
-  ).length, [schedule]);
+  const scheduled = useMemo(
+    () => schedule.filter(
+      (defense) => defense.status === "scheduled",
+    ), [schedule]);
+  const upcomingCount = scheduled.length;
   const supervisorCount = useMemo(() => schedule.filter(
     (defense) => defense.role === "supervisor",
   ).length, [schedule]);
@@ -150,10 +152,9 @@ export default function TeacherSchedule() {
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {schedule
-          .filter((defense) => defense.status === "scheduled")
-          .map((defense) => (
+      {scheduled.length > 0 ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {scheduled.map((defense) => (
             <Card key={defense.id} >
               <CardContent className="flex items-start justify-between gap-4 p-5">
                 <div>
@@ -178,7 +179,12 @@ export default function TeacherSchedule() {
               </CardContent>
             </Card>
           ))}
-      </div>
+        </div>
+      ) : (
+        <div className="py-6 text-center text-sm text-muted-foreground">
+          Aucune soutenance programmée pour la période sélectionnée.
+        </div>
+      )}
     </div>
   );
 }

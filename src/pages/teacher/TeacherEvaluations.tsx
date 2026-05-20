@@ -189,7 +189,8 @@ export default function TeacherEvaluations() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {submittedEvaluations.map((evaluation) => (
+            {submittedEvaluations.length > 0 ? (
+              submittedEvaluations.map((evaluation) => (
               <div key={evaluation.id} className="rounded-lg border p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
@@ -208,7 +209,12 @@ export default function TeacherEvaluations() {
                   </p>
                 )}
               </div>
-            ))}
+            ))
+            ) : (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                Aucune évaluation soumise.
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

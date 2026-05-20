@@ -125,7 +125,8 @@ export default function StudentDocuments() {
               Chargement des documents...
             </div>
           ) : (
-            documents.map((document) => {
+            documents.length > 0 ? (
+              documents.map((document) => {
               const Icon = documentIcons[document.type] || FileText;
 
               return (
@@ -176,7 +177,11 @@ export default function StudentDocuments() {
                 </div>
               );
             })
-          )}
+          ) : (
+              <div className="py-6 text-center text-sm text-muted-foreground">
+                Aucun document trouvé.
+              </div>
+            ))}
         </CardContent>
       </Card>
     </div>
