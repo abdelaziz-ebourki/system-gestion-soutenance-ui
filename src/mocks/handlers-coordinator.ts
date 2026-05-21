@@ -1,8 +1,8 @@
 import { http, HttpResponse, delay } from "msw";
-import type { Project, Jury } from "@/types";
+import type { Project, Jury, Group } from "@/types";
 import {
   MOCK_DELAY,
-  mockProjects, mockJuries,
+  mockProjects, mockGroups, mockJuries,
   prependProject, prependJury, removeJuryByProject,
 } from "./data";
 
@@ -69,6 +69,50 @@ export const coordinatorHandlers = [
     };
     prependJury(newJury);
     return HttpResponse.json(newJury, { status: 201 });
+  }),
+
+  http.get("/api/coordinator/groups", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json(mockGroups);
+  }),
+
+  http.post("/api/coordinator/groups", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = (await request.json()) as Omit<Group, "id">;
+    const newGroup: Group = {
+      ...body,
+      id: `g${mockGroups.length + 1}`,
+    };
+    mockGroups.push(newGroup);
+    return HttpResponse.json(newGroup, { status: 201 });
+  }),
+
+  http.delete("/api/coordinator/groups/:id", async ({ params }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const index = mockGroups.findIndex((g) => g.id === id);
+    if (index === -1) return new HttpResponse(null, { status: 404 });
+    mockGroups.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  http.put("/api/coordinator/juries/:id", async ({ params, request }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const body = (await request.json()) as Partial<Jury>;
+    const index = mockJuries.findIndex((j) => j.id === id);
+    if (index === -1) return new HttpResponse(null, { status: 404 });
+    mockJuries[index] = { ...mockJuries[index], ...body };
+    return HttpResponse.json(mockJuries[index]);
+  }),
+
+  http.delete("/api/coordinator/juries/:id", async ({ params }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const index = mockJuries.findIndex((j) => j.id === id);
+    if (index === -1) return new HttpResponse(null, { status: 404 });
+    mockJuries.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
   }),
 
   http.post("/api/coordinator/schedule", async ({ request }) => {

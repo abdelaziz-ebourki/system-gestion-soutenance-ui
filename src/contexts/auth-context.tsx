@@ -7,13 +7,14 @@ import {
   type ReactNode,
 } from "react";
 import { STORAGE_KEYS } from "@/lib/constants";
+import type { UserRole } from "@/types";
 
 interface User {
   id: string;
   firstName: string;
   lastName: string;
   email: string;
-  role: "admin" | "coordinator" | "teacher" | "student";
+  role: UserRole;
   avatar?: string;
 }
 

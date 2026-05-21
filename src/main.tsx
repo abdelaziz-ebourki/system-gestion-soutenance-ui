@@ -26,7 +26,9 @@ async function enableMocking() {
   }
 }
 
-enableMocking().then(() => {
+enableMocking().catch(() => {
+  console.warn("MSW failed to start");
+}).then(() => {
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <ThemeProvider>

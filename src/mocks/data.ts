@@ -1,12 +1,18 @@
 import type {
   User, Student, Major, Level, Grade,
   Department, Session, Room,
-  Project, Jury,
+  Project, Jury, Group,
   TeacherDefense, TeacherEvaluation, TeacherUnavailability,
   StudentGroupDetails, StudentGroupWorkspace, StudentDefenseDetails, StudentDocument,
 } from "@/types";
 
 export const MOCK_DELAY = Number(import.meta.env.VITE_MOCK_DELAY) || 1000;
+
+function daysFromNow(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
 
 export const mockMajors: Major[] = [
   { id: "f1", name: "Génie Informatique" },
@@ -91,11 +97,11 @@ export const mockDepartments: Department[] = [
 export const mockSessions: Session[] = [
   {
     id: "1", name: "Session Normale 2026", type: "Normale",
-    status: "active", startDate: "2026-06-01", endDate: "2026-06-30",
+    status: "active", startDate: daysFromNow(-5), endDate: daysFromNow(25),
   },
   {
     id: "2", name: "Session Rattrapage 2026", type: "Rattrapage",
-    status: "draft", startDate: "2026-09-01", endDate: "2026-09-15",
+    status: "draft", startDate: daysFromNow(30), endDate: daysFromNow(45),
   },
 ];
 
@@ -112,8 +118,8 @@ export const defenseSettings = {
   endTime: "18:00",
   defenseDuration: 30,
   breakDuration: 15,
-  groupCreationStartDate: "2026-05-01",
-  groupCreationEndDate: "2026-06-20",
+  groupCreationStartDate: daysFromNow(-14),
+  groupCreationEndDate: daysFromNow(14),
 };
 
 export let mockProjects: Project[] = [
@@ -174,19 +180,19 @@ export const teacherSchedule: TeacherDefense[] = [
   {
     id: "td1", projectId: "p1", projectTitle: "Systeme de Gestion des Soutenances",
     studentNames: ["Nom1 Prenom1", "Nom2 Prenom2"],
-    date: "2026-06-10", startTime: "08:30", endTime: "10:00",
+    date: daysFromNow(2), startTime: "08:30", endTime: "10:00",
     roomName: "Salle 101", role: "president", status: "scheduled",
   },
   {
     id: "td2", projectId: "p3", projectTitle: "Analyse des donnees IoT",
     studentNames: ["Nom4 Prenom4", "Nom5 Prenom5"],
-    date: "2026-06-11", startTime: "10:15", endTime: "11:45",
+    date: daysFromNow(3), startTime: "10:15", endTime: "11:45",
     roomName: "Amphi B", role: "reporter", status: "scheduled",
   },
   {
     id: "td3", projectId: "p4", projectTitle: "Securite des reseaux cloud",
     studentNames: ["Nom6 Prenom6"],
-    date: "2026-06-07", startTime: "13:45", endTime: "15:15",
+    date: daysFromNow(-5), startTime: "13:45", endTime: "15:15",
     roomName: "Labo Info", role: "supervisor", status: "completed",
   },
 ];
@@ -210,8 +216,8 @@ export const teacherEvaluations: TeacherEvaluation[] = [
 
 export let teacherUnavailability: TeacherUnavailability = {
   slotsByDate: {
-    "2026-06-09": ["10:15 - 11:45"],
-    "2026-06-12": ["08:30 - 10:00", "10:15 - 11:45"],
+    [daysFromNow(1)]: ["10:15 - 11:45"],
+    [daysFromNow(4)]: ["08:30 - 10:00", "10:15 - 11:45"],
   },
 };
 
@@ -240,6 +246,14 @@ export const studentDocuments: StudentDocument[] = [
     id: "sd3", name: "Code source.zip", type: "Archive",
     deadline: "2026-06-10", status: "missing",
   },
+];
+
+export const mockGroups: Group[] = [
+  { id: "g1", projectId: "p1", studentIds: ["std-1", "std-2"], sessionId: "1" },
+  { id: "g2", projectId: "p2", studentIds: ["std-3"], sessionId: "1" },
+  { id: "g3", projectId: "p3", studentIds: ["std-4", "std-5"], sessionId: "1" },
+  { id: "g4", projectId: "p4", studentIds: ["std-6"], sessionId: "1" },
+  { id: "g5", projectId: "p5", studentIds: ["std-demo"], sessionId: "1" },
 ];
 
 export const currentStudentId = "std-demo";

@@ -161,7 +161,5 @@ export const jurySchema = z
 // --- Teacher: Unavailability ---
 
 export const unavailabilitySchema = z.object({
-  startDate: z.string().min(1, "La date de début est requise"),
-  endDate: z.string().min(1, "La date de fin est requise"),
-  reason: z.string().min(1, "La raison est requise"),
+  slotsByDate: z.record(z.string(), z.array(z.string())),
 });

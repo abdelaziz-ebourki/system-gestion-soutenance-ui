@@ -1,5 +1,3 @@
-"use client"
-
 import * as React from "react"
 import { Select as SelectPrimitive } from "radix-ui"
 
@@ -31,18 +29,16 @@ function SelectValue({
   return <SelectPrimitive.Value data-slot="select-value" {...props} />
 }
 
-function SelectTrigger({
-  className,
-  size = "default",
-  fullWidth,
-  children,
-  ...props
-}: React.ComponentProps<typeof SelectPrimitive.Trigger> & {
-  size?: "sm" | "default"
-  fullWidth?: boolean
-}) {
+const SelectTrigger = React.forwardRef<
+  React.ComponentRef<typeof SelectPrimitive.Trigger>,
+  React.ComponentProps<typeof SelectPrimitive.Trigger> & {
+    size?: "sm" | "default"
+    fullWidth?: boolean
+  }
+>(({ className, size = "default", fullWidth, children, ...props }, ref) => {
   return (
     <SelectPrimitive.Trigger
+      ref={ref}
       data-slot="select-trigger"
       data-size={size}
       className={cn(
@@ -58,7 +54,7 @@ function SelectTrigger({
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   )
-}
+})
 
 function SelectContent({
   className,

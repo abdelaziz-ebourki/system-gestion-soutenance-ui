@@ -22,6 +22,7 @@ import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { Project } from "@/types";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
+import { defenseSettings } from "@/mocks/data";
 import {
   Badge,
   Button,
@@ -33,8 +34,37 @@ import {
   Skeleton,
 } from "@/components/ui";
 
-const DAYS = ["2026-06-10", "2026-06-11"];
-const SLOTS = ["08:30", "10:15", "12:00", "13:45", "15:30"];
+function getNextWeekdays(count: number): string[] {
+  const result: string[] = [];
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  while (result.length < count) {
+    const day = d.getDay();
+    if (day !== 0 && day !== 6) {
+      result.push(d.toISOString().slice(0, 10));
+    }
+    d.setDate(d.getDate() + 1);
+  }
+  return result;
+}
+
+function generateSlots(start: string, end: string, durationMinutes: number): string[] {
+  const slots: string[] = [];
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  let current = sh * 60 + sm;
+  const endTotal = eh * 60 + em;
+  while (current + durationMinutes <= endTotal) {
+    const h = Math.floor(current / 60);
+    const m = current % 60;
+    slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+    current += durationMinutes;
+  }
+  return slots;
+}
+
+const DAYS = getNextWeekdays(2);
+const SLOTS = generateSlots(defenseSettings.startTime, defenseSettings.endTime, defenseSettings.defenseDuration);
 
 type ScheduledCard = {
   id: string;

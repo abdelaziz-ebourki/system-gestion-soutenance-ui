@@ -10,21 +10,25 @@ const BASE_URL = "/api";
 
 interface ApiOptions extends RequestInit {
   requiresAuth?: boolean;
+  responseType?: "json" | "blob";
 }
 
 export async function api<T>(
   endpoint: string,
   options: ApiOptions = {},
 ): Promise<T> {
-  const { requiresAuth = true, ...customConfig } = options;
+  const { requiresAuth = true, responseType = "json", ...customConfig } = options;
 
-  const headers = {
-    "Content-Type": "application/json",
+  const headers: Record<string, string> = {
     ...(requiresAuth
       ? { Authorization: `Bearer ${localStorage.getItem(STORAGE_KEYS.TOKEN)}` }
       : {}),
-    ...customConfig.headers,
+    ...customConfig.headers as Record<string, string> | undefined,
   };
+
+  if (responseType === "json") {
+    headers["Content-Type"] = "application/json";
+  }
 
   const config = {
     ...customConfig,
@@ -35,7 +39,9 @@ export async function api<T>(
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
     if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
+      const data = responseType === "blob"
+        ? await response.json().catch(() => ({}))
+        : await response.json().catch(() => ({}));
       const errorMessage =
         data.message || "Une erreur est survenue lors de la requête.";
       throw new Error(errorMessage, { cause: response.statusText });
@@ -48,7 +54,9 @@ export async function api<T>(
       return {} as T;
     }
 
-    const data = await response.json();
+    const data = responseType === "blob"
+      ? await response.blob()
+      : await response.json();
     return data as T;
   } catch (error: unknown) {
     if (error instanceof Error) {

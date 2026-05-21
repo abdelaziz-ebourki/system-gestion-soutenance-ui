@@ -12,11 +12,8 @@ export function getFullName(person: { firstName: string; lastName: string }): st
 
 export function toastError(error: unknown, fallbackMessage: string) {
   const message =
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error &&
-    typeof (error as { response: { data?: { message?: string } } }).response?.data?.message === "string"
-      ? (error as { response: { data: { message: string } } }).response.data.message
+    error instanceof Error
+      ? error.message
       : fallbackMessage
   toast.error(message)
 }

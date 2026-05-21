@@ -3,7 +3,6 @@ import type {
   StudentStats, StudentDefenseDetails, StudentGroupWorkspace,
   StudentGroupDetails, StudentDocument,
 } from "@/types";
-import { STORAGE_KEYS } from "@/lib/constants";
 
 export const getStudentStats = () => api<StudentStats>("/student/stats");
 
@@ -27,16 +26,4 @@ export const joinStudentGroup = (groupId: string) =>
   });
 
 export const getStudentConvocation = () =>
-  fetch("/api/student/convocation", {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem(STORAGE_KEYS.TOKEN)}`,
-    },
-  }).then(async (response) => {
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      throw new Error(
-        data.message || "Impossible de télécharger la convocation",
-      );
-    }
-    return response.blob();
-  });
+  api<Blob>("/student/convocation", { responseType: "blob" });
