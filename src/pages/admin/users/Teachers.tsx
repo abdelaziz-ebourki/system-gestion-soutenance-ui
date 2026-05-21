@@ -1,9 +1,7 @@
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 
-import { useTeachers, useDepartments, useGrades,
-  useCreateUser, useUpdateUser, useDeleteUser,
-} from "@/hooks/use-queries";
+import { useTeachers, useDepartments, useGrades } from "@/hooks/use-queries";
 import type { Teacher } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -23,8 +21,7 @@ import {
 } from "@/components/ui";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { teacherSchema } from "@/lib/validations";
-import { useCrud } from "@/hooks/use-crud";
+import { useTeacherCrud } from "@/hooks/entities/use-teacher-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { useMemo, useState } from "react";
@@ -48,26 +45,10 @@ export default function Teachers() {
   );
   const { data: departments = [] } = useDepartments();
   const { data: grades = [] } = useGrades();
-  const create = useCreateUser();
-  const update = useUpdateUser();
-  const del = useDeleteUser();
+  const crud = useTeacherCrud();
 
   const data = teachersData?.items ?? [];
   const pageCount = teachersData?.pageCount ?? 0;
-
-  const crud = useCrud({
-    schema: teacherSchema,
-    defaultForm: { lastName: "", firstName: "", email: "", gradeId: "", departmentId: "" },
-    onCreate: (d) => create.mutateAsync({ ...d, role: "teacher", isActive: false }),
-    onUpdate: (id, d) => update.mutateAsync({ id, data: { ...d, role: "teacher" as const } }),
-    onDelete: (id) => del.mutateAsync(id),
-    mapToForm: (s: Teacher) => ({ lastName: s.lastName, firstName: s.firstName, email: s.email, gradeId: s.gradeId, departmentId: s.departmentId }),
-    successMessages: {
-      create: "Enseignant créé avec succès",
-      update: "Enseignant modifié avec succès",
-      delete: "Enseignant supprimé",
-    },
-  });
 
   const columns = useMemo<ColumnDef<Teacher>[]>(() => [
     { accessorKey: "lastName", header: "Nom", cell: ({ row }) => <div className="font-medium">{row.original.lastName}</div> },
@@ -86,7 +67,7 @@ export default function Teachers() {
       header: "Action",
       cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
     },
-  ], [crud, departments]);
+  ], [crud, departments, grades]);
 
   return (
     <div className="space-y-6 pb-20">
@@ -147,7 +128,7 @@ export default function Teachers() {
             <Button onClick={async () => {
               if (!batchValue) return;
               try {
-                await Promise.all(selectedTeachers.map((t) => update.mutateAsync({ id: t.id, data: { departmentId: batchValue, role: "teacher" as const } })));
+                await Promise.all(selectedTeachers.map((t) => crud.updateMutation(t.id, { departmentId: batchValue, role: "teacher" as const })));
                 toast.success(`${selectedTeachers.length} enseignant(s) mis à jour`);
                 setSelectedTeachers([]);
                 setBatchDialog(null);
@@ -155,7 +136,7 @@ export default function Teachers() {
               } catch {
                 toast.error("Erreur lors de la mise à jour");
               }
-            }} isLoading={update.isPending}>Enregistrer</Button>
+            }} isLoading={crud.isPending}>Enregistrer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -166,7 +147,7 @@ export default function Teachers() {
         entityName={`${selectedTeachers.length} enseignant(s)`}
         onDelete={async () => {
           try {
-            await Promise.all(selectedTeachers.map((t) => del.mutateAsync(t.id)));
+            await Promise.all(selectedTeachers.map((t) => crud.deleteMutation(t.id)));
             toast.success(`${selectedTeachers.length} enseignant(s) supprimé(s)`);
             setSelectedTeachers([]);
             setBatchDialog(null);
@@ -175,7 +156,7 @@ export default function Teachers() {
             toast.error("Erreur lors de la suppression");
           }
         }}
-        isPending={del.isPending}
+        isPending={crud.isPending}
       />
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
@@ -230,14 +211,14 @@ export default function Teachers() {
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <Button type="submit" isLoading={create.isPending || update.isPending} loadingText="Enregistrement...">Enregistrer</Button>
+              <Button type="submit" isLoading={crud.isPending} loadingText="Enregistrement...">Enregistrer</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
-        onDelete={crud.handleDelete} entityName={crud.selected ? `${crud.selected.lastName} ${crud.selected.firstName}` : undefined} isPending={del.isPending} />
+        onDelete={crud.handleDelete} entityName={crud.selected ? `${crud.selected.lastName} ${crud.selected.firstName}` : undefined} isPending={crud.isPending} />
     </div>
   );
 }

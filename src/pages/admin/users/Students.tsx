@@ -3,7 +3,6 @@ import { Plus } from "lucide-react";
 
 import {
   useStudents, useMajors, useLevels,
-  useCreateUser, useUpdateUser, useDeleteUser,
 } from "@/hooks/use-queries";
 import { type Student } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
@@ -25,8 +24,7 @@ import {
 } from "@/components/ui";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { studentSchema } from "@/lib/validations";
-import { useCrud } from "@/hooks/use-crud";
+import { useStudentCrud } from "@/hooks/entities/use-student-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { useMemo, useState } from "react";
@@ -50,26 +48,10 @@ export default function Students() {
   );
   const { data: majors = [] } = useMajors();
   const { data: levels = [] } = useLevels();
-  const create = useCreateUser();
-  const update = useUpdateUser();
-  const del = useDeleteUser();
+  const crud = useStudentCrud();
 
   const data = studentsData?.items ?? [];
   const pageCount = studentsData?.pageCount ?? 0;
-
-  const crud = useCrud({
-    schema: studentSchema,
-    defaultForm: { lastName: "", firstName: "", email: "", cne: "", majorId: "", levelId: "" },
-    onCreate: (d) => create.mutateAsync({ ...d, role: "student", isActive: false }),
-    onUpdate: (id, d) => update.mutateAsync({ id, data: { ...d, role: "student" as const } }),
-    onDelete: (id) => del.mutateAsync(id),
-    mapToForm: (s: Student) => ({ lastName: s.lastName, firstName: s.firstName, email: s.email, cne: s.cne, majorId: s.majorId, levelId: s.levelId }),
-    successMessages: {
-      create: "Étudiant créé avec succès",
-      update: "Étudiant modifié avec succès",
-      delete: "Étudiant supprimé",
-    },
-  });
 
   const columns = useMemo<ColumnDef<Student>[]>(() => [
     { accessorKey: "cne", header: "CNE", cell: ({ row }) => <code className="font-bold">{row.getValue("cne")}</code> },
@@ -166,7 +148,7 @@ export default function Students() {
             <Button onClick={async () => {
               if (!batchValue) return;
               try {
-                await Promise.all(selectedStudents.map((s) => update.mutateAsync({ id: s.id, data: { majorId: batchValue, role: "student" as const } })));
+                await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { majorId: batchValue, role: "student" as const })));
                 toast.success(`${selectedStudents.length} étudiant(s) mis à jour`);
                 setSelectedStudents([]);
                 setBatchDialog(null);
@@ -174,7 +156,7 @@ export default function Students() {
               } catch {
                 toast.error("Erreur lors de la mise à jour");
               }
-            }} isLoading={update.isPending}>Enregistrer</Button>
+            }} isLoading={crud.isPending}>Enregistrer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -202,7 +184,7 @@ export default function Students() {
             <Button onClick={async () => {
               if (!batchValue) return;
               try {
-                await Promise.all(selectedStudents.map((s) => update.mutateAsync({ id: s.id, data: { levelId: batchValue, role: "student" as const } })));
+                await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { levelId: batchValue, role: "student" as const })));
                 toast.success(`${selectedStudents.length} étudiant(s) mis à jour`);
                 setSelectedStudents([]);
                 setBatchDialog(null);
@@ -210,7 +192,7 @@ export default function Students() {
               } catch {
                 toast.error("Erreur lors de la mise à jour");
               }
-            }} isLoading={update.isPending}>Enregistrer</Button>
+            }} isLoading={crud.isPending}>Enregistrer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -221,7 +203,7 @@ export default function Students() {
         entityName={`${selectedStudents.length} étudiant(s)`}
         onDelete={async () => {
           try {
-            await Promise.all(selectedStudents.map((s) => del.mutateAsync(s.id)));
+            await Promise.all(selectedStudents.map((s) => crud.deleteMutation(s.id)));
             toast.success(`${selectedStudents.length} étudiant(s) supprimé(s)`);
             setSelectedStudents([]);
             setBatchDialog(null);
@@ -230,7 +212,7 @@ export default function Students() {
             toast.error("Erreur lors de la suppression");
           }
         }}
-        isPending={del.isPending}
+        isPending={crud.isPending}
       />
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
@@ -239,7 +221,7 @@ export default function Students() {
             <DialogTitle>{crud.selected ? "Modifier" : "Ajouter"} Étudiant</DialogTitle>
             <DialogDescription>Remplissez les informations académiques de l'étudiant.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={crud.handleSubmit}>
+          <form onSubmit={(e) => { e.preventDefault(); crud.handleSubmit(); }}>
             <FieldGroup className="grid grid-cols-2 gap-4 py-4">
               <Field>
                 <FieldLabel>Nom</FieldLabel>
@@ -289,14 +271,14 @@ export default function Students() {
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <Button type="submit" isLoading={create.isPending || update.isPending} loadingText="Enregistrement...">Enregistrer</Button>
+              <Button type="submit" isLoading={crud.isPending} loadingText="Enregistrement...">Enregistrer</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
-        onDelete={crud.handleDelete} entityName={crud.selected ? `${crud.selected.lastName} ${crud.selected.firstName}` : undefined} isPending={del.isPending} />
+        onDelete={crud.handleDelete} entityName={crud.selected ? `${crud.selected.lastName} ${crud.selected.firstName}` : undefined} isPending={crud.isPending} />
     </div>
   );
 }

@@ -210,7 +210,7 @@ export const teacherEvaluations: TeacherEvaluation[] = [
     id: "te3", defenseId: "td3", projectTitle: "Securite des reseaux cloud",
     studentNames: ["Nom6 Prenom6"], role: "supervisor",
     score: 17, comment: "Presentation claire et demonstration solide.",
-    status: "submitted", submittedAt: "2026-06-07T16:20:00Z",
+    status: "submitted", submittedAt: `${daysFromNow(-5)}T16:20:00Z`,
   },
 ];
 
@@ -236,15 +236,15 @@ export const studentGroups: StudentGroupData[] = [
 export const studentDocuments: StudentDocument[] = [
   {
     id: "sd1", name: "Rapport final.pdf", type: "Rapport",
-    deadline: "2026-06-05", status: "validated", submittedAt: "2026-06-03 14:20",
+    deadline: daysFromNow(-2), status: "validated", submittedAt: daysFromNow(-4),
   },
   {
     id: "sd2", name: "Presentation finale.pptx", type: "Presentation",
-    deadline: "2026-06-10", status: "submitted", submittedAt: "2026-06-09 18:05",
+    deadline: daysFromNow(5), status: "submitted", submittedAt: daysFromNow(3),
   },
   {
     id: "sd3", name: "Code source.zip", type: "Archive",
-    deadline: "2026-06-10", status: "missing",
+    deadline: daysFromNow(5), status: "missing",
   },
 ];
 
@@ -362,7 +362,7 @@ export const getStudentDefenseDetails = (): StudentDefenseDetails => {
           { name: jury.examinerName, role: "Examinateur" },
         ]
       : [],
-    date: project.id === "p5" ? "2026-06-14" : undefined,
+    date: project.id === "p5" ? daysFromNow(3) : undefined,
     startTime: project.id === "p5" ? "10:15" : undefined,
     endTime: project.id === "p5" ? "11:45" : undefined,
     roomName: project.id === "p5" ? "Salle 101" : undefined,

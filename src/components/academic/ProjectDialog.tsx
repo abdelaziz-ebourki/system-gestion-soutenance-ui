@@ -2,6 +2,7 @@ import * as React from "react";
 import { useMemo } from "react";
 
 import { useTeachersList, useStudentsList, useCreateProject, useUpdateProject } from "@/hooks/use-queries";
+import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, projectSchema } from "@/lib/validations";
 import type { Project } from "@/types";
 import { toast } from "sonner";
@@ -32,6 +33,8 @@ interface ProjectDialogProps {
   project?: Project | null;
 }
 
+const defaultForm = { title: "", description: "", supervisorId: "", studentIds: [] as string[] };
+
 export function ProjectDialog({
   open,
   onOpenChange,
@@ -46,18 +49,15 @@ export function ProjectDialog({
   const students = studentsQuery.data ?? [];
   const isLoadingOptions = teachersQuery.isLoading || studentsQuery.isLoading;
 
-  const [title, setTitle] = React.useState("");
-  const [description, setDescription] = React.useState("");
-  const [supervisorId, setSupervisorId] = React.useState("");
+  const form = useEntityForm(projectSchema, defaultForm);
+
   const [supervisorSearch, setSupervisorSearch] = React.useState("");
-  const [studentIds, setStudentIds] = React.useState<string[]>([]);
-  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   const isEdit = !!project;
 
   const selectedStudents = useMemo(
-    () => students.filter((student) => studentIds.includes(student.id)),
-    [students, studentIds],
+    () => students.filter((student) => form.formData.studentIds.includes(student.id)),
+    [students, form.formData.studentIds],
   );
 
   const filteredSupervisors = useMemo(
@@ -77,73 +77,63 @@ export function ProjectDialog({
   );
 
   React.useEffect(() => {
-    if (!open) {
-      return;
+    if (open) {
+      if (project) {
+        form.resetForm();
+        form.setFormData({
+          title: project.title,
+          description: project.description || "",
+          supervisorId: project.supervisorId,
+          studentIds: project.studentIds,
+        });
+      } else {
+        form.resetForm();
+      }
+      setSupervisorSearch("");
     }
-
-    if (project) {
-      setTitle(project.title);
-      setDescription(project.description || "");
-      setSupervisorId(project.supervisorId);
-      setStudentIds(project.studentIds);
-    } else {
-      setTitle("");
-      setDescription("");
-      setSupervisorId("");
-      setStudentIds([]);
-    }
-    setSupervisorSearch("");
-    setFieldErrors({});
-  }, [open, project]);
+  }, [open]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const errors = validate(projectSchema, {
-      title,
-      description,
-      supervisorId,
-      studentIds,
-    });
-
+    const errors = validate(projectSchema, form.formData);
     if (errors) {
-      setFieldErrors(errors);
+      form.setFieldErrors(errors);
       return;
     }
 
     try {
       const supervisor = teachers.find(
-        (teacher) => teacher.id === supervisorId,
+        (teacher) => teacher.id === form.formData.supervisorId,
       );
+
+      if (!supervisor) {
+        toast.error("Encadrant introuvable");
+        return;
+      }
 
       if (isEdit && project) {
         await updateProjectMutation.mutateAsync({
           id: project.id,
           data: {
-            title,
-            description,
-            supervisorId,
-            studentIds,
+            ...form.formData,
             studentNames: selectedStudents.map(getFullName),
-            supervisorName: getFullName(supervisor!),
+            supervisorName: getFullName(supervisor),
             status: project.status,
           },
         });
         toast.success("Projet mis à jour");
       } else {
         await createProjectMutation.mutateAsync({
-          title,
-          description,
-          supervisorId,
-          studentIds,
+          ...form.formData,
           studentNames: selectedStudents.map(getFullName),
-          supervisorName: getFullName(supervisor!),
+          supervisorName: getFullName(supervisor),
           status: "pending",
         });
         toast.success("Projet créé avec succès");
       }
 
-      setFieldErrors({});
+      form.setFieldErrors({});
       onSuccess();
       onOpenChange(false);
     } catch (error) {
@@ -173,10 +163,10 @@ export function ProjectDialog({
             <Label htmlFor={`${formId}-title`}>Titre</Label>
             <Input
               id={`${formId}-title`}
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
+              value={form.formData.title}
+              onChange={(event) => form.setFormData({ ...form.formData, title: event.target.value })}
               required
-              error={fieldErrors?.title}
+              error={form.fieldErrors?.title}
             />
           </div>
 
@@ -184,8 +174,8 @@ export function ProjectDialog({
             <Label htmlFor={`${formId}-description`}>Description</Label>
             <Textarea
               id={`${formId}-description`}
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
+              value={form.formData.description}
+              onChange={(event) => form.setFormData({ ...form.formData, description: event.target.value })}
               className="min-h-28"
             />
           </div>
@@ -198,8 +188,8 @@ export function ProjectDialog({
               onChange={(e) => setSupervisorSearch(e.target.value)}
             />
             <Select
-              value={supervisorId}
-              onValueChange={(val) => setSupervisorId(val || "")}
+              value={form.formData.supervisorId}
+              onValueChange={(val) => form.setFormData({ ...form.formData, supervisorId: val || "" })}
               disabled={isLoadingOptions}
             >
               <SelectTrigger id={`${formId}-supervisor`} fullWidth>
@@ -213,8 +203,8 @@ export function ProjectDialog({
                   ))}
               </SelectContent>
             </Select>
-            {fieldErrors?.supervisorId && (
-              <p className="text-sm font-medium text-destructive">{fieldErrors.supervisorId}</p>
+            {form.fieldErrors?.supervisorId && (
+              <p className="text-sm font-medium text-destructive">{form.fieldErrors.supervisorId}</p>
             )}
           </div>
 
@@ -222,13 +212,13 @@ export function ProjectDialog({
             <Label htmlFor={`${formId}-students`}>Etudiants</Label>
             <MultiSelect
               options={studentOptions}
-              value={studentIds}
-              onChange={setStudentIds}
+              value={form.formData.studentIds}
+              onChange={(val) => form.setFormData({ ...form.formData, studentIds: val })}
               placeholder="Sélectionner des étudiants..."
               disabled={isLoadingOptions}
             />
-            {fieldErrors?.studentIds && (
-              <p className="text-sm font-medium text-destructive">{fieldErrors.studentIds}</p>
+            {form.fieldErrors?.studentIds && (
+              <p className="text-sm font-medium text-destructive">{form.fieldErrors.studentIds}</p>
             )}
           </div>
         </form>

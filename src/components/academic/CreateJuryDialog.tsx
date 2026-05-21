@@ -2,6 +2,7 @@ import * as React from "react";
 import { useMemo } from "react";
 
 import { useTeachersList, useProjects, useCreateJury } from "@/hooks/use-queries";
+import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, jurySchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { getFullName, toastError } from "@/lib/utils";
@@ -28,6 +29,8 @@ interface CreateJuryDialogProps {
   onSuccess: () => void;
 }
 
+const defaultForm = { projectId: "", presidentId: "", reporterId: "", examinerId: "" };
+
 export function CreateJuryDialog({
   open,
   onOpenChange,
@@ -40,42 +43,29 @@ export function CreateJuryDialog({
   const projects = projectsQuery.data ?? [];
   const isLoadingOptions = teachersQuery.isLoading || projectsQuery.isLoading;
 
-  const [projectId, setProjectId] = React.useState("");
-  const [presidentId, setPresidentId] = React.useState("");
-  const [reporterId, setReporterId] = React.useState("");
-  const [examinerId, setExaminerId] = React.useState("");
+  const form = useEntityForm(jurySchema, defaultForm);
+
   const [presidentSearch, setPresidentSearch] = React.useState("");
   const [reporterSearch, setReporterSearch] = React.useState("");
   const [examinerSearch, setExaminerSearch] = React.useState("");
-  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   React.useEffect(() => {
-    if (!open) {
-      return;
+    if (open) {
+      form.resetForm();
     }
-
-    setProjectId("");
-    setPresidentId("");
-    setReporterId("");
-    setExaminerId("");
   }, [open]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const errors = validate(jurySchema, {
-      projectId,
-      presidentId,
-      reporterId,
-      examinerId,
-    });
-
+    const errors = validate(jurySchema, form.formData);
     if (errors) {
-      setFieldErrors(errors);
+      form.setFieldErrors(errors);
       return;
     }
 
     try {
+      const { projectId, presidentId, reporterId, examinerId } = form.formData;
       const selectedProject = projects.find(
         (project) => project.id === projectId,
       );
@@ -83,17 +73,22 @@ export function CreateJuryDialog({
       const reporter = teachers.find((teacher) => teacher.id === reporterId);
       const examiner = teachers.find((teacher) => teacher.id === examinerId);
 
+      if (!president || !reporter || !examiner) {
+        toast.error("Un ou plusieurs membres du jury sont introuvables");
+        return;
+      }
+
       await createJuryMutation.mutateAsync({
         projectId,
         projectTitle: selectedProject?.title || "",
         presidentId,
-        presidentName: getFullName(president!),
+        presidentName: getFullName(president),
         reporterId,
-        reporterName: getFullName(reporter!),
+        reporterName: getFullName(reporter),
         examinerId,
-        examinerName: getFullName(examiner!),
+        examinerName: getFullName(examiner),
       });
-      setFieldErrors({});
+      form.setFieldErrors({});
       toast.success("Jury créé avec succès");
       onSuccess();
       onOpenChange(false);
@@ -111,36 +106,36 @@ export function CreateJuryDialog({
     () => teachers
       .filter(
         (teacher) =>
-          teacher.id !== reporterId && teacher.id !== examinerId,
+          teacher.id !== form.formData.reporterId && teacher.id !== form.formData.examinerId,
       )
       .filter((teacher) =>
         getFullName(teacher).toLowerCase().includes(presidentSearch.toLowerCase()),
       ),
-    [teachers, reporterId, examinerId, presidentSearch],
+    [teachers, form.formData.reporterId, form.formData.examinerId, presidentSearch],
   );
 
   const filteredReporters = useMemo(
     () => teachers
       .filter(
         (teacher) =>
-          teacher.id !== presidentId && teacher.id !== examinerId,
+          teacher.id !== form.formData.presidentId && teacher.id !== form.formData.examinerId,
       )
       .filter((teacher) =>
         getFullName(teacher).toLowerCase().includes(reporterSearch.toLowerCase()),
       ),
-    [teachers, presidentId, examinerId, reporterSearch],
+    [teachers, form.formData.presidentId, form.formData.examinerId, reporterSearch],
   );
 
   const filteredExaminers = useMemo(
     () => teachers
       .filter(
         (teacher) =>
-          teacher.id !== presidentId && teacher.id !== reporterId,
+          teacher.id !== form.formData.presidentId && teacher.id !== form.formData.reporterId,
       )
       .filter((teacher) =>
         getFullName(teacher).toLowerCase().includes(examinerSearch.toLowerCase()),
       ),
-    [teachers, presidentId, reporterId, examinerSearch],
+    [teachers, form.formData.presidentId, form.formData.reporterId, examinerSearch],
   );
 
   return (
@@ -160,8 +155,8 @@ export function CreateJuryDialog({
           <div className="grid gap-2">
             <Label htmlFor="jury-project">Projet</Label>
             <Select
-              value={projectId}
-              onValueChange={(val) => setProjectId(val || "")}
+              value={form.formData.projectId}
+              onValueChange={(val) => form.setFormData({ ...form.formData, projectId: val || "" })}
               disabled={isLoadingOptions}
             >
               <SelectTrigger id="jury-project" fullWidth>
@@ -175,8 +170,8 @@ export function CreateJuryDialog({
                 ))}
               </SelectContent>
             </Select>
-            {fieldErrors?.projectId && (
-              <p className="text-sm font-medium text-destructive">{fieldErrors.projectId}</p>
+            {form.fieldErrors?.projectId && (
+              <p className="text-sm font-medium text-destructive">{form.fieldErrors.projectId}</p>
             )}
           </div>
 
@@ -188,8 +183,8 @@ export function CreateJuryDialog({
               onChange={(e) => setPresidentSearch(e.target.value)}
             />
             <Select
-              value={presidentId}
-              onValueChange={(val) => setPresidentId(val || "")}
+              value={form.formData.presidentId}
+              onValueChange={(val) => form.setFormData({ ...form.formData, presidentId: val || "" })}
               disabled={isLoadingOptions}
             >
               <SelectTrigger id="jury-president" fullWidth>
@@ -203,8 +198,8 @@ export function CreateJuryDialog({
                 ))}
               </SelectContent>
             </Select>
-            {fieldErrors?.presidentId && (
-              <p className="text-sm font-medium text-destructive">{fieldErrors.presidentId}</p>
+            {form.fieldErrors?.presidentId && (
+              <p className="text-sm font-medium text-destructive">{form.fieldErrors.presidentId}</p>
             )}
           </div>
 
@@ -216,8 +211,8 @@ export function CreateJuryDialog({
               onChange={(e) => setReporterSearch(e.target.value)}
             />
             <Select
-              value={reporterId}
-              onValueChange={(val) => setReporterId(val || "")}
+              value={form.formData.reporterId}
+              onValueChange={(val) => form.setFormData({ ...form.formData, reporterId: val || "" })}
               disabled={isLoadingOptions}
             >
               <SelectTrigger id="jury-reporter" fullWidth>
@@ -231,8 +226,8 @@ export function CreateJuryDialog({
                 ))}
               </SelectContent>
             </Select>
-            {fieldErrors?.reporterId && (
-              <p className="text-sm font-medium text-destructive">{fieldErrors.reporterId}</p>
+            {form.fieldErrors?.reporterId && (
+              <p className="text-sm font-medium text-destructive">{form.fieldErrors.reporterId}</p>
             )}
           </div>
 
@@ -244,8 +239,8 @@ export function CreateJuryDialog({
               onChange={(e) => setExaminerSearch(e.target.value)}
             />
             <Select
-              value={examinerId}
-              onValueChange={(val) => setExaminerId(val || "")}
+              value={form.formData.examinerId}
+              onValueChange={(val) => form.setFormData({ ...form.formData, examinerId: val || "" })}
               disabled={isLoadingOptions}
             >
               <SelectTrigger id="jury-examiner" fullWidth>
@@ -259,8 +254,8 @@ export function CreateJuryDialog({
                 ))}
               </SelectContent>
             </Select>
-            {fieldErrors?.examinerId && (
-              <p className="text-sm font-medium text-destructive">{fieldErrors.examinerId}</p>
+            {form.fieldErrors?.examinerId && (
+              <p className="text-sm font-medium text-destructive">{form.fieldErrors.examinerId}</p>
             )}
           </div>
         </form>

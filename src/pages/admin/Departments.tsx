@@ -3,13 +3,7 @@ import { toast } from "sonner";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 
-import {
-  useDepartments,
-  useCreateDepartment,
-  useUpdateDepartment,
-  useDeleteDepartment,
-  useTeachersList,
-} from "@/hooks/use-queries";
+import { useDepartments, useTeachersList } from "@/hooks/use-queries";
 import { type Department } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -28,8 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { departmentSchema } from "@/lib/validations";
-import { useCrud } from "@/hooks/use-crud";
+import { useDepartmentCrud } from "@/hooks/entities/use-department-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
@@ -38,23 +31,7 @@ export default function Departments() {
   const [selectedDepartments, setSelectedDepartments] = useState<Department[]>([]);
   const [batchDialog, setBatchDialog] = useState<"delete" | null>(null);
   const { data: teachers = [] } = useTeachersList();
-  const create = useCreateDepartment();
-  const update = useUpdateDepartment();
-  const del = useDeleteDepartment();
-
-  const crud = useCrud({
-    schema: departmentSchema,
-    defaultForm: { name: "", code: "", headId: "" },
-    onCreate: (d) => create.mutateAsync(d),
-    onUpdate: (id, d) => update.mutateAsync({ id, data: d }),
-    onDelete: (id) => del.mutateAsync(id),
-    mapToForm: (d: Department) => ({ name: d.name, code: d.code, headId: d.headId }),
-    successMessages: {
-      create: "Département ajouté avec succès",
-      update: "Département modifié avec succès",
-      delete: "Département supprimé",
-    },
-  });
+  const crud = useDepartmentCrud();
 
   const columns = useMemo<ColumnDef<Department>[]>(() => [
     {
@@ -124,7 +101,7 @@ export default function Departments() {
         entityName={`${selectedDepartments.length} département(s)`}
         onDelete={async () => {
           try {
-            await Promise.all(selectedDepartments.map((d) => del.mutateAsync(d.id)));
+            await Promise.all(selectedDepartments.map((d) => crud.deleteMutation(d.id)));
             toast.success(`${selectedDepartments.length} département(s) supprimé(s)`);
             setSelectedDepartments([]);
             setBatchDialog(null);
@@ -133,7 +110,7 @@ export default function Departments() {
             toast.error("Erreur lors de la suppression");
           }
         }}
-        isPending={del.isPending}
+        isPending={crud.isPending}
       />
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
@@ -199,7 +176,7 @@ export default function Departments() {
             <DialogFooter>
               <Button
                 type="submit"
-                isLoading={update.isPending || create.isPending}
+                isLoading={crud.isPending}
                 loadingText="Enregistrement..."
               >
                 Enregistrer
@@ -214,7 +191,7 @@ export default function Departments() {
         onOpenChange={crud.setIsDeleteDialogOpen}
         onDelete={crud.handleDelete}
         entityName={crud.selected?.name}
-        isPending={del.isPending}
+        isPending={crud.isPending}
       />
     </div>
   );

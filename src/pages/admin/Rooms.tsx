@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, BuildingIcon } from "lucide-react";
 
-import { useRooms, useCreateRoom, useUpdateRoom, useDeleteRoom, useDepartments } from "@/hooks/use-queries";
+import { useRooms, useDepartments } from "@/hooks/use-queries";
 import type { Room } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -14,7 +14,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   Input,
   Select,
   SelectContent,
@@ -24,8 +23,7 @@ import {
 } from "@/components/ui";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { roomSchema } from "@/lib/validations";
-import { useCrud } from "@/hooks/use-crud";
+import { useRoomCrud } from "@/hooks/entities/use-room-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
@@ -34,23 +32,7 @@ export default function Rooms() {
   const [selectedRooms, setSelectedRooms] = useState<Room[]>([]);
   const [batchDialog, setBatchDialog] = useState<"delete" | null>(null);
   const { data: departments = [] } = useDepartments();
-  const create = useCreateRoom();
-  const update = useUpdateRoom();
-  const del = useDeleteRoom();
-
-  const crud = useCrud({
-    schema: roomSchema,
-    defaultForm: { name: "", capacity: 0, departmentId: "" },
-    onCreate: (d) => create.mutateAsync(d),
-    onUpdate: (id, d) => update.mutateAsync({ id, data: d }),
-    onDelete: (id) => del.mutateAsync(id),
-    mapToForm: (r: Room) => ({ name: r.name, capacity: r.capacity, departmentId: r.departmentId }),
-    successMessages: {
-      create: "Salle ajoutée avec succès",
-      update: "Salle modifiée avec succès",
-      delete: "Salle supprimée",
-    },
-  });
+  const crud = useRoomCrud();
 
   const columns = useMemo<ColumnDef<Room>[]>(() => {
     const getDepartmentName = (id: string) =>
@@ -97,9 +79,7 @@ export default function Rooms() {
         <div className="flex gap-2">
           <BulkImportDialog entity="room" triggerButtonText="Importation en masse" onSuccess={refetch} />
           <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button><Plus className="h-4 w-4" />Nouvelle Salle</Button>
-            </DialogTrigger>
+            <Button onClick={() => { crud.openCreate(); }}><Plus className="h-4 w-4" />Nouvelle Salle</Button>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{crud.selected ? "Modifier la salle" : "Ajouter une Salle"}</DialogTitle>
@@ -137,7 +117,7 @@ export default function Rooms() {
                 </FieldGroup>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={() => crud.setIsDialogOpen(false)}>Annuler</Button>
-                  <Button type="submit" isLoading={create.isPending || update.isPending} loadingText="Enregistrement...">Enregistrer</Button>
+                  <Button type="submit" isLoading={crud.isPending} loadingText="Enregistrement...">Enregistrer</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
@@ -162,7 +142,7 @@ export default function Rooms() {
         entityName={`${selectedRooms.length} salle(s)`}
         onDelete={async () => {
           try {
-            await Promise.all(selectedRooms.map((r) => del.mutateAsync(r.id)));
+            await Promise.all(selectedRooms.map((r) => crud.deleteMutation(r.id)));
             toast.success(`${selectedRooms.length} salle(s) supprimée(s)`);
             setSelectedRooms([]);
             setBatchDialog(null);
@@ -171,11 +151,11 @@ export default function Rooms() {
             toast.error("Erreur lors de la suppression");
           }
         }}
-        isPending={del.isPending}
+        isPending={crud.isPending}
       />
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
-        onDelete={crud.handleDelete} entityName={crud.selected?.name} isPending={del.isPending} />
+        onDelete={crud.handleDelete} entityName={crud.selected?.name} isPending={crud.isPending} />
     </div>
   );
 }

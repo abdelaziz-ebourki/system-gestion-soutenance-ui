@@ -45,7 +45,7 @@ export default function Jurys() {
     (project) => !juries.some((jury) => jury.projectId === project.id),
   ), [projects, juries]);
 
-  const columns: ColumnDef<Jury>[] = [
+  const columns = useMemo<ColumnDef<Jury>[]>(() => [
     {
       accessorKey: "projectTitle",
       header: "Projet",
@@ -90,7 +90,7 @@ export default function Jurys() {
         </div>
       ),
     },
-  ];
+  ], []);
 
   return (
     <div className="space-y-6">

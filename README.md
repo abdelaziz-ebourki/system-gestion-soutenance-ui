@@ -1,75 +1,67 @@
-# React + TypeScript + Vite
+# Système Gestion Soutenance — UI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend de la plateforme de gestion, planification et suivi des soutenances universitaires.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **React 19** + **TypeScript 6**
+- **Vite 8** (build tool)
+- **Tailwind CSS 4** (styling) + **shadcn/ui** (component primitives)
+- **TanStack React Query v5** (server state) + **React Table v8** (data grids)
+- **React Router v7** (routing)
+- **MSW v2** (mock API in development)
+- **Zod** (validation)
+- **Recharts** (charts), **DnD Kit** (drag & drop), **Sonner** (toasts)
 
-## React Compiler
+## Quick Start
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Opens at `http://localhost:5173`.
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x";
-import reactDom from "eslint-plugin-react-dom";
+### Demo accounts (mock data)
 
-export default defineConfig([
-  globalIgnores(["dist"]),
-  {
-    files: ["**/*.{ts,tsx}"],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs["recommended-typescript"],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+| Email | Password | Role |
+|---|---|---|
+| `admin@univ.com` | `1234` | Administrateur |
+| `coord@univ.com` | `1234` | Coordinateur |
+| `teacher@univ.com` | `1234` | Enseignant |
+| `student@univ.com` | `1234` | Étudiant |
+
+## Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start dev server with MSW mock API |
+| `npm run build` | TypeScript check + production build |
+| `npm run lint` | ESLint on all source files |
+| `npm run lint:spell` | Spell check on all source files |
+| `npm run preview` | Preview production build |
+
+## Environment Variables
+
+See `.env.example` for available variables:
+- `VITE_MOCK_DELAY` — simulated API latency in ms (default: 1000)
+
+## Architecture
+
 ```
+src/
+  pages/        — Route-level components (lazy-loaded by role)
+  components/   — UI primitives (shadcn) + business components
+  hooks/        — React Query wrappers + entity CRUD hooks
+  lib/          — API client, Zod validations, utilities
+  mocks/        — MSW handlers + mock data store
+  types/        — TypeScript interfaces & types
+  contexts/     — Auth, theme, sidebar providers
+  config/       — App configuration (site name, links)
+```
+
+Route structure follows roles: `/admin/*`, `/coordinator/*`, `/teacher/*`, `/student/*`. Each role has its own layout, sidebar navigation, and protected routes.
+
+## Mock API
+
+This project uses **MSW** (Mock Service Worker) in development mode. All `/api/*` requests are intercepted in the browser — no backend server is required. Mock data lives in `src/mocks/data.ts` and handlers are split by domain in `src/mocks/handlers-*.ts`.

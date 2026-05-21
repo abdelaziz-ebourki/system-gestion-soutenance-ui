@@ -14,7 +14,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   Input,
   Select,
   SelectContent,
@@ -31,9 +30,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { sessionSchema } from "@/lib/validations";
-import { useCrud } from "@/hooks/use-crud";
-import { useSessions, useCreateSession, useUpdateSession, useDeleteSession } from "@/hooks/use-queries";
+import { useSessionCrud } from "@/hooks/entities/use-session-crud";
+import { useSessions } from "@/hooks/use-queries";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
 const statusBadge: Record<string, "default" | "secondary"> = {
@@ -53,23 +51,7 @@ export default function Sessions() {
   const [selectedSessions, setSelectedSessions] = useState<Session[]>([]);
   const [batchDialog, setBatchDialog] = useState<"status" | "delete" | null>(null);
   const [batchValue, setBatchValue] = useState("");
-  const create = useCreateSession();
-  const update = useUpdateSession();
-  const del = useDeleteSession();
-
-  const crud = useCrud({
-    schema: sessionSchema,
-    defaultForm: { name: "", type: "Normale", status: "draft", startDate: "", endDate: "" },
-    onCreate: (d) => create.mutateAsync(d as Parameters<typeof create.mutateAsync>[0]),
-    onUpdate: (id, d) => update.mutateAsync({ id, data: d as Parameters<typeof create.mutateAsync>[0] }),
-    onDelete: (id) => del.mutateAsync(id),
-    mapToForm: (s: Session) => ({ name: s.name, type: s.type, status: s.status, startDate: s.startDate, endDate: s.endDate }),
-    successMessages: {
-      create: "Session créée avec succès",
-      update: "Session modifiée avec succès",
-      delete: "Session supprimée",
-    },
-  });
+  const crud = useSessionCrud();
 
   const columns = useMemo<ColumnDef<Session>[]>(() => [
     { accessorKey: "name", header: "Nom de la Session", cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div> },
@@ -131,7 +113,7 @@ export default function Sessions() {
         </DropdownMenu>
       ),
     },
-  ], []);
+  ], [crud]);
 
   return (
     <div className="space-y-6 pb-20">
@@ -141,9 +123,7 @@ export default function Sessions() {
           <p className="text-muted-foreground">Définissez les périodes académiques pour les soutenances.</p>
         </div>
         <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button><Plus className="mr-2 h-4 w-4" />Nouvelle Session</Button>
-          </DialogTrigger>
+          <Button onClick={() => { crud.openCreate(); }}><Plus className="mr-2 h-4 w-4" />Nouvelle Session</Button>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{crud.selected ? "Modifier la session" : "Créer une Session"}</DialogTitle>
@@ -207,7 +187,7 @@ export default function Sessions() {
               </FieldGroup>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => crud.setIsDialogOpen(false)}>Annuler</Button>
-                <Button type="submit" isLoading={create.isPending || update.isPending} loadingText="Enregistrement...">Enregistrer</Button>
+                <Button type="submit" isLoading={crud.isPending} loadingText="Enregistrement...">Enregistrer</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -255,7 +235,7 @@ export default function Sessions() {
             <Button onClick={async () => {
               if (!batchValue) return;
               try {
-                await Promise.all(selectedSessions.map((s) => update.mutateAsync({ id: s.id, data: { ...s, status: batchValue as Session["status"] } })));
+                await Promise.all(selectedSessions.map((s) => crud.updateMutation(s.id, { status: batchValue as Session["status"] })));
                 toast.success(`${selectedSessions.length} session(s) mise(s) à jour`);
                 setSelectedSessions([]);
                 setBatchDialog(null);
@@ -263,7 +243,7 @@ export default function Sessions() {
               } catch {
                 toast.error("Erreur lors de la mise à jour");
               }
-            }} isLoading={update.isPending}>Enregistrer</Button>
+            }} isLoading={crud.isPending}>Enregistrer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -274,7 +254,7 @@ export default function Sessions() {
         entityName={`${selectedSessions.length} session(s)`}
         onDelete={async () => {
           try {
-            await Promise.all(selectedSessions.map((s) => del.mutateAsync(s.id)));
+            await Promise.all(selectedSessions.map((s) => crud.deleteMutation(s.id)));
             toast.success(`${selectedSessions.length} session(s) supprimée(s)`);
             setSelectedSessions([]);
             setBatchDialog(null);
@@ -283,11 +263,11 @@ export default function Sessions() {
             toast.error("Erreur lors de la suppression");
           }
         }}
-        isPending={del.isPending}
+        isPending={crud.isPending}
       />
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
-        onDelete={crud.handleDelete} entityName={crud.selected?.name} isPending={del.isPending} />
+        onDelete={crud.handleDelete} entityName={crud.selected?.name} isPending={crud.isPending} />
     </div>
   );
 }

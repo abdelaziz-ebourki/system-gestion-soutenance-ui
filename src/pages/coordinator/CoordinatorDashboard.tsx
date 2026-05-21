@@ -68,7 +68,7 @@ export default function CoordinatorDashboard() {
 
   return (
     <div className="space-y-6">
-      <section className="overflow-hidden rounded-lg border bg-card shadow-sm">
+      <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.5fr_1fr] md:px-8">
           <div className="space-y-4">
             <Badge className="w-fit" variant="secondary">

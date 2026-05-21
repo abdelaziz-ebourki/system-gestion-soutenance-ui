@@ -1,12 +1,8 @@
 import { useMemo } from "react";
-import * as React from "react";
 import { FileCheck2, MessageSquareText, PencilLine } from "lucide-react";
 
-import { useTeacherEvaluations, useSubmitTeacherEvaluation } from "@/hooks/use-queries";
-import { validate, evaluationSchema } from "@/lib/validations";
-import type { TeacherEvaluation } from "@/types";
-import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { useTeacherEvaluations } from "@/hooks/use-queries";
+import { useEvaluationForm } from "@/hooks/use-evaluation-form";
 import { DEFENSE_ROLE_LABELS } from "@/lib/constants";
 import {
   Badge,
@@ -28,63 +24,12 @@ import {
   StatsCard,
 } from "@/components/ui";
 
-
-
 export default function TeacherEvaluations() {
   const evaluationsQuery = useTeacherEvaluations();
-  const submitMutation = useSubmitTeacherEvaluation();
   const evaluations = evaluationsQuery.data ?? [];
   const isLoading = evaluationsQuery.isLoading;
-  const [selectedEvaluation, setSelectedEvaluation] =
-    React.useState<TeacherEvaluation | null>(null);
-  const [score, setScore] = React.useState("");
-  const [comment, setComment] = React.useState("");
-  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
-  const openEvaluation = (evaluation: TeacherEvaluation) => {
-    setSelectedEvaluation(evaluation);
-    setScore(evaluation.score?.toString() || "");
-    setComment(evaluation.comment || "");
-  };
-
-  const closeEvaluation = () => {
-    setSelectedEvaluation(null);
-    setScore("");
-    setComment("");
-  };
-
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!selectedEvaluation) {
-      return;
-    }
-
-    const errors = validate(evaluationSchema, {
-      score: Number(score),
-      comment,
-    });
-
-    if (errors) {
-      setFieldErrors(errors);
-      return;
-    }
-
-    try {
-      await submitMutation.mutateAsync({
-        id: selectedEvaluation.id,
-        data: {
-          score: Number(score),
-          comment,
-        },
-      });
-      setFieldErrors({});
-      toast.success("Évaluation enregistrée");
-      closeEvaluation();
-    } catch (error) {
-      toastError(error, "Erreur lors de l'enregistrement");
-    }
-  };
+  const form = useEvaluationForm();
 
   const pendingEvaluations = useMemo(() => evaluations.filter(
     (evaluation) => evaluation.status === "pending",
@@ -136,7 +81,7 @@ export default function TeacherEvaluations() {
                     </Badge>
                   </div>
                   <div className="mt-4">
-                    <Button onClick={() => openEvaluation(evaluation)}>
+                    <Button onClick={() => form.openEdit(evaluation)}>
                       Saisir l'évaluation
                     </Button>
                   </div>
@@ -185,12 +130,8 @@ export default function TeacherEvaluations() {
       </div>
 
       <Dialog
-        open={Boolean(selectedEvaluation)}
-        onOpenChange={(open) => {
-          if (!open) {
-            closeEvaluation();
-          }
-        }}
+        open={form.isDialogOpen}
+        onOpenChange={form.setIsDialogOpen}
       >
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -202,12 +143,12 @@ export default function TeacherEvaluations() {
           <form
             id="teacher-evaluation-form"
             className="grid gap-4"
-            onSubmit={handleSubmit}
+            onSubmit={form.handleSubmit}
           >
             <div className="rounded-lg border bg-secondary/40 p-4">
-              <p className="font-medium">{selectedEvaluation?.projectTitle}</p>
+              <p className="font-medium">{form.selected?.projectTitle}</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {selectedEvaluation?.studentNames.join(", ")}
+                {form.selected?.studentNames.join(", ")}
               </p>
             </div>
             <div className="grid gap-2">
@@ -218,18 +159,18 @@ export default function TeacherEvaluations() {
                 min="0"
                 max="20"
                 step="0.5"
-                value={score}
-                onChange={(event) => setScore(event.target.value)}
+                value={String(form.formData.score)}
+                onChange={(event) => form.setFormData({ ...form.formData, score: Number(event.target.value) })}
                 required
-                error={fieldErrors?.score}
+                error={form.fieldErrors?.score}
               />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="teacher-comment">Appréciation</Label>
               <Textarea
                 id="teacher-comment"
-                value={comment}
-                onChange={(event) => setComment(event.target.value)}
+                value={form.formData.comment}
+                onChange={(event) => form.setFormData({ ...form.formData, comment: event.target.value })}
                 className="min-h-28"
                 required
               />
@@ -239,7 +180,7 @@ export default function TeacherEvaluations() {
             <Button
               type="submit"
               form="teacher-evaluation-form"
-              isLoading={submitMutation.isPending}
+              isLoading={form.isPending}
               loadingText="Enregistrement..."
             >
               Enregistrer
