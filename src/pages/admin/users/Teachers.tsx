@@ -5,6 +5,7 @@ import { useTeachers, useDepartments, useGrades } from "@/hooks/use-queries";
 import type { Teacher } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
+  Badge,
   Button,
   Dialog,
   DialogContent,
@@ -55,6 +56,15 @@ export default function Teachers() {
     { accessorKey: "firstName", header: "Prénom", cell: ({ row }) => <div className="font-medium">{row.original.firstName}</div> },
     { accessorKey: "email", header: "Email" },
     {
+      accessorKey: "gradeId",
+      header: "Grade",
+      cell: ({ row }) => {
+        const id = row.getValue("gradeId") as string;
+        const name = grades.find((g) => g.id === id)?.name || id;
+        return <Badge variant="outline">{name}</Badge>;
+      },
+    },
+    {
       accessorKey: "departmentId",
       header: "Département",
       cell: ({ row }) => {
@@ -64,8 +74,12 @@ export default function Teachers() {
     },
     {
       id: "actions",
-      header: "Action",
-      cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
+      header: "",
+      cell: ({ row }) => (
+        <div className="text-right">
+          <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />
+        </div>
+      ),
     },
   ], [crud, departments, grades]);
 

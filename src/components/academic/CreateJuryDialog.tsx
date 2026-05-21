@@ -1,11 +1,12 @@
 import * as React from "react";
 import { useMemo } from "react";
 
-import { useTeachersList, useProjects, useCreateJury } from "@/hooks/use-queries";
+import { useTeachersList, useProjects, useCreateJury, useUpdateJury } from "@/hooks/use-queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, jurySchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { getFullName, toastError } from "@/lib/utils";
+import type { Jury } from "@/types";
 import {
   Button,
   Dialog,
@@ -27,6 +28,7 @@ interface CreateJuryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  jury?: Jury | null;
 }
 
 const defaultForm = { projectId: "", presidentId: "", reporterId: "", examinerId: "" };
@@ -35,13 +37,16 @@ export function CreateJuryDialog({
   open,
   onOpenChange,
   onSuccess,
+  jury,
 }: CreateJuryDialogProps) {
   const teachersQuery = useTeachersList();
   const projectsQuery = useProjects();
   const createJuryMutation = useCreateJury();
+  const updateJuryMutation = useUpdateJury();
   const teachers = teachersQuery.data ?? [];
   const projects = projectsQuery.data ?? [];
   const isLoadingOptions = teachersQuery.isLoading || projectsQuery.isLoading;
+  const isEdit = !!jury;
 
   const form = useEntityForm(jurySchema, defaultForm);
 
@@ -51,7 +56,20 @@ export function CreateJuryDialog({
 
   React.useEffect(() => {
     if (open) {
-      form.resetForm();
+      if (jury) {
+        form.resetForm();
+        form.setFormData({
+          projectId: jury.projectId,
+          presidentId: jury.presidentId,
+          reporterId: jury.reporterId,
+          examinerId: jury.examinerId,
+        });
+      } else {
+        form.resetForm();
+      }
+      setPresidentSearch("");
+      setReporterSearch("");
+      setExaminerSearch("");
     }
   }, [open]);
 
@@ -75,18 +93,26 @@ export function CreateJuryDialog({
         return;
       }
 
-      await createJuryMutation.mutateAsync({
-        projectId,
-        presidentId,
-        reporterId,
-        examinerId,
-      });
+      if (isEdit && jury) {
+        await updateJuryMutation.mutateAsync({
+          id: jury.id,
+          data: { projectId, presidentId, reporterId, examinerId },
+        });
+        toast.success("Jury modifié avec succès");
+      } else {
+        await createJuryMutation.mutateAsync({
+          projectId,
+          presidentId,
+          reporterId,
+          examinerId,
+        });
+        toast.success("Jury créé avec succès");
+      }
       form.setFieldErrors({});
-      toast.success("Jury créé avec succès");
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      toastError(error, "Erreur lors de la creation du jury");
+      toastError(error, `Erreur lors de la ${isEdit ? "modification" : "creation"} du jury`);
     }
   };
 
@@ -131,13 +157,17 @@ export function CreateJuryDialog({
     [teachers, form.formData.presidentId, form.formData.reporterId, examinerSearch],
   );
 
+  const isPending = isEdit ? updateJuryMutation.isPending : createJuryMutation.isPending;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-155">
         <DialogHeader>
-          <DialogTitle>Nouveau jury</DialogTitle>
+          <DialogTitle>{isEdit ? "Modifier le jury" : "Nouveau jury"}</DialogTitle>
           <DialogDescription>
-            Associez un projet à trois enseignants avec des rôles distincts.
+            {isEdit
+              ? "Mettez à jour la composition du jury."
+              : "Associez un projet à trois enseignants avec des rôles distincts."}
           </DialogDescription>
         </DialogHeader>
         <form
@@ -150,7 +180,7 @@ export function CreateJuryDialog({
             <Select
               value={form.formData.projectId}
               onValueChange={(val) => form.setFormData({ ...form.formData, projectId: val || "" })}
-              disabled={isLoadingOptions}
+              disabled={isLoadingOptions || isEdit}
             >
               <SelectTrigger id="jury-project" fullWidth>
                 <SelectValue placeholder="Selectionner un projet" />
@@ -263,10 +293,10 @@ export function CreateJuryDialog({
           <Button
             type="submit"
             form="create-jury-form"
-            isLoading={createJuryMutation.isPending}
+            isLoading={isPending}
             disabled={isLoadingOptions}
           >
-            Creer le jury
+            {isEdit ? "Enregistrer" : "Creer le jury"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -25,22 +25,22 @@ export const getUsers = (params: {
 };
 
 export const getStudents = (page = 0, limit = 10) =>
-  getUsers({ role: "student", page, limit }) as unknown as Promise<
-    PaginatedResponse<Student>
-  >;
+  api<PaginatedResponse<Student>>(
+    `/admin/students?page=${page}&limit=${limit}`,
+  );
 
 export const getTeachers = (page = 0, limit = 10) =>
-  getUsers({ role: "teacher", page, limit }) as unknown as Promise<
-    PaginatedResponse<Teacher>
-  >;
+  api<PaginatedResponse<Teacher>>(
+    `/admin/teachers?page=${page}&limit=${limit}`,
+  );
 
 export const getTeachersList = () =>
-  api<PaginatedResponse<Teacher>>("/admin/users?role=teacher&limit=1000").then(
+  api<PaginatedResponse<Teacher>>("/admin/teachers?limit=1000").then(
     (res) => res.items,
   );
 
 export const getStudentsList = () =>
-  api<PaginatedResponse<Student>>("/admin/users?role=student&limit=1000").then(
+  api<PaginatedResponse<Student>>("/admin/students?limit=1000").then(
     (res) => res.items,
   );
 

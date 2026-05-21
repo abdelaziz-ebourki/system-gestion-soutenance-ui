@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Plus, Calendar, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Plus, Calendar } from "lucide-react";
 
 import type { Session } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
@@ -21,18 +21,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useSessionCrud } from "@/hooks/entities/use-session-crud";
 import { useSessions } from "@/hooks/use-queries";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
+import { CrudActions } from "@/components/admin/CrudActions";
 
 const statusBadge: Record<string, "default" | "secondary"> = {
   active: "default",
@@ -90,27 +83,11 @@ export default function Sessions() {
     },
     {
       id: "actions",
-      header: "Action",
+      header: "",
       cell: ({ row }) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="size-8 p-0">
-                <span className="sr-only">Ouvrir le menu</span>
-                <MoreHorizontal className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuGroup>
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => crud.openEdit(row.original)}>
-                <Pencil className="mr-2 size-4" /> Modifier
-              </DropdownMenuItem>
-              <DropdownMenuItem variant="destructive" onClick={() => crud.openDelete(row.original)}>
-                <Trash2 className="mr-2 size-4" /> Supprimer
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="text-right">
+          <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />
+        </div>
       ),
     },
   ], [crud]);

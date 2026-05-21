@@ -63,8 +63,12 @@ export default function Rooms() {
       },
       {
         id: "actions",
-        header: "Action",
-        cell: ({ row }) => <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />,
+        header: "",
+        cell: ({ row }) => (
+          <div className="text-right">
+            <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />
+          </div>
+        ),
       },
     ];
   }, [crud, departments]);

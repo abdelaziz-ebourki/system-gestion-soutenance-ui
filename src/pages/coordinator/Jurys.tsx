@@ -1,10 +1,12 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import * as React from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
 
-import { useJuries, useProjects, useTeachersList } from "@/hooks/use-queries";
+import { useJuries, useProjects, useTeachersList, useDeleteJury } from "@/hooks/use-queries";
 import type { Jury } from "@/types";
+import { toastError } from "@/lib/utils";
 
 import {
   Badge,
@@ -18,16 +20,28 @@ import {
 } from "@/components/ui";
 import { DataTable } from "@/components/ui/data-table";
 import { CreateJuryDialog } from "@/components/academic/CreateJuryDialog";
+import { CrudActions } from "@/components/admin/CrudActions";
+import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
 export default function Jurys() {
   const juriesQuery = useJuries();
   const teachersQuery = useTeachersList();
   const projectsQuery = useProjects();
+  const deleteJuryMutation = useDeleteJury();
   const juries = juriesQuery.data ?? [];
   const teachers = teachersQuery.data ?? [];
   const projects = projectsQuery.data ?? [];
   const isLoading = juriesQuery.isLoading || teachersQuery.isLoading || projectsQuery.isLoading;
   const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+  const [editingJury, setEditingJury] = useState<Jury | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Jury | null>(null);
+  const isDialogOpen = isCreateOpen || editingJury !== null;
+  const handleDialogChange = (open: boolean) => {
+    if (!open) {
+      setIsCreateOpen(false);
+      setEditingJury(null);
+    }
+  };
 
   const teachersLoad = React.useMemo(() => {
     const counts = new Map<string, number>();
@@ -87,6 +101,15 @@ export default function Jurys() {
         <div className="flex items-center gap-2">
           <Badge variant="default">E</Badge>
           <span>{row.original.examinerName}</span>
+        </div>
+      ),
+    },
+    {
+      id: "actions",
+      header: "",
+      cell: ({ row }) => (
+        <div className="text-right">
+          <CrudActions entity={row.original} onEdit={setEditingJury} onDelete={setDeleteTarget} />
         </div>
       ),
     },
@@ -175,9 +198,27 @@ export default function Jurys() {
       </div>
 
       <CreateJuryDialog
-        open={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
+        open={isDialogOpen}
+        onOpenChange={handleDialogChange}
+        jury={editingJury}
         onSuccess={() => {}}
+      />
+
+      <DeleteAlert
+        isOpen={deleteTarget !== null}
+        onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}
+        entityName={deleteTarget?.projectTitle}
+        onDelete={async () => {
+          if (!deleteTarget) return;
+          try {
+            await deleteJuryMutation.mutateAsync(deleteTarget.id);
+            toast.success("Jury supprimé");
+            setDeleteTarget(null);
+          } catch (error) {
+            toastError(error, "Erreur lors de la suppression");
+          }
+        }}
+        isPending={deleteJuryMutation.isPending}
       />
     </div>
   );

@@ -56,9 +56,11 @@ export default function Departments() {
     },
     {
       id: "actions",
-      header: "Action",
+      header: "",
       cell: ({ row }) => (
-        <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />
+        <div className="text-right">
+          <CrudActions entity={row.original} onEdit={crud.openEdit} onDelete={crud.openDelete} />
+        </div>
       ),
     },
   ], [crud, teachers]);

@@ -1,8 +1,6 @@
 import { useState, useMemo } from "react";
 import {
   Plus,
-  Pencil,
-  Trash2,
   Users,
   FolderKanban,
   CircleAlert,
@@ -35,6 +33,7 @@ import {
   StatsCard,
 } from "@/components/ui";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
+import { CrudActions } from "@/components/admin/CrudActions";
 import { DataTable } from "@/components/ui/data-table";
 import { ProjectDialog } from "@/components/academic/ProjectDialog";
 
@@ -61,17 +60,9 @@ export default function CoordinatorProjects() {
   const [batchValue, setBatchValue] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
 
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteProjectMutation.mutateAsync(id);
-      toast.success("Projet supprimé");
-    } catch (error) {
-      toastError(error, "Erreur lors de la suppression");
-    }
-  };
-
-  const columns: ColumnDef<Project>[] = [
+  const columns = useMemo<ColumnDef<Project>[]>(() => [
     {
       accessorKey: "title",
       header: "Projet",
@@ -110,25 +101,12 @@ export default function CoordinatorProjects() {
       id: "actions",
       header: "",
       cell: ({ row }) => (
-        <div className="flex justify-end gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setEditingProject(row.original)}
-          >
-            <Pencil className="size-4" />
-          </Button>
-          <Button
-            variant="destructive"
-            size="icon"
-            onClick={() => handleDelete(row.original.id)}
-          >
-            <Trash2 className="size-4" />
-          </Button>
+        <div className="text-right">
+          <CrudActions entity={row.original} onEdit={(p) => setEditingProject(p)} onDelete={setDeleteTarget} />
         </div>
       ),
     },
-  ];
+  ], []);
 
   const pendingProjects = useMemo(() => projects.filter(
     (project) => project.status === "pending",
@@ -243,6 +221,23 @@ export default function CoordinatorProjects() {
             toast.success(`${selectedProjects.length} projet(s) supprimé(s)`);
             setSelectedProjects([]);
             setBatchDialog(null);
+          } catch (error) {
+            toastError(error, "Erreur lors de la suppression");
+          }
+        }}
+        isPending={deleteProjectMutation.isPending}
+      />
+
+      <DeleteAlert
+        isOpen={deleteTarget !== null}
+        onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}
+        entityName={deleteTarget?.title}
+        onDelete={async () => {
+          if (!deleteTarget) return;
+          try {
+            await deleteProjectMutation.mutateAsync(deleteTarget.id);
+            toast.success("Projet supprimé");
+            setDeleteTarget(null);
           } catch (error) {
             toastError(error, "Erreur lors de la suppression");
           }
