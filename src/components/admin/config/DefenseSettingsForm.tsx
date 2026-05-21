@@ -35,7 +35,7 @@ export function DefenseSettingsForm() {
     if (defSettings) setSettings(defSettings);
   }, [defSettings]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     const errors = validate(defenseSettingsSchema, settings);
     if (errors) { setFieldErrors(errors); return; }

@@ -88,7 +88,7 @@ export function ProjectDialog({
     }
   }, [open]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();
 
     const errors = validate(projectSchema, form.formData);

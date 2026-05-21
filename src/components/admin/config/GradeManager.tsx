@@ -47,7 +47,7 @@ export function GradeManager() {
     setIsDialogOpen(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     const errors = validate(configNameSchema, formData);
     if (errors) { setFieldErrors(errors); return; }

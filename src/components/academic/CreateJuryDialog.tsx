@@ -73,7 +73,7 @@ export function CreateJuryDialog({
     }
   }, [open]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();
 
     const errors = validate(jurySchema, form.formData);
