@@ -43,6 +43,7 @@ interface DataTableContextValue {
   onRowClick?: (row: unknown) => void;
   emptyMessage?: string;
   mergedColumns: ColumnDef<unknown, unknown>[];
+  globalFilter: string;
   setGlobalFilter: (value: string) => void;
   searchCols: string[] | undefined;
   filters: DataTableFilter[] | undefined;
@@ -158,6 +159,7 @@ function DataTableProvider<TData, TValue>({
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = React.useState("");
+  const deferredGlobalFilter = React.useDeferredValue(globalFilter);
 
   const [internalPagination, setInternalPagination] =
     React.useState<PaginationState>({ pageIndex: 0, pageSize });
@@ -223,7 +225,7 @@ function DataTableProvider<TData, TValue>({
           });
         }
       : undefined,
-    state: { sorting, columnFilters, globalFilter, pagination: pagination ?? internalPagination, rowSelection },
+    state: { sorting, columnFilters, globalFilter: deferredGlobalFilter, pagination: pagination ?? internalPagination, rowSelection },
   });
 
   const hasActiveFilters = columnFilters.length > 0 || globalFilter.length > 0;
@@ -246,7 +248,7 @@ function DataTableProvider<TData, TValue>({
 
   return (
     <DataTableCtx.Provider value={{
-      table, labels, enableRowSelection, onRowClick, emptyMessage, mergedColumns,
+      table, labels, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
       setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
     } as unknown as DataTableContextValue}>
       <div>{children}</div>
@@ -255,8 +257,7 @@ function DataTableProvider<TData, TValue>({
 }
 
 function DataTableToolbar() {
-  const { table, labels, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, setGlobalFilter } = useDataTable();
-  const globalFilter = table.getState().globalFilter;
+  const { table, labels, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, globalFilter, setGlobalFilter } = useDataTable();
 
   if (!searchCols && !filters?.length && !columnVisibility) return null;
 
@@ -294,7 +295,7 @@ function DataTableToolbar() {
                   : f.label}
               </span>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent position="popper">
               <SelectItem value={ALL_VALUE}>
                 {labels.allItems(f.label)}
               </SelectItem>
@@ -438,7 +439,7 @@ function DataTablePagination() {
           <SelectTrigger className="h-8 w-28">
             <span className="flex-1 text-left">{table.getState().pagination.pageSize}{labels.itemsPerPage}</span>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper">
             {pageSizeOptions.map((size) => (
               <SelectItem key={size} value={String(size)}>{size}{labels.itemsPerPage}</SelectItem>
             ))}
