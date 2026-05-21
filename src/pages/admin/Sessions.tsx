@@ -110,15 +110,13 @@ export default function Sessions() {
       id: "actions",
       header: "Action",
       cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
                 <span className="sr-only">Ouvrir le menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
-            }
-          />
+            </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
@@ -143,7 +141,9 @@ export default function Sessions() {
           <p className="text-muted-foreground">Définissez les périodes académiques pour les soutenances.</p>
         </div>
         <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
-          <DialogTrigger render={<Button><Plus className="mr-2 h-4 w-4" />Nouvelle Session</Button>} />
+          <DialogTrigger asChild>
+            <Button><Plus className="mr-2 h-4 w-4" />Nouvelle Session</Button>
+          </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{crud.selected ? "Modifier la session" : "Créer une Session"}</DialogTitle>

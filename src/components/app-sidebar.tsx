@@ -155,14 +155,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               className="data-[slot=sidebar-menu-button]:p-1.5!"
-              render={<a href="/" />}
+              asChild
             >
-              <img src="/logo.svg" alt="Logo" className="size-10" />
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold text-lg tracking-tight">
-                  {siteConfig.name}
-                </span>
-              </div>
+              <a href="/">
+                <img src="/logo.svg" alt="Logo" className="size-10" />
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold text-lg tracking-tight">
+                    {siteConfig.name}
+                  </span>
+                </div>
+              </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

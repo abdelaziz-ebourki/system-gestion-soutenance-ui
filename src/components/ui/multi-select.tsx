@@ -32,25 +32,22 @@ function MultiSelect({
 }: MultiSelectProps) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        disabled={disabled}
-        render={
-          <Button
-            variant="outline"
-            className={cn(
-              "flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm transition-colors",
-              value.length === 0 && "text-muted-foreground",
-              className,
-            )}
-          />
-        }
-      >
-        <span className="truncate">
-          {value.length > 0
-            ? `${value.length} sélectionné${value.length > 1 ? "s" : ""}`
-            : placeholder}
-        </span>
-        <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+      <DropdownMenuTrigger disabled={disabled} asChild>
+        <Button
+          variant="outline"
+          className={cn(
+            "flex h-8 w-full items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-2.5 py-1 text-sm transition-colors",
+            value.length === 0 && "text-muted-foreground",
+            className,
+          )}
+        >
+          <span className="truncate">
+            {value.length > 0
+              ? `${value.length} sélectionné${value.length > 1 ? "s" : ""}`
+              : placeholder}
+          </span>
+          <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="max-h-60 w-(--anchor-width) overflow-y-auto">
         {options.length > 0 ? (

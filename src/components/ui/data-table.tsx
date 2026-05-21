@@ -173,8 +173,7 @@ function DataTableProvider<TData, TValue>({
           const isSomeSelected = !isAllSelected && table.getIsSomePageRowsSelected();
           return (
             <Checkbox
-              checked={isAllSelected}
-              indeterminate={isSomeSelected}
+              checked={isSomeSelected ? "indeterminate" : isAllSelected}
               onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
               aria-label="Select all"
             />
@@ -277,25 +276,26 @@ function DataTableToolbar() {
       {filters?.map((f) => {
         const column = table.getColumn(f.column);
         if (!column) return null;
-        const currentValue = (column.getFilterValue() as string) ?? "";
+        const ALL_VALUE = "__all__";
+        const currentValue = (column.getFilterValue() as string) ?? ALL_VALUE;
         return (
           <Select
             key={f.column}
             value={currentValue}
             onValueChange={(v) => {
-              column.setFilterValue(v || undefined);
+              column.setFilterValue(v === ALL_VALUE ? undefined : v);
               table.setPageIndex(0);
             }}
           >
             <SelectTrigger className="w-44">
               <span className="flex-1 text-left truncate">
-                {currentValue
+                {currentValue && currentValue !== ALL_VALUE
                   ? f.options.find((o) => o.value === currentValue)?.label ?? currentValue
                   : f.label}
               </span>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">
+              <SelectItem value={ALL_VALUE}>
                 {labels.allItems(f.label)}
               </SelectItem>
               {f.options.map((opt) => (
@@ -309,14 +309,12 @@ function DataTableToolbar() {
       })}
       {columnVisibility && (
         <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button variant="outline" size="sm">
-                <Columns className="mr-1 size-3" />
-                {labels.columnsToggle}
-              </Button>
-            }
-          />
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Columns className="mr-1 size-3" />
+              {labels.columnsToggle}
+            </Button>
+          </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {table.getAllLeafColumns().filter((col) => col.getCanHide()).map((col) => {
               const label = typeof col.columnDef.header === "string" ? col.columnDef.header : col.id;

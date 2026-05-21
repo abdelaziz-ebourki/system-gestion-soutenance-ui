@@ -38,6 +38,9 @@ export function PasswordInput({
   ...props
 }: Omit<ComponentProps<typeof Input>, "type"> & {
   children?: ReactNode;
+  label?: string;
+  error?: string;
+  description?: string;
 }) {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState(defaultValue ?? "");

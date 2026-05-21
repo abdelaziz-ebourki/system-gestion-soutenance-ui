@@ -97,7 +97,9 @@ export default function Rooms() {
         <div className="flex gap-2">
           <BulkImportDialog entity="room" triggerButtonText="Importation en masse" onSuccess={refetch} />
           <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
-            <DialogTrigger render={<Button><Plus className="h-4 w-4" />Nouvelle Salle</Button>} />
+            <DialogTrigger asChild>
+              <Button><Plus className="h-4 w-4" />Nouvelle Salle</Button>
+            </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{crud.selected ? "Modifier la salle" : "Ajouter une Salle"}</DialogTitle>

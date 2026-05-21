@@ -49,11 +49,13 @@ export function NavMain({
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     tooltip={item.title}
-                    render={<Link to={item.url} />}
+                    asChild
                     isActive={isItemActive}
                   >
-                    {item.icon}
-                    <span>{item.title}</span>
+                    <Link to={item.url}>
+                      {item.icon}
+                      <span>{item.title}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               );
@@ -66,22 +68,24 @@ export function NavMain({
                 className="group/collapsible"
               >
                 <SidebarMenuItem>
-                  <CollapsibleTrigger
-                    render={<SidebarMenuButton tooltip={item.title} />}
-                  >
-                    {item.icon}
-                    <span>{item.title}</span>
-                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton tooltip={item.title}>
+                      {item.icon}
+                      <span>{item.title}</span>
+                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    </SidebarMenuButton>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton
-                            render={<Link to={subItem.url} />}
+                            asChild
                             isActive={location.pathname === subItem.url}
                           >
-                            <span>{subItem.title}</span>
+                            <Link to={subItem.url}>
+                              <span>{subItem.title}</span>
+                            </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       ))}

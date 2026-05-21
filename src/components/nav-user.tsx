@@ -74,27 +74,25 @@ export function NavUser({
       <SidebarMenuItem>
         <AlertDialog>
           <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <SidebarMenuButton
-                  size="lg"
-                  className="aria-expanded:bg-muted"
-                />
-              }
-            >
-              <Avatar className="size-8 rounded-lg grayscale">
-                <AvatarImage src={user.avatar} alt={displayName} />
-                <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{displayName}</span>
-                <span className="truncate text-xs text-foreground/70">
-                  {user.email}
-                </span>
-              </div>
-              <EllipsisVerticalIcon className="ml-auto size-4" />
+            <DropdownMenuTrigger asChild>
+              <SidebarMenuButton
+                size="lg"
+                className="aria-expanded:bg-muted"
+              >
+                <Avatar className="size-8 rounded-lg grayscale">
+                  <AvatarImage src={user.avatar} alt={displayName} />
+                  <AvatarFallback className="rounded-lg bg-primary/10 text-primary">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-medium">{displayName}</span>
+                  <span className="truncate text-xs text-foreground/70">
+                    {user.email}
+                  </span>
+                </div>
+                <EllipsisVerticalIcon className="ml-auto size-4" />
+              </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className="min-w-56"
@@ -180,13 +178,11 @@ export function NavUser({
                 </DropdownMenuSub>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
-              <AlertDialogTrigger
-                render={
-                  <DropdownMenuItem variant="destructive" className="cursor-pointer" />
-                }
-              >
-                <LogOutIcon className="size-4" />
-                Se déconnecter
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem variant="destructive" className="cursor-pointer">
+                  <LogOutIcon className="size-4" />
+                  Se déconnecter
+                </DropdownMenuItem>
               </AlertDialogTrigger>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -96,8 +96,8 @@ export default function DashboardLayout() {
                           {crumb.label}
                         </BreadcrumbPage>
                       ) : crumb.isLinkable ? (
-                        <BreadcrumbLink render={<Link to={crumb.path} />}>
-                          {crumb.label}
+                        <BreadcrumbLink asChild>
+                          <Link to={crumb.path}>{crumb.label}</Link>
                         </BreadcrumbLink>
                       ) : (
                         <span className="text-muted-foreground">{crumb.label}</span>

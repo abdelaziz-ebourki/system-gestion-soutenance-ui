@@ -125,7 +125,7 @@ export function ProjectDialog({
             supervisorId,
             studentIds,
             studentNames: selectedStudents.map(getFullName),
-            supervisorName: getFullName(supervisor),
+            supervisorName: getFullName(supervisor!),
             status: project.status,
           },
         });
@@ -137,7 +137,7 @@ export function ProjectDialog({
           supervisorId,
           studentIds,
           studentNames: selectedStudents.map(getFullName),
-          supervisorName: getFullName(supervisor),
+          supervisorName: getFullName(supervisor!),
           status: "pending",
         });
         toast.success("Projet créé avec succès");

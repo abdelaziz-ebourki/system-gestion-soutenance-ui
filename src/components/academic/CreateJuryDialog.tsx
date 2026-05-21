@@ -87,11 +87,11 @@ export function CreateJuryDialog({
         projectId,
         projectTitle: selectedProject?.title || "",
         presidentId,
-        presidentName: getFullName(president),
+        presidentName: getFullName(president!),
         reporterId,
-        reporterName: getFullName(reporter),
+        reporterName: getFullName(reporter!),
         examinerId,
-        examinerName: getFullName(examiner),
+        examinerName: getFullName(examiner!),
       });
       setFieldErrors({});
       toast.success("Jury créé avec succès");
