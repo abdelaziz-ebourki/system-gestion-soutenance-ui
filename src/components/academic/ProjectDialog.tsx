@@ -55,11 +55,6 @@ export function ProjectDialog({
 
   const isEdit = !!project;
 
-  const selectedStudents = useMemo(
-    () => students.filter((student) => form.formData.studentIds.includes(student.id)),
-    [students, form.formData.studentIds],
-  );
-
   const filteredSupervisors = useMemo(
     () => teachers
       .filter((teacher) =>
@@ -117,8 +112,6 @@ export function ProjectDialog({
           id: project.id,
           data: {
             ...form.formData,
-            studentNames: selectedStudents.map(getFullName),
-            supervisorName: getFullName(supervisor),
             status: project.status,
           },
         });
@@ -126,9 +119,6 @@ export function ProjectDialog({
       } else {
         await createProjectMutation.mutateAsync({
           ...form.formData,
-          studentNames: selectedStudents.map(getFullName),
-          supervisorName: getFullName(supervisor),
-          status: "pending",
         });
         toast.success("Projet créé avec succès");
       }

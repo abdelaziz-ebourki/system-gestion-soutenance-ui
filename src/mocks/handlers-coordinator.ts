@@ -1,117 +1,187 @@
 import { http, HttpResponse, delay } from "msw";
-import type { Project, Jury, Group } from "@/types";
 import {
   MOCK_DELAY,
-  mockProjects, mockGroups, mockJuries,
+  tblProjects, tblProjectStudents,
+  tblJuries, tblGroups, tblGroupMembers,
+  getProjectView, getAllProjectViews,
+  getJuryView, getAllJuryViews,
   prependProject, prependJury, removeJuryByProject,
-} from "./data";
+} from "./db";
 
 export const coordinatorHandlers = [
   http.get("/api/coordinator/stats", async () => {
     await delay(MOCK_DELAY);
     return HttpResponse.json({
-      totalProjects: mockProjects.length,
-      totalGroups: mockProjects.length,
-      totalJuries: mockJuries.length,
+      totalProjects: tblProjects.length,
+      totalGroups: tblGroups.length,
+      totalJuries: tblJuries.length,
       scheduledDefenses: 6,
     });
   }),
 
+  // ─── Projects ──────────────────────────────────────────────────
+
   http.get("/api/coordinator/projects", async () => {
     await delay(MOCK_DELAY);
-    return HttpResponse.json(mockProjects);
+    return HttpResponse.json(getAllProjectViews());
   }),
 
   http.post("/api/coordinator/projects", async ({ request }) => {
     await delay(MOCK_DELAY);
-    const body = (await request.json()) as Omit<Project, "id">;
-    const newProject: Project = {
-      ...body,
-      id: `p${mockProjects.length + 1}`,
-    };
-    prependProject(newProject);
-    return HttpResponse.json(newProject, { status: 201 });
+    const body = (await request.json()) as Record<string, unknown>;
+    const id = `p${tblProjects.length + 1}`;
+    tblProjects.push({
+      id,
+      title: (body.title as string) ?? "",
+      description: (body.description as string) ?? "",
+      supervisorId: (body.supervisorId as string) ?? "",
+      status: "pending",
+    });
+    const studentIds = (body.studentIds as string[]) ?? [];
+    for (const studentId of studentIds) {
+      tblProjectStudents.push({ projectId: id, studentId });
+    }
+    const project = tblProjects.find((p) => p.id === id)!;
+    prependProject(getProjectView(project));
+    return HttpResponse.json(getProjectView(project), { status: 201 });
   }),
 
   http.put("/api/coordinator/projects/:id", async ({ params, request }) => {
     await delay(MOCK_DELAY);
     const { id } = params;
-    const body = (await request.json()) as Partial<Project>;
-    const index = mockProjects.findIndex((project) => project.id === id);
-    if (index === -1) {
-      return new HttpResponse(null, { status: 404 });
+    const body = (await request.json()) as Record<string, unknown>;
+    const index = tblProjects.findIndex((p) => p.id === id);
+    if (index === -1) return new HttpResponse(null, { status: 404 });
+
+    if (body.title !== undefined) tblProjects[index].title = body.title as string;
+    if (body.description !== undefined) tblProjects[index].description = body.description as string;
+    if (body.supervisorId !== undefined) tblProjects[index].supervisorId = body.supervisorId as string;
+    if (body.status !== undefined) tblProjects[index].status = body.status as typeof tblProjects[number]["status"];
+
+    // Update project_students
+    if (body.studentIds !== undefined) {
+      const newIds = body.studentIds as string[];
+      // Remove old
+      for (let i = tblProjectStudents.length - 1; i >= 0; i--) {
+        if (tblProjectStudents[i].projectId === id) {
+          tblProjectStudents.splice(i, 1);
+        }
+      }
+      // Add new
+      for (const studentId of newIds) {
+        tblProjectStudents.push({ projectId: id as string, studentId });
+      }
     }
-    mockProjects[index] = { ...mockProjects[index], ...body };
-    return HttpResponse.json(mockProjects[index]);
+
+    return HttpResponse.json(getProjectView(tblProjects[index]));
   }),
 
   http.delete("/api/coordinator/projects/:id", async ({ params }) => {
     await delay(MOCK_DELAY);
-    const id = params.id as string;
-    const index = mockProjects.findIndex((project) => project.id === id);
+    const { id } = params;
+    const index = tblProjects.findIndex((p) => p.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
-    mockProjects.splice(index, 1);
-    removeJuryByProject(id);
+    tblProjects.splice(index, 1);
+    // Clean up project_students
+    for (let i = tblProjectStudents.length - 1; i >= 0; i--) {
+      if (tblProjectStudents[i].projectId === id) {
+        tblProjectStudents.splice(i, 1);
+      }
+    }
+    removeJuryByProject(id as string);
     return new HttpResponse(null, { status: 204 });
   }),
 
+  // ─── Juries ────────────────────────────────────────────────────
+
   http.get("/api/coordinator/juries", async () => {
     await delay(MOCK_DELAY);
-    return HttpResponse.json(mockJuries);
+    return HttpResponse.json(getAllJuryViews());
   }),
 
   http.post("/api/coordinator/juries", async ({ request }) => {
     await delay(MOCK_DELAY);
-    const body = (await request.json()) as Omit<Jury, "id">;
-    const newJury: Jury = {
-      ...body,
-      id: `j${mockJuries.length + 1}`,
-    };
-    prependJury(newJury);
-    return HttpResponse.json(newJury, { status: 201 });
-  }),
-
-  http.get("/api/coordinator/groups", async () => {
-    await delay(MOCK_DELAY);
-    return HttpResponse.json(mockGroups);
-  }),
-
-  http.post("/api/coordinator/groups", async ({ request }) => {
-    await delay(MOCK_DELAY);
-    const body = (await request.json()) as Omit<Group, "id">;
-    const newGroup: Group = {
-      ...body,
-      id: `g${mockGroups.length + 1}`,
-    };
-    mockGroups.push(newGroup);
-    return HttpResponse.json(newGroup, { status: 201 });
-  }),
-
-  http.delete("/api/coordinator/groups/:id", async ({ params }) => {
-    await delay(MOCK_DELAY);
-    const { id } = params;
-    const index = mockGroups.findIndex((g) => g.id === id);
-    if (index === -1) return new HttpResponse(null, { status: 404 });
-    mockGroups.splice(index, 1);
-    return new HttpResponse(null, { status: 204 });
+    const body = (await request.json()) as Record<string, unknown>;
+    const id = `j${tblJuries.length + 1}`;
+    tblJuries.push({
+      id,
+      projectId: (body.projectId as string) ?? "",
+      presidentId: (body.presidentId as string) ?? "",
+      reporterId: (body.reporterId as string) ?? "",
+      examinerId: (body.examinerId as string) ?? "",
+    });
+    const jury = tblJuries.find((j) => j.id === id)!;
+    prependJury(getJuryView(jury));
+    return HttpResponse.json(getJuryView(jury), { status: 201 });
   }),
 
   http.put("/api/coordinator/juries/:id", async ({ params, request }) => {
     await delay(MOCK_DELAY);
     const { id } = params;
-    const body = (await request.json()) as Partial<Jury>;
-    const index = mockJuries.findIndex((j) => j.id === id);
+    const body = (await request.json()) as Record<string, unknown>;
+    const index = tblJuries.findIndex((j) => j.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
-    mockJuries[index] = { ...mockJuries[index], ...body };
-    return HttpResponse.json(mockJuries[index]);
+
+    if (body.projectId !== undefined) tblJuries[index].projectId = body.projectId as string;
+    if (body.presidentId !== undefined) tblJuries[index].presidentId = body.presidentId as string;
+    if (body.reporterId !== undefined) tblJuries[index].reporterId = body.reporterId as string;
+    if (body.examinerId !== undefined) tblJuries[index].examinerId = body.examinerId as string;
+
+    return HttpResponse.json(getJuryView(tblJuries[index]));
   }),
 
   http.delete("/api/coordinator/juries/:id", async ({ params }) => {
     await delay(MOCK_DELAY);
     const { id } = params;
-    const index = mockJuries.findIndex((j) => j.id === id);
+    const index = tblJuries.findIndex((j) => j.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
-    mockJuries.splice(index, 1);
+    tblJuries.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ─── Groups ────────────────────────────────────────────────────
+
+  http.get("/api/coordinator/groups", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json(tblGroups.map((g) => ({
+      id: g.id,
+      projectId: g.projectId,
+      studentIds: tblGroupMembers
+        .filter((gm) => gm.groupId === g.id)
+        .map((gm) => gm.studentId),
+      sessionId: g.sessionId,
+    })));
+  }),
+
+  http.post("/api/coordinator/groups", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = (await request.json()) as Record<string, unknown>;
+    const id = `g${tblGroups.length + 1}`;
+    tblGroups.push({
+      id,
+      projectId: (body.projectId as string) ?? "",
+      sessionId: (body.sessionId as string) ?? "",
+    });
+    const studentIds = (body.studentIds as string[]) ?? [];
+    for (const studentId of studentIds) {
+      tblGroupMembers.push({ groupId: id, studentId });
+    }
+    return HttpResponse.json({
+      id, projectId: body.projectId, studentIds, sessionId: body.sessionId,
+    }, { status: 201 });
+  }),
+
+  http.delete("/api/coordinator/groups/:id", async ({ params }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const index = tblGroups.findIndex((g) => g.id === id);
+    if (index === -1) return new HttpResponse(null, { status: 404 });
+    tblGroups.splice(index, 1);
+    for (let i = tblGroupMembers.length - 1; i >= 0; i--) {
+      if (tblGroupMembers[i].groupId === id) {
+        tblGroupMembers.splice(i, 1);
+      }
+    }
     return new HttpResponse(null, { status: 204 });
   }),
 

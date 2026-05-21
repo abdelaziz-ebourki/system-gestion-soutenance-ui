@@ -1,26 +1,24 @@
 import { http, HttpResponse, delay } from "msw";
-import type { TeacherStats, TeacherEvaluation, TeacherUnavailability } from "@/types";
+import type { TeacherStats, TeacherEvaluation } from "@/types";
 import {
   MOCK_DELAY,
-  teacherSchedule, teacherEvaluations, teacherUnavailability,
+  getAllDefenseViews,
+  getAllEvaluationViews,
+  tblEvaluations, tblUnavailability,
   replaceTeacherUnavailability,
-} from "./data";
+} from "./db";
 
 export const teacherHandlers = [
   http.get("/api/teacher/stats", async () => {
     await delay(MOCK_DELAY);
-    const pendingEvaluations = teacherEvaluations.filter(
-      (evaluation) => evaluation.status === "pending",
-    ).length;
-    const upcomingDefenses = teacherSchedule.filter(
-      (defense) => defense.status === "scheduled",
-    ).length;
-    const juryAssignments = teacherSchedule.filter(
-      (defense) => defense.role !== "supervisor",
-    ).length;
-    const declaredUnavailabilitySlots = Object.values(
-      teacherUnavailability.slotsByDate,
-    ).reduce((total, slots) => total + slots.length, 0);
+    const evaluations = getAllEvaluationViews();
+    const defenses = getAllDefenseViews();
+    const pendingEvaluations = evaluations.filter((e) => e.status === "pending").length;
+    const upcomingDefenses = defenses.filter((d) => d.status === "scheduled").length;
+    const juryAssignments = defenses.filter((d) => d.role !== "supervisor").length;
+    const declaredUnavailabilitySlots = tblUnavailability.reduce(
+      (total, u) => total + u.slots.length, 0,
+    );
 
     const stats: TeacherStats = {
       upcomingDefenses,
@@ -34,48 +32,47 @@ export const teacherHandlers = [
 
   http.get("/api/teacher/schedule", async () => {
     await delay(MOCK_DELAY);
-    return HttpResponse.json(teacherSchedule);
+    return HttpResponse.json(getAllDefenseViews());
   }),
 
   http.get("/api/teacher/evaluations", async () => {
     await delay(MOCK_DELAY);
-    return HttpResponse.json(teacherEvaluations);
+    return HttpResponse.json(getAllEvaluationViews());
   }),
 
   http.post("/api/teacher/evaluations/:id", async ({ params, request }) => {
     await delay(MOCK_DELAY);
     const { id } = params;
-    const body = (await request.json()) as Pick<
-      TeacherEvaluation,
-      "score" | "comment"
-    >;
-    const index = teacherEvaluations.findIndex(
-      (evaluation) => evaluation.id === id,
-    );
+    const body = (await request.json()) as Pick<TeacherEvaluation, "score" | "comment">;
+    const index = tblEvaluations.findIndex((e) => e.id === id);
 
-    if (index === -1) {
-      return new HttpResponse(null, { status: 404 });
-    }
+    if (index === -1) return new HttpResponse(null, { status: 404 });
 
-    teacherEvaluations[index] = {
-      ...teacherEvaluations[index],
-      ...body,
+    tblEvaluations[index] = {
+      ...tblEvaluations[index],
+      score: body.score,
+      comment: body.comment,
       status: "submitted",
       submittedAt: new Date().toISOString(),
     };
 
-    return HttpResponse.json(teacherEvaluations[index]);
+    return HttpResponse.json(getAllEvaluationViews().find((e) => e.id === id));
   }),
 
   http.get("/api/teacher/unavailability", async () => {
     await delay(MOCK_DELAY);
-    return HttpResponse.json(teacherUnavailability);
+    const slotsByDate: Record<string, string[]> = {};
+    for (const u of tblUnavailability) {
+      if (!slotsByDate[u.date]) slotsByDate[u.date] = [];
+      slotsByDate[u.date].push(...u.slots);
+    }
+    return HttpResponse.json({ slotsByDate });
   }),
 
   http.post("/api/teacher/unavailability", async ({ request }) => {
     await delay(MOCK_DELAY);
-    const body = (await request.json()) as TeacherUnavailability;
+    const body = (await request.json()) as { slotsByDate: Record<string, string[]> };
     replaceTeacherUnavailability(body);
-    return HttpResponse.json(teacherUnavailability);
+    return HttpResponse.json(body);
   }),
 ];

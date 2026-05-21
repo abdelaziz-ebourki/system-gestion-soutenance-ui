@@ -66,9 +66,6 @@ export function CreateJuryDialog({
 
     try {
       const { projectId, presidentId, reporterId, examinerId } = form.formData;
-      const selectedProject = projects.find(
-        (project) => project.id === projectId,
-      );
       const president = teachers.find((teacher) => teacher.id === presidentId);
       const reporter = teachers.find((teacher) => teacher.id === reporterId);
       const examiner = teachers.find((teacher) => teacher.id === examinerId);
@@ -80,13 +77,9 @@ export function CreateJuryDialog({
 
       await createJuryMutation.mutateAsync({
         projectId,
-        projectTitle: selectedProject?.title || "",
         presidentId,
-        presidentName: getFullName(president),
         reporterId,
-        reporterName: getFullName(reporter),
         examinerId,
-        examinerName: getFullName(examiner),
       });
       form.setFieldErrors({});
       toast.success("Jury créé avec succès");

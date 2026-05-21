@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
-import type { Project, Group, Jury } from "@/types";
+import type { Group } from "@/types";
+import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload } from "@/lib/api-coordinator";
 
 export function useCoordinatorStats() {
   return useQuery({
@@ -16,7 +17,7 @@ export function useProjects() {
 export function useCreateProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Project, "id">) => api.createProject(data),
+    mutationFn: (data: CreateProjectPayload) => api.createProject(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["projects"] }),
   });
 }
@@ -24,7 +25,7 @@ export function useCreateProject() {
 export function useUpdateProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Project> }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateProjectPayload }) =>
       api.updateProject(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["projects"] }),
   });
@@ -45,7 +46,7 @@ export function useJuries() {
 export function useCreateJury() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Jury, "id">) => api.createJury(data),
+    mutationFn: (data: CreateJuryPayload) => api.createJury(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["juries"] }),
   });
 }
@@ -53,7 +54,7 @@ export function useCreateJury() {
 export function useUpdateJury() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Jury> }) =>
+    mutationFn: ({ id, data }: { id: string; data: UpdateJuryPayload }) =>
       api.updateJury(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["juries"] }),
   });

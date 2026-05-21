@@ -8,16 +8,45 @@ export interface CoordinatorStats {
   scheduledDefenses: number;
 }
 
+export interface CreateProjectPayload {
+  title: string;
+  description?: string;
+  supervisorId: string;
+  studentIds: string[];
+}
+
+export interface UpdateProjectPayload {
+  title?: string;
+  description?: string;
+  supervisorId?: string;
+  studentIds?: string[];
+  status?: "pending" | "approved" | "rejected";
+}
+
+export interface CreateJuryPayload {
+  projectId: string;
+  presidentId: string;
+  reporterId: string;
+  examinerId: string;
+}
+
+export interface UpdateJuryPayload {
+  projectId?: string;
+  presidentId?: string;
+  reporterId?: string;
+  examinerId?: string;
+}
+
 export const getCoordinatorStats = () =>
   api<CoordinatorStats>("/coordinator/stats");
 
 export const getProjects = () => api<Project[]>("/coordinator/projects");
-export const createProject = (data: Omit<Project, "id">) =>
+export const createProject = (data: CreateProjectPayload) =>
   api<Project>("/coordinator/projects", {
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateProject = (id: string, data: Partial<Project>) =>
+export const updateProject = (id: string, data: UpdateProjectPayload) =>
   api<Project>(`/coordinator/projects/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
@@ -35,12 +64,12 @@ export const deleteGroup = (id: string) =>
   api<void>(`/coordinator/groups/${id}`, { method: "DELETE" });
 
 export const getJuries = () => api<Jury[]>("/coordinator/juries");
-export const createJury = (data: Omit<Jury, "id">) =>
+export const createJury = (data: CreateJuryPayload) =>
   api<Jury>("/coordinator/juries", {
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateJury = (id: string, data: Partial<Jury>) =>
+export const updateJury = (id: string, data: UpdateJuryPayload) =>
   api<Jury>(`/coordinator/juries/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),

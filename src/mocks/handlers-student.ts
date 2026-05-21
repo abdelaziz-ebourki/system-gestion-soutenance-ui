@@ -2,11 +2,11 @@ import { http, HttpResponse, delay } from "msw";
 import type { StudentStats } from "@/types";
 import {
   MOCK_DELAY,
-  studentDocuments, currentStudentId,
+  tblStudentDocuments, tblStudentGroups,
+  currentStudentId,
   getStudentGroupWorkspace, getStudentDefenseDetails,
-  getCurrentStudentGroup, isGroupCreationOpen, mapGroupDetails,
-  studentGroups,
-} from "./data";
+  getCurrentStudentGroup, isGroupCreationOpen, getStudentGroupView,
+} from "./db";
 
 export const studentHandlers = [
   http.get("/api/student/stats", async () => {
@@ -14,9 +14,9 @@ export const studentHandlers = [
     const groupWorkspace = getStudentGroupWorkspace();
     const currentDefense = getStudentDefenseDetails();
     const stats: StudentStats = {
-      documentCount: studentDocuments.length,
-      missingDocuments: studentDocuments.filter(
-        (document) => document.status === "missing",
+      documentCount: tblStudentDocuments.length,
+      missingDocuments: tblStudentDocuments.filter(
+        (d) => d.status === "missing",
       ).length,
       groupMembers: groupWorkspace.currentGroup?.members.length || 0,
       defenseStatus: currentDefense.status,
@@ -55,20 +55,21 @@ export const studentHandlers = [
     }
 
     const nextGroupNumber =
-      studentGroups.length > 0
+      tblStudentGroups.length > 0
         ? Math.max(
-            ...studentGroups.map((group) =>
-              Number.parseInt(group.groupName.replace("Groupe-", ""), 10),
+            ...tblStudentGroups.map((g) =>
+              Number.parseInt(g.groupName.replace("Groupe-", ""), 10),
             ),
           ) + 1
         : 1;
     const newGroup = {
-      id: `sg${studentGroups.length + 1}`,
+      id: `sg${tblStudentGroups.length + 1}`,
       groupName: `Groupe-${nextGroupNumber}`,
       memberIds: [currentStudentId],
+      projectId: null,
     };
-    studentGroups.push(newGroup);
-    return HttpResponse.json(mapGroupDetails(newGroup), { status: 201 });
+    tblStudentGroups.push(newGroup);
+    return HttpResponse.json(getStudentGroupView(newGroup), { status: 201 });
   }),
 
   http.post("/api/student/group/:id/join", async ({ params }) => {
@@ -92,18 +93,16 @@ export const studentHandlers = [
       );
     }
 
-    const group = studentGroups.find((item) => item.id === id);
-    if (!group) {
-      return new HttpResponse(null, { status: 404 });
-    }
+    const group = tblStudentGroups.find((g) => g.id === id);
+    if (!group) return new HttpResponse(null, { status: 404 });
 
     group.memberIds.push(currentStudentId);
-    return HttpResponse.json(mapGroupDetails(group));
+    return HttpResponse.json(getStudentGroupView(group));
   }),
 
   http.get("/api/student/documents", async () => {
     await delay(MOCK_DELAY);
-    return HttpResponse.json(studentDocuments);
+    return HttpResponse.json(tblStudentDocuments);
   }),
 
   http.get("/api/student/convocation", async () => {

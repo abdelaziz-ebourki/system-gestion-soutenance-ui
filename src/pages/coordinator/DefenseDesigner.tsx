@@ -22,7 +22,7 @@ import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { Project } from "@/types";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
-import { defenseSettings } from "@/mocks/data";
+import { defenseSettings } from "@/mocks/db";
 import {
   Badge,
   Button,
