@@ -225,8 +225,8 @@ export default function CoordinatorProjects() {
                 toast.success(`${selectedProjects.length} projet(s) mis à jour`);
                 setSelectedProjects([]);
                 setBatchDialog(null);
-              } catch {
-                toast.error("Erreur lors de la mise à jour");
+              } catch (error) {
+                toastError(error, "Erreur lors de la mise à jour");
               }
             }} isLoading={updateProjectMutation.isPending}>Enregistrer</Button>
           </DialogFooter>
@@ -243,8 +243,8 @@ export default function CoordinatorProjects() {
             toast.success(`${selectedProjects.length} projet(s) supprimé(s)`);
             setSelectedProjects([]);
             setBatchDialog(null);
-          } catch {
-            toast.error("Erreur lors de la suppression");
+          } catch (error) {
+            toastError(error, "Erreur lors de la suppression");
           }
         }}
         isPending={deleteProjectMutation.isPending}

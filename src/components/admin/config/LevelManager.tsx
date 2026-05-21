@@ -82,7 +82,7 @@ export function LevelManager() {
       <ConfigCard
         title="Niveaux"
         description="Cycles universitaires."
-        icon={<Layers className="h-5 w-5" />}
+        icon={<Layers className="size-5" />}
         items={levels ?? []}
         onAdd={() => handleOpenDialog(null)}
         onEdit={(item) => handleOpenDialog(item)}

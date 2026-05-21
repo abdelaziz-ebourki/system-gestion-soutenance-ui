@@ -49,7 +49,7 @@ export default function Rooms() {
         header: "Département",
         cell: ({ row }) => (
           <div className="flex items-center text-muted-foreground">
-            <BuildingIcon className="mr-2 h-4 w-4" />
+            <BuildingIcon className="mr-2 size-4" />
             {getDepartmentName(row.getValue("departmentId"))}
           </div>
         ),
@@ -79,7 +79,7 @@ export default function Rooms() {
         <div className="flex gap-2">
           <BulkImportDialog entity="room" triggerButtonText="Importation en masse" onSuccess={refetch} />
           <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
-            <Button onClick={() => { crud.openCreate(); }}><Plus className="h-4 w-4" />Nouvelle Salle</Button>
+            <Button onClick={() => { crud.openCreate(); }}><Plus className="size-4" />Nouvelle Salle</Button>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>{crud.selected ? "Modifier la salle" : "Ajouter une Salle"}</DialogTitle>

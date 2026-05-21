@@ -86,15 +86,15 @@ export default function Login() {
 
           <div className="flex flex-wrap gap-4 pt-4 justify-center md:justify-start">
             <div className="flex items-center gap-2 text-sm text-muted-foreground border-r pr-4">
-              <Landmark className="h-4 w-4" />
+              <Landmark className="size-4" />
               <span>Officiel</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground border-r pr-4">
-              <ShieldCheck className="h-4 w-4" />
+              <ShieldCheck className="size-4" />
               <span>Sécurisé</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <BookOpen className="h-4 w-4" />
+              <BookOpen className="size-4" />
               <span>Intuitif</span>
             </div>
           </div>

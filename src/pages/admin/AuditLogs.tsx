@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 
 export default function AuditLogs() {
-  const { data: logs = [] } = useAuditLogs();
+  const { data: logs = [], isLoading } = useAuditLogs();
 
   const columns: ColumnDef<AuditLog>[] = [
     { accessorKey: "action", header: "Action" },
@@ -25,6 +25,7 @@ export default function AuditLogs() {
       <DataTable
         columns={columns}
         data={logs}
+        loading={isLoading}
         getRowId={(row) => row.id}
         filterColumns="action"
         filterPlaceholder="Rechercher une action..."

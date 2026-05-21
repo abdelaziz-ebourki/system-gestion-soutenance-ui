@@ -15,6 +15,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Skeleton,
   StatsCard,
 } from "@/components/ui";
 
@@ -58,15 +59,17 @@ export default function StudentGroup() {
       <div className="grid gap-4 md:grid-cols-3">
         <StatsCard
           label="Nom du groupe"
-          value={isLoading ? "..." : group?.groupName || "Aucun groupe"}
+          value={group?.groupName || "Aucun groupe"}
           icon={Users}
+          loading={isLoading}
           valueClassName="text-xl font-semibold"
         />
-        <StatsCard label="Membres" value={isLoading ? "..." : group?.members.length || 0} icon={UserRound} />
+        <StatsCard label="Membres" value={group?.members.length || 0} icon={UserRound} loading={isLoading} />
         <StatsCard
           label="Encadrant"
-          value={isLoading ? "..." : group?.supervisorName || "En attente"}
+          value={group?.supervisorName || "En attente"}
           icon={FolderKanban}
+          loading={isLoading}
           valueClassName="text-xl font-semibold"
         />
       </div>
@@ -85,7 +88,7 @@ export default function StudentGroup() {
               <p className="text-sm text-muted-foreground">Titre</p>
               <p className="mt-2 text-xl font-semibold">
                 {isLoading
-                  ? "Chargement..."
+                  ? <Skeleton className="h-6 w-64" />
                   : group?.projectTitle || "Projet non affecté"}
               </p>
               <div className="mt-4">

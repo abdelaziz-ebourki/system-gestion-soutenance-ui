@@ -82,7 +82,7 @@ export function GradeManager() {
       <ConfigCard
         title="Grades"
         description="Titres académiques."
-        icon={<GraduationCap className="h-5 w-5" />}
+        icon={<GraduationCap className="size-5" />}
         items={grades ?? []}
         onAdd={() => handleOpenDialog(null)}
         onEdit={(item) => handleOpenDialog(item)}

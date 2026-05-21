@@ -183,7 +183,7 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               <div className="flex items-center">
                 <div className="flex h-10 w-10 items-center justify-center rounded bg-primary/10">
-                  <CalendarCheck className="h-5 w-5 text-primary" />
+                  <CalendarCheck className="size-5 text-primary" />
                 </div>
                 <div className="ml-4">
                   <div className="text-sm font-medium">
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center">
                 <div className="flex h-10 w-10 items-center justify-center rounded bg-primary/10">
-                  <History className="h-5 w-5 text-primary" />
+                  <History className="size-5 text-primary" />
                 </div>
                 <div className="ml-4">
                   <div className="text-sm font-medium">

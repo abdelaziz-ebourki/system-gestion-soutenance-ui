@@ -82,7 +82,7 @@ export function MajorManager() {
       <ConfigCard
         title="Filières"
         description="Liste des majors disponibles."
-        icon={<BookOpen className="h-5 w-5" />}
+        icon={<BookOpen className="size-5" />}
         items={majors ?? []}
         onAdd={() => handleOpenDialog(null)}
         onEdit={(item) => handleOpenDialog(item)}

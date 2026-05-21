@@ -91,7 +91,7 @@ export default function Students() {
         <div className="flex gap-2">
           <BulkImportDialog entity="student" triggerButtonText="Importation en masse" onSuccess={refetch} />
           <Button onClick={crud.openCreate}>
-            <Plus className="h-4 w-4" /> Nouvel Étudiant
+            <Plus className="size-4" /> Nouvel Étudiant
           </Button>
         </div>
       </div>

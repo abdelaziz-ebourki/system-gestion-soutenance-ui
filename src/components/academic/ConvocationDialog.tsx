@@ -136,7 +136,7 @@ export default function ConvocationDialog({
 
         <div className="bg-foreground p-4 border-t flex justify-between items-center no-print">
           <div className="flex items-center gap-2 text-background/60 text-xs px-4">
-            <Users className="h-4 w-4" />
+            <Users className="size-4" />
             <span>{students.length} Étudiant(s) convoqué(s)</span>
           </div>
           <div className="flex gap-3">
@@ -151,7 +151,7 @@ export default function ConvocationDialog({
               className="gap-2 bg-background text-foreground hover:bg-background/90"
               onClick={() => window.print()}
             >
-              <Download className="h-4 w-4" /> Télécharger / Imprimer
+              <Download className="size-4" /> Télécharger / Imprimer
             </Button>
           </div>
         </div>

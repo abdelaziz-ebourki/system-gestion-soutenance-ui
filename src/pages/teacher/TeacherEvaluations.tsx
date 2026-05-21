@@ -20,6 +20,7 @@ import {
   DialogTitle,
   Input,
   Label,
+  Skeleton,
   Textarea,
   StatsCard,
 } from "@/components/ui";
@@ -63,8 +64,15 @@ export default function TeacherEvaluations() {
           </CardHeader>
           <CardContent className="space-y-3">
             {isLoading ? (
-              <div className="py-10 text-center text-sm text-muted-foreground">
-                Chargement des évaluations...
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="rounded-lg border p-4">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-56" />
+                      <Skeleton className="h-3 w-40" />
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               pendingEvaluations.map((evaluation) => (

@@ -23,22 +23,22 @@ export function CrudActions<TEntity>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
+        <Button variant="ghost" className="size-8 p-0">
           <span className="sr-only">Ouvrir le menu</span>
-          <MoreHorizontal className="h-4 w-4" />
+          <MoreHorizontal className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
           <DropdownMenuItem onClick={() => onEdit(entity)}>
-            <Pencil className="mr-2 h-4 w-4" /> Modifier
+            <Pencil className="mr-2 size-4" /> Modifier
           </DropdownMenuItem>
           <DropdownMenuItem
             variant="destructive"
             onClick={() => onDelete(entity)}
           >
-            <Trash2 className="mr-2 h-4 w-4" /> Supprimer
+            <Trash2 className="mr-2 size-4" /> Supprimer
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

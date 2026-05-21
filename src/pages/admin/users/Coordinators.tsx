@@ -79,7 +79,7 @@ export default function Coordinators() {
           <p className="text-muted-foreground">Gestion des responsables des soutenances.</p>
         </div>
         <Button onClick={crud.openCreate}>
-          <Plus className="h-4 w-4" /> Nouveau Coordinateur
+          <Plus className="size-4" /> Nouveau Coordinateur
         </Button>
       </div>
 

@@ -20,6 +20,7 @@ import {
   CardTitle,
   Input,
   Label,
+  Skeleton,
   StatsCard,
 } from "@/components/ui";
 
@@ -86,8 +87,18 @@ export default function StudentDocuments() {
         </CardHeader>
         <CardContent className="space-y-3">
           {isLoading ? (
-            <div className="py-10 text-center text-sm text-muted-foreground">
-              Chargement des documents...
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="rounded-lg border p-4">
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="size-10 rounded-lg" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-48" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             documents.length > 0 ? (

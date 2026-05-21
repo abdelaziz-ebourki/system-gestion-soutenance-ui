@@ -14,6 +14,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  Skeleton,
   StatsCard,
 } from "@/components/ui";
 import { Link } from "react-router-dom";
@@ -130,7 +131,7 @@ export default function StudentDashboard() {
                 <p className="text-sm text-muted-foreground">Horaire</p>
                 <p className="mt-2 font-medium">
                   {isLoading
-                    ? "Chargement..."
+                    ? <Skeleton className="h-5 w-48" />
                     : defense?.date
                       ? `${defense.date} · ${defense.startTime} - ${defense.endTime}`
                       : "En attente de planification"}

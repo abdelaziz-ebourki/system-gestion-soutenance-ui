@@ -118,7 +118,7 @@ export default function AvailabilityCalendar({
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-5">
               <div className="p-4 bg-primary/10 rounded-lg text-primary">
-                <CalendarIcon className="h-7 w-7" />
+                <CalendarIcon className="size-7" />
               </div>
               <div>
                 <h2 className="text-2xl font-heading font-bold text-foreground">
@@ -137,7 +137,7 @@ export default function AvailabilityCalendar({
                 className="h-10 w-10 rounded-full hover:bg-muted"
                 onClick={() => changeMonth(-1)}
               >
-                <ChevronLeft className="h-6 w-6 text-muted-foreground" />
+                <ChevronLeft className="size-6 text-muted-foreground" />
               </Button>
               <span className="font-heading font-bold text-xl px-4 text-foreground min-w-37 text-center">
                 {monthNames[viewMonth]} {viewYear}
@@ -148,7 +148,7 @@ export default function AvailabilityCalendar({
                 className="h-10 w-10 rounded-full hover:bg-muted"
                 onClick={() => changeMonth(1)}
               >
-                <ChevronRight className="h-6 w-6 text-muted-foreground" />
+                <ChevronRight className="size-6 text-muted-foreground" />
               </Button>
             </div>
           </div>
@@ -200,14 +200,14 @@ export default function AvailabilityCalendar({
                   {session && (
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-4 bg-popover text-popover-foreground rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-20 shadow-xl scale-95 group-hover:scale-100 origin-bottom">
                       <p className="font-bold mb-2 border-b border-border pb-2 flex items-center gap-2">
-                        <Clock className="h-3 w-3 text-primary" />{" "}
+                        <Clock className="size-3 text-primary" />{" "}
                         {session.time}
                       </p>
                       <p className="font-medium mb-1 truncate">
                         {session.student}
                       </p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {session.room}
+                        <MapPin className="size-3" /> {session.room}
                       </p>
                       <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-popover" />
                     </div>
@@ -299,7 +299,7 @@ export default function AvailabilityCalendar({
                 onClick={onSave}
                 className="w-full rounded-lg h-14 font-bold shadow transition-all hover:scale-105 active:scale-95 gap-2"
               >
-                <CheckCircle2 className="h-5 w-5" />
+                <CheckCircle2 className="size-5" />
                 Valider mes choix
               </Button>
             )}

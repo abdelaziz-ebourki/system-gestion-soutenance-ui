@@ -254,6 +254,13 @@ export function CreateJuryDialog({
         </form>
         <DialogFooter>
           <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Annuler
+          </Button>
+          <Button
             type="submit"
             form="create-jury-form"
             isLoading={createJuryMutation.isPending}

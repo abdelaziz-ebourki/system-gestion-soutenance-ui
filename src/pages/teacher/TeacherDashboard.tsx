@@ -11,6 +11,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  EmptyState,
   Skeleton,
   StatsCard,
 } from "@/components/ui";
@@ -151,9 +152,7 @@ export default function TeacherDashboard() {
               </div>
             ))}
             {!isLoading && pendingEvaluations.length === 0 && (
-              <div className="rounded-lg border bg-secondary p-4 text-sm text-secondary-foreground">
-                Aucune évaluation en attente.
-              </div>
+              <EmptyState variant="card" description="Aucune évaluation en attente." />
             )}
           </CardContent>
         </Card>

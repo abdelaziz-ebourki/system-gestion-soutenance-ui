@@ -73,7 +73,7 @@ export default function Sessions() {
       header: "Début",
       cell: ({ row }) => (
         <div className="flex items-center text-muted-foreground">
-          <Calendar className="mr-2 h-3 w-3" />
+          <Calendar className="mr-2 size-3" />
           {row.getValue("startDate")}
         </div>
       ),
@@ -83,7 +83,7 @@ export default function Sessions() {
       header: "Fin",
       cell: ({ row }) => (
         <div className="flex items-center text-muted-foreground">
-          <Calendar className="mr-2 h-3 w-3" />
+          <Calendar className="mr-2 size-3" />
           {row.getValue("endDate")}
         </div>
       ),
@@ -94,19 +94,19 @@ export default function Sessions() {
       cell: ({ row }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
+              <Button variant="ghost" className="size-8 p-0">
                 <span className="sr-only">Ouvrir le menu</span>
-                <MoreHorizontal className="h-4 w-4" />
+                <MoreHorizontal className="size-4" />
               </Button>
             </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuGroup>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem onClick={() => crud.openEdit(row.original)}>
-                <Pencil className="mr-2 h-4 w-4" /> Modifier
+                <Pencil className="mr-2 size-4" /> Modifier
               </DropdownMenuItem>
               <DropdownMenuItem variant="destructive" onClick={() => crud.openDelete(row.original)}>
-                <Trash2 className="mr-2 h-4 w-4" /> Supprimer
+                <Trash2 className="mr-2 size-4" /> Supprimer
               </DropdownMenuItem>
             </DropdownMenuGroup>
           </DropdownMenuContent>
@@ -123,7 +123,7 @@ export default function Sessions() {
           <p className="text-muted-foreground">Définissez les périodes académiques pour les soutenances.</p>
         </div>
         <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
-          <Button onClick={() => { crud.openCreate(); }}><Plus className="mr-2 h-4 w-4" />Nouvelle Session</Button>
+          <Button onClick={() => { crud.openCreate(); }}><Plus className="mr-2 size-4" />Nouvelle Session</Button>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{crud.selected ? "Modifier la session" : "Créer une Session"}</DialogTitle>

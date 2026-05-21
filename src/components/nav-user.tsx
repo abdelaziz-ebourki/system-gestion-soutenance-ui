@@ -135,8 +135,8 @@ export function NavUser({
               <DropdownMenuGroup>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="cursor-pointer">
-                    <SunIcon className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                    <MoonIcon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                    <SunIcon className="mr-2 size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                    <MoonIcon className="absolute mr-2 size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                     <span>Thème</span>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
@@ -146,31 +146,31 @@ export function NavUser({
                         className="cursor-pointer justify-between"
                       >
                         <div className="flex items-center">
-                          <SunIcon className="mr-2 h-4 w-4" />
+                          <SunIcon className="mr-2 size-4" />
                           Clair
                         </div>
-                        {theme === "light" && <CheckIcon className="h-4 w-4" />}
+                        {theme === "light" && <CheckIcon className="size-4" />}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => setTheme("dark")}
                         className="cursor-pointer justify-between"
                       >
                         <div className="flex items-center">
-                          <MoonIcon className="mr-2 h-4 w-4" />
+                          <MoonIcon className="mr-2 size-4" />
                           Sombre
                         </div>
-                        {theme === "dark" && <CheckIcon className="h-4 w-4" />}
+                        {theme === "dark" && <CheckIcon className="size-4" />}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => setTheme("system")}
                         className="cursor-pointer justify-between"
                       >
                         <div className="flex items-center">
-                          <MonitorIcon className="mr-2 h-4 w-4" />
+                          <MonitorIcon className="mr-2 size-4" />
                           Système
                         </div>
                         {theme === "system" && (
-                          <CheckIcon className="h-4 w-4" />
+                          <CheckIcon className="size-4" />
                         )}
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>

@@ -214,6 +214,13 @@ export function ProjectDialog({
         </form>
         <DialogFooter>
           <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+          >
+            Annuler
+          </Button>
+          <Button
             type="submit"
             form={formId}
             isLoading={isEdit ? updateProjectMutation.isPending : createProjectMutation.isPending}

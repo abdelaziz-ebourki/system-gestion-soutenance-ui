@@ -20,6 +20,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  EmptyState,
   Skeleton,
   StatsCard,
 } from "@/components/ui";
@@ -168,7 +169,7 @@ export default function CoordinatorDashboard() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <Card className="">
+        <Card>
           <CardHeader>
             <CardTitle>Acces directs</CardTitle>
             <CardDescription>
@@ -200,7 +201,7 @@ export default function CoordinatorDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="">
+        <Card>
           <CardHeader>
             <CardTitle>Points d'attention</CardTitle>
             <CardDescription>
@@ -220,9 +221,7 @@ export default function CoordinatorDashboard() {
               </div>
             ))}
             {!isLoading && projectsWithoutJury.length === 0 && (
-              <div className="rounded-lg border bg-secondary p-4 text-sm text-secondary-foreground">
-                Tous les projets disposent déjà d'un jury.
-              </div>
+              <EmptyState variant="card" description="Tous les projets disposent déjà d'un jury." />
             )}
           </CardContent>
         </Card>

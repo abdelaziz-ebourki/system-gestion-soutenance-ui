@@ -169,7 +169,7 @@ export function BulkImportDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger>
         <Button variant="outline">
-          <FileUp className="mr-2 h-4 w-4" />
+          <FileUp className="mr-2 size-4" />
           {triggerButtonText}
         </Button>
       </DialogTrigger>
@@ -183,7 +183,7 @@ export function BulkImportDialog({
         </DialogHeader>
 
         <Alert className="mb-4">
-          <AlertCircle className="h-4 w-4" />
+          <AlertCircle className="size-4" />
           <AlertDescription>
             Le fichier Excel doit contenir les colonnes suivantes :
             <span className="font-semibold block mt-1">

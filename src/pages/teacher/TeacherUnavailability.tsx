@@ -10,10 +10,10 @@ import AvailabilityCalendar from "@/components/academic/AvailabilityCalendar";
 import {
   Button,
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
+  Skeleton,
   StatsCard,
 } from "@/components/ui";
 
@@ -116,11 +116,9 @@ export default function TeacherUnavailability() {
       </div>
 
       {isLoading ? (
-        <Card>
-          <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            Chargement du calendrier...
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <Skeleton className="h-96 w-full rounded-xl" />
+        </div>
       ) : (
         <AvailabilityCalendar
           unavailableSlots={unavailability.slotsByDate}

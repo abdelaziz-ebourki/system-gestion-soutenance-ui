@@ -43,7 +43,7 @@ export function ConfigCard({
           <CardDescription>{description}</CardDescription>
         </div>
         <Button size="sm" onClick={onAdd}>
-          <Plus className="h-4 w-4 mr-2" /> Ajouter
+          <Plus className="size-4 mr-2" /> Ajouter
         </Button>
       </CardHeader>
       <CardContent>
@@ -58,18 +58,18 @@ export function ConfigCard({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8"
+                  className="size-8"
                   onClick={() => onEdit(item)}
                 >
-                  <Pencil className="h-4 w-4" />
+                  <Pencil className="size-4" />
                 </Button>
                 <Button
                   variant="destructive"
                   size="icon"
-                  className="h-8 w-8"
+                  className="size-8"
                   onClick={() => onDelete(item)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="size-4" />
                 </Button>
               </div>
             </div>

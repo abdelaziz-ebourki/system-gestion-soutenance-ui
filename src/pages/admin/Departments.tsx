@@ -71,7 +71,7 @@ export default function Departments() {
           <p className="text-muted-foreground">Structure académique.</p>
         </div>
         <Button onClick={crud.openCreate}>
-          <Plus className="h-4 w-4" /> Nouveau Département
+          <Plus className="size-4" /> Nouveau Département
         </Button>
       </div>
 

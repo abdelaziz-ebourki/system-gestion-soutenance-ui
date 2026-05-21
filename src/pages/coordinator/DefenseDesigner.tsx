@@ -31,6 +31,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  EmptyState,
   Skeleton,
 } from "@/components/ui";
 
@@ -280,7 +281,7 @@ export default function DefenseDesigner() {
         </div>
 
         <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
-          <Card className="">
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <GripVertical className="size-4" />
@@ -319,9 +320,7 @@ export default function DefenseDesigner() {
                   />
                 ))}
                 {backlogProjects.length === 0 && (
-                  <div className="rounded-lg border border-dashed p-5 text-sm text-muted-foreground">
-                    Tous les projets prêts ont déjà été placés.
-                  </div>
+                  <EmptyState variant="dashed" description="Tous les projets prêts ont déjà été placés." />
                 )}
               </div>
             </CardContent>
@@ -329,7 +328,7 @@ export default function DefenseDesigner() {
 
           <div className="space-y-6">
             {DAYS.map((day) => (
-              <Card key={day} className="">
+              <Card key={day}>
                 <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
