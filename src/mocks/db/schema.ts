@@ -63,6 +63,27 @@ export interface DbGrade {
   name: string;
 }
 
+export interface DbDefenseSession {
+  id: string;
+  globalSessionId: string;
+  name: string;
+  status: "draft" | "active" | "scheduled" | "completed" | "archived";
+  maxGroupSize: number;
+  defenseDuration: number;
+  breakDuration: number;
+  submissionDeadline: string;
+  evaluationCoefficients: Record<string, number>;
+  juryRoleTemplateId: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface DbJuryRoleTemplate {
+  id: string;
+  name: string;
+  roles: { name: string; count: number }[];
+}
+
 export interface DbDefenseSettings {
   startTime: string;
   endTime: string;
@@ -154,7 +175,9 @@ export interface DbStudentDocument {
 }
 
 export interface Tables {
+  juryRoleTemplates: DbJuryRoleTemplate[];
   users: DbUser[];
+  defenseSessions: DbDefenseSession[];
   students: DbStudent[];
   teachers: DbTeacher[];
   coordinators: DbCoordinator[];

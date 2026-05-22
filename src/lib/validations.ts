@@ -34,6 +34,31 @@ export const verifyAccountSchema = z
     path: ["confirmPassword"],
   });
 
+// --- Coordinator: Defense Sessions ---
+
+export const defenseSessionSchema = z
+  .object({
+    globalSessionId: z.string().min(1, "La session globale est requise"),
+    name: z.string().min(1, "Le nom est requis"),
+    status: z.enum(["draft", "active", "scheduled", "completed", "archived"]),
+    maxGroupSize: z.coerce.number().min(1, "Doit être au moins 1").max(10, "Ne peut pas dépasser 10"),
+    defenseDuration: z.coerce.number().min(5, "Doit être au moins 5 min").max(180, "Ne peut pas dépasser 180 min"),
+    breakDuration: z.coerce.number().min(0, "Ne peut pas être négative"),
+    submissionDeadline: z.string().min(1, "La date limite est requise"),
+    juryRoleTemplateId: z.string().min(1, "Le template de jury est requis"),
+    startDate: z.string().min(1, "La date de début est requise"),
+    endDate: z.string().min(1, "La date de fin est requise"),
+  })
+  .refine((data) => !data.startDate || !data.endDate || data.startDate <= data.endDate, {
+    message: "La date de fin doit être postérieure à la date de début",
+    path: ["endDate"],
+  });
+
+export const defenseSessionTransitionSchema = z.object({
+  fromStatus: z.enum(["draft", "active", "scheduled", "completed", "archived"]),
+  toStatus: z.enum(["draft", "active", "scheduled", "completed", "archived"]),
+});
+
 // --- Admin: Sessions ---
 
 export const sessionSchema = z

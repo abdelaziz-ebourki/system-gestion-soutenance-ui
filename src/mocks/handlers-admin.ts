@@ -1,12 +1,13 @@
 import { http, HttpResponse, delay } from "msw";
-import type { Teacher, Coordinator, Department, Session, Room, Major, Level, Grade, Student } from "@/types";
+import type { Teacher, Coordinator, Department, Session, Room, Major, Level, Grade, Student, DefenseSession } from "@/types";
 import {
   MOCK_DELAY,
   tblUsers, tblStudents, tblTeachers, tblCoordinators,
-  tblDepartments, tblSessions, tblRooms,
-  majors, levels, grades, tblDefenseSettings,
+  tblDepartments, tblSessions, tblRooms, tblDefenseSessions,
+  majors, levels, grades, juryRoleTemplates, tblDefenseSettings,
   getFlatUser,
 } from "./db";
+import type { DbJuryRoleTemplate } from "./db";
 import { auditLogHandlers } from "./audit-log-handlers";
 
 export const adminHandlers = [
@@ -340,7 +341,8 @@ export const adminHandlers = [
       }
     }
 
-    const { password: _, ...safeUser } = tblUsers[uIdx];
+    const safeUser = { ...tblUsers[uIdx] };
+    delete (safeUser as Record<string, unknown>).password;
     return HttpResponse.json(safeUser);
   }),
 
@@ -427,6 +429,40 @@ export const adminHandlers = [
     const index = tblSessions.findIndex((s) => s.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
     tblSessions.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ─── Defense Sessions ──────────────────────────────────────────────
+
+  http.get("/api/admin/defense-sessions", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json(tblDefenseSessions);
+  }),
+
+  http.post("/api/admin/defense-sessions", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = (await request.json()) as Omit<DefenseSession, "id">;
+    const newDS = { ...body, id: `ds${tblDefenseSessions.length + 1}` };
+    tblDefenseSessions.push(newDS);
+    return HttpResponse.json(newDS, { status: 201 });
+  }),
+
+  http.put("/api/admin/defense-sessions/:id", async ({ params, request }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const body = (await request.json()) as Omit<DefenseSession, "id">;
+    const index = tblDefenseSessions.findIndex((ds) => ds.id === id);
+    if (index === -1) return new HttpResponse(null, { status: 404 });
+    tblDefenseSessions[index] = { ...tblDefenseSessions[index], ...body };
+    return HttpResponse.json(tblDefenseSessions[index]);
+  }),
+
+  http.delete("/api/admin/defense-sessions/:id", async ({ params }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const index = tblDefenseSessions.findIndex((ds) => ds.id === id);
+    if (index === -1) return new HttpResponse(null, { status: 404 });
+    tblDefenseSessions.splice(index, 1);
     return new HttpResponse(null, { status: 204 });
   }),
 
@@ -566,6 +602,40 @@ export const adminHandlers = [
     const idx = grades.findIndex((g) => g.id === id);
     if (idx === -1) return new HttpResponse(null, { status: 404 });
     grades.splice(idx, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ─── Jury Role Templates ───────────────────────────────────────
+
+  http.get("/api/admin/config/jury-role-templates", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json(juryRoleTemplates);
+  }),
+
+  http.post("/api/admin/config/jury-role-templates", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = (await request.json()) as Omit<DbJuryRoleTemplate, "id">;
+    const newItem = { ...body, id: `jt${juryRoleTemplates.length + 1}` };
+    juryRoleTemplates.push(newItem);
+    return HttpResponse.json(newItem, { status: 201 });
+  }),
+
+  http.put("/api/admin/config/jury-role-templates/:id", async ({ params, request }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const body = (await request.json()) as Omit<DbJuryRoleTemplate, "id">;
+    const idx = juryRoleTemplates.findIndex((t) => t.id === id);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    juryRoleTemplates[idx] = { ...juryRoleTemplates[idx], ...body };
+    return HttpResponse.json(juryRoleTemplates[idx]);
+  }),
+
+  http.delete("/api/admin/config/jury-role-templates/:id", async ({ params }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const idx = juryRoleTemplates.findIndex((t) => t.id === id);
+    if (idx === -1) return new HttpResponse(null, { status: 404 });
+    juryRoleTemplates.splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),
 

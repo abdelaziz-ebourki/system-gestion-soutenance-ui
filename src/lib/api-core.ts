@@ -3,6 +3,7 @@ import type {
   Student,
   Teacher,
   Coordinator,
+  AppNotification,
 } from "@/types";
 import { STORAGE_KEYS } from "@/lib/constants";
 
@@ -99,6 +100,14 @@ export interface RoomImportData {
   departmentId: string;
   [key: string]: string | number;
 }
+
+export const getNotifications = () => api<AppNotification[]>("/notifications");
+
+export const markNotificationRead = (id: string) =>
+  api<void>(`/notifications/${id}/read`, { method: "PATCH" });
+
+export const markAllNotificationsRead = () =>
+  api<void>("/notifications/read-all", { method: "PATCH" });
 
 export interface DefenseSettings {
   startTime: string;

@@ -2,6 +2,7 @@ import { MajorManager } from "@/components/admin/config/MajorManager";
 import { LevelManager } from "@/components/admin/config/LevelManager";
 import { GradeManager } from "@/components/admin/config/GradeManager";
 import { DefenseSettingsForm } from "@/components/admin/config/DefenseSettingsForm";
+import { JuryRoleTemplateManager } from "@/components/admin/config/JuryRoleTemplateManager";
 
 export default function Configuration() {
   return (
@@ -17,6 +18,7 @@ export default function Configuration() {
         <MajorManager />
         <LevelManager />
         <GradeManager />
+        <JuryRoleTemplateManager />
         <DefenseSettingsForm />
       </div>
     </div>

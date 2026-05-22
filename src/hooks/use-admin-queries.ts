@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import type {
-  Session, Room, Department, Major, Level, Grade,
+  Session, Room, Department, Major, Level, Grade, DefenseSession, JuryRoleTemplate,
 } from "@/types";
 import type { DefenseSettings } from "@/lib/api";
 
@@ -191,6 +191,64 @@ export function useDefenseSettings() {
   return useQuery({
     queryKey: ["defense-settings"],
     queryFn: api.getDefenseSettings,
+  });
+}
+
+export function useJuryRoleTemplates() {
+  return useQuery({ queryKey: ["jury-role-templates"], queryFn: api.getJuryRoleTemplates });
+}
+
+export function useCreateJuryRoleTemplate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<JuryRoleTemplate, "id">) => api.createJuryRoleTemplate(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["jury-role-templates"] }),
+  });
+}
+
+export function useUpdateJuryRoleTemplate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Omit<JuryRoleTemplate, "id"> }) =>
+      api.updateJuryRoleTemplate(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["jury-role-templates"] }),
+  });
+}
+
+export function useDeleteJuryRoleTemplate() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.deleteJuryRoleTemplate(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["jury-role-templates"] }),
+  });
+}
+
+export function useDefenseSessions() {
+  return useQuery({ queryKey: ["defense-sessions"], queryFn: api.getDefenseSessions });
+}
+
+export function useCreateDefenseSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<DefenseSession, "id">) => api.createDefenseSession(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["defense-sessions"] }),
+  });
+}
+
+export function useUpdateDefenseSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Omit<DefenseSession, "id"> }) =>
+      api.updateDefenseSession(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["defense-sessions"] }),
+  });
+}
+
+export function useDeleteDefenseSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.deleteDefenseSession(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["defense-sessions"] }),
   });
 }
 

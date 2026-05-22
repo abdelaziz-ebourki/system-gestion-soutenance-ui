@@ -132,6 +132,45 @@ export interface StudentDocument {
   submittedAt?: string;
 }
 
+export type DefenseSessionStatus = "draft" | "active" | "scheduled" | "completed" | "archived";
+
+export interface AppNotification {
+  id: string;
+  type: "info" | "warning" | "success" | "error";
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  actionLink?: string;
+  actor?: string;
+}
+
+export interface JuryRole {
+  name: string;
+  count: number;
+}
+
+export interface JuryRoleTemplate {
+  id: string;
+  name: string;
+  roles: JuryRole[];
+}
+
+export interface DefenseSession {
+  id: string;
+  globalSessionId: string;
+  name: string;
+  status: DefenseSessionStatus;
+  maxGroupSize: number;
+  defenseDuration: number;
+  breakDuration: number;
+  submissionDeadline: string;
+  evaluationCoefficients: Record<string, number>;
+  juryRoleTemplateId: string;
+  startDate: string;
+  endDate: string;
+}
+
 export interface StudentGroupWorkspace {
   currentGroup: StudentGroupDetails | null;
   availableGroups: Array<{

@@ -1,12 +1,16 @@
 import { http, HttpResponse, delay } from "msw";
 import {
   MOCK_DELAY,
-  tblProjects, tblProjectStudents,
+  tblProjects, tblProjectStudents, tblDefenseSessions,
   tblJuries, tblGroups, tblGroupMembers,
   getProjectView, getAllProjectViews,
   getJuryView, getAllJuryViews,
+  isDefenseSessionTransitionValid,
   prependProject, prependJury, removeJuryByProject,
 } from "./db";
+import type { SlotAssignment } from "@/lib/conflict-engine";
+
+let tblSchedule: Record<string, SlotAssignment> = {};
 
 export const coordinatorHandlers = [
   http.get("/api/coordinator/stats", async () => {
@@ -185,10 +189,44 @@ export const coordinatorHandlers = [
     return new HttpResponse(null, { status: 204 });
   }),
 
+  // ─── Defense Sessions ─────────────────────────────────────────────
+
+  http.get("/api/coordinator/defense-sessions", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json(tblDefenseSessions);
+  }),
+
+  http.post("/api/coordinator/defense-sessions/:id/transition", async ({ params, request }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const { toStatus } = (await request.json()) as { toStatus: string };
+    const index = tblDefenseSessions.findIndex((ds) => ds.id === id);
+    if (index === -1) return new HttpResponse(null, { status: 404 });
+
+    const from = tblDefenseSessions[index].status;
+    if (!isDefenseSessionTransitionValid(from, toStatus)) {
+      return HttpResponse.json(
+        { message: `Transition invalide: ${from} → ${toStatus}` },
+        { status: 400 },
+      );
+    }
+
+    tblDefenseSessions[index] = {
+      ...tblDefenseSessions[index],
+      status: toStatus as typeof tblDefenseSessions[number]["status"],
+    };
+    return HttpResponse.json(tblDefenseSessions[index]);
+  }),
+
+  http.get("/api/coordinator/schedule", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json(tblSchedule);
+  }),
+
   http.post("/api/coordinator/schedule", async ({ request }) => {
     await delay(MOCK_DELAY);
-    const body = await request.json();
-    console.log("Schedule saved:", body);
+    const body = (await request.json()) as { schedule: Record<string, SlotAssignment> };
+    tblSchedule = body.schedule;
     return HttpResponse.json({ message: "Schedule saved successfully" });
   }),
 ];

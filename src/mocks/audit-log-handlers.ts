@@ -1,30 +1,22 @@
 import { http, HttpResponse, delay } from "msw";
+import { MOCK_DELAY, tblAuditLogs, prependAuditLog } from "./db";
 import type { AuditLog } from "@/types/audit-log";
-
-const mockAuditLogs: AuditLog[] = [
-  {
-    id: "1",
-    action: "LOGIN",
-    entity: "user",
-    entityId: "1",
-    adminEmail: "admin@univ.com",
-    details: "Connexion réussie",
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    action: "CREATE",
-    entity: "user",
-    entityId: "5",
-    adminEmail: "admin@univ.com",
-    details: "Création d'un nouvel étudiant",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-];
 
 export const auditLogHandlers = [
   http.get("/api/admin/audit-logs", async () => {
-    await delay(500);
-    return HttpResponse.json(mockAuditLogs);
+    await delay(MOCK_DELAY);
+    return HttpResponse.json(tblAuditLogs);
+  }),
+
+  http.post("/api/admin/audit-logs", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = (await request.json()) as Omit<AuditLog, "id" | "timestamp">;
+    const entry: AuditLog = {
+      ...body,
+      id: `al${tblAuditLogs.length + 1}`,
+      timestamp: new Date().toISOString(),
+    };
+    prependAuditLog(entry);
+    return HttpResponse.json(entry, { status: 201 });
   }),
 ];

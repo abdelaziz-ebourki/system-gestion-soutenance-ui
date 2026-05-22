@@ -4,6 +4,8 @@ import type {
   TeacherDefense, TeacherEvaluation, TeacherUnavailability,
   StudentGroupDetails, StudentGroupWorkspace, StudentDefenseDetails,
 } from "@/types";
+import type { AuditLog } from "@/types/audit-log";
+import { DEFENSE_SESSION_LIFECYCLE } from "@/lib/constants";
 import { users as _users, generateStudents } from "./users";
 import { students as _students } from "./students";
 import { teachers as _teachers } from "./teachers";
@@ -12,6 +14,7 @@ import { departments as _departments } from "./departments";
 import { sessions as _sessions } from "./sessions";
 import { rooms as _rooms } from "./rooms";
 import { defenseSettings as _defenseSettings } from "./config";
+import { defenseSessions as _defenseSessions } from "./defense-sessions";
 import { projects as _projects, projectStudents as _projectStudents } from "./projects";
 import { juries as _juries } from "./juries";
 import { defenses as _defenses, defenseTeachers, evaluations as _evaluations } from "./defenses";
@@ -19,11 +22,11 @@ import { groups as _groups, groupMembers as _groupMembers } from "./groups";
 import { studentGroups as _studentGroups, studentDocuments as _studentDocuments } from "./student";
 import { unavailability as _unavailability } from "./unavailability";
 
-export { majors, levels, grades } from "./config";
+export { majors, levels, grades, juryRoleTemplates } from "./config";
 export type {
   DbUser, DbStudent, DbTeacher, DbCoordinator,
   DbDepartment, DbSession, DbRoom,
-  DbMajor, DbLevel, DbGrade, DbDefenseSettings,
+  DbMajor, DbLevel, DbGrade, DbDefenseSession, DbDefenseSettings, DbJuryRoleTemplate,
   DbProject, DbProjectStudent,
   DbJury, DbGroup, DbGroupMember,
   DbDefense, DbDefenseTeacher, DbEvaluation,
@@ -50,6 +53,7 @@ export const tblCoordinators: typeof _coordinators = [..._coordinators];
 export const tblDepartments: typeof _departments = [..._departments];
 export const tblSessions: typeof _sessions = [..._sessions];
 export const tblRooms: typeof _rooms = [..._rooms];
+export const tblDefenseSessions: typeof _defenseSessions = [..._defenseSessions];
 export const tblDefenseSettings = { ..._defenseSettings };
 // Re-exported for backward compatibility
 export const defenseSettings = tblDefenseSettings;
@@ -304,9 +308,42 @@ export function replaceTeacherUnavailability(data: TeacherUnavailability) {
 }
 
 // Backward-compatible helper for handlers that need user lists
+export const tblAuditLogs: AuditLog[] = [
+  {
+    id: "1",
+    action: "LOGIN",
+    entity: "user",
+    entityId: "1",
+    adminEmail: "admin@univ.com",
+    details: "Connexion réussie",
+    timestamp: new Date().toISOString(),
+  },
+  {
+    id: "2",
+    action: "CREATE",
+    entity: "user",
+    entityId: "5",
+    adminEmail: "admin@univ.com",
+    details: "Création d'un nouvel étudiant",
+    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+  },
+];
+
+export function prependAuditLog(entry: AuditLog) {
+  tblAuditLogs.unshift(entry);
+}
+
+export function isDefenseSessionTransitionValid(
+  from: string,
+  to: string,
+): boolean {
+  return DEFENSE_SESSION_LIFECYCLE[from]?.includes(to) ?? false;
+}
+
 export function getFlatUser(uid: string): User | undefined {
   const user = tblUsers.find((u) => u.id === uid);
   if (!user) return undefined;
-  const { password: _, ...safe } = user;
+  const safe = { ...user };
+  delete (safe as Record<string, unknown>).password;
   return safe;
 }

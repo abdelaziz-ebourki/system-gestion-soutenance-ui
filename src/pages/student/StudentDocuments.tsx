@@ -55,12 +55,31 @@ export default function StudentDocuments() {
     [documents],
   );
 
-  const handleUpload = (documentId: string) => {
-    setIsUploading((prev) => ({ ...prev, [documentId]: true }));
-    setTimeout(() => {
-      setIsUploading((prev) => ({ ...prev, [documentId]: false }));
+  const handleUpload = async (document: StudentDocument) => {
+    const now = new Date();
+    const deadline = new Date(document.deadline);
+    const GRACE_PERIOD_DAYS = 2;
+    const graceDeadline = new Date(deadline);
+    graceDeadline.setDate(graceDeadline.getDate() + GRACE_PERIOD_DAYS);
+
+    if (now > graceDeadline) {
+      toast.error(`Date limite dépassée depuis ${Math.ceil((now.getTime() - deadline.getTime()) / (1000 * 60 * 60 * 24))} jours. Dépôt bloqué.`);
+      return;
+    }
+
+    if (now > deadline) {
+      toast.warning(`Date limite dépassée. Dépôt en période de grâce (${GRACE_PERIOD_DAYS} jours).`);
+    }
+
+    setIsUploading((prev) => ({ ...prev, [document.id]: true }));
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("Document envoyé avec succès");
-    }, 1500);
+    } catch {
+      toast.error("Erreur lors de l'envoi du document");
+    } finally {
+      setIsUploading((prev) => ({ ...prev, [document.id]: false }));
+    }
   };
 
   return (
@@ -140,7 +159,7 @@ export default function StudentDocuments() {
                           <Input id={`file-${document.id}`} type="file" />
                         </div>
                         <Button
-                          onClick={() => handleUpload(document.id)}
+                          onClick={() => handleUpload(document)}
                           isLoading={isUploading[document.id]}
                           loadingText="Envoi..."
                         >

@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
-import type { Group } from "@/types";
+import type { Group, DefenseSessionStatus } from "@/types";
 import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload } from "@/lib/api-coordinator";
+import type { SlotAssignment } from "@/lib/conflict-engine";
 
 export function useCoordinatorStats() {
   return useQuery({
@@ -88,13 +89,39 @@ export function useDeleteGroup() {
   });
 }
 
+export function useCoordinatorDefenseSessions() {
+  return useQuery({
+    queryKey: ["coordinator", "defense-sessions"],
+    queryFn: api.getCoordinatorDefenseSessions,
+  });
+}
+
+export function useTransitionDefenseSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, toStatus }: { id: string; toStatus: DefenseSessionStatus }) =>
+      api.transitionDefenseSession(id, toStatus),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["coordinator", "defense-sessions"] });
+    },
+  });
+}
+
+export function useDefenseSchedule() {
+  return useQuery({
+    queryKey: ["coordinator", "schedule"],
+    queryFn: api.getDefenseSchedule,
+  });
+}
+
 export function useSaveDefenseSchedule() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (schedule: Record<string, { id: string; title: string }>) =>
+    mutationFn: (schedule: Record<string, SlotAssignment>) =>
       api.saveDefenseSchedule(schedule),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["coordinator", "stats"] });
+      qc.invalidateQueries({ queryKey: ["coordinator", "schedule"] });
     },
   });
 }

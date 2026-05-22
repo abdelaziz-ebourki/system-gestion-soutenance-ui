@@ -24,8 +24,10 @@ import {
   HistoryIcon,
   LayersIcon,
   University,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { NotificationBadge } from "@/components/notification-badge";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
@@ -56,6 +58,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: "Sessions",
             url: "/admin/sessions",
             icon: <LayersIcon />,
+          },
+          {
+            title: "Sessions de soutenance",
+            url: "/admin/defense-sessions",
+            icon: <GraduationCapIcon />,
           },
           {
             title: "Utilisateurs",
@@ -105,6 +112,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             icon: <CalendarIcon />,
           },
           { title: "Jurys", url: "/coordinator/juries", icon: <UsersIcon /> },
+          {
+            title: "Conflits",
+            url: "/coordinator/conflicts",
+            icon: <AlertTriangle />,
+          },
+          {
+            title: "Sessions",
+            url: "/coordinator/sessions",
+            icon: <LayersIcon />,
+          },
         ];
       case "teacher":
         return [
@@ -166,6 +183,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
               </a>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <NotificationBadge />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

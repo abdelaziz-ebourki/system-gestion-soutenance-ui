@@ -20,6 +20,7 @@ import {
 import { useJuries, useProjects, useRooms, useSaveDefenseSchedule } from "@/hooks/use-queries";
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { Project } from "@/types";
+import type { ConflictContext } from "@/lib/conflict-engine";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
 import { defenseSettings } from "@/mocks/db";
@@ -82,7 +83,7 @@ function BacklogProject({
   project: Project;
   assigned: boolean;
 }) {
-  const { attributes, listeners, setNodeRef, transform } =
+  const { attributes, listeners, setNodeRef, transform, isDragging } =
     useDraggable({
       id: project.id,
       data: { type: "project", project },
@@ -90,7 +91,7 @@ function BacklogProject({
     });
 
   const style: React.CSSProperties | undefined = transform
-    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` }
+    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, opacity: isDragging ? 0 : undefined }
     : undefined;
 
   return (
@@ -193,19 +194,32 @@ export default function DefenseDesigner() {
     if (!project) return;
 
     const slotKey = over.id as string;
-    const validation = validateSlotAssignment(
-      project.id,
-      slotKey,
-      Object.fromEntries(
-        Object.entries(scheduledProjects).map(([key, value]) => [
-          key,
-          { id: value.id, title: value.title },
-        ]),
+
+    const context: ConflictContext = {
+      schedule: Object.fromEntries(
+        Object.entries(scheduledProjects).map(([key, value]) => {
+          const [, roomIdFromKey] = key.split("|");
+          return [
+            key,
+            { id: value.id, title: value.title, date: value.date, time: value.time, roomId: roomIdFromKey },
+          ];
+        }),
       ),
-    );
+      rooms: Object.fromEntries(rooms.map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }])),
+      groups: {},
+      projects: Object.fromEntries(projects.map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }])),
+      teachers: {},
+      juries: Object.fromEntries(juries.map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: [j.presidentId, j.reporterId, j.examinerId] }])),
+      unavailability: {},
+    };
+
+    const validation = validateSlotAssignment(project.id, slotKey, context);
 
     if (!validation.isValid) {
-      toast.error(validation.reason || "Conflit détecté");
+      toast.error(validation.issues.find((i) => i.severity === "error")?.message || "Conflit détecté");
+      for (const issue of validation.issues.filter((i) => i.severity === "warning")) {
+        toast.warning(issue.message);
+      }
       return;
     }
 
@@ -237,10 +251,13 @@ export default function DefenseDesigner() {
     try {
       await saveMutation.mutateAsync(
         Object.fromEntries(
-          Object.entries(scheduledProjects).map(([key, value]) => [
-            key,
-            { id: value.id, title: value.title },
-          ]),
+          Object.entries(scheduledProjects).map(([key, value]) => {
+            const [, roomIdFromKey] = key.split("|");
+            return [
+              key,
+              { id: value.id, title: value.title, date: value.date, time: value.time, roomId: roomIdFromKey },
+            ];
+          }),
         ),
       );
       toast.success("Planning validé avec succès");

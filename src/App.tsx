@@ -18,6 +18,8 @@ const CoordinatorDashboard = lazy(() => import("./pages/coordinator/CoordinatorD
 const CoordinatorProjects = lazy(() => import("./pages/coordinator/ProjectsGroups"));
 const Jurys = lazy(() => import("./pages/coordinator/Jurys"));
 const DefenseDesigner = lazy(() => import("./pages/coordinator/DefenseDesigner"));
+const CoordinatorDefenseSessions = lazy(() => import("./pages/coordinator/DefenseSessions"));
+const CoordinatorConflicts = lazy(() => import("./pages/coordinator/ConflictDashboard"));
 const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
 const TeacherSchedule = lazy(() => import("./pages/teacher/TeacherSchedule"));
 const TeacherEvaluations = lazy(() => import("./pages/teacher/TeacherEvaluations"));
@@ -29,6 +31,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
+const AdminDefenseSessions = lazy(() => import("./pages/admin/DefenseSessions"));
 
 function PageLoader() {
   return (
@@ -57,6 +60,7 @@ export default function App() {
             <Route path="/admin/users/coordinators" element={<Coordinators />} />
             <Route path="/admin/config" element={<Configuration />} />
             <Route path="/admin/audit-logs" element={<AuditLogs />} />
+            <Route path="/admin/defense-sessions" element={<AdminDefenseSessions />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>
@@ -70,6 +74,8 @@ export default function App() {
               element={<CoordinatorProjects />}
             />
             <Route path="/coordinator/juries" element={<Jurys />} />
+            <Route path="/coordinator/sessions" element={<CoordinatorDefenseSessions />} />
+            <Route path="/coordinator/conflicts" element={<CoordinatorConflicts />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>

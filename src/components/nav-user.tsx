@@ -44,6 +44,8 @@ import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
+import { useUnreadCount } from "@/hooks/use-queries";
+import { Badge } from "@/components/ui/badge";
 
 export function NavUser({
   user,
@@ -129,6 +131,7 @@ export function NavUser({
                 <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/notifications")}>
                   <BellIcon className="size-4" />
                   Notifications
+                  <UnreadBadge />
                 </DropdownMenuItem>
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
@@ -204,5 +207,15 @@ export function NavUser({
         </AlertDialog>
       </SidebarMenuItem>
     </SidebarMenu>
+  );
+}
+
+function UnreadBadge() {
+  const count = useUnreadCount();
+  if (count === 0) return null;
+  return (
+    <Badge className="ml-auto size-5 rounded-full p-0 text-[10px] leading-none" variant="destructive">
+      {count > 9 ? "9+" : count}
+    </Badge>
   );
 }
