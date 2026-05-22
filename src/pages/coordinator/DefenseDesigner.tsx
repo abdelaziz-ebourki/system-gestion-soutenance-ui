@@ -1,11 +1,9 @@
-import { useMemo } from "react";
 import * as React from "react";
 import {
   CalendarDays,
-  GripVertical,
   MapPin,
   Save,
-  Users,
+  Search,
   X,
 } from "lucide-react";
 import {
@@ -13,14 +11,12 @@ import {
   DragOverlay,
   type DragStartEvent,
   type DragEndEvent,
-  useDraggable,
-  useDroppable,
 } from "@dnd-kit/core";
 
-import { useJuries, useProjects, useRooms, useSaveDefenseSchedule } from "@/hooks/use-queries";
+import { useJuries, useProjects, useRooms, useTeachersList, useSaveDefenseSchedule } from "@/hooks/use-queries";
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { Project } from "@/types";
-import type { ConflictContext } from "@/lib/conflict-engine";
+import type { ConflictContext, ConflictIssue } from "@/lib/conflict-engine";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
 import { defenseSettings } from "@/mocks/db";
@@ -33,8 +29,16 @@ import {
   CardHeader,
   CardTitle,
   EmptyState,
+  Input,
   Skeleton,
+  Tabs,
+  TabsList,
+  TabsTrigger,
 } from "@/components/ui";
+import { ModeToggle, type ScheduleMode } from "@/components/coordinator/ModeToggle";
+import { RoomSearchSelect } from "@/components/coordinator/RoomSearchSelect";
+import { SlotRow, type ScheduledCard } from "@/components/coordinator/SlotRow";
+import { ProjectList } from "@/components/coordinator/ProjectList";
 
 function getNextWeekdays(count: number): string[] {
   const result: string[] = [];
@@ -68,115 +72,116 @@ function generateSlots(start: string, end: string, durationMinutes: number): str
 const DAYS = getNextWeekdays(2);
 const SLOTS = generateSlots(defenseSettings.startTime, defenseSettings.endTime, defenseSettings.defenseDuration);
 
-type ScheduledCard = {
-  id: string;
-  title: string;
-  roomName: string;
-  date: string;
-  time: string;
-};
-
-function BacklogProject({
-  project,
-  assigned,
-}: {
-  project: Project;
-  assigned: boolean;
-}) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: project.id,
-      data: { type: "project", project },
-      disabled: assigned,
-    });
-
-  const style: React.CSSProperties | undefined = transform
-    ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, opacity: isDragging ? 0 : undefined }
-    : undefined;
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-      className={
-        assigned
-          ? "rounded-lg border bg-muted p-4 opacity-50"
-          : "cursor-grab rounded-lg border bg-card p-4 transition hover:-translate-y-0.5 active:cursor-grabbing"
-      }
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="font-medium">{project.title}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {project.studentNames?.join(", ") || "Groupe non renseigné"}
-          </p>
-        </div>
-        <Badge variant="outline">{project.supervisorName}</Badge>
-      </div>
-    </div>
-  );
-}
-
-function SlotTarget({
-  slotKey,
-  time,
-  scheduled,
-  children,
-}: {
-  slotKey: string;
-  time: string;
-  scheduled: boolean;
-  children?: React.ReactNode;
-}) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: slotKey,
-    data: { type: "slot", slotKey },
-  });
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={
-        isOver
-          ? "min-h-32 rounded-xl border-2 border-dashed border-primary bg-primary/5 p-4 transition"
-          : "min-h-32 rounded-xl border-2 border-dashed border-border bg-card p-4 transition"
-      }
-    >
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>{time}</span>
-        <span>{scheduled ? "Occupé" : "Libre"}</span>
-      </div>
-      {children}
-    </div>
-  );
-}
-
 export default function DefenseDesigner() {
   const projectsQuery = useProjects();
   const roomsQuery = useRooms();
   const juriesQuery = useJuries();
+  const teachersQuery = useTeachersList();
   const saveMutation = useSaveDefenseSchedule();
   const projects = projectsQuery.data ?? [];
-  const rooms = (roomsQuery.data ?? []).slice(0, 3);
+  const rooms = roomsQuery.data ?? [];
   const juries = juriesQuery.data ?? [];
+  const teachers = teachersQuery.data ?? [];
   const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading;
-  const [scheduledProjects, setScheduledProjects] = React.useState<
-    Record<string, ScheduledCard>
-  >({});
-  const [activeProject, setActiveProject] = React.useState<Project | null>(null);
 
-  const assignedProjectIds = new Set(
-    Object.values(scheduledProjects).map((project) => project.id),
+  const [scheduledProjects, setScheduledProjects] = React.useState<Record<string, ScheduledCard>>({});
+  const [activeProject, setActiveProject] = React.useState<Project | null>(null);
+  const [mode, setMode] = React.useState<ScheduleMode>("click");
+  const [activeRoomId, setActiveRoomId] = React.useState<string | null>(rooms[0]?.id ?? null);
+  const [selectedProjectId, setSelectedProjectId] = React.useState<string | null>(null);
+  const [filterQuery, setFilterQuery] = React.useState("");
+  const [activeDayIndex, setActiveDayIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!activeRoomId && rooms.length > 0) {
+      setActiveRoomId(rooms[0].id);
+    }
+  }, [rooms, activeRoomId]);
+
+  const assignedProjectIds = React.useMemo(
+    () => new Set(Object.values(scheduledProjects).map((p) => p.id)),
+    [scheduledProjects],
   );
 
-  const readyProjects = useMemo(() => projects.filter((project) =>
-    juries.some((jury) => jury.projectId === project.id),
-  ), [projects, juries]);
-  const backlogProjects = useMemo(() => readyProjects.filter(
-    (project) => !assignedProjectIds.has(project.id),
-  ), [readyProjects, assignedProjectIds]);
+  const readyProjects = React.useMemo(
+    () => projects.filter((p) => juries.some((j) => j.projectId === p.id)),
+    [projects, juries],
+  );
+  const backlogProjects = React.useMemo(
+    () => readyProjects.filter((p) => !assignedProjectIds.has(p.id)),
+    [readyProjects, assignedProjectIds],
+  );
+
+  const filteredBacklog = React.useMemo(
+    () => {
+      if (!filterQuery) return backlogProjects;
+      const q = filterQuery.toLowerCase();
+      return backlogProjects.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.studentNames?.some((n) => n.toLowerCase().includes(q)) ||
+          p.supervisorName.toLowerCase().includes(q),
+      );
+    },
+    [backlogProjects, filterQuery],
+  );
+
+  const activeDay = DAYS[activeDayIndex];
+  const activeRoom = rooms.find((r) => r.id === activeRoomId);
+
+  const buildConflictContext = React.useCallback((): ConflictContext => ({
+    schedule: Object.fromEntries(
+      Object.entries(scheduledProjects).map(([key, value]) => {
+        const [, roomIdFromKey] = key.split("|");
+        return [
+          key,
+          { id: value.id, title: value.title, date: value.date, time: value.time, roomId: roomIdFromKey },
+        ];
+      }),
+    ),
+    rooms: Object.fromEntries(rooms.map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }])),
+    groups: {},
+    projects: Object.fromEntries(projects.map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }])),
+    teachers: Object.fromEntries(teachers.map((t) => [t.id, { id: t.id, name: `${t.firstName} ${t.lastName}` }])),
+    juries: Object.fromEntries(juries.map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: [j.presidentId, j.reporterId, j.examinerId] }])),
+    unavailability: {},
+  }), [scheduledProjects, rooms, projects, teachers, juries]);
+
+  function showValidationFeedback(issues: ConflictIssue[]) {
+    const errors = issues.filter((i) => i.severity === "error");
+    const warnings = issues.filter((i) => i.severity === "warning");
+    if (errors.length > 0) {
+      toast.error(errors[0].message);
+    }
+    if (warnings.length > 0) {
+      toast.warning(
+        warnings.length === 1
+          ? warnings[0].message
+          : `${warnings.length} avertissement(s): ${warnings.map((w) => w.message.toLowerCase()).join(", ")}`,
+      );
+    }
+  }
+
+  function handlePlace(slotKey: string) {
+    const project = projects.find((p) => p.id === selectedProjectId);
+    if (!project) return;
+
+    const validation = validateSlotAssignment(project.id, slotKey, buildConflictContext());
+
+    if (!validation.isValid) {
+      showValidationFeedback(validation.issues);
+      return;
+    }
+
+    const [date, roomId, time] = slotKey.split("|");
+    const roomName = rooms.find((r) => r.id === roomId)?.name || "Salle";
+    setScheduledProjects((prev) => ({
+      ...prev,
+      [slotKey]: { id: project.id, title: project.title, date, roomName, time },
+    }));
+    setSelectedProjectId(null);
+    toast.success(`"${project.title}" positionné le ${date} à ${time}`);
+  }
 
   const handleDragStart = (event: DragStartEvent) => {
     const data = event.active.data.current as { type: string; project: Project } | undefined;
@@ -195,53 +200,25 @@ export default function DefenseDesigner() {
 
     const slotKey = over.id as string;
 
-    const context: ConflictContext = {
-      schedule: Object.fromEntries(
-        Object.entries(scheduledProjects).map(([key, value]) => {
-          const [, roomIdFromKey] = key.split("|");
-          return [
-            key,
-            { id: value.id, title: value.title, date: value.date, time: value.time, roomId: roomIdFromKey },
-          ];
-        }),
-      ),
-      rooms: Object.fromEntries(rooms.map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }])),
-      groups: {},
-      projects: Object.fromEntries(projects.map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }])),
-      teachers: {},
-      juries: Object.fromEntries(juries.map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: [j.presidentId, j.reporterId, j.examinerId] }])),
-      unavailability: {},
-    };
-
-    const validation = validateSlotAssignment(project.id, slotKey, context);
+    const validation = validateSlotAssignment(project.id, slotKey, buildConflictContext());
 
     if (!validation.isValid) {
-      toast.error(validation.issues.find((i) => i.severity === "error")?.message || "Conflit détecté");
-      for (const issue of validation.issues.filter((i) => i.severity === "warning")) {
-        toast.warning(issue.message);
-      }
+      showValidationFeedback(validation.issues);
       return;
     }
 
     const [date, roomId, time] = slotKey.split("|");
-    const roomName =
-      rooms.find((room) => room.id === roomId)?.name || "Salle";
-    setScheduledProjects((current) => ({
-      ...current,
-      [slotKey]: {
-        id: project.id,
-        title: project.title,
-        date,
-        roomName,
-        time,
-      },
+    const roomName = rooms.find((r) => r.id === roomId)?.name || "Salle";
+    setScheduledProjects((prev) => ({
+      ...prev,
+      [slotKey]: { id: project.id, title: project.title, date, roomName, time },
     }));
     toast.success(`"${project.title}" positionné le ${date} à ${time}`);
   };
 
   const handleRemove = (slotKey: string) => {
-    setScheduledProjects((current) => {
-      const next = { ...current };
+    setScheduledProjects((prev) => {
+      const next = { ...prev };
       delete next[slotKey];
       return next;
     });
@@ -283,8 +260,7 @@ export default function DefenseDesigner() {
               Designer de soutenances
             </h1>
             <p className="text-muted-foreground">
-              Glissez les projets prêts vers les salles et créneaux pour
-              construire un planning défendable.
+              Placez les projets prêts dans les créneaux disponibles.
             </p>
           </div>
           <Button
@@ -297,11 +273,34 @@ export default function DefenseDesigner() {
           </Button>
         </div>
 
+        <div className="flex flex-wrap items-end gap-4">
+          <Tabs
+            value={String(activeDayIndex)}
+            onValueChange={(v) => setActiveDayIndex(Number(v))}
+          >
+            <TabsList>
+              {DAYS.map((day, i) => (
+                <TabsTrigger key={day} value={String(i)}>
+                  <CalendarDays className="size-4" />
+                  {day}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+          <div className="w-72">
+            <RoomSearchSelect
+              rooms={rooms}
+              value={activeRoomId}
+              onChange={setActiveRoomId}
+            />
+          </div>
+          <ModeToggle value={mode} onChange={setMode} />
+        </div>
+
         <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <GripVertical className="size-4" />
                 File de planification
               </CardTitle>
               <CardDescription>
@@ -328,107 +327,95 @@ export default function DefenseDesigner() {
                 </div>
               </div>
 
-              <div className="space-y-3">
-                {backlogProjects.map((project) => (
-                  <BacklogProject
-                    key={project.id}
-                    project={project}
-                    assigned={false}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Rechercher un projet..."
+                  value={filterQuery}
+                  onChange={(e) => setFilterQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+
+              <div className="space-y-2">
+                {filteredBacklog.length === 0 ? (
+                  <EmptyState variant="dashed" description="Aucun projet trouvé." />
+                ) : (
+                  <ProjectList
+                    projects={filteredBacklog}
+                    assignedProjectIds={assignedProjectIds}
+                    mode={mode}
+                    selectedProjectId={selectedProjectId}
+                    onSelect={setSelectedProjectId}
                   />
-                ))}
-                {backlogProjects.length === 0 && (
-                  <EmptyState variant="dashed" description="Tous les projets prêts ont déjà été placés." />
                 )}
               </div>
             </CardContent>
           </Card>
 
           <div className="space-y-6">
-            {DAYS.map((day) => (
-              <Card key={day}>
-                <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <CalendarDays className="size-4" />
-                      {day}
-                    </CardTitle>
-                    <CardDescription>
-                      Répartissez les passages salle par salle.
-                    </CardDescription>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {rooms.map((room) => (
-                      <Badge key={room.id} variant="outline" className="gap-1">
-                        <MapPin className="size-3" />
-                        {room.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardHeader>
-                <CardContent className="grid gap-4 lg:grid-cols-3">
-                  {rooms.map((room) => (
-                    <div key={room.id} className="space-y-3">
-                      <div className="rounded-lg bg-muted/50 p-4">
-                        <p className="font-medium">{room.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Capacité {room.capacity} places
-                        </p>
-                      </div>
+            <Card>
+              <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <MapPin className="size-4" />
+                    {activeRoom?.name ?? "Salle"}
+                  </CardTitle>
+                  <CardDescription>
+                    {activeRoom
+                      ? `Capacité ${activeRoom.capacity} places — ${activeDay}`
+                      : "Sélectionnez une salle"}
+                  </CardDescription>
+                </div>
+                {activeRoom && (
+                  <Badge variant="outline" className="gap-1">
+                    <MapPin className="size-3" />
+                    {activeRoom.name}
+                  </Badge>
+                )}
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {!activeRoomId ? (
+                  <EmptyState variant="dashed" description="Choisissez une salle pour voir les créneaux." />
+                ) : (
+                  SLOTS.map((time) => {
+                    const slotKey = `${activeDay}|${activeRoomId}|${time}`;
+                    const scheduled = scheduledProjects[slotKey];
 
-                      {SLOTS.map((time) => {
-                        const slotKey = `${day}|${room.id}|${time}`;
-                        const scheduled = scheduledProjects[slotKey];
+                    return (
+                      <SlotRow
+                        key={slotKey}
+                        slotKey={slotKey}
+                        time={time}
+                        scheduled={scheduled}
+                        projects={projects}
+                        juries={juries}
+                        mode={mode}
+                        selectedProjectId={selectedProjectId}
+                        onPlace={mode === "click" ? handlePlace : () => {}}
+                        onRemove={handleRemove}
+                      />
+                    );
+                  })
+                )}
+              </CardContent>
+            </Card>
 
-                        return (
-                          <SlotTarget
-                            key={slotKey}
-                            slotKey={slotKey}
-                            time={time}
-                            scheduled={!!scheduled}
-                          >
-                            {scheduled && (
-                              <div className="mt-4 rounded-lg border bg-primary p-4 text-primary-foreground">
-                                <div className="flex items-start justify-between gap-3">
-                                  <div>
-                                    <p className="font-medium">
-                                      {scheduled.title}
-                                    </p>
-                                    <p className="mt-1 text-sm text-primary-foreground/80">
-                                      {projects
-                                        .find(
-                                          (project) =>
-                                            project.id === scheduled.id,
-                                        )
-                                        ?.studentNames?.join(", ") ||
-                                        "Groupe non renseigné"}
-                                    </p>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleRemove(slotKey)}
-                                    className="rounded-full p-1 text-primary-foreground/70 transition hover:bg-primary-foreground/10 hover:text-primary-foreground"
-                                  >
-                                    <X className="size-4" />
-                                  </button>
-                                </div>
-                                <div className="mt-3 flex items-center gap-2 text-xs text-primary-foreground/80">
-                                  <Users className="size-3" />
-                                  {
-                                    juries.find(
-                                      (jury) => jury.projectId === scheduled.id,
-                                    )?.presidentName
-                                  }
-                                </div>
-                              </div>
-                            )}
-                          </SlotTarget>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            ))}
+            {mode === "click" && selectedProjectId && (
+              <div className="flex items-center gap-3 rounded-lg border bg-primary/5 p-3 text-sm">
+                <span>
+                  Projet sélectionné :{" "}
+                  <strong>{projects.find((p) => p.id === selectedProjectId)?.title}</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedProjectId(null)}
+                  className="ml-auto rounded-full p-1 text-muted-foreground transition hover:bg-muted"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -440,8 +427,7 @@ export default function DefenseDesigner() {
               <div>
                 <p className="font-medium">{activeProject.title}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {activeProject.studentNames?.join(", ") ||
-                    "Groupe non renseigné"}
+                  {activeProject.studentNames?.join(", ") || "Groupe non renseigné"}
                 </p>
               </div>
               <Badge variant="outline">{activeProject.supervisorName}</Badge>
