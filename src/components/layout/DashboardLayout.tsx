@@ -59,7 +59,6 @@ const VALID_ROUTES = new Set([
   "/coordinator/juries",
   "/coordinator/projects",
   "/coordinator/schedule",
-  "/coordinator/sessions",
   "/notifications",
   "/profile",
   "/student",

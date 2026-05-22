@@ -20,6 +20,7 @@ interface ConvocationDialogProps {
   time: string;
   room: string;
   jury: { role: string; name: string }[];
+  defenseTypeLabel?: string;
 }
 
 export default function ConvocationDialog({
@@ -32,6 +33,7 @@ export default function ConvocationDialog({
   time,
   room,
   jury,
+  defenseTypeLabel = "Projet de Fin d'Études",
 }: ConvocationDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
@@ -46,7 +48,7 @@ export default function ConvocationDialog({
               Convocation de Soutenance
             </h1>
             <p className="text-lg italic font-serif text-muted-foreground">
-              Session de Printemps 2026 — Projet de Fin d'Études
+              Session de Printemps 2026 — {defenseTypeLabel}
             </p>
           </div>
 

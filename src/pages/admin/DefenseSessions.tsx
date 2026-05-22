@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, Calendar } from "lucide-react";
 
-import type { DefenseSession } from "@/types";
+import type { DefenseSession, DefenseType } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Badge,
@@ -25,6 +25,8 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   DEFENSE_SESSION_STATUS_LABELS,
   DEFENSE_SESSION_STATUS_BADGE,
+  DEFENSE_TYPE_OPTIONS,
+  DEFENSE_TYPE_SHORT_LABELS,
 } from "@/lib/constants";
 import {
   useDefenseSessions,
@@ -36,9 +38,16 @@ import {
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { CrudActions } from "@/components/admin/CrudActions";
 
+const DEFAULT_DURATION_BY_TYPE: Record<DefenseType, number> = {
+  pfe: 30,
+  memoire: 20,
+  these: 45,
+};
+
 const defaultForm = {
   globalSessionId: "",
   name: "",
+  defenseType: "pfe" as DefenseType,
   status: "draft" as DefenseSession["status"],
   maxGroupSize: 3,
   defenseDuration: 30,
@@ -74,6 +83,7 @@ export default function DefenseSessionsPage() {
     setForm({
       globalSessionId: ds.globalSessionId,
       name: ds.name,
+      defenseType: ds.defenseType,
       status: ds.status,
       maxGroupSize: ds.maxGroupSize,
       defenseDuration: ds.defenseDuration,
@@ -108,6 +118,14 @@ export default function DefenseSessionsPage() {
       accessorKey: "name",
       header: "Nom",
       cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+    },
+    {
+      accessorKey: "defenseType",
+      header: "Type",
+      cell: ({ row }) => {
+        const t = row.getValue("defenseType") as DefenseType;
+        return <Badge variant="outline">{DEFENSE_TYPE_SHORT_LABELS[t] ?? t}</Badge>;
+      },
     },
     {
       accessorKey: "status",
@@ -219,6 +237,31 @@ export default function DefenseSessionsPage() {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
                 />
+              </Field>
+              <Field>
+                <FieldLabel>Type de soutenance</FieldLabel>
+                <Select
+                  value={form.defenseType}
+                  onValueChange={(v) => {
+                    const type = v as DefenseType;
+                    setForm({
+                      ...form,
+                      defenseType: type,
+                      defenseDuration: DEFAULT_DURATION_BY_TYPE[type],
+                    });
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DEFENSE_TYPE_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </Field>
               <div className="grid grid-cols-2 gap-4">
                 <Field>

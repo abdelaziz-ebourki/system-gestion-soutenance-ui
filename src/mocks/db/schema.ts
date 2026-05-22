@@ -63,10 +63,13 @@ export interface DbGrade {
   name: string;
 }
 
+export type DbDefenseType = "pfe" | "memoire" | "these";
+
 export interface DbDefenseSession {
   id: string;
   globalSessionId: string;
   name: string;
+  defenseType: DbDefenseType;
   status: "draft" | "active" | "scheduled" | "completed" | "archived";
   maxGroupSize: number;
   defenseDuration: number;
@@ -98,6 +101,7 @@ export interface DbProject {
   title: string;
   description: string;
   supervisorId: string;
+  defenseType: DbDefenseType;
   status: "pending" | "approved" | "rejected";
 }
 
@@ -128,6 +132,7 @@ export interface DbGroupMember {
 export interface DbDefense {
   id: string;
   projectId: string;
+  defenseType: DbDefenseType;
   date: string;
   startTime: string;
   endTime: string;
@@ -138,7 +143,7 @@ export interface DbDefense {
 export interface DbDefenseTeacher {
   defenseId: string;
   teacherId: string;
-  role: "president" | "reporter" | "examiner" | "supervisor";
+  role: string;
 }
 
 export interface DbEvaluation {

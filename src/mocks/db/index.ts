@@ -100,6 +100,7 @@ export function getProjectView(p: typeof _projects[number]): Project {
     studentNames: resolveStudentNames(stIds),
     supervisorId: p.supervisorId,
     supervisorName: getUserFullName(p.supervisorId),
+    defenseType: p.defenseType,
     status: p.status,
   };
 }
@@ -114,6 +115,7 @@ export function getJuryView(j: typeof _juries[number]): Jury {
     id: j.id,
     projectId: j.projectId,
     projectTitle: project?.title ?? "",
+    defenseType: (project?.defenseType ?? "pfe") as Jury["defenseType"],
     presidentId: j.presidentId,
     presidentName: getUserFullName(j.presidentId),
     reporterId: j.reporterId,
@@ -273,6 +275,7 @@ export function prependProject(project: Project) {
     title: project.title,
     description: project.description ?? "",
     supervisorId: project.supervisorId,
+    defenseType: project.defenseType,
     status: project.status,
   });
   tblProjectStudents.unshift(

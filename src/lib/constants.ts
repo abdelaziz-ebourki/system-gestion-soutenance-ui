@@ -4,6 +4,26 @@ export const STORAGE_KEYS = {
   EXPIRES_AT: "expiresAt",
 } as const;
 
+import type { DefenseType } from "@/types";
+
+export const DEFENSE_TYPE_LABELS: Record<DefenseType, string> = {
+  pfe: "Projet de Fin d'Études",
+  memoire: "Mémoire",
+  these: "Thèse",
+};
+
+export const DEFENSE_TYPE_SHORT_LABELS: Record<DefenseType, string> = {
+  pfe: "PFE",
+  memoire: "Mémoire",
+  these: "Thèse",
+};
+
+export const DEFENSE_TYPE_OPTIONS = [
+  { value: "pfe" as const, label: "PFE" },
+  { value: "memoire" as const, label: "Mémoire" },
+  { value: "these" as const, label: "Thèse" },
+];
+
 export const DEFENSE_ROLE_LABELS: Record<string, string> = {
   president: "Président",
   reporter: "Rapporteur",

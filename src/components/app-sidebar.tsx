@@ -117,11 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/coordinator/conflicts",
             icon: <AlertTriangle />,
           },
-          {
-            title: "Sessions",
-            url: "/coordinator/sessions",
-            icon: <LayersIcon />,
-          },
+
         ];
       case "teacher":
         return [

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useMemo } from "react";
 import {
   CalendarDays,
   MapPin,
@@ -13,7 +14,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 
-import { useJuries, useProjects, useRooms, useTeachersList, useSaveDefenseSchedule } from "@/hooks/use-queries";
+import { useJuries, useProjects, useRooms, useTeachersList, useSaveDefenseSchedule, useCoordinatorDefenseSessions } from "@/hooks/use-queries";
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { Project } from "@/types";
 import type { ConflictContext, ConflictIssue } from "@/lib/conflict-engine";
@@ -69,20 +70,30 @@ function generateSlots(start: string, end: string, durationMinutes: number): str
   return slots;
 }
 
-const DAYS = getNextWeekdays(2);
-const SLOTS = generateSlots(defenseSettings.startTime, defenseSettings.endTime, defenseSettings.defenseDuration);
-
 export default function DefenseDesigner() {
   const projectsQuery = useProjects();
   const roomsQuery = useRooms();
   const juriesQuery = useJuries();
   const teachersQuery = useTeachersList();
+  const sessionsQuery = useCoordinatorDefenseSessions();
   const saveMutation = useSaveDefenseSchedule();
   const projects = projectsQuery.data ?? [];
   const rooms = roomsQuery.data ?? [];
   const juries = juriesQuery.data ?? [];
   const teachers = teachersQuery.data ?? [];
-  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading;
+  const defenseSessions = sessionsQuery.data ?? [];
+  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || sessionsQuery.isLoading;
+
+  const DAYS = useMemo(() => getNextWeekdays(2), []);
+  const session = defenseSessions[0];
+  const SLOTS = useMemo(
+    () => generateSlots(
+      defenseSettings.startTime,
+      defenseSettings.endTime,
+      session?.defenseDuration ?? defenseSettings.defenseDuration,
+    ),
+    [session?.defenseDuration],
+  );
 
   const [scheduledProjects, setScheduledProjects] = React.useState<Record<string, ScheduledCard>>({});
   const [activeProject, setActiveProject] = React.useState<Project | null>(null);

@@ -160,6 +160,7 @@ export const projectSchema = z.object({
   description: z.string().optional(),
   supervisorId: z.string().min(1, "L'encadrant est requis"),
   studentIds: z.array(z.string()).min(1, "Au moins un étudiant est requis"),
+  defenseType: z.enum(["pfe", "memoire", "these"]).default("pfe"),
 });
 
 // --- Coordinator: Jury ---

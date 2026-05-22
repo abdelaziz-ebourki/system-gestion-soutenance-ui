@@ -8,17 +8,17 @@ function daysFromNow(days: number): string {
 
 export const defenses: DbDefense[] = [
   {
-    id: "td1", projectId: "p1",
+    id: "td1", projectId: "p1", defenseType: "pfe",
     date: daysFromNow(2), startTime: "08:30", endTime: "10:00",
     roomId: "1", status: "scheduled",
   },
   {
-    id: "td2", projectId: "p3",
+    id: "td2", projectId: "p3", defenseType: "pfe",
     date: daysFromNow(3), startTime: "10:15", endTime: "11:45",
     roomId: "2", status: "scheduled",
   },
   {
-    id: "td3", projectId: "p4",
+    id: "td3", projectId: "p4", defenseType: "memoire",
     date: daysFromNow(-5), startTime: "13:45", endTime: "15:15",
     roomId: "3", status: "completed",
   },

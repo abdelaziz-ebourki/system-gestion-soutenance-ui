@@ -8,7 +8,7 @@ export const notifications = [
     message: "La session 'Soutenance Normale 2026' a été activée. Vous pouvez maintenant constituer les groupes.",
     timestamp: daysFromNow(-1),
     read: false,
-    actionLink: "/coordinator/sessions",
+    actionLink: "/coordinator",
     actor: "Système",
   },
   {

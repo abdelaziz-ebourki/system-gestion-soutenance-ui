@@ -4,7 +4,8 @@ import { useMemo } from "react";
 import { useTeachersList, useStudentsList, useCreateProject, useUpdateProject } from "@/hooks/use-queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, projectSchema } from "@/lib/validations";
-import type { Project } from "@/types";
+import type { DefenseType, Project } from "@/types";
+import { DEFENSE_TYPE_OPTIONS } from "@/lib/constants";
 import { toast } from "sonner";
 import { getFullName, toastError } from "@/lib/utils";
 import {
@@ -33,7 +34,7 @@ interface ProjectDialogProps {
   project?: Project | null;
 }
 
-const defaultForm = { title: "", description: "", supervisorId: "", studentIds: [] as string[] };
+const defaultForm = { title: "", description: "", supervisorId: "", studentIds: [] as string[], defenseType: "pfe" as DefenseType };
 
 export function ProjectDialog({
   open,
@@ -80,6 +81,7 @@ export function ProjectDialog({
           description: project.description || "",
           supervisorId: project.supervisorId,
           studentIds: project.studentIds,
+          defenseType: project.defenseType,
         });
       } else {
         form.resetForm();
@@ -113,6 +115,7 @@ export function ProjectDialog({
           data: {
             ...form.formData,
             status: project.status,
+            defenseType: form.formData.defenseType,
           },
         });
         toast.success("Projet mis à jour");
@@ -168,6 +171,25 @@ export function ProjectDialog({
               onChange={(event) => form.setFormData({ ...form.formData, description: event.target.value })}
               className="min-h-28"
             />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor={`${formId}-defenseType`}>Type de soutenance</Label>
+            <Select
+              value={form.formData.defenseType}
+              onValueChange={(val) => form.setFormData({ ...form.formData, defenseType: val as DefenseType })}
+            >
+              <SelectTrigger id={`${formId}-defenseType`} fullWidth>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {DEFENSE_TYPE_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">

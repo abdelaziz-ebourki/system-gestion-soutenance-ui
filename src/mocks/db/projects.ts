@@ -4,27 +4,27 @@ export const projects: DbProject[] = [
   {
     id: "p1", title: "Systeme de Gestion des Soutenances",
     description: "Plateforme de planification, notifications et suivi des jurys.",
-    supervisorId: "3", status: "approved",
+    supervisorId: "3", defenseType: "pfe", status: "approved",
   },
   {
     id: "p2", title: "Application E-learning adaptative",
     description: "Personnalisation des parcours selon les performances.",
-    supervisorId: "4", status: "pending",
+    supervisorId: "4", defenseType: "pfe", status: "pending",
   },
   {
     id: "p3", title: "Analyse des donnees IoT",
     description: "Pipeline d'agregation et tableau de bord temps reel.",
-    supervisorId: "3", status: "approved",
+    supervisorId: "3", defenseType: "pfe", status: "approved",
   },
   {
     id: "p4", title: "Securite des reseaux cloud",
     description: "Detection d'anomalies et gouvernance des acces.",
-    supervisorId: "4", status: "approved",
+    supervisorId: "4", defenseType: "memoire", status: "approved",
   },
   {
     id: "p5", title: "Portail intelligent de suivi des soutenances",
     description: "Interface et services pour suivre planning, documents et evaluations.",
-    supervisorId: "3", status: "approved",
+    supervisorId: "3", defenseType: "these", status: "approved",
   },
 ];
 

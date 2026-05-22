@@ -17,6 +17,7 @@ export interface Project {
   studentNames?: string[];
   supervisorId: string;
   supervisorName: string;
+  defenseType: DefenseType;
   status: "pending" | "approved" | "rejected";
 }
 
@@ -31,6 +32,7 @@ export interface Jury {
   id: string;
   projectId: string;
   projectTitle: string;
+  defenseType: DefenseType;
   presidentId: string;
   presidentName: string;
   reporterId: string;
@@ -132,6 +134,8 @@ export interface StudentDocument {
   submittedAt?: string;
 }
 
+export type DefenseType = "pfe" | "memoire" | "these";
+
 export type DefenseSessionStatus = "draft" | "active" | "scheduled" | "completed" | "archived";
 
 export interface AppNotification {
@@ -160,6 +164,7 @@ export interface DefenseSession {
   id: string;
   globalSessionId: string;
   name: string;
+  defenseType: DefenseType;
   status: DefenseSessionStatus;
   maxGroupSize: number;
   defenseDuration: number;

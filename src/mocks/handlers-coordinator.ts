@@ -9,6 +9,7 @@ import {
   prependProject, prependJury, removeJuryByProject,
 } from "./db";
 import type { SlotAssignment } from "@/lib/conflict-engine";
+import type { DbProject } from "./db/schema";
 
 let tblSchedule: Record<string, SlotAssignment> = {};
 
@@ -39,6 +40,7 @@ export const coordinatorHandlers = [
       title: (body.title as string) ?? "",
       description: (body.description as string) ?? "",
       supervisorId: (body.supervisorId as string) ?? "",
+      defenseType: (body.defenseType as DbProject["defenseType"]) ?? "pfe",
       status: "pending",
     });
     const studentIds = (body.studentIds as string[]) ?? [];
@@ -61,6 +63,7 @@ export const coordinatorHandlers = [
     if (body.description !== undefined) tblProjects[index].description = body.description as string;
     if (body.supervisorId !== undefined) tblProjects[index].supervisorId = body.supervisorId as string;
     if (body.status !== undefined) tblProjects[index].status = body.status as typeof tblProjects[number]["status"];
+    if (body.defenseType !== undefined) tblProjects[index].defenseType = body.defenseType as DbProject["defenseType"];
 
     // Update project_students
     if (body.studentIds !== undefined) {
