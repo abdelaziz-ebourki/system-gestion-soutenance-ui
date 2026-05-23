@@ -16,25 +16,39 @@ export const adminHandlers = [
   http.post("/api/login", async ({ request }) => {
     await delay(MOCK_DELAY);
     const { email, password } = (await request.json()) as { email: string; password?: string };
-    const user = tblUsers.find((u) => u.email === email && u.password === password);
 
-    if (user) {
-      const userWithoutPassword = { ...user } as Partial<typeof user>;
-      delete userWithoutPassword.password;
-      const expiresIn = 60 * 60 * 1000 * 2;
-      const expiresAt = Date.now() + expiresIn;
-
-      return HttpResponse.json({
-        user: getFlatUser(user.id),
-        token: `mock-jwt-token-${user.role}`,
-        expiresAt,
-      });
+    const user = tblUsers.find((u) => u.email === email);
+    if (!user) {
+      return new HttpResponse(
+        JSON.stringify({ message: "Identifiants invalides (E-mail ou mot de passe incorrect)" }),
+        { status: 401 },
+      );
     }
 
-    return new HttpResponse(
-      JSON.stringify({ message: "Identifiants invalides (E-mail ou mot de passe incorrect)" }),
-      { status: 401 },
-    );
+    if (!user.isActive) {
+      return new HttpResponse(
+        JSON.stringify({ message: "Veuillez activer votre compte via le lien de vérification envoyé à votre adresse email." }),
+        { status: 403 },
+      );
+    }
+
+    if (user.password !== password) {
+      return new HttpResponse(
+        JSON.stringify({ message: "Identifiants invalides (E-mail ou mot de passe incorrect)" }),
+        { status: 401 },
+      );
+    }
+
+    const userWithoutPassword = { ...user } as Partial<typeof user>;
+    delete userWithoutPassword.password;
+    const expiresIn = 60 * 60 * 1000 * 2;
+    const expiresAt = Date.now() + expiresIn;
+
+    return HttpResponse.json({
+      user: getFlatUser(user.id),
+      token: `mock-jwt-token-${user.role}`,
+      expiresAt,
+    });
   }),
 
   // ─── Generic user list (flat, no JOIN) ────────────────────────────
