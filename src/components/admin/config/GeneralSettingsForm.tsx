@@ -48,7 +48,6 @@ export function GeneralSettingsForm() {
   const [settings, setSettings] = useState<GeneralSettings>({
     institutionName: "",
     institutionLogoUrl: "",
-    academicYearLabel: "",
     timezone: "Africa/Algiers",
     dateFormat: "DD/MM/YYYY",
   });
@@ -100,16 +99,6 @@ export function GeneralSettingsForm() {
               value={settings.institutionLogoUrl}
               onChange={(e) => setSettings({ ...settings, institutionLogoUrl: e.target.value })}
               placeholder="https://..."
-            />
-          </Field>
-          <Field>
-            <FieldLabel>Année académique</FieldLabel>
-            <Input
-              value={settings.academicYearLabel}
-              onChange={(e) => setSettings({ ...settings, academicYearLabel: e.target.value })}
-              placeholder="2025/2026"
-              required
-              error={fieldErrors?.academicYearLabel}
             />
           </Field>
           <Field>

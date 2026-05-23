@@ -121,7 +121,6 @@ export interface DefenseSettings {
 export interface GeneralSettings {
   institutionName: string;
   institutionLogoUrl: string;
-  academicYearLabel: string;
   timezone: string;
   dateFormat: string;
 }

@@ -148,7 +148,6 @@ export const defenseSettingsSchema = z
 export const generalSettingsSchema = z.object({
   institutionName: z.string().min(1, "Le nom de l'établissement est requis"),
   institutionLogoUrl: z.string().optional(),
-  academicYearLabel: z.string().min(1, "Le libellé de l'année académique est requis"),
   timezone: z.string().min(1, "Le fuseau horaire est requis"),
   dateFormat: z.string().min(1, "Le format de date est requis"),
 });

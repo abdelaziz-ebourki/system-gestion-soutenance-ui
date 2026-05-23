@@ -51,7 +51,6 @@ export const juryRoleTemplates: DbJuryRoleTemplate[] = [
 export const generalSettings = {
   institutionName: "Université de Tlemcen",
   institutionLogoUrl: "",
-  academicYearLabel: "2025/2026",
   timezone: "Africa/Algiers",
   dateFormat: "DD/MM/YYYY",
 };
