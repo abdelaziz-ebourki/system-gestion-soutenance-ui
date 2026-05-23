@@ -6,6 +6,7 @@ import {
   tblDepartments, tblSessions, tblRooms, tblDefenseSessions,
   majors, levels, grades, juryRoleTemplates, tblDefenseSettings,
   tblGeneralSettings, tblDefenseTypeConfig, tblDocumentConfig,
+  tblJuries, tblProjects, tblProjectStudents,
   getFlatUser,
 } from "./db";
 import type { DbJuryRoleTemplate } from "./db";
@@ -416,8 +417,36 @@ export const adminHandlers = [
     const uIdx = tblUsers.findIndex((u) => u.id === id);
     if (uIdx === -1) return new HttpResponse(null, { status: 404 });
 
+    const user = tblUsers[uIdx];
+    if (user.role === "teacher") {
+      const nbDepts = tblDepartments.filter((d) => d.headId === id).length;
+      const nbJuries = tblJuries.filter(
+        (j) => j.presidentId === id || j.reporterId === id || j.examinerId === id,
+      ).length;
+      const nbProjects = tblProjects.filter((p) => p.supervisorId === id).length;
+      const parts: string[] = [];
+      if (nbDepts > 0) parts.push(`chef de ${nbDepts} département(s)`);
+      if (nbJuries > 0) parts.push(`membre de ${nbJuries} jury(s)`);
+      if (nbProjects > 0) parts.push(`encadrant de ${nbProjects} projet(s)`);
+      if (parts.length > 0) {
+        return HttpResponse.json(
+          { message: `Impossible de supprimer cet enseignant : il/elle est ${parts.join(", ")}.` },
+          { status: 409 },
+        );
+      }
+    }
+
+    if (user.role === "student") {
+      const nbProjects = tblProjectStudents.filter((ps) => ps.studentId === id).length;
+      if (nbProjects > 0) {
+        return HttpResponse.json(
+          { message: `Impossible de supprimer cet étudiant : il/elle est lié(e) à ${nbProjects} projet(s).` },
+          { status: 409 },
+        );
+      }
+    }
+
     tblUsers.splice(uIdx, 1);
-    // Clean up role-specific tables
     const sIdx = tblStudents.findIndex((s) => s.id === id);
     if (sIdx !== -1) tblStudents.splice(sIdx, 1);
     const tIdx = tblTeachers.findIndex((t) => t.id === id);
@@ -458,6 +487,19 @@ export const adminHandlers = [
     const { id } = params;
     const index = tblDepartments.findIndex((d) => d.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
+
+    const nbRooms = tblRooms.filter((r) => r.departmentId === id).length;
+    const nbTeachers = tblTeachers.filter((t) => t.departmentId === id).length;
+    const parts: string[] = [];
+    if (nbRooms > 0) parts.push(`${nbRooms} salle(s)`);
+    if (nbTeachers > 0) parts.push(`${nbTeachers} enseignant(s)`);
+    if (parts.length > 0) {
+      return HttpResponse.json(
+        { message: `Impossible de supprimer ce département : ${parts.join(" et ")} y sont rattaché(e)s.` },
+        { status: 409 },
+      );
+    }
+
     tblDepartments.splice(index, 1);
     return new HttpResponse(null, { status: 204 });
   }),
@@ -492,6 +534,15 @@ export const adminHandlers = [
     const { id } = params;
     const index = tblSessions.findIndex((s) => s.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
+
+    const nbSoutenances = tblDefenseSessions.filter((ds) => ds.globalSessionId === id).length;
+    if (nbSoutenances > 0) {
+      return HttpResponse.json(
+        { message: `Impossible de supprimer cette session académique : ${nbSoutenances} soutenance(s) y sont rattachée(s).` },
+        { status: 409 },
+      );
+    }
+
     tblSessions.splice(index, 1);
     return new HttpResponse(null, { status: 204 });
   }),
@@ -636,6 +687,15 @@ export const adminHandlers = [
     const { id } = params;
     const idx = majors.findIndex((f) => f.id === id);
     if (idx === -1) return new HttpResponse(null, { status: 404 });
+
+    const nbStudents = tblStudents.filter((s) => s.majorId === id).length;
+    if (nbStudents > 0) {
+      return HttpResponse.json(
+        { message: `Impossible de supprimer cette filière : ${nbStudents} étudiant(s) y sont inscrit(s).` },
+        { status: 409 },
+      );
+    }
+
     majors.splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),
@@ -662,6 +722,15 @@ export const adminHandlers = [
     const { id } = params;
     const idx = levels.findIndex((l) => l.id === id);
     if (idx === -1) return new HttpResponse(null, { status: 404 });
+
+    const nbStudents = tblStudents.filter((s) => s.levelId === id).length;
+    if (nbStudents > 0) {
+      return HttpResponse.json(
+        { message: `Impossible de supprimer ce niveau : ${nbStudents} étudiant(s) y sont inscrit(s).` },
+        { status: 409 },
+      );
+    }
+
     levels.splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),
@@ -688,6 +757,15 @@ export const adminHandlers = [
     const { id } = params;
     const idx = grades.findIndex((g) => g.id === id);
     if (idx === -1) return new HttpResponse(null, { status: 404 });
+
+    const nbTeachers = tblTeachers.filter((t) => t.gradeId === id).length;
+    if (nbTeachers > 0) {
+      return HttpResponse.json(
+        { message: `Impossible de supprimer ce grade : ${nbTeachers} enseignant(s) l'ont.` },
+        { status: 409 },
+      );
+    }
+
     grades.splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),
@@ -722,6 +800,15 @@ export const adminHandlers = [
     const { id } = params;
     const idx = juryRoleTemplates.findIndex((t) => t.id === id);
     if (idx === -1) return new HttpResponse(null, { status: 404 });
+
+    const nbSessions = tblDefenseSessions.filter((ds) => ds.juryRoleTemplateId === id).length;
+    if (nbSessions > 0) {
+      return HttpResponse.json(
+        { message: `Impossible de supprimer ce template de jury : ${nbSessions} soutenance(s) l'utilisent.` },
+        { status: 409 },
+      );
+    }
+
     juryRoleTemplates.splice(idx, 1);
     return new HttpResponse(null, { status: 204 });
   }),

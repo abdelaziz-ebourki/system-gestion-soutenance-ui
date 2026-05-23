@@ -2,7 +2,7 @@ import { http, HttpResponse, delay } from "msw";
 import {
   MOCK_DELAY,
   tblProjects, tblProjectStudents, tblDefenseSessions,
-  tblJuries, tblGroups, tblGroupMembers,
+  tblJuries, tblGroups, tblGroupMembers, tblDefenses,
   getProjectView, getAllProjectViews,
   getJuryView, getAllJuryViews,
   isDefenseSessionTransitionValid,
@@ -88,6 +88,21 @@ export const coordinatorHandlers = [
     const { id } = params;
     const index = tblProjects.findIndex((p) => p.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
+
+    const nbJuries = tblJuries.filter((j) => j.projectId === id).length;
+    const nbGroups = tblGroups.filter((g) => g.projectId === id).length;
+    const nbDefenses = tblDefenses.filter((d) => d.projectId === id).length;
+    const parts: string[] = [];
+    if (nbJuries > 0) parts.push(`${nbJuries} jury(s)`);
+    if (nbGroups > 0) parts.push(`${nbGroups} groupe(s)`);
+    if (nbDefenses > 0) parts.push(`${nbDefenses} soutenance(s)`);
+    if (parts.length > 0) {
+      return HttpResponse.json(
+        { message: `Impossible de supprimer ce projet : ${parts.join(", ")} lui sont associé(e)s.` },
+        { status: 409 },
+      );
+    }
+
     tblProjects.splice(index, 1);
     // Clean up project_students
     for (let i = tblProjectStudents.length - 1; i >= 0; i--) {
