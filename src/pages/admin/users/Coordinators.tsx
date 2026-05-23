@@ -15,6 +15,7 @@ import {
   DialogTitle,
   Input,
 } from "@/components/ui";
+import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useCoordinatorCrud } from "@/hooks/entities/use-coordinator-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
@@ -33,7 +34,7 @@ export default function Coordinators() {
   const [selectedCoordinators, setSelectedCoordinators] = useState<Coordinator[]>([]);
   const [batchDialog, setBatchDialog] = useState<"delete" | null>(null);
 
-  const { data: coordinatorsData, isLoading } = useCoordinators(
+  const { data: coordinatorsData, isLoading, refetch } = useCoordinators(
     isFiltering ? 0 : pagination.pageIndex,
     isFiltering ? FILTER_LIMIT : pagination.pageSize,
   );
@@ -82,9 +83,12 @@ export default function Coordinators() {
           <h1 className="text-3xl font-bold tracking-tight">Coordinateurs</h1>
           <p className="text-muted-foreground">Gestion des responsables des soutenances.</p>
         </div>
-        <Button onClick={crud.openCreate}>
-          <Plus className="size-4" /> Nouveau Coordinateur
-        </Button>
+        <div className="flex gap-2">
+          <BulkImportDialog entity="coordinator" triggerButtonText="Importation en masse" onSuccess={refetch} />
+          <Button onClick={crud.openCreate}>
+            <Plus className="size-4" /> Nouveau Coordinateur
+          </Button>
+        </div>
       </div>
 
         <DataTable columns={columns} data={data} loading={isLoading} getRowId={(row) => row.id} enableRowSelection onSelectedRowsChange={setSelectedCoordinators}

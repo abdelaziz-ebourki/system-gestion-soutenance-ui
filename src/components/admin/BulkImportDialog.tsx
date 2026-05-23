@@ -26,6 +26,7 @@ interface BulkImportDialogProps {
 const ENTITY_HEADERS: Record<string, string[]> = {
   student: ["prénom", "nom", "email", "cne", "major", "niveau"],
   teacher: ["prénom", "nom", "email", "département", "grade"],
+  coordinator: ["prénom", "nom", "email"],
   room: ["nom", "département", "capacité"],
 };
 
