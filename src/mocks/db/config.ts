@@ -48,6 +48,26 @@ export const juryRoleTemplates: DbJuryRoleTemplate[] = [
   },
 ];
 
+export const generalSettings = {
+  institutionName: "Université de Tlemcen",
+  institutionLogoUrl: "",
+  academicYearLabel: "2025/2026",
+  timezone: "Africa/Algiers",
+  dateFormat: "DD/MM/YYYY",
+};
+
+export const defenseTypeConfig = {
+  pfe: { enabled: true, label: "Projet de Fin d'Études", labelPlural: "PFEs", defaultDuration: 30, defaultBreak: 15 },
+  memoire: { enabled: true, label: "Mémoire", labelPlural: "Mémoires", defaultDuration: 20, defaultBreak: 10 },
+  these: { enabled: true, label: "Thèse", labelPlural: "Thèses", defaultDuration: 45, defaultBreak: 15 },
+};
+
+export const documentConfig = {
+  maxFileSizeMb: 50,
+  allowedExtensions: "pdf,docx,pptx,xlsx,zip",
+  versionLimit: 5,
+};
+
 export const defenseSettings: DbDefenseSettings = {
   startTime: "08:00",
   endTime: "18:00",

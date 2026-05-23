@@ -22,7 +22,7 @@ import { groups as _groups, groupMembers as _groupMembers } from "./groups";
 import { studentGroups as _studentGroups, studentDocuments as _studentDocuments } from "./student";
 import { unavailability as _unavailability } from "./unavailability";
 
-export { majors, levels, grades, juryRoleTemplates } from "./config";
+export { majors, levels, grades, juryRoleTemplates, generalSettings, defenseTypeConfig, documentConfig } from "./config";
 export type {
   DbUser, DbStudent, DbTeacher, DbCoordinator,
   DbDepartment, DbSession, DbRoom,
@@ -55,7 +55,10 @@ export const tblSessions: typeof _sessions = [..._sessions];
 export const tblRooms: typeof _rooms = [..._rooms];
 export const tblDefenseSessions: typeof _defenseSessions = [..._defenseSessions];
 export const tblDefenseSettings = { ..._defenseSettings };
-// Re-exported for backward compatibility
+export const tblGeneralSettings = { ...generalSettings };
+export const tblDefenseTypeConfig = { ...defenseTypeConfig };
+export const tblDocumentConfig = { ...documentConfig };
+
 export const defenseSettings = tblDefenseSettings;
 export const tblProjects: typeof _projects = [..._projects];
 export const tblProjectStudents: typeof _projectStudents = [..._projectStudents];

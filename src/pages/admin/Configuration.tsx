@@ -3,6 +3,9 @@ import { LevelManager } from "@/components/admin/config/LevelManager";
 import { GradeManager } from "@/components/admin/config/GradeManager";
 import { DefenseSettingsForm } from "@/components/admin/config/DefenseSettingsForm";
 import { JuryRoleTemplateManager } from "@/components/admin/config/JuryRoleTemplateManager";
+import { GeneralSettingsForm } from "@/components/admin/config/GeneralSettingsForm";
+import { DefenseTypeConfigForm } from "@/components/admin/config/DefenseTypeConfigForm";
+import { DocumentConfigForm } from "@/components/admin/config/DocumentConfigForm";
 
 export default function Configuration() {
   return (
@@ -15,9 +18,12 @@ export default function Configuration() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
+        <GeneralSettingsForm />
         <MajorManager />
         <LevelManager />
         <GradeManager />
+        <DefenseTypeConfigForm />
+        <DocumentConfigForm />
         <JuryRoleTemplateManager />
         <DefenseSettingsForm />
       </div>

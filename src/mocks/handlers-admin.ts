@@ -5,6 +5,7 @@ import {
   tblUsers, tblStudents, tblTeachers, tblCoordinators,
   tblDepartments, tblSessions, tblRooms, tblDefenseSessions,
   majors, levels, grades, juryRoleTemplates, tblDefenseSettings,
+  tblGeneralSettings, tblDefenseTypeConfig, tblDocumentConfig,
   getFlatUser,
 } from "./db";
 import type { DbJuryRoleTemplate } from "./db";
@@ -648,6 +649,50 @@ export const adminHandlers = [
     const body = (await request.json()) as Partial<typeof tblDefenseSettings>;
     Object.assign(tblDefenseSettings, body);
     return HttpResponse.json({ ...tblDefenseSettings });
+  }),
+
+  http.get("/api/admin/config/general", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json({ ...tblGeneralSettings });
+  }),
+  http.put("/api/admin/config/general", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = await request.json() as Record<string, unknown>;
+    Object.assign(tblGeneralSettings, body);
+    return HttpResponse.json({ ...tblGeneralSettings });
+  }),
+
+  http.get("/api/admin/config/defense-types", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json({
+      pfe: { ...tblDefenseTypeConfig.pfe },
+      memoire: { ...tblDefenseTypeConfig.memoire },
+      these: { ...tblDefenseTypeConfig.these },
+    });
+  }),
+  http.put("/api/admin/config/defense-types", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = await request.json() as Record<string, unknown>;
+    const typed = body as typeof tblDefenseTypeConfig;
+    if (typed.pfe) Object.assign(tblDefenseTypeConfig.pfe, typed.pfe);
+    if (typed.memoire) Object.assign(tblDefenseTypeConfig.memoire, typed.memoire);
+    if (typed.these) Object.assign(tblDefenseTypeConfig.these, typed.these);
+    return HttpResponse.json({
+      pfe: { ...tblDefenseTypeConfig.pfe },
+      memoire: { ...tblDefenseTypeConfig.memoire },
+      these: { ...tblDefenseTypeConfig.these },
+    });
+  }),
+
+  http.get("/api/admin/config/documents", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json({ ...tblDocumentConfig });
+  }),
+  http.put("/api/admin/config/documents", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = await request.json() as Record<string, unknown>;
+    Object.assign(tblDocumentConfig, body);
+    return HttpResponse.json({ ...tblDocumentConfig });
   }),
 
   ...auditLogHandlers,

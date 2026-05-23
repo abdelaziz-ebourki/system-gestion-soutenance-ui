@@ -143,6 +143,40 @@ export const defenseSettingsSchema = z
     },
   );
 
+// --- Admin: General Settings ---
+
+export const generalSettingsSchema = z.object({
+  institutionName: z.string().min(1, "Le nom de l'établissement est requis"),
+  institutionLogoUrl: z.string().optional(),
+  academicYearLabel: z.string().min(1, "Le libellé de l'année académique est requis"),
+  timezone: z.string().min(1, "Le fuseau horaire est requis"),
+  dateFormat: z.string().min(1, "Le format de date est requis"),
+});
+
+// --- Admin: Defense Type Config ---
+
+const defenseTypeItemSchema = z.object({
+  enabled: z.boolean(),
+  label: z.string().min(1, "Le libellé est requis"),
+  labelPlural: z.string().min(1, "Le libellé pluriel est requis"),
+  defaultDuration: z.coerce.number().min(5, "Doit être au moins 5 min").max(180, "Ne peut pas dépasser 180 min"),
+  defaultBreak: z.coerce.number().min(0, "Ne peut pas être négative"),
+});
+
+export const defenseTypeConfigSchema = z.object({
+  pfe: defenseTypeItemSchema,
+  memoire: defenseTypeItemSchema,
+  these: defenseTypeItemSchema,
+});
+
+// --- Admin: Document Config ---
+
+export const documentConfigSchema = z.object({
+  maxFileSizeMb: z.coerce.number().min(1, "Doit être au moins 1 Mo").max(500, "Ne peut pas dépasser 500 Mo"),
+  allowedExtensions: z.string().min(1, "Les extensions autorisées sont requises"),
+  versionLimit: z.coerce.number().min(1, "Doit être au moins 1").max(50, "Ne peut pas dépasser 50"),
+});
+
 // --- Teacher: Evaluations ---
 
 export const evaluationSchema = z.object({

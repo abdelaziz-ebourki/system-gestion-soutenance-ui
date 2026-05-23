@@ -3,7 +3,7 @@ import * as api from "@/lib/api";
 import type {
   Session, Room, Department, Major, Level, Grade, DefenseSession, JuryRoleTemplate,
 } from "@/types";
-import type { DefenseSettings } from "@/lib/api";
+import type { DefenseSettings, GeneralSettings, DefenseTypeConfig, DocumentConfig } from "@/lib/api";
 
 export function useAdminStats() {
   return useQuery({ queryKey: ["admin", "stats"], queryFn: api.getAdminStats });
@@ -326,5 +326,50 @@ export function useDeleteUser() {
   return useMutation({
     mutationFn: (id: string) => api.deleteUser(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+  });
+}
+
+export function useGeneralSettings() {
+  return useQuery({
+    queryKey: ["admin", "config", "general"],
+    queryFn: api.getGeneralSettings,
+  });
+}
+
+export function useUpdateGeneralSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: GeneralSettings) => api.updateGeneralSettings(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "general"] }),
+  });
+}
+
+export function useDefenseTypeConfig() {
+  return useQuery({
+    queryKey: ["admin", "config", "defense-types"],
+    queryFn: api.getDefenseTypeConfig,
+  });
+}
+
+export function useUpdateDefenseTypeConfig() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: DefenseTypeConfig) => api.updateDefenseTypeConfig(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "defense-types"] }),
+  });
+}
+
+export function useDocumentConfig() {
+  return useQuery({
+    queryKey: ["admin", "config", "documents"],
+    queryFn: api.getDocumentConfig,
+  });
+}
+
+export function useUpdateDocumentConfig() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: DocumentConfig) => api.updateDocumentConfig(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "documents"] }),
   });
 }

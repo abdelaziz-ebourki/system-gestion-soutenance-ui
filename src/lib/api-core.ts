@@ -117,3 +117,31 @@ export interface DefenseSettings {
   groupCreationStartDate: string;
   groupCreationEndDate: string;
 }
+
+export interface GeneralSettings {
+  institutionName: string;
+  institutionLogoUrl: string;
+  academicYearLabel: string;
+  timezone: string;
+  dateFormat: string;
+}
+
+export interface DefenseTypeItem {
+  enabled: boolean;
+  label: string;
+  labelPlural: string;
+  defaultDuration: number;
+  defaultBreak: number;
+}
+
+export interface DefenseTypeConfig {
+  pfe: DefenseTypeItem;
+  memoire: DefenseTypeItem;
+  these: DefenseTypeItem;
+}
+
+export interface DocumentConfig {
+  maxFileSizeMb: number;
+  allowedExtensions: string;
+  versionLimit: number;
+}
