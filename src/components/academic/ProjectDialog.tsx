@@ -115,7 +115,6 @@ export function ProjectDialog({
           data: {
             ...form.formData,
             status: project.status,
-            defenseType: form.formData.defenseType,
           },
         });
         toast.success("Projet mis à jour");
