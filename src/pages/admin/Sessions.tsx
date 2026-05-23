@@ -96,8 +96,8 @@ export default function Sessions() {
     <div className="space-y-6 pb-20">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Sessions Globales</h1>
-          <p className="text-muted-foreground">Définissez les périodes académiques pour les soutenances.</p>
+          <h1 className="text-3xl font-bold tracking-tight">Sessions académiques</h1>
+          <p className="text-muted-foreground">Définissez les périodes académiques.</p>
         </div>
         <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
           <Button onClick={() => { crud.openCreate(); }}><Plus className="mr-2 size-4" />Nouvelle Session</Button>

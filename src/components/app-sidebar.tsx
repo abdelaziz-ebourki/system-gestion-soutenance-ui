@@ -55,12 +55,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             icon: <BuildingIcon />,
           },
           {
-            title: "Sessions",
+            title: "Session académique",
             url: "/admin/sessions",
             icon: <LayersIcon />,
           },
           {
-            title: "Sessions de soutenance",
+            title: "Soutenances",
             url: "/admin/defense-sessions",
             icon: <GraduationCapIcon />,
           },

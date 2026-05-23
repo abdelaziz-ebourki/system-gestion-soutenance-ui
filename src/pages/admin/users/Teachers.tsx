@@ -85,17 +85,24 @@ export default function Teachers() {
     },
   ], [crud, departments, grades]);
 
-  const missing: string[] = [];
-  if (departments.length === 0) missing.push("départements");
-  if (grades.length === 0) missing.push("grades");
-  if (missing.length > 0) {
+  const missingDepartments = departments.length === 0;
+  const missingGrades = grades.length === 0;
+  if (missingDepartments || missingGrades) {
+    const parts: string[] = [];
+    if (missingDepartments) parts.push("départements");
+    if (missingGrades) parts.push("grades");
     return (
       <div className="space-y-6">
         <EmptyState
           icon={Users}
           title="Configuration requise"
-          description={`Vous devez d'abord configurer ${missing.join(" et ")} avant de pouvoir gérer les enseignants.`}
-          action={<Button asChild><Link to="/admin/configuration">Configurer</Link></Button>}
+          description={`Vous devez d'abord configurer ${parts.join(" et ")} avant de pouvoir gérer les enseignants.`}
+          action={
+            <div className="flex gap-2">
+              {missingDepartments && <Button asChild><Link to="/admin/departments">Départements</Link></Button>}
+              {missingGrades && <Button asChild><Link to="/admin/config">Grades</Link></Button>}
+            </div>
+          }
         />
       </div>
     );

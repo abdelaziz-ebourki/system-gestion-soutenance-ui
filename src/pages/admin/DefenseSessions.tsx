@@ -189,9 +189,9 @@ export default function DefenseSessionsPage() {
       <div className="space-y-6">
         <EmptyState
           icon={Calendar}
-          title="Aucune session globale configurée"
-          description="Vous devez d'abord configurer au moins une session globale avant de pouvoir créer des sessions de soutenance."
-          action={<Button asChild><Link to="/admin/configuration">Configurer</Link></Button>}
+          title="Aucune session académique configurée"
+          description="Vous devez d'abord configurer au moins une session académique avant de pouvoir gérer les soutenances."
+          action={<Button asChild><Link to="/admin/sessions">Configurer les sessions académiques</Link></Button>}
         />
       </div>
     );
@@ -201,9 +201,9 @@ export default function DefenseSessionsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Sessions de soutenance</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Soutenances</h1>
           <p className="text-muted-foreground">
-            Gérez les sessions de soutenance associées aux sessions globales.
+            Gérez les soutenances associées aux sessions académiques.
           </p>
         </div>
         <Button onClick={openCreate}>

@@ -83,7 +83,7 @@ export default function Rooms() {
           icon={BuildingIcon}
           title="Aucun département configuré"
           description="Vous devez d'abord configurer au moins un département avant de pouvoir gérer les salles."
-          action={<Button asChild><Link to="/admin/configuration">Configurer</Link></Button>}
+          action={<Button asChild><Link to="/admin/departments">Configurer les départements</Link></Button>}
         />
       </div>
     );

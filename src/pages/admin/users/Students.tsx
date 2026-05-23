@@ -97,7 +97,7 @@ export default function Students() {
           icon={GraduationCap}
           title="Configuration requise"
           description={`Vous devez d'abord configurer ${m.join(" et ")} avant de pouvoir gérer les étudiants.`}
-          action={<Button asChild><Link to="/admin/configuration">Configurer</Link></Button>}
+          action={<Button asChild><Link to="/admin/config">Configurer</Link></Button>}
         />
       </div>
     );
