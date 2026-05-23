@@ -192,7 +192,7 @@ export const projectSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
   description: z.string().optional(),
   supervisorId: z.string().min(1, "L'encadrant est requis"),
-  studentIds: z.array(z.string()).min(1, "Au moins un étudiant est requis"),
+  studentIds: z.array(z.string()),
   defenseType: z.enum(["pfe", "memoire", "these"]).default("pfe"),
 });
 

@@ -1,7 +1,6 @@
 import * as React from "react";
-import { useMemo } from "react";
 
-import { useTeachersList, useStudentsList, useCreateProject, useUpdateProject } from "@/hooks/use-queries";
+import { useTeachersList, useCreateProject, useUpdateProject } from "@/hooks/use-queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, projectSchema } from "@/lib/validations";
 import type { DefenseType, Project } from "@/types";
@@ -18,13 +17,19 @@ import {
   DialogTitle,
   Input,
   Label,
-  MultiSelect,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
   Textarea,
+  Combobox,
+  ComboboxInput,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxEmpty,
+  ComboboxValue,
 } from "@/components/ui";
 
 interface ProjectDialogProps {
@@ -43,34 +48,13 @@ export function ProjectDialog({
   project,
 }: ProjectDialogProps) {
   const teachersQuery = useTeachersList();
-  const studentsQuery = useStudentsList();
   const createProjectMutation = useCreateProject();
   const updateProjectMutation = useUpdateProject();
   const teachers = teachersQuery.data ?? [];
-  const students = studentsQuery.data ?? [];
-  const isLoadingOptions = teachersQuery.isLoading || studentsQuery.isLoading;
 
   const form = useEntityForm(projectSchema, defaultForm);
 
-  const [supervisorSearch, setSupervisorSearch] = React.useState("");
-
   const isEdit = !!project;
-
-  const filteredSupervisors = useMemo(
-    () => teachers
-      .filter((teacher) =>
-        getFullName(teacher).toLowerCase().includes(supervisorSearch.toLowerCase()),
-      ),
-    [teachers, supervisorSearch],
-  );
-
-  const studentOptions = useMemo(
-    () => students.map((s) => ({
-      value: s.id,
-      label: getFullName(s),
-    })),
-    [students],
-  );
 
   React.useEffect(() => {
     if (open) {
@@ -86,7 +70,6 @@ export function ProjectDialog({
       } else {
         form.resetForm();
       }
-      setSupervisorSearch("");
     }
   }, [open]);
 
@@ -142,8 +125,8 @@ export function ProjectDialog({
           <DialogTitle>{isEdit ? "Modifier le projet" : "Nouveau projet"}</DialogTitle>
           <DialogDescription>
             {isEdit
-              ? "Mettez à jour le sujet, l'encadrement et la composition du groupe."
-              : "Ajoutez un sujet, son encadrant et le groupe d'étudiants associé."}
+              ? "Mettez à jour le sujet et l'encadrement."
+              : "Ajoutez un sujet et son encadrant."}
           </DialogDescription>
         </DialogHeader>
         <form
@@ -192,46 +175,30 @@ export function ProjectDialog({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor={`${formId}-supervisor`}>Encadrant</Label>
-            <Input
-              placeholder="Rechercher un encadrant..."
-              value={supervisorSearch}
-              onChange={(e) => setSupervisorSearch(e.target.value)}
-            />
-            <Select
+            <Label>Encadrant</Label>
+            <Combobox
               value={form.formData.supervisorId}
               onValueChange={(val) => form.setFormData({ ...form.formData, supervisorId: val || "" })}
-              disabled={isLoadingOptions}
             >
-              <SelectTrigger id={`${formId}-supervisor`} fullWidth>
-                <SelectValue placeholder="Selectionner un encadrant" />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredSupervisors.map((teacher) => (
-                    <SelectItem key={teacher.id} value={teacher.id}>
+              <ComboboxInput placeholder="Rechercher un encadrant..." showTrigger>
+                <ComboboxValue />
+              </ComboboxInput>
+              <ComboboxContent>
+                <ComboboxList>
+                  {teachers.map((teacher) => (
+                    <ComboboxItem key={teacher.id} value={teacher.id}>
                       {getFullName(teacher)}
-                    </SelectItem>
+                    </ComboboxItem>
                   ))}
-              </SelectContent>
-            </Select>
+                  <ComboboxEmpty>Aucun encadrant trouvé</ComboboxEmpty>
+                </ComboboxList>
+              </ComboboxContent>
+            </Combobox>
             {form.fieldErrors?.supervisorId && (
               <p className="text-sm font-medium text-destructive">{form.fieldErrors.supervisorId}</p>
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor={`${formId}-students`}>Etudiants</Label>
-            <MultiSelect
-              options={studentOptions}
-              value={form.formData.studentIds}
-              onChange={(val) => form.setFormData({ ...form.formData, studentIds: val })}
-              placeholder="Sélectionner des étudiants..."
-              disabled={isLoadingOptions}
-            />
-            {form.fieldErrors?.studentIds && (
-              <p className="text-sm font-medium text-destructive">{form.fieldErrors.studentIds}</p>
-            )}
-          </div>
         </form>
         <DialogFooter>
           <Button
@@ -245,7 +212,7 @@ export function ProjectDialog({
             type="submit"
             form={formId}
             isLoading={isEdit ? updateProjectMutation.isPending : createProjectMutation.isPending}
-            disabled={isLoadingOptions}
+            disabled={teachersQuery.isLoading}
           >
             {isEdit ? "Sauvegarder" : "Creer le projet"}
           </Button>

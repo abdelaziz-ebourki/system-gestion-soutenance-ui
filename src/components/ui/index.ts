@@ -6,6 +6,7 @@ export * from "./breadcrumb";
 export * from "./button";
 export * from "./card";
 export * from "./checkbox";
+export * from "./combobox";
 export * from "./collapsible";
 export * from "./dialog";
 export * from "./drawer";

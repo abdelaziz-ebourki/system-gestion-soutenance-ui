@@ -13,7 +13,7 @@ export interface CreateProjectPayload {
   title: string;
   description?: string;
   supervisorId: string;
-  studentIds: string[];
+  studentIds?: string[];
 }
 
 export interface UpdateProjectPayload {
