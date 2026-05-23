@@ -113,7 +113,7 @@ export function DefenseTypeConfigForm() {
                         <Input
                           type="number"
                           value={item.defaultDuration}
-                          onChange={(e) => updateItem(key, { defaultDuration: parseInt(e.target.value) })}
+                          onChange={(e) => updateItem(key, { defaultDuration: parseInt(e.target.value) || 0 })}
                           required
                           error={fieldErrors[`${key}.defaultDuration`]}
                         />
@@ -123,7 +123,7 @@ export function DefenseTypeConfigForm() {
                         <Input
                           type="number"
                           value={item.defaultBreak}
-                          onChange={(e) => updateItem(key, { defaultBreak: parseInt(e.target.value) })}
+                          onChange={(e) => updateItem(key, { defaultBreak: parseInt(e.target.value) || 0 })}
                           required
                           error={fieldErrors[`${key}.defaultBreak`]}
                         />

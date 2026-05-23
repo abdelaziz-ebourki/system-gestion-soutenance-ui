@@ -107,7 +107,7 @@ export function GeneralSettingsForm() {
               value={settings.timezone}
               onValueChange={(v) => setSettings({ ...settings, timezone: v })}
             >
-              <SelectTrigger error={fieldErrors?.timezone}>
+              <SelectTrigger aria-invalid={!!fieldErrors?.timezone}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -115,6 +115,9 @@ export function GeneralSettingsForm() {
                   <SelectItem key={tz} value={tz}>{tz}</SelectItem>
                 ))}
               </SelectContent>
+              {fieldErrors?.timezone && (
+                <p className="text-sm font-medium text-destructive">{fieldErrors.timezone}</p>
+              )}
             </Select>
           </Field>
           <Field>
@@ -123,7 +126,7 @@ export function GeneralSettingsForm() {
               value={settings.dateFormat}
               onValueChange={(v) => setSettings({ ...settings, dateFormat: v })}
             >
-              <SelectTrigger error={fieldErrors?.dateFormat}>
+              <SelectTrigger aria-invalid={!!fieldErrors?.dateFormat}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -131,6 +134,9 @@ export function GeneralSettingsForm() {
                   <SelectItem key={df.value} value={df.value}>{df.label}</SelectItem>
                 ))}
               </SelectContent>
+              {fieldErrors?.dateFormat && (
+                <p className="text-sm font-medium text-destructive">{fieldErrors.dateFormat}</p>
+              )}
             </Select>
           </Field>
           <Button type="submit" className="mt-2" isLoading={updateMut.isPending} loadingText="Sauvegarde en cours...">

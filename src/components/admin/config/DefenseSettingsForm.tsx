@@ -90,7 +90,7 @@ export function DefenseSettingsForm() {
               <Input
                 type="number"
                 value={settings.defenseDuration}
-                onChange={(e) => setSettings({ ...settings, defenseDuration: parseInt(e.target.value) })}
+                onChange={(e) => setSettings({ ...settings, defenseDuration: parseInt(e.target.value) || 0 })}
                 required
                 error={fieldErrors?.defenseDuration}
               />
@@ -100,7 +100,7 @@ export function DefenseSettingsForm() {
               <Input
                 type="number"
                 value={settings.breakDuration}
-                onChange={(e) => setSettings({ ...settings, breakDuration: parseInt(e.target.value) })}
+                onChange={(e) => setSettings({ ...settings, breakDuration: parseInt(e.target.value) || 0 })}
                 required
                 error={fieldErrors?.breakDuration}
               />

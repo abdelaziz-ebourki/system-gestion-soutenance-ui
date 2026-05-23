@@ -64,7 +64,7 @@ export function DocumentConfigForm() {
             <Input
               type="number"
               value={config.maxFileSizeMb}
-              onChange={(e) => setConfig({ ...config, maxFileSizeMb: parseInt(e.target.value) })}
+              onChange={(e) => setConfig({ ...config, maxFileSizeMb: parseInt(e.target.value) || 0 })}
               required
               error={fieldErrors?.maxFileSizeMb}
             />
@@ -84,7 +84,7 @@ export function DocumentConfigForm() {
             <Input
               type="number"
               value={config.versionLimit}
-              onChange={(e) => setConfig({ ...config, versionLimit: parseInt(e.target.value) })}
+              onChange={(e) => setConfig({ ...config, versionLimit: parseInt(e.target.value) || 0 })}
               required
               error={fieldErrors?.versionLimit}
             />
