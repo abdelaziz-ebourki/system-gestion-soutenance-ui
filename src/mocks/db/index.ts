@@ -21,6 +21,7 @@ import { defenses as _defenses, defenseTeachers, evaluations as _evaluations } f
 import { groups as _groups, groupMembers as _groupMembers } from "./groups";
 import { studentGroups as _studentGroups, studentDocuments as _studentDocuments } from "./student";
 import { unavailability as _unavailability } from "./unavailability";
+import { generalSettings, defenseTypeConfig, documentConfig } from "./config";
 
 export { majors, levels, grades, juryRoleTemplates, generalSettings, defenseTypeConfig, documentConfig } from "./config";
 export type {
