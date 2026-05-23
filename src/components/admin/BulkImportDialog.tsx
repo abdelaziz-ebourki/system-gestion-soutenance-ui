@@ -168,7 +168,7 @@ export function BulkImportDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button variant="outline">
           <FileUp className="mr-2 size-4" />
           {triggerButtonText}
