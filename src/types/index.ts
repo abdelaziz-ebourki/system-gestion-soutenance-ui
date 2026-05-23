@@ -33,12 +33,9 @@ export interface Jury {
   projectId: string;
   projectTitle: string;
   defenseType: DefenseType;
-  presidentId: string;
-  presidentName: string;
-  reporterId: string;
-  reporterName: string;
-  examinerId: string;
-  examinerName: string;
+  templateId: string;
+  templateName: string;
+  members: JuryMember[];
 }
 
 export interface DefenseSlot {
@@ -152,12 +149,20 @@ export interface AppNotification {
 export interface JuryRole {
   name: string;
   count: number;
+  coefficient: number;
 }
 
 export interface JuryRoleTemplate {
   id: string;
   name: string;
+  defenseType: string;
   roles: JuryRole[];
+}
+
+export interface JuryMember {
+  roleName: string;
+  teacherId: string;
+  teacherName: string;
 }
 
 export interface DefenseSession {

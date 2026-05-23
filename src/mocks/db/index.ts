@@ -113,17 +113,19 @@ export function getAllProjectViews(): Project[] {
 
 export function getJuryView(j: typeof _juries[number]): Jury {
   const project = tblProjects.find((p) => p.id === j.projectId);
+  const template = juryRoleTemplates.find((t) => t.id === j.templateId);
   return {
     id: j.id,
     projectId: j.projectId,
     projectTitle: project?.title ?? "",
     defenseType: (project?.defenseType ?? "pfe") as Jury["defenseType"],
-    presidentId: j.presidentId,
-    presidentName: getUserFullName(j.presidentId),
-    reporterId: j.reporterId,
-    reporterName: getUserFullName(j.reporterId),
-    examinerId: j.examinerId,
-    examinerName: getUserFullName(j.examinerId),
+    templateId: j.templateId,
+    templateName: template?.name ?? "",
+    members: j.members.map((m) => ({
+      roleName: m.roleName,
+      teacherId: m.teacherId,
+      teacherName: getUserFullName(m.teacherId),
+    })),
   };
 }
 
@@ -254,11 +256,10 @@ export function getStudentDefenseDetails(): StudentDefenseDetails {
     projectDescription: project.description,
     supervisorName: getUserFullName(project.supervisorId),
     juryMembers: jury
-      ? [
-          { name: getUserFullName(jury.presidentId), role: "President" },
-          { name: getUserFullName(jury.reporterId), role: "Rapporteur" },
-          { name: getUserFullName(jury.examinerId), role: "Examinateur" },
-        ]
+      ? jury.members.map((m) => ({
+          name: getUserFullName(m.teacherId),
+          role: m.roleName,
+        }))
       : [],
     date: undefined,
     startTime: undefined,
@@ -285,14 +286,8 @@ export function prependProject(project: Project) {
   );
 }
 
-export function prependJury(jury: Jury) {
-  tblJuries.unshift({
-    id: jury.id,
-    projectId: jury.projectId,
-    presidentId: jury.presidentId,
-    reporterId: jury.reporterId,
-    examinerId: jury.examinerId,
-  });
+export function prependJury(jury: DbJury) {
+  tblJuries.unshift(jury);
 }
 
 export function removeJuryByProject(projectId: string) {

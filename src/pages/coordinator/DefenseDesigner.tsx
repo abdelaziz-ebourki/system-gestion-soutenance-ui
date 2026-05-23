@@ -159,7 +159,7 @@ export default function DefenseDesigner() {
     groups: {},
     projects: Object.fromEntries(projects.map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }])),
     teachers: Object.fromEntries(teachers.map((t) => [t.id, { id: t.id, name: `${t.firstName} ${t.lastName}` }])),
-    juries: Object.fromEntries(juries.map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: [j.presidentId, j.reporterId, j.examinerId] }])),
+    juries: Object.fromEntries(juries.map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) }])),
     unavailability: { all: allUnavailability },
   }; }, [scheduledProjects, rooms, projects, teachers, juries, unavailabilityQuery.data]);
 

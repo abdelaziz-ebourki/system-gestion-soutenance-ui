@@ -8,7 +8,7 @@ import {
   useUpdateJuryRoleTemplate,
   useDeleteJuryRoleTemplate,
 } from "@/hooks/use-queries";
-import type { JuryRoleTemplate } from "@/types";
+import type { JuryRoleTemplate, DefenseType } from "@/types";
 import {
   Badge,
   Button,
@@ -24,7 +24,25 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
+  Label,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui";
+
+const DEFENSE_TYPES: { value: DefenseType; label: string }[] = [
+  { value: "pfe", label: "PFE" },
+  { value: "memoire", label: "Mémoire" },
+  { value: "these", label: "Thèse" },
+];
+
+const DEFAULT_ROLES = [
+  { name: "Président", count: 1, coefficient: 30 },
+  { name: "Rapporteur", count: 1, coefficient: 35 },
+  { name: "Examinateur", count: 1, coefficient: 35 },
+];
 
 export function JuryRoleTemplateManager() {
   const { data: templates = [], isLoading } = useJuryRoleTemplates();
@@ -35,22 +53,21 @@ export function JuryRoleTemplateManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<JuryRoleTemplate | null>(null);
   const [name, setName] = useState("");
-  const [roles, setRoles] = useState<{ name: string; count: number }[]>([
-    { name: "Président", count: 1 },
-    { name: "Rapporteur", count: 1 },
-    { name: "Examinateur", count: 1 },
-  ]);
+  const [defenseType, setDefenseType] = useState<string>("pfe");
+  const [roles, setRoles] = useState<{ name: string; count: number; coefficient: number }[]>(DEFAULT_ROLES);
 
   const openCreate = () => {
     setEditing(null);
     setName("");
-    setRoles([{ name: "Président", count: 1 }, { name: "Rapporteur", count: 1 }, { name: "Examinateur", count: 1 }]);
+    setDefenseType("pfe");
+    setRoles(DEFAULT_ROLES);
     setDialogOpen(true);
   };
 
   const openEdit = (t: JuryRoleTemplate) => {
     setEditing(t);
     setName(t.name);
+    setDefenseType(t.defenseType);
     setRoles(t.roles.map((r) => ({ ...r })));
     setDialogOpen(true);
   };
@@ -58,7 +75,7 @@ export function JuryRoleTemplateManager() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const data = { name, roles };
+      const data = { name, defenseType, roles };
       if (editing) {
         await updateMutation.mutateAsync({ id: editing.id, data });
         toast.success("Template modifié");
@@ -72,13 +89,15 @@ export function JuryRoleTemplateManager() {
     }
   };
 
-  const addRole = () => setRoles([...roles, { name: "", count: 1 }]);
+  const addRole = () => setRoles([...roles, { name: "", count: 1, coefficient: 25 }]);
   const removeRole = (i: number) => setRoles(roles.filter((_, idx) => idx !== i));
   const updateRole = (i: number, field: keyof typeof roles[number], value: string | number) => {
     const updated = [...roles];
     updated[i] = { ...updated[i], [field]: value };
     setRoles(updated);
   };
+
+  const defenseTypeLabel = (dt: string) => DEFENSE_TYPES.find((d) => d.value === dt)?.label ?? dt;
 
   return (
     <>
@@ -89,7 +108,7 @@ export function JuryRoleTemplateManager() {
               <Users className="size-5" /> Templates de jury
             </CardTitle>
             <CardDescription>
-              Définissez la composition des jurys (rôles et nombre).
+              Définissez la composition des jurys (rôles, nombre et coefficients).
             </CardDescription>
           </div>
           <Button size="sm" onClick={openCreate}>
@@ -108,10 +127,13 @@ export function JuryRoleTemplateManager() {
               >
                 <div>
                   <span className="font-medium">{t.name}</span>
+                  <Badge variant="secondary" className="ml-2 text-xs">
+                    {defenseTypeLabel(t.defenseType)}
+                  </Badge>
                   <div className="mt-1 flex flex-wrap gap-1">
                     {t.roles.map((r) => (
                       <Badge key={r.name} variant="outline" className="text-xs">
-                        {r.count}x {r.name}
+                        {r.count}x {r.name} ({r.coefficient}%)
                       </Badge>
                     ))}
                   </div>
@@ -147,7 +169,7 @@ export function JuryRoleTemplateManager() {
           <DialogHeader>
             <DialogTitle>{editing ? "Modifier" : "Créer"} un template de jury</DialogTitle>
             <DialogDescription>
-              Configurez les rôles et leur nombre pour la composition des jurys.
+              Configurez les rôles, leur nombre et leurs coefficients pour la composition des jurys.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -157,6 +179,21 @@ export function JuryRoleTemplateManager() {
               onChange={(e) => setName(e.target.value)}
               required
             />
+            <div className="space-y-1">
+              <Label>Type de soutenance</Label>
+              <Select value={defenseType} onValueChange={setDefenseType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {DEFENSE_TYPES.map((dt) => (
+                    <SelectItem key={dt.value} value={dt.value}>
+                      {dt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-3">
               {roles.map((role, i) => (
                 <div key={i} className="flex items-center gap-2">
@@ -173,8 +210,19 @@ export function JuryRoleTemplateManager() {
                     min={1}
                     value={role.count}
                     onChange={(e) => updateRole(i, "count", Number(e.target.value))}
-                    className="w-20"
+                    className="w-16"
                   />
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={role.coefficient}
+                      onChange={(e) => updateRole(i, "coefficient", Number(e.target.value))}
+                      className="w-16"
+                    />
+                    <span>%</span>
+                  </div>
                   <Button type="button" variant="ghost" size="icon" onClick={() => removeRole(i)}>
                     <Trash2 className="size-4" />
                   </Button>

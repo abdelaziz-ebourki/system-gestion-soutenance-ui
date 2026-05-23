@@ -198,24 +198,25 @@ export const projectSchema = z.object({
 
 // --- Coordinator: Jury ---
 
-export const jurySchema = z
-  .object({
-    projectId: z.string().min(1, "Le projet est requis"),
-    presidentId: z.string().min(1, "Le président est requis"),
-    reporterId: z.string().min(1, "Le rapporteur est requis"),
-    examinerId: z.string().min(1, "L'examinateur est requis"),
-  })
-  .refine(
-    (data) => {
-      const ids = [data.presidentId, data.reporterId, data.examinerId];
-      return new Set(ids).size === 3;
-    },
-    {
-      message:
-        "Les membres du jury doivent être des personnes différentes",
-      path: ["examinerId"],
-    },
-  );
+export const juryMemberSchema = z.object({
+  roleName: z.string().min(1),
+  teacherId: z.string().min(1, "Veuillez sélectionner un enseignant"),
+});
+
+export const jurySchema = z.object({
+  projectId: z.string().min(1, "Le projet est requis"),
+  templateId: z.string().min(1, "Le modèle de jury est requis"),
+  members: z
+    .array(juryMemberSchema)
+    .min(1, "Ajoutez au moins un membre")
+    .refine(
+      (members) => {
+        const ids = members.map((m) => m.teacherId);
+        return new Set(ids).size === ids.length;
+      },
+      { message: "Les membres du jury doivent être des personnes différentes" },
+    ),
+});
 
 // --- Teacher: Unavailability ---
 

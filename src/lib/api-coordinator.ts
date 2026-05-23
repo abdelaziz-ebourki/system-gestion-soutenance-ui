@@ -24,18 +24,21 @@ export interface UpdateProjectPayload {
   status?: "pending" | "approved" | "rejected";
 }
 
+export interface JuryMemberPayload {
+  roleName: string;
+  teacherId: string;
+}
+
 export interface CreateJuryPayload {
   projectId: string;
-  presidentId: string;
-  reporterId: string;
-  examinerId: string;
+  templateId: string;
+  members: JuryMemberPayload[];
 }
 
 export interface UpdateJuryPayload {
   projectId?: string;
-  presidentId?: string;
-  reporterId?: string;
-  examinerId?: string;
+  templateId?: string;
+  members?: JuryMemberPayload[];
 }
 
 export const getCoordinatorStats = () =>

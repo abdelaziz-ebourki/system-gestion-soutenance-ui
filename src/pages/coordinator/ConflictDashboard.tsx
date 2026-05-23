@@ -63,7 +63,7 @@ export default function ConflictDashboard() {
       groups: Object.fromEntries((groupsQuery.data ?? []).map((g) => [g.id, { id: g.id, studentIds: g.studentIds }])),
       projects: Object.fromEntries((projectsQuery.data ?? []).map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }])),
       teachers: {},
-      juries: Object.fromEntries((juriesQuery.data ?? []).map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: [j.presidentId, j.reporterId, j.examinerId] }])),
+      juries: Object.fromEntries((juriesQuery.data ?? []).map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) }])),
       unavailability: { all: allUnavailability },
       defenseSession: currentSession ? {
         startDate: currentSession.startDate,

@@ -85,7 +85,8 @@ export interface DbDefenseSession {
 export interface DbJuryRoleTemplate {
   id: string;
   name: string;
-  roles: { name: string; count: number }[];
+  defenseType: string;
+  roles: { name: string; count: number; coefficient: number }[];
 }
 
 export interface DbDefenseSettings {
@@ -114,9 +115,8 @@ export interface DbProjectStudent {
 export interface DbJury {
   id: string;
   projectId: string;
-  presidentId: string;
-  reporterId: string;
-  examinerId: string;
+  templateId: string;
+  members: { roleName: string; teacherId: string }[];
 }
 
 export interface DbGroup {

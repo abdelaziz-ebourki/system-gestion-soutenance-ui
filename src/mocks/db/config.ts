@@ -12,7 +12,38 @@ export const levels: DbLevel[] = [];
 
 export const grades: DbGrade[] = [];
 
-export const juryRoleTemplates: DbJuryRoleTemplate[] = [];
+export const juryRoleTemplates: DbJuryRoleTemplate[] = [
+  {
+    id: "jt1",
+    name: "PFE Standard",
+    defenseType: "pfe",
+    roles: [
+      { name: "Président", count: 1, coefficient: 30 },
+      { name: "Rapporteur", count: 1, coefficient: 35 },
+      { name: "Examinateur", count: 1, coefficient: 35 },
+    ],
+  },
+  {
+    id: "jt2",
+    name: "Mémoire Standard",
+    defenseType: "memoire",
+    roles: [
+      { name: "Président", count: 1, coefficient: 30 },
+      { name: "Rapporteur", count: 1, coefficient: 35 },
+      { name: "Examinateur", count: 1, coefficient: 35 },
+    ],
+  },
+  {
+    id: "jt3",
+    name: "Thèse Standard",
+    defenseType: "these",
+    roles: [
+      { name: "Président", count: 1, coefficient: 25 },
+      { name: "Rapporteur", count: 2, coefficient: 25 },
+      { name: "Examinateur", count: 1, coefficient: 25 },
+    ],
+  },
+];
 
 export const generalSettings = {
   institutionName: "Université de Tlemcen",

@@ -457,7 +457,7 @@ export const adminHandlers = [
     if (user.role === "teacher") {
       const nbDepts = tblDepartments.filter((d) => d.headId === id).length;
       const nbJuries = tblJuries.filter(
-        (j) => j.presidentId === id || j.reporterId === id || j.examinerId === id,
+        (j) => j.members.some((m) => m.teacherId === id),
       ).length;
       const nbProjects = tblProjects.filter((p) => p.supervisorId === id).length;
       const parts: string[] = [];

@@ -92,9 +92,9 @@ export function SlotRow({
               <X className="size-4" />
             </button>
           </div>
-          <div className="mt-3 flex items-center gap-2 text-xs text-primary-foreground/80">
-            <Users className="size-3" />
-            {jury?.presidentName}
+          <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-primary-foreground/80">
+            <Users className="size-3 shrink-0" />
+            {jury?.members.map((m) => `${m.roleName}: ${m.teacherName}`).join(" | ") ?? ""}
           </div>
         </div>
       )}

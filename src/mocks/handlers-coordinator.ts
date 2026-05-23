@@ -7,11 +7,11 @@ import {
   getProjectView, getAllProjectViews,
   getJuryView, getAllJuryViews,
   isDefenseSessionTransitionValid,
-  prependProject, prependJury, removeJuryByProject,
+  prependProject, removeJuryByProject,
   getUserFullName,
 } from "./db";
 import type { SlotAssignment } from "@/lib/conflict-engine";
-import type { DbProject } from "./db/schema";
+import type { DbProject, DbJury } from "./db/schema";
 
 let tblSchedule: Record<string, SlotAssignment> = {};
 
@@ -125,31 +125,28 @@ export const coordinatorHandlers = [
 
   http.post("/api/coordinator/juries", async ({ request }) => {
     await delay(MOCK_DELAY);
-    const body = (await request.json()) as Record<string, unknown>;
+    const body = (await request.json()) as Omit<DbJury, "id">;
     const id = `j${tblJuries.length + 1}`;
-    tblJuries.push({
+    const newJury: DbJury = {
       id,
-      projectId: (body.projectId as string) ?? "",
-      presidentId: (body.presidentId as string) ?? "",
-      reporterId: (body.reporterId as string) ?? "",
-      examinerId: (body.examinerId as string) ?? "",
-    });
-    const jury = tblJuries.find((j) => j.id === id)!;
-    prependJury(getJuryView(jury));
-    return HttpResponse.json(getJuryView(jury), { status: 201 });
+      projectId: body.projectId,
+      templateId: body.templateId,
+      members: body.members,
+    };
+    tblJuries.push(newJury);
+    return HttpResponse.json(getJuryView(newJury), { status: 201 });
   }),
 
   http.put("/api/coordinator/juries/:id", async ({ params, request }) => {
     await delay(MOCK_DELAY);
     const { id } = params;
-    const body = (await request.json()) as Record<string, unknown>;
+    const body = (await request.json()) as Partial<Omit<DbJury, "id">>;
     const index = tblJuries.findIndex((j) => j.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
 
-    if (body.projectId !== undefined) tblJuries[index].projectId = body.projectId as string;
-    if (body.presidentId !== undefined) tblJuries[index].presidentId = body.presidentId as string;
-    if (body.reporterId !== undefined) tblJuries[index].reporterId = body.reporterId as string;
-    if (body.examinerId !== undefined) tblJuries[index].examinerId = body.examinerId as string;
+    if (body.projectId !== undefined) tblJuries[index].projectId = body.projectId;
+    if (body.templateId !== undefined) tblJuries[index].templateId = body.templateId;
+    if (body.members !== undefined) tblJuries[index].members = body.members;
 
     return HttpResponse.json(getJuryView(tblJuries[index]));
   }),

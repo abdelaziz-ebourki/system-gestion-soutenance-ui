@@ -46,11 +46,9 @@ export default function Jurys() {
   const teachersLoad = React.useMemo(() => {
     const counts = new Map<string, number>();
     juries.forEach((jury) => {
-      [jury.presidentId, jury.reporterId, jury.examinerId].forEach(
-        (teacherId) => {
-          counts.set(teacherId, (counts.get(teacherId) || 0) + 1);
-        },
-      );
+      jury.members.forEach((m) => {
+        counts.set(m.teacherId, (counts.get(m.teacherId) || 0) + 1);
+      });
     });
     return counts;
   }, [juries]);
@@ -75,33 +73,23 @@ export default function Jurys() {
       ),
     },
     {
-      accessorKey: "presidentName",
-      header: "President",
+      id: "members",
+      header: "Membres",
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">P</Badge>
-          <span>{row.original.presidentName}</span>
+        <div className="flex flex-wrap gap-1">
+          {row.original.members.map((m, i) => (
+            <Badge key={i} variant="secondary" className="whitespace-nowrap text-xs">
+              {m.roleName}: {m.teacherName}
+            </Badge>
+          ))}
         </div>
       ),
     },
     {
-      accessorKey: "reporterName",
-      header: "Rapporteur",
+      id: "templateName",
+      header: "Modèle",
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">R</Badge>
-          <span>{row.original.reporterName}</span>
-        </div>
-      ),
-    },
-    {
-      accessorKey: "examinerName",
-      header: "Examinateur",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Badge variant="default">E</Badge>
-          <span>{row.original.examinerName}</span>
-        </div>
+        <span className="text-sm text-muted-foreground">{row.original.templateName}</span>
       ),
     },
     {
@@ -113,7 +101,7 @@ export default function Jurys() {
         </div>
       ),
     },
-  ], []);
+  ], [projects]);
 
   return (
     <div className="space-y-6">
@@ -144,7 +132,7 @@ export default function Jurys() {
           <CardHeader>
             <CardTitle>Composition des jurys</CardTitle>
             <CardDescription>
-              Chaque ligne correspond a un projet avec son trio de soutenance.
+              Chaque ligne correspond à un projet avec les membres de son jury.
             </CardDescription>
           </CardHeader>
           <CardContent>
