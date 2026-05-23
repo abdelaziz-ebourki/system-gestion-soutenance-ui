@@ -6,6 +6,8 @@ import DashboardLayout from "./components/layout/DashboardLayout";
 
 const Login = lazy(() => import("./pages/Login"));
 const VerifyAccount = lazy(() => import("./pages/auth/VerifyAccount"));
+const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Departments = lazy(() => import("./pages/admin/Departments"));
 const Sessions = lazy(() => import("./pages/admin/Sessions"));
@@ -49,6 +51,8 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/verify-account" element={<VerifyAccount />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route element={<DashboardLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

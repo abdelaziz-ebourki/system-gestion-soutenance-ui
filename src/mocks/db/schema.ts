@@ -7,6 +7,8 @@ export interface DbUser {
   role: "admin" | "coordinator" | "teacher" | "student";
   isActive: boolean;
   verificationToken?: string;
+  resetToken?: string;
+  resetTokenExpires?: number;
 }
 
 export interface DbStudent {

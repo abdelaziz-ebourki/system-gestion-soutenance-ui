@@ -14,7 +14,7 @@ import {
 } from "@/components/ui";
 import { toast } from "sonner";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { authenticate } from "@/lib/api";
 import { useAuth } from "@/contexts/auth-context";
 import { validate, loginSchema } from "@/lib/validations";
@@ -146,6 +146,14 @@ export default function Login() {
                   />
                 </Field>
               </FieldGroup>
+              <div className="text-right text-sm">
+                <Link
+                  to="/forgot-password"
+                  className="text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Mot de passe oublié ?
+                </Link>
+              </div>
             </CardContent>
             <CardFooter className="mt-6">
               <Button

@@ -1,0 +1,154 @@
+import React from "react";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
+import { adjacencyGraphs } from "@zxcvbn-ts/language-common";
+import { translations } from "@zxcvbn-ts/language-en";
+import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+} from "@/components/ui";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { api } from "@/lib/api";
+import { validate, resetPasswordSchema } from "@/lib/validations";
+
+zxcvbnOptions.setOptions({
+  translations,
+  graphs: adjacencyGraphs,
+  useLevenshteinDistance: true,
+});
+
+const PASSWORD_LABELS = ["Très faible", "Faible", "Moyen", "Fort", "Très fort"];
+const PASSWORD_COLORS = [
+  "bg-red-500",
+  "bg-orange-500",
+  "bg-yellow-500",
+  "bg-lime-500",
+  "bg-green-500",
+];
+
+export default function ResetPassword() {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const token = searchParams.get("token");
+
+  const [password, setPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
+
+  const passwordResult = password ? zxcvbn(password) : null;
+
+  React.useEffect(() => {
+    if (!token) {
+      navigate("/login", { replace: true });
+    }
+  }, [token, navigate]);
+
+  const handleReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errors = validate(resetPasswordSchema, { password, confirmPassword });
+    if (errors) { setFieldErrors(errors); return; }
+    setFieldErrors({});
+    setIsSubmitting(true);
+    try {
+      await api("/auth/reset-password", {
+        method: "POST",
+        body: JSON.stringify({ token, password }),
+      });
+      toast.success("Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter.");
+      navigate("/login");
+    } catch (error) {
+      toastError(error, "Ce lien de réinitialisation est invalide ou a expiré.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (!token) return null;
+
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Réinitialisation du mot de passe</CardTitle>
+          <CardDescription>
+            Choisissez un nouveau mot de passe pour votre compte.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleReset} className="space-y-4">
+            <Field>
+              <FieldLabel>Nouveau mot de passe</FieldLabel>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                error={fieldErrors?.password}
+              />
+              {passwordResult && (
+                <div className="mt-2 space-y-1">
+                  <div className="flex gap-1">
+                    {[0, 1, 2, 3, 4].map((level) => (
+                      <div
+                        key={level}
+                        className={`h-1.5 flex-1 rounded-full transition-colors ${
+                          level <= passwordResult.score
+                            ? PASSWORD_COLORS[passwordResult.score]
+                            : "bg-muted"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-muted-foreground">
+                      {PASSWORD_LABELS[passwordResult.score]}
+                    </span>
+                    {passwordResult.feedback.suggestions.length > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        {passwordResult.feedback.suggestions[0]}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+            </Field>
+            <Field>
+              <FieldLabel>Confirmer le mot de passe</FieldLabel>
+              <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                error={fieldErrors?.confirmPassword}
+              />
+            </Field>
+            <Button
+              className="w-full"
+              type="submit"
+              isLoading={isSubmitting}
+              loadingText="Réinitialisation..."
+            >
+              Réinitialiser le mot de passe
+            </Button>
+          </form>
+          <div className="mt-4 text-center text-sm">
+            <Link
+              to="/login"
+              className="text-muted-foreground hover:text-primary transition-colors"
+            >
+              Retour à la connexion
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

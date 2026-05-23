@@ -34,6 +34,22 @@ export const verifyAccountSchema = z
     path: ["confirmPassword"],
   });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().min(1, "L'email est requis").email("Email invalide"),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+    confirmPassword: z.string().min(1, "Confirmez le mot de passe"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  });
+
 // --- Coordinator: Defense Sessions ---
 
 export const defenseSessionSchema = z

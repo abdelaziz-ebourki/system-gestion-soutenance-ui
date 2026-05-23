@@ -403,6 +403,37 @@ export const adminHandlers = [
     return HttpResponse.json({ message: "Account verified successfully" });
   }),
 
+  // ─── Password Reset ────────────────────────────────────────────────
+
+  http.post("/api/auth/forgot-password", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const { email } = (await request.json()) as { email: string };
+    const user = tblUsers.find((u) => u.email === email);
+    if (user) {
+      user.resetToken = crypto.randomUUID();
+      user.resetTokenExpires = Date.now() + 60 * 60 * 1000; // 1 hour
+      console.log(`[Mock Email] Reset link to ${email}: /reset-password?token=${user.resetToken}`);
+    }
+    // Always return 200 to prevent email enumeration
+    return HttpResponse.json({ message: "Si cet email existe, un lien de réinitialisation a été envoyé." });
+  }),
+
+  http.post("/api/auth/reset-password", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const { token, password } = (await request.json()) as { token: string; password: string };
+    const user = tblUsers.find((u) => u.resetToken === token);
+    if (!user || !user.resetTokenExpires || Date.now() > user.resetTokenExpires) {
+      return HttpResponse.json(
+        { message: "Ce lien de réinitialisation est invalide ou a expiré." },
+        { status: 400 },
+      );
+    }
+    user.password = password;
+    delete user.resetToken;
+    delete user.resetTokenExpires;
+    return HttpResponse.json({ message: "Mot de passe réinitialisé avec succès." });
+  }),
+
   http.put("/api/admin/users/:id", async ({ params, request }) => {
     await delay(MOCK_DELAY);
     const { id } = params;
