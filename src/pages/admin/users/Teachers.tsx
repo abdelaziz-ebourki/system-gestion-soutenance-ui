@@ -1,5 +1,6 @@
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
-import { Plus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Plus, Users } from "lucide-react";
 
 import { useTeachers, useDepartments, useGrades } from "@/hooks/use-queries";
 import type { Teacher } from "@/types";
@@ -13,6 +14,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Input,
   Select,
   SelectContent,
@@ -82,6 +84,22 @@ export default function Teachers() {
       ),
     },
   ], [crud, departments, grades]);
+
+  const missing: string[] = [];
+  if (departments.length === 0) missing.push("départements");
+  if (grades.length === 0) missing.push("grades");
+  if (missing.length > 0) {
+    return (
+      <div className="space-y-6">
+        <EmptyState
+          icon={Users}
+          title="Configuration requise"
+          description={`Vous devez d'abord configurer ${missing.join(" et ")} avant de pouvoir gérer les enseignants.`}
+          action={<Button asChild><Link to="/admin/configuration">Configurer</Link></Button>}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-20">

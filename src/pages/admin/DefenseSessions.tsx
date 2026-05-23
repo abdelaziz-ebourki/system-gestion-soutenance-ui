@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { type ColumnDef } from "@tanstack/react-table";
+import { Link } from "react-router-dom";
 import { Plus, Calendar } from "lucide-react";
 
 import type { DefenseSession, DefenseType } from "@/types";
@@ -14,6 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Input,
   Select,
   SelectContent,
@@ -181,6 +183,19 @@ export default function DefenseSessionsPage() {
       ),
     },
   ], []);
+
+  if (globalSessions.length === 0) {
+    return (
+      <div className="space-y-6">
+        <EmptyState
+          icon={Calendar}
+          title="Aucune session globale configurée"
+          description="Vous devez d'abord configurer au moins une session globale avant de pouvoir créer des sessions de soutenance."
+          action={<Button asChild><Link to="/admin/configuration">Configurer</Link></Button>}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

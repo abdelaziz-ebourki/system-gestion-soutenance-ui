@@ -6,47 +6,13 @@ function daysFromNow(days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-export const majors: DbMajor[] = [
-  { id: "f1", name: "Génie Informatique" },
-  { id: "f2", name: "Génie Industriel" },
-  { id: "f3", name: "Génie Civil" },
-  { id: "f4", name: "Génie Électrique" },
-  { id: "f5", name: "Management" },
-];
+export const majors: DbMajor[] = [];
 
-export const levels: DbLevel[] = [
-  { id: "n1", name: "Licence" },
-  { id: "n2", name: "Master" },
-  { id: "n3", name: "Doctorat" },
-];
+export const levels: DbLevel[] = [];
 
-export const grades: DbGrade[] = [
-  { id: "g1", name: "PES" },
-  { id: "g2", name: "PH" },
-  { id: "g3", name: "PA" },
-];
+export const grades: DbGrade[] = [];
 
-export const juryRoleTemplates: DbJuryRoleTemplate[] = [
-  {
-    id: "jt1",
-    name: "Standard 3 membres",
-    roles: [
-      { name: "Président", count: 1 },
-      { name: "Rapporteur", count: 1 },
-      { name: "Examinateur", count: 1 },
-    ],
-  },
-  {
-    id: "jt2",
-    name: "Avec encadrant",
-    roles: [
-      { name: "Président", count: 1 },
-      { name: "Rapporteur", count: 1 },
-      { name: "Examinateur", count: 1 },
-      { name: "Encadrant", count: 1 },
-    ],
-  },
-];
+export const juryRoleTemplates: DbJuryRoleTemplate[] = [];
 
 export const generalSettings = {
   institutionName: "Université de Tlemcen",

@@ -1,5 +1,6 @@
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
-import { Plus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Plus, GraduationCap } from "lucide-react";
 
 import {
   useStudents, useMajors, useLevels,
@@ -15,6 +16,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Input,
   Select,
   SelectContent,
@@ -84,6 +86,22 @@ export default function Students() {
       ),
     },
   ], [crud, majors, levels]);
+
+  if (majors.length === 0 || levels.length === 0) {
+    const m: string[] = [];
+    if (majors.length === 0) m.push("filières");
+    if (levels.length === 0) m.push("niveaux");
+    return (
+      <div className="space-y-6">
+        <EmptyState
+          icon={GraduationCap}
+          title="Configuration requise"
+          description={`Vous devez d'abord configurer ${m.join(" et ")} avant de pouvoir gérer les étudiants.`}
+          action={<Button asChild><Link to="/admin/configuration">Configurer</Link></Button>}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-20">

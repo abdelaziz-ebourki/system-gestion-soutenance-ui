@@ -3,6 +3,8 @@ import { toast } from "sonner";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, BuildingIcon } from "lucide-react";
 
+import { Link } from "react-router-dom";
+
 import { useRooms, useDepartments } from "@/hooks/use-queries";
 import type { Room } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
@@ -14,6 +16,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  EmptyState,
   Input,
   Select,
   SelectContent,
@@ -72,6 +75,19 @@ export default function Rooms() {
       },
     ];
   }, [crud, departments]);
+
+  if (departments.length === 0) {
+    return (
+      <div className="space-y-6">
+        <EmptyState
+          icon={BuildingIcon}
+          title="Aucun département configuré"
+          description="Vous devez d'abord configurer au moins un département avant de pouvoir gérer les salles."
+          action={<Button asChild><Link to="/admin/configuration">Configurer</Link></Button>}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-20">

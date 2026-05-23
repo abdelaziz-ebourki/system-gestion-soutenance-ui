@@ -6,7 +6,7 @@ import type {
 } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import { DEFENSE_SESSION_LIFECYCLE } from "@/lib/constants";
-import { users as _users, generateStudents } from "./users";
+import { users as _users } from "./users";
 import { students as _students } from "./students";
 import { teachers as _teachers } from "./teachers";
 import { coordinators as _coordinators } from "./coordinators";
@@ -44,11 +44,8 @@ export function daysFromNow(days: number): string {
 
 // ─── Mutable table data ───────────────────────────────────────────
 
-const generatedUsers = generateStudents();
-const generatedStudents = _students.slice(1); // skip std-demo (already in _users)
-
-export const tblUsers: ReturnType<typeof generateStudents> = [..._users, ...generatedUsers];
-export const tblStudents: typeof _students = [..._students, ...generatedStudents];
+export const tblUsers: typeof _users = [..._users];
+export const tblStudents: typeof _students = [..._students];
 export const tblTeachers: typeof _teachers = [..._teachers];
 export const tblCoordinators: typeof _coordinators = [..._coordinators];
 export const tblDepartments: typeof _departments = [..._departments];
@@ -73,7 +70,7 @@ export const tblStudentGroups: typeof _studentGroups = [..._studentGroups];
 export const tblStudentDocuments: typeof _studentDocuments = [..._studentDocuments];
 export const tblUnavailability: typeof _unavailability = [..._unavailability];
 
-// The demo student ID used for student flows
+  // The demo student ID used for student flows (no seed student anymore)
 export const currentStudentId = "std-demo";
 
 // ─── JOIN helpers ──────────────────────────────────────────────────
@@ -262,12 +259,12 @@ export function getStudentDefenseDetails(): StudentDefenseDetails {
           { name: getUserFullName(jury.examinerId), role: "Examinateur" },
         ]
       : [],
-    date: project.id === "p5" ? daysFromNow(3) : undefined,
-    startTime: project.id === "p5" ? "10:15" : undefined,
-    endTime: project.id === "p5" ? "11:45" : undefined,
-    roomName: project.id === "p5" ? "Salle 101" : undefined,
-    status: project.id === "p5" ? ("scheduled" as const) : ("pending" as const),
-    convocationUrl: project.id === "p5" ? "/api/student/convocation" : undefined,
+    date: undefined,
+    startTime: undefined,
+    endTime: undefined,
+    roomName: undefined,
+    status: "pending" as const,
+    convocationUrl: undefined,
   };
 }
 
@@ -315,26 +312,7 @@ export function replaceTeacherUnavailability(data: TeacherUnavailability) {
 }
 
 // Backward-compatible helper for handlers that need user lists
-export const tblAuditLogs: AuditLog[] = [
-  {
-    id: "1",
-    action: "LOGIN",
-    entity: "user",
-    entityId: "1",
-    adminEmail: "admin@univ.com",
-    details: "Connexion réussie",
-    timestamp: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    action: "CREATE",
-    entity: "user",
-    entityId: "5",
-    adminEmail: "admin@univ.com",
-    details: "Création d'un nouvel étudiant",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
-  },
-];
+export const tblAuditLogs: AuditLog[] = [];
 
 export function prependAuditLog(entry: AuditLog) {
   tblAuditLogs.unshift(entry);

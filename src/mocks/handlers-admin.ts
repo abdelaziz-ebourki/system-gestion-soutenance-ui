@@ -123,6 +123,12 @@ export const adminHandlers = [
   http.post("/api/admin/students", async ({ request }) => {
     await delay(MOCK_DELAY);
     const body = (await request.json()) as Partial<Student>;
+    if (body.majorId && !majors.find((m) => m.id === body.majorId)) {
+      return HttpResponse.json({ message: "Filière introuvable. Créez-la d'abord dans Configuration." }, { status: 400 });
+    }
+    if (body.levelId && !levels.find((l) => l.id === body.levelId)) {
+      return HttpResponse.json({ message: "Niveau introuvable. Créez-le d'abord dans Configuration." }, { status: 400 });
+    }
     const id = Math.random().toString(36).substr(2, 9);
     tblUsers.push({
       id, email: body.email ?? "", password: "",
@@ -175,6 +181,12 @@ export const adminHandlers = [
   http.post("/api/admin/teachers", async ({ request }) => {
     await delay(MOCK_DELAY);
     const body = (await request.json()) as Partial<Teacher>;
+    if (body.departmentId && !tblDepartments.find((d) => d.id === body.departmentId)) {
+      return HttpResponse.json({ message: "Département introuvable. Créez-le d'abord." }, { status: 400 });
+    }
+    if (body.gradeId && !grades.find((g) => g.id === body.gradeId)) {
+      return HttpResponse.json({ message: "Grade introuvable. Créez-le d'abord dans Configuration." }, { status: 400 });
+    }
     const id = Math.random().toString(36).substr(2, 9);
     tblUsers.push({
       id, email: body.email ?? "", password: "",
@@ -233,6 +245,21 @@ export const adminHandlers = [
     await delay(MOCK_DELAY);
     const body = (await request.json()) as Record<string, unknown>;
     const role = (body.role as string) || "student";
+    if (role === "student") {
+      if (body.majorId && !majors.find((m) => m.id === body.majorId)) {
+        return HttpResponse.json({ message: "Filière introuvable. Créez-la d'abord dans Configuration." }, { status: 400 });
+      }
+      if (body.levelId && !levels.find((l) => l.id === body.levelId)) {
+        return HttpResponse.json({ message: "Niveau introuvable. Créez-le d'abord dans Configuration." }, { status: 400 });
+      }
+    } else if (role === "teacher") {
+      if (body.departmentId && !tblDepartments.find((d) => d.id === body.departmentId)) {
+        return HttpResponse.json({ message: "Département introuvable. Créez-le d'abord." }, { status: 400 });
+      }
+      if (body.gradeId && !grades.find((g) => g.id === body.gradeId)) {
+        return HttpResponse.json({ message: "Grade introuvable. Créez-le d'abord dans Configuration." }, { status: 400 });
+      }
+    }
     const id = Math.random().toString(36).substr(2, 9);
     tblUsers.push({
       id,
@@ -272,6 +299,30 @@ export const adminHandlers = [
       role: "student" | "teacher" | "coordinator";
     };
 
+    if (role === "student") {
+      const allMajorNames = [...new Set(users.map((u) => u.majorName).filter(Boolean))];
+      const allLevelNames = [...new Set(users.map((u) => u.levelName).filter(Boolean))];
+      const unknownMajors = allMajorNames.filter((n) => !majors.find((m) => m.name === n));
+      const unknownLevels = allLevelNames.filter((n) => !levels.find((l) => l.name === n));
+      if (unknownMajors.length || unknownLevels.length) {
+        const parts: string[] = [];
+        if (unknownMajors.length) parts.push(`Filières inconnues : ${unknownMajors.join(", ")}`);
+        if (unknownLevels.length) parts.push(`Niveaux inconnus : ${unknownLevels.join(", ")}`);
+        return HttpResponse.json({ message: parts.join(". ") + ". Créez-les d'abord dans Configuration." }, { status: 400 });
+      }
+    } else if (role === "teacher") {
+      const allDeptNames = [...new Set(users.map((u) => u.departmentName).filter(Boolean))];
+      const allGradeNames = [...new Set(users.map((u) => u.gradeName).filter(Boolean))];
+      const unknownDepts = allDeptNames.filter((n) => !tblDepartments.find((d) => d.name === n));
+      const unknownGrades = allGradeNames.filter((n) => !grades.find((g) => g.name === n));
+      if (unknownDepts.length || unknownGrades.length) {
+        const parts: string[] = [];
+        if (unknownDepts.length) parts.push(`Départements inconnus : ${unknownDepts.join(", ")}`);
+        if (unknownGrades.length) parts.push(`Grades inconnus : ${unknownGrades.join(", ")}`);
+        return HttpResponse.json({ message: parts.join(". ") + ". Créez-les d'abord." }, { status: 400 });
+      }
+    }
+
     const created = users.map((u) => {
       const id = Math.random().toString(36).substr(2, 9);
       tblUsers.push({
@@ -287,14 +338,14 @@ export const adminHandlers = [
         tblStudents.push({
           id,
           cne: u.cne ?? "",
-          majorId: majors.find((f) => f.name === u.majorName)?.id || "f1",
-          levelId: levels.find((l) => l.name === u.levelName)?.id || "n1",
+          majorId: majors.find((f) => f.name === u.majorName)!.id,
+          levelId: levels.find((l) => l.name === u.levelName)!.id,
         });
       } else if (role === "teacher") {
         tblTeachers.push({
           id,
-          gradeId: grades.find((g) => g.name === u.gradeName)?.id || "g1",
-          departmentId: tblDepartments.find((d) => d.name === u.departmentName)?.id || "1",
+          gradeId: grades.find((g) => g.name === u.gradeName)!.id,
+          departmentId: tblDepartments.find((d) => d.name === u.departmentName)!.id,
         });
       }
       return getFlatUser(id)!;
@@ -328,6 +379,12 @@ export const adminHandlers = [
     if (body.email !== undefined) user.email = body.email as string;
 
     if (user.role === "student") {
+      if ((body.majorId as string) && !majors.find((m) => m.id === body.majorId)) {
+        return HttpResponse.json({ message: "Filière introuvable." }, { status: 400 });
+      }
+      if ((body.levelId as string) && !levels.find((l) => l.id === body.levelId)) {
+        return HttpResponse.json({ message: "Niveau introuvable." }, { status: 400 });
+      }
       const sIdx = tblStudents.findIndex((s) => s.id === id);
       if (sIdx !== -1) {
         if (body.cne !== undefined) tblStudents[sIdx].cne = body.cne as string;
@@ -335,6 +392,12 @@ export const adminHandlers = [
         if (body.levelId !== undefined) tblStudents[sIdx].levelId = body.levelId as string;
       }
     } else if (user.role === "teacher") {
+      if ((body.departmentId as string) && !tblDepartments.find((d) => d.id === body.departmentId)) {
+        return HttpResponse.json({ message: "Département introuvable." }, { status: 400 });
+      }
+      if ((body.gradeId as string) && !grades.find((g) => g.id === body.gradeId)) {
+        return HttpResponse.json({ message: "Grade introuvable." }, { status: 400 });
+      }
       const tIdx = tblTeachers.findIndex((t) => t.id === id);
       if (tIdx !== -1) {
         if (body.gradeId !== undefined) tblTeachers[tIdx].gradeId = body.gradeId as string;
@@ -443,6 +506,12 @@ export const adminHandlers = [
   http.post("/api/admin/defense-sessions", async ({ request }) => {
     await delay(MOCK_DELAY);
     const body = (await request.json()) as Omit<DefenseSession, "id">;
+    if (body.globalSessionId && !tblSessions.find((s) => s.id === body.globalSessionId)) {
+      return HttpResponse.json({ message: "Session globale introuvable. Créez-la d'abord." }, { status: 400 });
+    }
+    if (body.juryRoleTemplateId && !juryRoleTemplates.find((t) => t.id === body.juryRoleTemplateId)) {
+      return HttpResponse.json({ message: "Template de jury introuvable. Créez-le d'abord dans Configuration." }, { status: 400 });
+    }
     const newDS = { ...body, id: `ds${tblDefenseSessions.length + 1}` };
     tblDefenseSessions.push(newDS);
     return HttpResponse.json(newDS, { status: 201 });
@@ -452,6 +521,12 @@ export const adminHandlers = [
     await delay(MOCK_DELAY);
     const { id } = params;
     const body = (await request.json()) as Omit<DefenseSession, "id">;
+    if (body.globalSessionId && !tblSessions.find((s) => s.id === body.globalSessionId)) {
+      return HttpResponse.json({ message: "Session globale introuvable." }, { status: 400 });
+    }
+    if (body.juryRoleTemplateId && !juryRoleTemplates.find((t) => t.id === body.juryRoleTemplateId)) {
+      return HttpResponse.json({ message: "Template de jury introuvable." }, { status: 400 });
+    }
     const index = tblDefenseSessions.findIndex((ds) => ds.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
     tblDefenseSessions[index] = { ...tblDefenseSessions[index], ...body };
@@ -477,6 +552,11 @@ export const adminHandlers = [
   http.post("/api/admin/rooms/bulk", async ({ request }) => {
     await delay(MOCK_DELAY);
     const { rooms } = (await request.json()) as { rooms: Record<string, unknown>[] };
+    const deptIds = [...new Set(rooms.map((r) => String(r.departmentId)).filter(Boolean))];
+    const unknownDepts = deptIds.filter((id) => !tblDepartments.find((d) => d.id === id));
+    if (unknownDepts.length) {
+      return HttpResponse.json({ message: `Départements introuvables : ${unknownDepts.join(", ")}` }, { status: 400 });
+    }
     const created: Room[] = rooms.map((r) => ({
       id: Math.random().toString(36).substr(2, 9),
       name: String(r.name ?? ""),
@@ -490,6 +570,9 @@ export const adminHandlers = [
   http.post("/api/admin/rooms", async ({ request }) => {
     await delay(MOCK_DELAY);
     const body = (await request.json()) as Omit<Room, "id">;
+    if (body.departmentId && !tblDepartments.find((d) => d.id === body.departmentId)) {
+      return HttpResponse.json({ message: "Département introuvable. Créez-le d'abord." }, { status: 400 });
+    }
     const newR = { ...body, id: (tblRooms.length + 1).toString() };
     tblRooms.push(newR);
     return HttpResponse.json(newR);
@@ -499,6 +582,9 @@ export const adminHandlers = [
     await delay(MOCK_DELAY);
     const { id } = params;
     const body = (await request.json()) as Omit<Room, "id">;
+    if (body.departmentId && !tblDepartments.find((d) => d.id === body.departmentId)) {
+      return HttpResponse.json({ message: "Département introuvable." }, { status: 400 });
+    }
     const index = tblRooms.findIndex((r) => r.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
     tblRooms[index] = { ...tblRooms[index], ...body };
