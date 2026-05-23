@@ -49,7 +49,8 @@ export default function Departments() {
       accessorKey: "headId",
       header: "Chef de Département",
       cell: ({ row }) => {
-        const id = row.getValue("headId") as string;
+        const id = row.getValue("headId") as string | undefined;
+        if (!id) return <span className="text-muted-foreground italic">Non assigné</span>;
         const teacher = teachers.find((t) => t.id === id);
         return teacher ? `${teacher.lastName} ${teacher.firstName}` : id;
       },
@@ -163,6 +164,7 @@ export default function Departments() {
                     <SelectValue placeholder="Choisir un enseignant" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="">Aucun</SelectItem>
                     {teachers.map((t) => (
                       <SelectItem key={t.id} value={t.id}>
                         {t.lastName} {t.firstName}
@@ -170,9 +172,6 @@ export default function Departments() {
                     ))}
                   </SelectContent>
                 </Select>
-                {crud.fieldErrors?.headId && (
-                  <p className="text-sm font-medium text-destructive">{crud.fieldErrors.headId}</p>
-                )}
               </Field>
             </FieldGroup>
             <DialogFooter>

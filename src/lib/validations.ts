@@ -87,7 +87,7 @@ export const roomSchema = z.object({
 export const departmentSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   code: z.string().min(1, "Le code est requis"),
-  headId: z.string().min(1, "Le chef est requis"),
+  headId: z.string().optional(),
 });
 
 // --- Admin: Users ---

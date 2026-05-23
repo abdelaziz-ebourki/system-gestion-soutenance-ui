@@ -47,7 +47,7 @@ export interface Department {
   id: string;
   name: string;
   code: string;
-  headId: string;
+  headId?: string;
 }
 
 export interface Session {

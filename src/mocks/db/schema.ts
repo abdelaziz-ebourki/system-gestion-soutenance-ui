@@ -29,7 +29,7 @@ export interface DbDepartment {
   id: string;
   name: string;
   code: string;
-  headId: string;
+  headId?: string;
 }
 
 export interface DbSession {

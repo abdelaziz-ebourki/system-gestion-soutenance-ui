@@ -36,7 +36,7 @@ export function useDepartmentCrud() {
     form.setFormData({
       name: entity.name,
       code: entity.code,
-      headId: entity.headId,
+      headId: entity.headId ?? "",
     });
     setSelected(entity);
     setIsDialogOpen(true);

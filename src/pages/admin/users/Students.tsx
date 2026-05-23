@@ -87,17 +87,24 @@ export default function Students() {
     },
   ], [crud, majors, levels]);
 
-  if (majors.length === 0 || levels.length === 0) {
-    const m: string[] = [];
-    if (majors.length === 0) m.push("filières");
-    if (levels.length === 0) m.push("niveaux");
+  const missingMajors = majors.length === 0;
+  const missingLevels = levels.length === 0;
+  if (missingMajors || missingLevels) {
+    const parts: string[] = [];
+    if (missingMajors) parts.push("filières");
+    if (missingLevels) parts.push("niveaux");
     return (
       <div className="space-y-6">
         <EmptyState
           icon={GraduationCap}
           title="Configuration requise"
-          description={`Vous devez d'abord configurer ${m.join(" et ")} avant de pouvoir gérer les étudiants.`}
-          action={<Button asChild><Link to="/admin/config">Configurer</Link></Button>}
+          description={`Vous devez d'abord configurer ${parts.join(" et ")} avant de pouvoir gérer les étudiants.`}
+          action={
+            <div className="flex gap-2">
+              {missingMajors && <Button asChild><Link to="/admin/config">Filières</Link></Button>}
+              {missingLevels && <Button asChild><Link to="/admin/config">Niveaux</Link></Button>}
+            </div>
+          }
         />
       </div>
     );
