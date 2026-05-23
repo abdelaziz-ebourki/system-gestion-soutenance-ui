@@ -145,10 +145,12 @@ export const adminHandlers = [
       return HttpResponse.json({ message: "Niveau introuvable. Créez-le d'abord dans Configuration." }, { status: 400 });
     }
     const id = Math.random().toString(36).substr(2, 9);
+    const verificationToken = crypto.randomUUID();
     tblUsers.push({
       id, email: body.email ?? "", password: "",
       role: "student", lastName: body.lastName ?? "",
       firstName: body.firstName ?? "", isActive: false,
+      verificationToken,
     });
     tblStudents.push({
       id,
@@ -156,6 +158,9 @@ export const adminHandlers = [
       majorId: body.majorId ?? "",
       levelId: body.levelId ?? "",
     });
+    console.log(
+      `[Mock Email] Sending verification link to ${body.email}: /verify-account?token=${verificationToken}`,
+    );
     const s = tblStudents.find((st) => st.id === id);
     const result = {
       ...getFlatUser(id)!,
@@ -203,16 +208,21 @@ export const adminHandlers = [
       return HttpResponse.json({ message: "Grade introuvable. Créez-le d'abord dans Configuration." }, { status: 400 });
     }
     const id = Math.random().toString(36).substr(2, 9);
+    const verificationToken = crypto.randomUUID();
     tblUsers.push({
       id, email: body.email ?? "", password: "",
       role: "teacher", lastName: body.lastName ?? "",
       firstName: body.firstName ?? "", isActive: false,
+      verificationToken,
     });
     tblTeachers.push({
       id,
       gradeId: body.gradeId ?? "",
       departmentId: body.departmentId ?? "",
     });
+    console.log(
+      `[Mock Email] Sending verification link to ${body.email}: /verify-account?token=${verificationToken}`,
+    );
     const result = {
       ...getFlatUser(id)!,
       gradeId: body.gradeId ?? "",
@@ -245,12 +255,17 @@ export const adminHandlers = [
     await delay(MOCK_DELAY);
     const body = (await request.json()) as Partial<Coordinator>;
     const id = Math.random().toString(36).substr(2, 9);
+    const verificationToken = crypto.randomUUID();
     tblUsers.push({
       id, email: body.email ?? "", password: "",
       role: "coordinator", lastName: body.lastName ?? "",
       firstName: body.firstName ?? "", isActive: false,
+      verificationToken,
     });
     tblCoordinators.push({ id });
+    console.log(
+      `[Mock Email] Sending verification link to ${body.email}: /verify-account?token=${verificationToken}`,
+    );
     return HttpResponse.json(getFlatUser(id)! as Coordinator);
   }),
 
@@ -276,6 +291,7 @@ export const adminHandlers = [
       }
     }
     const id = Math.random().toString(36).substr(2, 9);
+    const verificationToken = crypto.randomUUID();
     tblUsers.push({
       id,
       email: (body.email as string) ?? "",
@@ -284,6 +300,7 @@ export const adminHandlers = [
       lastName: (body.lastName as string) ?? "",
       firstName: (body.firstName as string) ?? "",
       isActive: false,
+      verificationToken,
     });
     if (role === "student") {
       tblStudents.push({
@@ -302,7 +319,7 @@ export const adminHandlers = [
       tblCoordinators.push({ id });
     }
     console.log(
-      `[Mock Email] Sending verification link to ${body.email}: /verify-account?token=${btoa(id)}`,
+      `[Mock Email] Sending verification link to ${body.email}: /verify-account?token=${verificationToken}`,
     );
     return HttpResponse.json(getFlatUser(id)!);
   }),
@@ -340,6 +357,7 @@ export const adminHandlers = [
 
     const created = users.map((u) => {
       const id = Math.random().toString(36).substr(2, 9);
+      const verificationToken = crypto.randomUUID();
       tblUsers.push({
         id,
         lastName: u.lastName ?? "",
@@ -348,6 +366,7 @@ export const adminHandlers = [
         password: "",
         role,
         isActive: false,
+        verificationToken,
       });
       if (role === "student") {
         tblStudents.push({
@@ -363,6 +382,9 @@ export const adminHandlers = [
           departmentId: tblDepartments.find((d) => d.name === u.departmentName)!.id,
         });
       }
+      console.log(
+        `[Mock Email] Sending verification link to ${u.email}: /verify-account?token=${verificationToken}`,
+      );
       return getFlatUser(id)!;
     });
 
@@ -372,12 +394,12 @@ export const adminHandlers = [
   http.post("/api/auth/verify-account", async ({ request }) => {
     await delay(MOCK_DELAY);
     const { token, password } = (await request.json()) as { token: string; password: string };
-    const userId = atob(token);
-    const user = tblUsers.find((u) => u.id === userId);
+    const user = tblUsers.find((u) => u.verificationToken === token);
     if (!user) return new HttpResponse(null, { status: 404 });
 
     user.password = password;
     user.isActive = true;
+    delete user.verificationToken;
     return HttpResponse.json({ message: "Account verified successfully" });
   }),
 

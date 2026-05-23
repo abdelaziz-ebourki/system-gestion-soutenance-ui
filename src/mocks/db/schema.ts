@@ -6,6 +6,7 @@ export interface DbUser {
   password: string;
   role: "admin" | "coordinator" | "teacher" | "student";
   isActive: boolean;
+  verificationToken?: string;
 }
 
 export interface DbStudent {

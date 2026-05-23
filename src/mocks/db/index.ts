@@ -6,6 +6,7 @@ import type {
 } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import { DEFENSE_SESSION_LIFECYCLE } from "@/lib/constants";
+import { createPersisted } from "./persist";
 import { users as _users } from "./users";
 import { students as _students } from "./students";
 import { teachers as _teachers } from "./teachers";
@@ -44,31 +45,31 @@ export function daysFromNow(days: number): string {
 
 // ─── Mutable table data ───────────────────────────────────────────
 
-export const tblUsers: typeof _users = [..._users];
-export const tblStudents: typeof _students = [..._students];
-export const tblTeachers: typeof _teachers = [..._teachers];
-export const tblCoordinators: typeof _coordinators = [..._coordinators];
-export const tblDepartments: typeof _departments = [..._departments];
-export const tblSessions: typeof _sessions = [..._sessions];
-export const tblRooms: typeof _rooms = [..._rooms];
-export const tblDefenseSessions: typeof _defenseSessions = [..._defenseSessions];
-export const tblDefenseSettings = { ..._defenseSettings };
-export const tblGeneralSettings = { ...generalSettings };
-export const tblDefenseTypeConfig = { ...defenseTypeConfig };
-export const tblDocumentConfig = { ...documentConfig };
+export const tblUsers: typeof _users = createPersisted("users", [..._users]);
+export const tblStudents: typeof _students = createPersisted("students", [..._students]);
+export const tblTeachers: typeof _teachers = createPersisted("teachers", [..._teachers]);
+export const tblCoordinators: typeof _coordinators = createPersisted("coordinators", [..._coordinators]);
+export const tblDepartments: typeof _departments = createPersisted("departments", [..._departments]);
+export const tblSessions: typeof _sessions = createPersisted("sessions", [..._sessions]);
+export const tblRooms: typeof _rooms = createPersisted("rooms", [..._rooms]);
+export const tblDefenseSessions: typeof _defenseSessions = createPersisted("defenseSessions", [..._defenseSessions]);
+export const tblDefenseSettings = createPersisted("defenseSettings", { ..._defenseSettings });
+export const tblGeneralSettings = createPersisted("generalSettings", { ...generalSettings });
+export const tblDefenseTypeConfig = createPersisted("defenseTypeConfig", { ...defenseTypeConfig });
+export const tblDocumentConfig = createPersisted("documentConfig", { ...documentConfig });
 
 export const defenseSettings = tblDefenseSettings;
-export const tblProjects: typeof _projects = [..._projects];
-export const tblProjectStudents: typeof _projectStudents = [..._projectStudents];
-export const tblJuries: typeof _juries = [..._juries];
-export const tblDefenses: typeof _defenses = [..._defenses];
-export const tblDefenseTeachers: typeof defenseTeachers = [...defenseTeachers];
-export const tblEvaluations: typeof _evaluations = [..._evaluations];
-export const tblGroups: typeof _groups = [..._groups];
-export const tblGroupMembers: typeof _groupMembers = [..._groupMembers];
-export const tblStudentGroups: typeof _studentGroups = [..._studentGroups];
-export const tblStudentDocuments: typeof _studentDocuments = [..._studentDocuments];
-export const tblUnavailability: typeof _unavailability = [..._unavailability];
+export const tblProjects: typeof _projects = createPersisted("projects", [..._projects]);
+export const tblProjectStudents: typeof _projectStudents = createPersisted("projectStudents", [..._projectStudents]);
+export const tblJuries: typeof _juries = createPersisted("juries", [..._juries]);
+export const tblDefenses: typeof _defenses = createPersisted("defenses", [..._defenses]);
+export const tblDefenseTeachers: typeof defenseTeachers = createPersisted("defenseTeachers", [...defenseTeachers]);
+export const tblEvaluations: typeof _evaluations = createPersisted("evaluations", [..._evaluations]);
+export const tblGroups: typeof _groups = createPersisted("groups", [..._groups]);
+export const tblGroupMembers: typeof _groupMembers = createPersisted("groupMembers", [..._groupMembers]);
+export const tblStudentGroups: typeof _studentGroups = createPersisted("studentGroups", [..._studentGroups]);
+export const tblStudentDocuments: typeof _studentDocuments = createPersisted("studentDocuments", [..._studentDocuments]);
+export const tblUnavailability: typeof _unavailability = createPersisted("unavailability", [..._unavailability]);
 
   // The demo student ID used for student flows (no seed student anymore)
 export const currentStudentId = "std-demo";
@@ -312,7 +313,7 @@ export function replaceTeacherUnavailability(data: TeacherUnavailability) {
 }
 
 // Backward-compatible helper for handlers that need user lists
-export const tblAuditLogs: AuditLog[] = [];
+export const tblAuditLogs: AuditLog[] = createPersisted("auditLogs", []);
 
 export function prependAuditLog(entry: AuditLog) {
   tblAuditLogs.unshift(entry);
