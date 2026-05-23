@@ -28,7 +28,11 @@ export const joinStudentGroup = (groupId: string) =>
 export const getStudentConvocation = () =>
   api<Blob>("/student/convocation", { responseType: "blob" });
 
-export const uploadStudentDocument = (documentId: string, _file: File) =>
-  api<StudentDocument>(`/student/documents/${documentId}/upload`, {
+export const uploadStudentDocument = (documentId: string, file: File) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  return api<StudentDocument>(`/student/documents/${documentId}/upload`, {
     method: "POST",
+    body: formData,
   });
+};

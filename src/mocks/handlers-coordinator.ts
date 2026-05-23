@@ -3,6 +3,7 @@ import {
   MOCK_DELAY,
   tblProjects, tblProjectStudents, tblDefenseSessions,
   tblJuries, tblGroups, tblGroupMembers, tblDefenses,
+  tblUnavailability,
   getProjectView, getAllProjectViews,
   getJuryView, getAllJuryViews,
   isDefenseSessionTransitionValid,
@@ -246,5 +247,10 @@ export const coordinatorHandlers = [
     const body = (await request.json()) as { schedule: Record<string, SlotAssignment> };
     tblSchedule = body.schedule;
     return HttpResponse.json({ message: "Schedule saved successfully" });
+  }),
+
+  http.get("/api/coordinator/unavailability", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json(tblUnavailability);
   }),
 ];

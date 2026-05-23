@@ -113,6 +113,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           },
           { title: "Jurys", url: "/coordinator/juries", icon: <UsersIcon /> },
           {
+            title: "Sessions",
+            url: "/coordinator/defense-sessions",
+            icon: <GraduationCapIcon />,
+          },
+          {
             title: "Conflits",
             url: "/coordinator/conflicts",
             icon: <AlertTriangle />,

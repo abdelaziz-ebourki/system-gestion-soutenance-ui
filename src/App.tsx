@@ -17,6 +17,7 @@ const Configuration = lazy(() => import("./pages/admin/Configuration"));
 const CoordinatorDashboard = lazy(() => import("./pages/coordinator/CoordinatorDashboard"));
 const CoordinatorProjects = lazy(() => import("./pages/coordinator/ProjectsGroups"));
 const Jurys = lazy(() => import("./pages/coordinator/Jurys"));
+const CoordinatorDefenseSessions = lazy(() => import("./pages/coordinator/DefenseSessions"));
 const DefenseDesigner = lazy(() => import("./pages/coordinator/DefenseDesigner"));
 const CoordinatorConflicts = lazy(() => import("./pages/coordinator/ConflictDashboard"));
 const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
@@ -73,6 +74,7 @@ export default function App() {
               element={<CoordinatorProjects />}
             />
             <Route path="/coordinator/juries" element={<Jurys />} />
+            <Route path="/coordinator/defense-sessions" element={<CoordinatorDefenseSessions />} />
             <Route path="/coordinator/conflicts" element={<CoordinatorConflicts />} />
           </Route>
 

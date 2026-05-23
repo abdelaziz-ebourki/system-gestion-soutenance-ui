@@ -27,7 +27,7 @@ export async function api<T>(
     ...customConfig.headers as Record<string, string> | undefined,
   };
 
-  if (responseType === "json") {
+  if (responseType === "json" && !(customConfig.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
 

@@ -97,3 +97,13 @@ export const saveDefenseSchedule = (
     method: "POST",
     body: JSON.stringify({ schedule }),
   });
+
+export interface UnavailabilityEntry {
+  id: string;
+  teacherId: string;
+  date: string;
+  slots: string[];
+}
+
+export const getCoordinatorUnavailability = () =>
+  api<UnavailabilityEntry[]>("/coordinator/unavailability");

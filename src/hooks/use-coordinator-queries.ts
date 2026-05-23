@@ -125,3 +125,10 @@ export function useSaveDefenseSchedule() {
     },
   });
 }
+
+export function useCoordinatorUnavailability() {
+  return useQuery({
+    queryKey: ["coordinator", "unavailability"],
+    queryFn: api.getCoordinatorUnavailability,
+  });
+}

@@ -14,7 +14,7 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 
-import { useJuries, useProjects, useRooms, useTeachersList, useSaveDefenseSchedule, useCoordinatorDefenseSessions } from "@/hooks/use-queries";
+import { useJuries, useProjects, useRooms, useTeachersList, useSaveDefenseSchedule, useCoordinatorDefenseSessions, useCoordinatorUnavailability } from "@/hooks/use-queries";
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { Project } from "@/types";
 import type { ConflictContext, ConflictIssue } from "@/lib/conflict-engine";
@@ -77,6 +77,7 @@ export default function DefenseDesigner() {
   const teachersQuery = useTeachersList();
   const sessionsQuery = useCoordinatorDefenseSessions();
   const saveMutation = useSaveDefenseSchedule();
+  const unavailabilityQuery = useCoordinatorUnavailability();
   const projects = projectsQuery.data ?? [];
   const rooms = roomsQuery.data ?? [];
   const juries = juriesQuery.data ?? [];
@@ -140,7 +141,11 @@ export default function DefenseDesigner() {
   const activeDay = DAYS[activeDayIndex];
   const activeRoom = rooms.find((r) => r.id === activeRoomId);
 
-  const buildConflictContext = React.useCallback((): ConflictContext => ({
+  const buildConflictContext = React.useCallback((): ConflictContext => {
+    const allUnavailability = (unavailabilityQuery.data ?? []).map((u) => ({
+      date: u.date, slots: u.slots, teacherId: u.teacherId,
+    }));
+    return {
     schedule: Object.fromEntries(
       Object.entries(scheduledProjects).map(([key, value]) => {
         const [, roomIdFromKey] = key.split("|");
@@ -155,8 +160,8 @@ export default function DefenseDesigner() {
     projects: Object.fromEntries(projects.map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }])),
     teachers: Object.fromEntries(teachers.map((t) => [t.id, { id: t.id, name: `${t.firstName} ${t.lastName}` }])),
     juries: Object.fromEntries(juries.map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: [j.presidentId, j.reporterId, j.examinerId] }])),
-    unavailability: {},
-  }), [scheduledProjects, rooms, projects, teachers, juries]);
+    unavailability: { all: allUnavailability },
+  }; }, [scheduledProjects, rooms, projects, teachers, juries, unavailabilityQuery.data]);
 
   function showValidationFeedback(issues: ConflictIssue[]) {
     const errors = issues.filter((i) => i.severity === "error");

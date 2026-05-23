@@ -115,6 +115,7 @@ export const studentHandlers = [
         { status: 404 },
       );
     }
+    await request.formData();
     doc.status = "submitted";
     doc.submittedAt = new Date().toISOString().slice(0, 10);
     return HttpResponse.json(doc);

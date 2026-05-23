@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Clock, Users, DoorOpen, UserX } from "lucide-react";
 
-import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useDefenseSchedule } from "@/hooks/use-queries";
+import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useDefenseSchedule, useCoordinatorUnavailability } from "@/hooks/use-queries";
 import { getAllConflicts } from "@/lib/conflict-engine";
 import type { ConflictIssue } from "@/lib/conflict-engine";
 import {
@@ -46,6 +46,7 @@ export default function ConflictDashboard() {
   const groupsQuery = useGroups();
   const sessionsQuery = useCoordinatorDefenseSessions();
   const scheduleQuery = useDefenseSchedule();
+  const unavailabilityQuery = useCoordinatorUnavailability();
 
   const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || scheduleQuery.isLoading;
 
@@ -53,6 +54,9 @@ export default function ConflictDashboard() {
 
   const conflicts = useMemo(() => {
     const schedule = scheduleQuery.data ?? {};
+    const allUnavailability = (unavailabilityQuery.data ?? []).map((u) => ({
+      date: u.date, slots: u.slots, teacherId: u.teacherId,
+    }));
     const context = {
       schedule,
       rooms: Object.fromEntries((roomsQuery.data ?? []).map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }])),
@@ -60,7 +64,7 @@ export default function ConflictDashboard() {
       projects: Object.fromEntries((projectsQuery.data ?? []).map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }])),
       teachers: {},
       juries: Object.fromEntries((juriesQuery.data ?? []).map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: [j.presidentId, j.reporterId, j.examinerId] }])),
-      unavailability: {},
+      unavailability: { all: allUnavailability },
       defenseSession: currentSession ? {
         startDate: currentSession.startDate,
         endDate: currentSession.endDate,
@@ -68,7 +72,7 @@ export default function ConflictDashboard() {
       } : undefined,
     };
     return getAllConflicts(schedule, context);
-  }, [scheduleQuery.data, projectsQuery.data, roomsQuery.data, juriesQuery.data, groupsQuery.data, currentSession]);
+  }, [scheduleQuery.data, projectsQuery.data, roomsQuery.data, juriesQuery.data, groupsQuery.data, currentSession, unavailabilityQuery.data]);
 
   const groupedConflicts = useMemo(() => {
     const groups: Record<string, ConflictIssue[]> = {};
