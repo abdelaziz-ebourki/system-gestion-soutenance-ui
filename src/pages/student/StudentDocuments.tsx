@@ -7,9 +7,10 @@ import {
   Upload,
 } from "lucide-react";
 
-import { useStudentDocuments } from "@/hooks/use-queries";
+import { useStudentDocuments, useUploadStudentDocument } from "@/hooks/use-queries";
 import type { StudentDocument } from "@/types";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -44,7 +45,8 @@ const statusClass: Record<StudentDocument["status"], string> = {
 
 export default function StudentDocuments() {
   const { data: documents = [], isLoading } = useStudentDocuments();
-  const [isUploading, setIsUploading] = useState<Record<string, boolean>>({});
+  const uploadMutation = useUploadStudentDocument();
+  const [files, setFiles] = useState<Record<string, File | null>>({});
 
   const validatedCount = useMemo(
     () => documents.filter((document) => document.status === "validated").length,
@@ -56,6 +58,12 @@ export default function StudentDocuments() {
   );
 
   const handleUpload = async (document: StudentDocument) => {
+    const file = files[document.id];
+    if (!file) {
+      toast.error("Veuillez sélectionner un fichier.");
+      return;
+    }
+
     const now = new Date();
     const deadline = new Date(document.deadline);
     const GRACE_PERIOD_DAYS = 2;
@@ -71,14 +79,12 @@ export default function StudentDocuments() {
       toast.warning(`Date limite dépassée. Dépôt en période de grâce (${GRACE_PERIOD_DAYS} jours).`);
     }
 
-    setIsUploading((prev) => ({ ...prev, [document.id]: true }));
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await uploadMutation.mutateAsync({ documentId: document.id, file });
       toast.success("Document envoyé avec succès");
-    } catch {
-      toast.error("Erreur lors de l'envoi du document");
-    } finally {
-      setIsUploading((prev) => ({ ...prev, [document.id]: false }));
+      setFiles((prev) => ({ ...prev, [document.id]: null }));
+    } catch (error) {
+      toastError(error, "Erreur lors de l'envoi du document");
     }
   };
 
@@ -156,11 +162,18 @@ export default function StudentDocuments() {
                           >
                             Fichier
                           </Label>
-                          <Input id={`file-${document.id}`} type="file" />
+                          <Input
+                            id={`file-${document.id}`}
+                            type="file"
+                            onChange={(e) => {
+                              const f = e.target.files?.[0] ?? null;
+                              setFiles((prev) => ({ ...prev, [document.id]: f }));
+                            }}
+                          />
                         </div>
                         <Button
                           onClick={() => handleUpload(document)}
-                          isLoading={isUploading[document.id]}
+                          isLoading={uploadMutation.isPending}
                           loadingText="Envoi..."
                         >
                           <Upload className="mr-2 size-4" />

@@ -105,6 +105,21 @@ export const studentHandlers = [
     return HttpResponse.json(tblStudentDocuments);
   }),
 
+  http.post("/api/student/documents/:id/upload", async ({ params, request }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const doc = tblStudentDocuments.find((d) => d.id === id);
+    if (!doc) {
+      return HttpResponse.json(
+        { message: "Document introuvable." },
+        { status: 404 },
+      );
+    }
+    doc.status = "submitted";
+    doc.submittedAt = new Date().toISOString().slice(0, 10);
+    return HttpResponse.json(doc);
+  }),
+
   http.get("/api/student/convocation", async () => {
     await delay(MOCK_DELAY);
     const defense = getStudentDefenseDetails();

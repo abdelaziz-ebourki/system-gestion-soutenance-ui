@@ -44,3 +44,12 @@ export function useStudentDocuments() {
     queryFn: api.getStudentDocuments,
   });
 }
+
+export function useUploadStudentDocument() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ documentId, file }: { documentId: string; file: File }) =>
+      api.uploadStudentDocument(documentId, file),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "documents"] }),
+  });
+}
