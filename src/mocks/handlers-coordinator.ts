@@ -3,11 +3,12 @@ import {
   MOCK_DELAY,
   tblProjects, tblProjectStudents, tblDefenseSessions,
   tblJuries, tblGroups, tblGroupMembers, tblDefenses,
-  tblUnavailability,
+  tblUnavailability, tblStudentGroups,
   getProjectView, getAllProjectViews,
   getJuryView, getAllJuryViews,
   isDefenseSessionTransitionValid,
   prependProject, prependJury, removeJuryByProject,
+  getUserFullName,
 } from "./db";
 import type { SlotAssignment } from "@/lib/conflict-engine";
 import type { DbProject } from "./db/schema";
@@ -252,5 +253,49 @@ export const coordinatorHandlers = [
   http.get("/api/coordinator/unavailability", async () => {
     await delay(MOCK_DELAY);
     return HttpResponse.json(tblUnavailability);
+  }),
+
+  // ─── Student Groups (for project assignment) ─────────────────────
+
+  http.get("/api/coordinator/student-groups", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json(tblStudentGroups.map((sg) => {
+      const project = sg.projectId
+        ? tblProjects.find((p) => p.id === sg.projectId)
+        : undefined;
+      return {
+        id: sg.id,
+        groupName: sg.groupName,
+        memberNames: sg.memberIds.map(getUserFullName),
+        memberCount: sg.memberIds.length,
+        projectId: sg.projectId,
+        projectTitle: project?.title ?? undefined,
+      };
+    }));
+  }),
+
+  http.post("/api/coordinator/projects/:id/assign-group", async ({ params, request }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const { groupId } = (await request.json()) as { groupId: string };
+    const projectIndex = tblProjects.findIndex((p) => p.id === id);
+    if (projectIndex === -1) return new HttpResponse(null, { status: 404 });
+    const group = tblStudentGroups.find((g) => g.id === groupId);
+    if (!group) return new HttpResponse(null, { status: 404 });
+    if (group.projectId) {
+      return HttpResponse.json(
+        { message: "Ce groupe a déjà un projet assigné." },
+        { status: 400 },
+      );
+    }
+
+    group.projectId = id;
+    const memberIds = group.memberIds;
+    for (const studentId of memberIds) {
+      tblProjectStudents.push({ projectId: id, studentId });
+    }
+    tblProjects[projectIndex].status = "approved";
+
+    return HttpResponse.json(getProjectView(tblProjects[projectIndex]));
   }),
 ];

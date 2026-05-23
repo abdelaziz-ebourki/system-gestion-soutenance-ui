@@ -107,3 +107,21 @@ export interface UnavailabilityEntry {
 
 export const getCoordinatorUnavailability = () =>
   api<UnavailabilityEntry[]>("/coordinator/unavailability");
+
+export interface StudentGroupAssignment {
+  id: string;
+  groupName: string;
+  memberNames: string[];
+  memberCount: number;
+  projectId: string | null;
+  projectTitle?: string;
+}
+
+export const getStudentGroups = () =>
+  api<StudentGroupAssignment[]>("/coordinator/student-groups");
+
+export const assignProjectToGroup = (projectId: string, groupId: string) =>
+  api<Project>(`/coordinator/projects/${projectId}/assign-group`, {
+    method: "POST",
+    body: JSON.stringify({ groupId }),
+  });

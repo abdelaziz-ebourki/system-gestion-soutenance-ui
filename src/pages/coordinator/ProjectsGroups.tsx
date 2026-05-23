@@ -4,11 +4,14 @@ import {
   Users,
   FolderKanban,
   CircleAlert,
+  UserPlus,
+  CheckCircle2,
 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 
-import { useProjects, useUpdateProject, useDeleteProject } from "@/hooks/use-queries";
+import { useProjects, useUpdateProject, useDeleteProject, useStudentGroups } from "@/hooks/use-queries";
 import type { Project } from "@/types";
+import type { StudentGroupAssignment } from "@/lib/api-coordinator";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
 import {
@@ -31,11 +34,14 @@ import {
   SelectTrigger,
   SelectValue,
   StatsCard,
+  Skeleton,
+  EmptyState,
 } from "@/components/ui";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DataTable } from "@/components/ui/data-table";
 import { ProjectDialog } from "@/components/academic/ProjectDialog";
+import { AssignProjectDialog } from "@/components/academic/AssignProjectDialog";
 
 const statusLabel: Record<Project["status"], string> = {
   pending: "En attente",
@@ -108,6 +114,10 @@ export default function CoordinatorProjects() {
     },
   ], []);
 
+  const groupsQuery = useStudentGroups();
+  const studentGroups = groupsQuery.data ?? [];
+  const [assignTarget, setAssignTarget] = useState<StudentGroupAssignment | null>(null);
+
   const pendingProjects = useMemo(() => projects.filter(
     (project) => project.status === "pending",
   ), [projects]);
@@ -161,6 +171,57 @@ export default function CoordinatorProjects() {
                 { column: "status", label: "Statut", options: [{ value: "pending", label: "En attente" }, { value: "approved", label: "Valide" }, { value: "rejected", label: "Refuse" }] },
               ]}
             />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="size-4" /> Groupes étudiants
+          </CardTitle>
+          <CardDescription>
+            Groupes formés par les étudiants. Assignez-leur un projet pour activer la suite (jury, planning).
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {groupsQuery.isLoading ? (
+            <div className="space-y-3">
+              {[1, 2].map((i) => (
+                <Skeleton key={i} className="h-16 w-full rounded-lg" />
+              ))}
+            </div>
+          ) : studentGroups.length === 0 ? (
+            <EmptyState variant="dashed" description="Aucun groupe étudiant pour le moment." />
+          ) : (
+            <div className="space-y-3">
+              {studentGroups.map((g) => {
+                const hasProject = !!g.projectId;
+                return (
+                  <div key={g.id} className="flex items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-1">
+                      <p className="font-medium">{g.groupName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {g.memberNames.join(", ")}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {hasProject ? (
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <CheckCircle2 className="size-4 text-primary" />
+                          {g.projectTitle}
+                        </div>
+                      ) : (
+                        <Button size="sm" variant="outline" onClick={() => setAssignTarget(g)}>
+                          <UserPlus className="mr-1 size-3" />
+                          Assigner un projet
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -255,6 +316,12 @@ export default function CoordinatorProjects() {
         }}
         project={editingProject}
         onSuccess={() => {}}
+      />
+
+      <AssignProjectDialog
+        group={assignTarget}
+        open={assignTarget !== null}
+        onOpenChange={(open) => { if (!open) setAssignTarget(null); }}
       />
     </div>
   );

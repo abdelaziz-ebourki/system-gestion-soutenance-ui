@@ -132,3 +132,22 @@ export function useCoordinatorUnavailability() {
     queryFn: api.getCoordinatorUnavailability,
   });
 }
+
+export function useStudentGroups() {
+  return useQuery({
+    queryKey: ["coordinator", "student-groups"],
+    queryFn: api.getStudentGroups,
+  });
+}
+
+export function useAssignProjectToGroup() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ projectId, groupId }: { projectId: string; groupId: string }) =>
+      api.assignProjectToGroup(projectId, groupId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["projects"] });
+      qc.invalidateQueries({ queryKey: ["coordinator", "student-groups"] });
+    },
+  });
+}
