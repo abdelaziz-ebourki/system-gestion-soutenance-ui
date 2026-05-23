@@ -243,7 +243,7 @@ export default function Students() {
             <DialogTitle>{crud.selected ? "Modifier" : "Ajouter"} Étudiant</DialogTitle>
             <DialogDescription>Remplissez les informations académiques de l'étudiant.</DialogDescription>
           </DialogHeader>
-          <form onSubmit={(e) => { e.preventDefault(); crud.handleSubmit(); }}>
+          <form onSubmit={crud.handleSubmit}>
             <FieldGroup className="grid grid-cols-2 gap-4 py-4">
               <Field>
                 <FieldLabel>Nom</FieldLabel>
