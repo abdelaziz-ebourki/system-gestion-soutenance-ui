@@ -155,16 +155,16 @@ export default function Departments() {
               <Field>
                 <FieldLabel>Chef de Département</FieldLabel>
                 <Select
-                  value={crud.formData.headId}
+                  value={crud.formData.headId || "none"}
                   onValueChange={(v) =>
-                    crud.setFormData({ ...crud.formData, headId: v || "" })
+                    crud.setFormData({ ...crud.formData, headId: v === "none" ? "" : v })
                   }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Choisir un enseignant" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Aucun</SelectItem>
+                    <SelectItem value="none">Aucun</SelectItem>
                     {teachers.map((t) => (
                       <SelectItem key={t.id} value={t.id}>
                         {t.lastName} {t.firstName}
