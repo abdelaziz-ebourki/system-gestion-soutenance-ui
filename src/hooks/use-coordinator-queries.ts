@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import type { Group, DefenseSessionStatus } from "@/types";
-import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload } from "@/lib/api-coordinator";
+import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload, ProjectGrade } from "@/lib/api-coordinator";
 import type { SlotAssignment } from "@/lib/conflict-engine";
 
 export function useCoordinatorStats() {
@@ -137,6 +137,13 @@ export function useStudentGroups() {
   return useQuery({
     queryKey: ["coordinator", "student-groups"],
     queryFn: api.getStudentGroups,
+  });
+}
+
+export function useProjectGrades() {
+  return useQuery({
+    queryKey: ["coordinator", "grades"],
+    queryFn: () => api.getGrades(),
   });
 }
 

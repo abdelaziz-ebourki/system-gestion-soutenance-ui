@@ -36,6 +36,7 @@ import {
   useCreateDefenseSession,
   useUpdateDefenseSession,
   useDeleteDefenseSession,
+  useJuryRoleTemplates,
 } from "@/hooks/use-queries";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { CrudActions } from "@/components/admin/CrudActions";
@@ -65,6 +66,8 @@ export default function DefenseSessionsPage() {
   const { data, isLoading } = useDefenseSessions();
   const sessionsQuery = useSessions();
   const globalSessions = sessionsQuery.data ?? [];
+  const templatesQuery = useJuryRoleTemplates();
+  const templates = templatesQuery.data ?? [];
   const createMutation = useCreateDefenseSession();
   const updateMutation = useUpdateDefenseSession();
   const deleteMutation = useDeleteDefenseSession();
@@ -320,16 +323,43 @@ export default function DefenseSessionsPage() {
                 </Field>
               </div>
               <Field>
-                <FieldLabel>Coefficients d'évaluation (JSON)</FieldLabel>
-                <Input
-                  value={JSON.stringify(form.evaluationCoefficients)}
-                  onChange={(e) => {
-                    try {
-                      setForm({ ...form, evaluationCoefficients: JSON.parse(e.target.value) });
-                    } catch { /* invalid JSON, ignore */ }
+                <FieldLabel>Modèle de jury</FieldLabel>
+                <Select
+                  value={form.juryRoleTemplateId}
+                  onValueChange={(v) => {
+                    const tpl = templates.find((t) => t.id === v);
+                    const coeffs: Record<string, number> = {};
+                    if (tpl) {
+                      for (const role of tpl.roles) {
+                        coeffs[role.name] = role.coefficient;
+                      }
+                    }
+                    setForm({ ...form, juryRoleTemplateId: v ?? "", evaluationCoefficients: coeffs });
                   }}
-                  placeholder='{"rapport": 0.4, "presentation": 0.3, "soutenance": 0.3}'
-                />
+                >
+                  <SelectTrigger><SelectValue placeholder="Choisir un modèle" /></SelectTrigger>
+                  <SelectContent>
+                    {templates.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
+              <Field>
+                <FieldLabel>Coefficients d'évaluation</FieldLabel>
+                <div className="rounded-lg border bg-muted/50 p-3 text-sm">
+                  {Object.keys(form.evaluationCoefficients).length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {Object.entries(form.evaluationCoefficients).map(([role, coeff]) => (
+                        <span key={role} className="inline-flex items-center gap-1 rounded-md bg-background px-2 py-1 text-xs font-medium">
+                          {role}: {coeff}%
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">Sélectionnez un modèle de jury</span>
+                  )}
+                </div>
               </Field>
               <div className="grid grid-cols-2 gap-4">
                 <Field>

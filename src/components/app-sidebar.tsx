@@ -25,6 +25,7 @@ import {
   LayersIcon,
   University,
   AlertTriangle,
+  FileCheck2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { NotificationBadge } from "@/components/notification-badge";
@@ -122,7 +123,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/coordinator/conflicts",
             icon: <AlertTriangle />,
           },
-
+          {
+            title: "Notes",
+            url: "/coordinator/grades",
+            icon: <FileCheck2 />,
+          },
         ];
       case "teacher":
         return [

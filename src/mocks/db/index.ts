@@ -251,6 +251,10 @@ export function getStudentDefenseDetails(): StudentDefenseDetails {
     };
   }
 
+  const defense = project ? tblDefenses.find((d) => d.projectId === project.id) : undefined;
+  const gradeResult = defense ? getDefenseGrade(defense.id) : null;
+  const allSubmitted = gradeResult?.individualScores.every((s) => s.score !== undefined) ?? false;
+
   return {
     projectTitle: project.title,
     projectDescription: project.description,
@@ -261,12 +265,20 @@ export function getStudentDefenseDetails(): StudentDefenseDetails {
           role: m.roleName,
         }))
       : [],
-    date: undefined,
-    startTime: undefined,
-    endTime: undefined,
-    roomName: undefined,
-    status: "pending" as const,
+    date: defense?.date ?? undefined,
+    startTime: defense?.startTime ?? undefined,
+    endTime: defense?.endTime ?? undefined,
+    roomName: defense
+      ? tblRooms.find((r) => r.id === defense.roomId)?.name ?? undefined
+      : undefined,
+    status: defense ? "scheduled" as const : "pending" as const,
     convocationUrl: undefined,
+    result: gradeResult && allSubmitted && gradeResult.finalScore !== null
+      ? {
+          decision: gradeResult.finalScore >= 10 ? "Admis" : "Ajourné",
+          score: gradeResult.finalScore,
+        }
+      : undefined,
   };
 }
 
@@ -327,4 +339,60 @@ export function getFlatUser(uid: string): User | undefined {
   const safe = { ...user };
   delete (safe as Record<string, unknown>).password;
   return safe;
+}
+
+/** Derive evaluationCoefficients from a jury role template's roles. */
+export function deriveEvaluationCoefficients(templateId: string): Record<string, number> {
+  const template = juryRoleTemplates.find((t) => t.id === templateId);
+  if (!template) return {};
+  const coeffs: Record<string, number> = {};
+  for (const role of template.roles) {
+    coeffs[role.name] = role.coefficient;
+  }
+  return coeffs;
+}
+
+/** Calculate weighted final grade for a defense. */
+export function getDefenseGrade(defenseId: string): {
+  finalScore: number | null;
+  evaluationCoefficients: Record<string, number>;
+  individualScores: { roleName: string; teacherName: string; score: number | undefined }[];
+} {
+  const defense = tblDefenses.find((d) => d.id === defenseId);
+  if (!defense) return { finalScore: null, evaluationCoefficients: {}, individualScores: [] };
+
+  const jury = tblJuries.find((j) => j.projectId === defense.projectId);
+  if (!jury) return { finalScore: null, evaluationCoefficients: {}, individualScores: [] };
+
+  const session = tblDefenseSessions.find((s) => s.juryRoleTemplateId === jury.templateId);
+  const template = juryRoleTemplates.find((t) => t.id === jury.templateId);
+  const coeffs = (session?.evaluationCoefficients && Object.keys(session.evaluationCoefficients).length > 0)
+    ? session.evaluationCoefficients
+    : template
+      ? deriveEvaluationCoefficients(template.id)
+      : {};
+
+  const evaluations = tblEvaluations.filter((e) => e.defenseId === defenseId);
+  const individualScores = jury.members.map((m) => {
+    const evalRec = evaluations.find((e) => e.teacherId === m.teacherId);
+    return {
+      roleName: m.roleName,
+      teacherName: getUserFullName(m.teacherId),
+      score: evalRec?.score,
+    };
+  });
+
+  let weightedSum = 0;
+  let totalCoeff = 0;
+  for (const item of individualScores) {
+    const coeff = coeffs[item.roleName] ?? 0;
+    if (item.score !== undefined && coeff > 0) {
+      weightedSum += item.score * coeff;
+      totalCoeff += coeff;
+    }
+  }
+
+  const finalScore = totalCoeff > 0 ? Math.round((weightedSum / totalCoeff) * 100) / 100 : null;
+
+  return { finalScore, evaluationCoefficients: coeffs, individualScores };
 }

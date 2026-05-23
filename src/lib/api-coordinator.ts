@@ -120,6 +120,19 @@ export interface StudentGroupAssignment {
   projectTitle?: string;
 }
 
+export interface ProjectGrade {
+  projectId: string;
+  projectTitle: string;
+  defenseDate: string | null;
+  status: "completed" | "pending" | "no_evaluations";
+  finalScore: number | null;
+  evaluationCoefficients: Record<string, number>;
+  individualScores: { roleName: string; teacherName: string; score: number | undefined }[];
+}
+
+export const getGrades = () =>
+  api<ProjectGrade[]>("/coordinator/grades");
+
 export const getStudentGroups = () =>
   api<StudentGroupAssignment[]>("/coordinator/student-groups");
 

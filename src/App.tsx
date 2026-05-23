@@ -20,6 +20,7 @@ const Jurys = lazy(() => import("./pages/coordinator/Jurys"));
 const CoordinatorDefenseSessions = lazy(() => import("./pages/coordinator/DefenseSessions"));
 const DefenseDesigner = lazy(() => import("./pages/coordinator/DefenseDesigner"));
 const CoordinatorConflicts = lazy(() => import("./pages/coordinator/ConflictDashboard"));
+const CoordinatorGrades = lazy(() => import("./pages/coordinator/Grades"));
 const TeacherDashboard = lazy(() => import("./pages/teacher/TeacherDashboard"));
 const TeacherSchedule = lazy(() => import("./pages/teacher/TeacherSchedule"));
 const TeacherEvaluations = lazy(() => import("./pages/teacher/TeacherEvaluations"));
@@ -76,6 +77,7 @@ export default function App() {
             <Route path="/coordinator/juries" element={<Jurys />} />
             <Route path="/coordinator/defense-sessions" element={<CoordinatorDefenseSessions />} />
             <Route path="/coordinator/conflicts" element={<CoordinatorConflicts />} />
+            <Route path="/coordinator/grades" element={<CoordinatorGrades />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>

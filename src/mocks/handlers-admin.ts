@@ -7,7 +7,7 @@ import {
   majors, levels, grades, juryRoleTemplates, tblDefenseSettings,
   tblGeneralSettings, tblDefenseTypeConfig, tblDocumentConfig,
   tblJuries, tblProjects, tblProjectStudents,
-  getFlatUser,
+  getFlatUser, deriveEvaluationCoefficients,
 } from "./db";
 import type { DbJuryRoleTemplate } from "./db";
 import { auditLogHandlers } from "./audit-log-handlers";
@@ -599,7 +599,14 @@ export const adminHandlers = [
     if (body.juryRoleTemplateId && !juryRoleTemplates.find((t) => t.id === body.juryRoleTemplateId)) {
       return HttpResponse.json({ message: "Template de jury introuvable. Créez-le d'abord dans Configuration." }, { status: 400 });
     }
-    const newDS = { ...body, id: `ds${tblDefenseSessions.length + 1}` };
+    const evalCoeffs = body.evaluationCoefficients && Object.keys(body.evaluationCoefficients).length > 0
+      ? body.evaluationCoefficients
+      : deriveEvaluationCoefficients(body.juryRoleTemplateId);
+    const newDS = {
+      ...body,
+      evaluationCoefficients: evalCoeffs,
+      id: `ds${tblDefenseSessions.length + 1}`,
+    };
     tblDefenseSessions.push(newDS);
     return HttpResponse.json(newDS, { status: 201 });
   }),
@@ -616,7 +623,12 @@ export const adminHandlers = [
     }
     const index = tblDefenseSessions.findIndex((ds) => ds.id === id);
     if (index === -1) return new HttpResponse(null, { status: 404 });
-    tblDefenseSessions[index] = { ...tblDefenseSessions[index], ...body };
+    const updated = { ...tblDefenseSessions[index], ...body };
+    if (body.juryRoleTemplateId && body.juryRoleTemplateId !== tblDefenseSessions[index].juryRoleTemplateId
+      && (!body.evaluationCoefficients || Object.keys(body.evaluationCoefficients).length === 0)) {
+      updated.evaluationCoefficients = deriveEvaluationCoefficients(body.juryRoleTemplateId);
+    }
+    tblDefenseSessions[index] = updated;
     return HttpResponse.json(tblDefenseSessions[index]);
   }),
 

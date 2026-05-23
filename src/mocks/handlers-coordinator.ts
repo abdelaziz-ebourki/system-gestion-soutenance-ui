@@ -8,7 +8,7 @@ import {
   getJuryView, getAllJuryViews,
   isDefenseSessionTransitionValid,
   prependProject, removeJuryByProject,
-  getUserFullName,
+  getUserFullName, getDefenseGrade,
 } from "./db";
 import type { SlotAssignment } from "@/lib/conflict-engine";
 import type { DbProject, DbJury } from "./db/schema";
@@ -294,5 +294,33 @@ export const coordinatorHandlers = [
     tblProjects[projectIndex].status = "approved";
 
     return HttpResponse.json(getProjectView(tblProjects[projectIndex]));
+  }),
+
+  // ─── Grades ─────────────────────────────────────────────────────
+
+  http.get("/api/coordinator/grades", async () => {
+    await delay(MOCK_DELAY);
+    const grades = tblJuries.map((jury) => {
+      const project = tblProjects.find((p) => p.id === jury.projectId);
+      const defense = tblDefenses.find((d) => d.projectId === jury.projectId);
+      const gradeResult = defense ? getDefenseGrade(defense.id) : null;
+      const evaluations = defense
+        ? tblEvaluations.filter((e) => e.defenseId === defense.id)
+        : [];
+      return {
+        projectId: jury.projectId,
+        projectTitle: project?.title ?? "",
+        defenseDate: defense?.date ?? null,
+        status: (evaluations.length > 0 && evaluations.every((e) => e.status === "submitted")
+          ? "completed"
+          : evaluations.length === 0
+            ? "no_evaluations"
+            : "pending") as "completed" | "pending" | "no_evaluations",
+        finalScore: gradeResult?.finalScore ?? null,
+        evaluationCoefficients: gradeResult?.evaluationCoefficients ?? {},
+        individualScores: gradeResult?.individualScores ?? [],
+      };
+    });
+    return HttpResponse.json(grades);
   }),
 ];
