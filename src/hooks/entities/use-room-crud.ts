@@ -47,7 +47,8 @@ export function useRoomCrud() {
     setIsDeleteDialogOpen(true);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: { preventDefault(): void }) => {
+    e.preventDefault();
     if (!form.validateForm()) return;
     try {
       if (selected) {
