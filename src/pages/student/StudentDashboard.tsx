@@ -1,10 +1,7 @@
 
-import { useState } from "react";
-import { CalendarDays, Download, GraduationCap, Users } from "lucide-react";
+import { CalendarDays, GraduationCap, Users, Printer } from "lucide-react";
 
-import { getStudentConvocation } from "@/lib/api";
 import { useStudentStats, useStudentDefense } from "@/hooks/use-queries";
-import { toastError } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -22,28 +19,7 @@ import { Link } from "react-router-dom";
 export default function StudentDashboard() {
   const { data: stats } = useStudentStats();
   const { data: defense, isLoading: isDefenseLoading } = useStudentDefense();
-  const [isDownloading, setIsDownloading] = useState(false);
-
   const isLoading = isDefenseLoading;
-
-  const handleConvocationDownload = async () => {
-    setIsDownloading(true);
-    try {
-      const blob = await getStudentConvocation();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "convocation-soutenance.pdf";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      toastError(error, "Impossible de télécharger la convocation");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
 
   return (
     <div className="space-y-6">
@@ -142,10 +118,10 @@ export default function StudentDashboard() {
               <Button
                 variant="outline"
                 className="w-fit"
-                onClick={handleConvocationDownload}
-                isLoading={isDownloading}
+                onClick={() => window.open("/print/student-convocation", "_blank")}
               >
-                Télécharger la convocation
+                <Printer className="mr-2 size-4" />
+                Imprimer la convocation
               </Button>
             ) : (
               <Link

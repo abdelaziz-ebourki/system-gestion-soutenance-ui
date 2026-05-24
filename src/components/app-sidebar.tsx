@@ -128,6 +128,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             url: "/coordinator/grades",
             icon: <FileCheck2 />,
           },
+          {
+            title: "Documents",
+            url: "/coordinator/documents",
+            icon: <FileTextIcon />,
+          },
         ];
       case "teacher":
         return [

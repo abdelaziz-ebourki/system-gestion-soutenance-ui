@@ -35,6 +35,13 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 const AdminDefenseSessions = lazy(() => import("./pages/admin/DefenseSessions"));
+const CoordinatorDocuments = lazy(() => import("./pages/coordinator/Documents"));
+const PrintEvaluationSheet = lazy(() => import("./pages/print/PrintEvaluationSheet"));
+const PrintAttendanceList = lazy(() => import("./pages/print/PrintAttendanceList"));
+const PrintJuryConvocation = lazy(() => import("./pages/print/PrintJuryConvocation"));
+const PrintDefenseSchedule = lazy(() => import("./pages/print/PrintDefenseSchedule"));
+const PrintProcesVerbal = lazy(() => import("./pages/print/PrintProcesVerbal"));
+const PrintStudentConvocation = lazy(() => import("./pages/print/PrintStudentConvocation"));
 
 function PageLoader() {
   return (
@@ -53,6 +60,12 @@ export default function App() {
         <Route path="/verify-account" element={<VerifyAccount />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/print/evaluation-sheet" element={<PrintEvaluationSheet />} />
+        <Route path="/print/attendance-list" element={<PrintAttendanceList />} />
+        <Route path="/print/jury-convocation" element={<PrintJuryConvocation />} />
+        <Route path="/print/schedule" element={<PrintDefenseSchedule />} />
+        <Route path="/print/proces-verbal" element={<PrintProcesVerbal />} />
+        <Route path="/print/student-convocation" element={<PrintStudentConvocation />} />
 
         <Route element={<DashboardLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
@@ -82,6 +95,7 @@ export default function App() {
             <Route path="/coordinator/defense-sessions" element={<CoordinatorDefenseSessions />} />
             <Route path="/coordinator/conflicts" element={<CoordinatorConflicts />} />
             <Route path="/coordinator/grades" element={<CoordinatorGrades />} />
+            <Route path="/coordinator/documents" element={<CoordinatorDocuments />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>

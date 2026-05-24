@@ -5,13 +5,14 @@ import {
   tblJuries, tblGroups, tblGroupMembers, tblDefenses,
   tblUnavailability, tblStudentGroups,
   tblDefenseTeachers, tblEvaluations,
+  tblRooms,
   getProjectView, getAllProjectViews,
   getJuryView, getAllJuryViews,
   isDefenseSessionTransitionValid,
   prependProject, removeJuryByProject,
   getUserFullName, getDefenseGrade,
   createNotification, generateAutoSchedule,
-  tblUsers,
+  tblUsers, tblGeneralSettings,
 } from "./db";
 import type { SlotAssignment } from "@/lib/conflict-engine";
 import type { DbProject, DbJury } from "./db/schema";
@@ -445,5 +446,163 @@ export const coordinatorHandlers = [
     }
 
     return HttpResponse.json({ message: "Soutenance annulée." });
+  }),
+
+  // ─── Document data endpoints ──────────────────────────────────────
+
+  http.get("/api/coordinator/document-data/evaluation-sheet", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const url = new URL(request.url);
+    const projectId = url.searchParams.get("projectId");
+    if (!projectId) return new HttpResponse(null, { status: 400 });
+
+    const project = tblProjects.find((p) => p.id === projectId);
+    const projectView = project ? getProjectView(project) : null;
+    const grade = tblJuries
+      .filter((j) => j.projectId === projectId)
+      .map((jury) => {
+        const defense = tblDefenses.find((d) => d.projectId === jury.projectId);
+        const gradeResult = defense ? getDefenseGrade(defense.id) : null;
+        const evaluations = defense ? tblEvaluations.filter((e) => e.defenseId === defense.id) : [];
+        return {
+          projectId: jury.projectId,
+          projectTitle: projectView?.title ?? "",
+          defenseDate: defense?.date ?? null,
+          status: (evaluations.length > 0 && evaluations.every((e) => e.status === "submitted") ? "completed" : evaluations.length === 0 ? "no_evaluations" : "pending") as "completed" | "pending" | "no_evaluations",
+          finalScore: gradeResult?.finalScore ?? null,
+          evaluationCoefficients: gradeResult?.evaluationCoefficients ?? {},
+          individualScores: gradeResult?.individualScores ?? [],
+        };
+      })[0] ?? null;
+
+    return HttpResponse.json({
+      settings: { ...tblGeneralSettings },
+      grade,
+      studentNames: projectView?.studentNames ?? [],
+    });
+  }),
+
+  http.get("/api/coordinator/document-data/attendance-list", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const url = new URL(request.url);
+    const date = url.searchParams.get("date");
+    const sessionId = url.searchParams.get("sessionId");
+    if (!date) return new HttpResponse(null, { status: 400 });
+
+    const session = sessionId ? tblDefenseSessions.find((s) => s.id === sessionId) : undefined;
+    const defensesOnDate = tblDefenses.filter((d) => d.date === date && d.status !== "cancelled");
+    const slots = defensesOnDate.map((d) => {
+      const pv = getProjectView(tblProjects.find((p) => p.id === d.projectId)!);
+      const jury = tblJuries.find((j) => j.projectId === d.projectId);
+      return {
+        time: `${d.startTime} — ${d.endTime}`,
+        project: { title: pv?.title ?? "", students: pv?.studentNames ?? [] },
+        jury: jury?.members.map((m) => `${m.roleName}: ${getUserFullName(m.teacherId)}`).join(" | ") ?? "",
+        supervisor: pv?.supervisorName ?? "",
+      };
+    });
+    slots.sort((a, b) => a.time.localeCompare(b.time));
+
+    return HttpResponse.json({
+      settings: { ...tblGeneralSettings },
+      sessionName: session?.name ?? "",
+      date,
+      slots,
+    });
+  }),
+
+  http.get("/api/coordinator/document-data/jury-convocation", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const url = new URL(request.url);
+    const projectId = url.searchParams.get("projectId");
+    const teacherId = url.searchParams.get("teacherId");
+    if (!projectId || !teacherId) return new HttpResponse(null, { status: 400 });
+
+    const defense = tblDefenses.find((d) => d.projectId === projectId);
+    const pv = getProjectView(tblProjects.find((p) => p.id === projectId)!);
+    const jury = tblJuries.find((j) => j.projectId === projectId);
+    const member = jury?.members.find((m) => m.teacherId === teacherId);
+    const president = jury?.members.find((m) => m.roleName === "Président");
+
+    return HttpResponse.json({
+      settings: { ...tblGeneralSettings },
+      projectTitle: pv?.title ?? "",
+      studentNames: pv?.studentNames ?? [],
+      supervisorName: pv?.supervisorName ?? "",
+      date: defense?.date ?? "",
+      startTime: defense?.startTime ?? "",
+      endTime: defense?.endTime ?? "",
+      roomName: tblRooms.find((r) => r.id === defense?.roomId)?.name ?? "",
+      role: member?.roleName ?? "",
+      juryPresident: president ? getUserFullName(president.teacherId) : "",
+      teacherName: getUserFullName(teacherId),
+    });
+  }),
+
+  http.get("/api/coordinator/document-data/schedule", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const url = new URL(request.url);
+    const sessionId = url.searchParams.get("sessionId");
+    const session = sessionId ? tblDefenseSessions.find((s) => s.id === sessionId) : undefined;
+
+    const defenses = tblDefenses.filter((d) => d.status !== "cancelled");
+    const dates = [...new Set(defenses.map((d) => d.date))].sort();
+    const days = dates.map((date) => {
+      const dayDefenses = defenses.filter((d) => d.date === date);
+      const slots = dayDefenses.map((d) => {
+        const pv = getProjectView(tblProjects.find((p) => p.id === d.projectId)!);
+        const jury = tblJuries.find((j) => j.projectId === d.projectId);
+        return {
+          time: `${d.startTime} — ${d.endTime}`,
+          projectTitle: pv?.title ?? "",
+          students: pv?.studentNames ?? [],
+          roomName: tblRooms.find((r) => r.id === d.roomId)?.name ?? "",
+          jury: jury?.members.map((m) => `${m.roleName}: ${getUserFullName(m.teacherId)}`).join(" | ") ?? "",
+        };
+      });
+      slots.sort((a, b) => a.time.localeCompare(b.time));
+      return { date, slots };
+    });
+
+    return HttpResponse.json({
+      settings: { ...tblGeneralSettings },
+      sessionName: session?.name ?? "",
+      days,
+    });
+  }),
+
+  http.get("/api/coordinator/document-data/proces-verbal", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const url = new URL(request.url);
+    const projectId = url.searchParams.get("projectId");
+    if (!projectId) return new HttpResponse(null, { status: 400 });
+
+    const defense = tblDefenses.find((d) => d.projectId === projectId);
+    const pv = getProjectView(tblProjects.find((p) => p.id === projectId)!);
+    const jury = tblJuries.find((j) => j.projectId === projectId);
+    const grade = tblJuries
+      .filter((j) => j.projectId === projectId)
+      .map((jury) => {
+        const d = tblDefenses.find((def) => def.projectId === jury.projectId);
+        const gradeResult = d ? getDefenseGrade(d.id) : null;
+        const evaluations = d ? tblEvaluations.filter((e) => e.defenseId === d.id) : [];
+        return {
+          projectId: jury.projectId,
+          projectTitle: pv?.title ?? "",
+          defenseDate: d?.date ?? null,
+          status: (evaluations.length > 0 && evaluations.every((e) => e.status === "submitted") ? "completed" : evaluations.length === 0 ? "no_evaluations" : "pending") as "completed" | "pending" | "no_evaluations",
+          finalScore: gradeResult?.finalScore ?? null,
+          evaluationCoefficients: gradeResult?.evaluationCoefficients ?? {},
+          individualScores: gradeResult?.individualScores ?? [],
+        };
+      })[0] ?? null;
+
+    return HttpResponse.json({
+      settings: { ...tblGeneralSettings },
+      grade,
+      studentNames: pv?.studentNames ?? [],
+      supervisorName: pv?.supervisorName ?? "",
+      juryMembers: jury?.members.map((m) => ({ roleName: m.roleName, teacherName: getUserFullName(m.teacherId) })) ?? [],
+    });
   }),
 ];
