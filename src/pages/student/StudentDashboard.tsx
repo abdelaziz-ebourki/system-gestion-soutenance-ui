@@ -1,5 +1,5 @@
 
-import { CalendarDays, GraduationCap, Users, Printer } from "lucide-react";
+import { CalendarDays, GraduationCap, Users, Printer, Download } from "lucide-react";
 
 import { useStudentStats, useStudentDefense } from "@/hooks/use-queries";
 import {

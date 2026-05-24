@@ -277,7 +277,7 @@ export const coordinatorHandlers = [
 
   http.post("/api/coordinator/projects/:id/assign-group", async ({ params, request }) => {
     await delay(MOCK_DELAY);
-    const { id } = params;
+    const id = params.id as string;
     const { groupId } = (await request.json()) as { groupId: string };
     const projectIndex = tblProjects.findIndex((p) => p.id === id);
     if (projectIndex === -1) return new HttpResponse(null, { status: 404 });

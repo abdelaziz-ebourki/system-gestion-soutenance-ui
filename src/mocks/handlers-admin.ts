@@ -957,11 +957,6 @@ export const adminHandlers = [
     Object.assign(tblEmailConfig, body);
     return HttpResponse.json({ ...tblEmailConfig });
   }),
-    await delay(MOCK_DELAY);
-    const body = await request.json() as Record<string, unknown>;
-    Object.assign(tblDocumentConfig, body);
-    return HttpResponse.json({ ...tblDocumentConfig });
-  }),
 
   ...auditLogHandlers,
 ];

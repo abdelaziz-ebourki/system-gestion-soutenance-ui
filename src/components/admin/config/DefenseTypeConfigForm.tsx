@@ -82,7 +82,7 @@ export function DefenseTypeConfigForm() {
                   <span className="font-semibold text-sm">{short}</span>
                   <Checkbox
                     checked={item.enabled}
-                    onCheckedChange={(v) => updateItem(key, { enabled: v })}
+                    onCheckedChange={(v) => updateItem(key, { enabled: v === true })}
                   />
                 </div>
                 {item.enabled && (

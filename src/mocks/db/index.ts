@@ -5,6 +5,8 @@ import type {
   StudentGroupDetails, StudentGroupWorkspace, StudentDefenseDetails,
 } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
+import type { DbJury } from "./schema";
+import type { SlotAssignment } from "@/lib/conflict-engine";
 import { DEFENSE_SESSION_LIFECYCLE } from "@/lib/constants";
 import { createPersisted } from "./persist";
 import { users as _users } from "./users";
@@ -23,7 +25,7 @@ import { groups as _groups, groupMembers as _groupMembers } from "./groups";
 import { studentGroups as _studentGroups, studentDocuments as _studentDocuments } from "./student";
 import { unavailability as _unavailability } from "./unavailability";
 import { notifications as _notifications } from "./notifications";
-import { generalSettings, defenseTypeConfig, documentConfig, emailConfig } from "./config";
+import { generalSettings, defenseTypeConfig, documentConfig, emailConfig, juryRoleTemplates } from "./config";
 
 export { majors, levels, grades, juryRoleTemplates, generalSettings, defenseTypeConfig, documentConfig } from "./config";
 export type {
@@ -152,8 +154,8 @@ export function getDefenseView(d: typeof _defenses[number]): TeacherDefense {
     startTime: d.startTime,
     endTime: d.endTime,
     roomName: room?.name ?? "",
-    role: dt?.role ?? "supervisor",
-    status: d.status,
+    role: (dt?.role ?? "supervisor") as TeacherDefense["role"],
+    status: d.status as TeacherDefense["status"],
   };
 }
 
@@ -175,7 +177,7 @@ export function getEvaluationView(e: typeof _evaluations[number]): TeacherEvalua
     defenseId: e.defenseId,
     projectTitle: project?.title ?? "",
     studentNames: resolveStudentNames(stIds),
-    role: dt?.role ?? "supervisor",
+    role: (dt?.role ?? "supervisor") as TeacherEvaluation["role"],
     score: e.score,
     comment: e.comment,
     status: e.status,
