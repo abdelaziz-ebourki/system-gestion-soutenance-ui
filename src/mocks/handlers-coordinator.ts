@@ -4,11 +4,14 @@ import {
   tblProjects, tblProjectStudents, tblDefenseSessions,
   tblJuries, tblGroups, tblGroupMembers, tblDefenses,
   tblUnavailability, tblStudentGroups,
+  tblDefenseTeachers, tblEvaluations,
   getProjectView, getAllProjectViews,
   getJuryView, getAllJuryViews,
   isDefenseSessionTransitionValid,
   prependProject, removeJuryByProject,
   getUserFullName, getDefenseGrade,
+  createNotification, generateAutoSchedule,
+  tblUsers,
 } from "./db";
 import type { SlotAssignment } from "@/lib/conflict-engine";
 import type { DbProject, DbJury } from "./db/schema";
@@ -322,5 +325,125 @@ export const coordinatorHandlers = [
       };
     });
     return HttpResponse.json(grades);
+  }),
+
+  // ─── Auto-generate Schedule ───────────────────────────────────────
+
+  http.post("/api/coordinator/schedule/auto-generate", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const { defenseSessionId } = (await request.json()) as { defenseSessionId: string };
+    const schedule = generateAutoSchedule(defenseSessionId);
+    return HttpResponse.json({ schedule });
+  }),
+
+  // ─── Publish Schedule ──────────────────────────────────────────────
+
+  http.post("/api/coordinator/schedule/publish", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const { defenseSessionId } = (await request.json()) as { defenseSessionId: string };
+    const session = tblDefenseSessions.find((s) => s.id === defenseSessionId);
+    if (!session) {
+      return HttpResponse.json({ message: "Session introuvable." }, { status: 404 });
+    }
+
+    const existing = Object.keys(tblSchedule);
+    if (existing.length === 0) {
+      return HttpResponse.json({ message: "Aucun créneau à publier." }, { status: 400 });
+    }
+
+    let publishedCount = 0;
+    for (const [slotKey, assignment] of Object.entries(tblSchedule)) {
+      const [date, roomId, time] = slotKey.split("|");
+      const project = tblProjects.find((p) => p.id === assignment.id);
+      if (!project) continue;
+
+      const startMinutes = parseInt(time.split(":")[0]) * 60 + parseInt(time.split(":")[1]);
+      const endMinutes = startMinutes + (session.defenseDuration || 30);
+      const endTime = `${String(Math.floor(endMinutes / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
+
+      const defenseId = `def${tblDefenses.length + 1}`;
+      tblDefenses.push({
+        id: defenseId,
+        projectId: project.id,
+        defenseType: project.defenseType,
+        date,
+        startTime: time,
+        endTime,
+        roomId,
+        status: "scheduled",
+      });
+
+      // Link jury teachers
+      const jury = tblJuries.find((j) => j.projectId === project.id);
+      if (jury) {
+        for (const member of jury.members) {
+          tblDefenseTeachers.push({ defenseId, teacherId: member.teacherId, role: member.roleName });
+        }
+      }
+
+      // Notify teacher
+      const teacher = tblUsers.find((u) => u.id === project.supervisorId);
+      if (teacher) {
+        createNotification({
+          title: "Soutenance programmée",
+          message: `La soutenance de "${project.title}" est programmée le ${date} à ${time}.`,
+          actionLink: "/coordinator/schedule",
+          actor: "system",
+        });
+      }
+
+      publishedCount++;
+    }
+
+    // Transition session to scheduled
+    if (session.status === "active") {
+      session.status = "scheduled";
+    }
+
+    tblSchedule = {};
+    return HttpResponse.json({ message: `${publishedCount} soutenance(s) publiée(s).`, count: publishedCount });
+  }),
+
+  // ─── Cancel Defense ────────────────────────────────────────────────
+
+  http.post("/api/coordinator/defenses/:id/cancel", async ({ params }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+
+    // Remove from tblSchedule if present
+    let removedFromSchedule = false;
+    for (const [key, assignment] of Object.entries(tblSchedule)) {
+      if (assignment.id === id) {
+        delete tblSchedule[key];
+        removedFromSchedule = true;
+        break;
+      }
+    }
+
+    // Cancel in tblDefenses if present
+    const defense = tblDefenses.find((d) => d.projectId === id);
+    if (defense) {
+      defense.status = "cancelled";
+
+      // Remove linked defense teachers
+      for (let i = tblDefenseTeachers.length - 1; i >= 0; i--) {
+        if (tblDefenseTeachers[i].defenseId === defense.id) {
+          tblDefenseTeachers.splice(i, 1);
+        }
+      }
+
+      createNotification({
+        title: "Soutenance annulée",
+        message: `La soutenance du projet "${tblProjects.find((p) => p.id === id)?.title ?? id}" a été annulée.`,
+        actionLink: "/coordinator/schedule",
+        actor: "system",
+      });
+    }
+
+    if (!removedFromSchedule && !defense) {
+      return HttpResponse.json({ message: "Soutenance introuvable." }, { status: 404 });
+    }
+
+    return HttpResponse.json({ message: "Soutenance annulée." });
   }),
 ];

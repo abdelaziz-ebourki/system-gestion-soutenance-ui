@@ -5,6 +5,8 @@ import {
   MapPin,
   Save,
   Search,
+  Wand2,
+  Send,
   X,
 } from "lucide-react";
 import {
@@ -20,6 +22,7 @@ import type { Project } from "@/types";
 import type { ConflictContext, ConflictIssue } from "@/lib/conflict-engine";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
+import { api } from "@/lib/api";
 import { defenseSettings } from "@/mocks/db";
 import {
   Badge,
@@ -103,6 +106,8 @@ export default function DefenseDesigner() {
   const [selectedProjectId, setSelectedProjectId] = React.useState<string | null>(null);
   const [filterQuery, setFilterQuery] = React.useState("");
   const [activeDayIndex, setActiveDayIndex] = React.useState(0);
+  const [isAutoGenerating, setIsAutoGenerating] = React.useState(false);
+  const [isPublishing, setIsPublishing] = React.useState(false);
 
   React.useEffect(() => {
     if (!activeRoomId && rooms.length > 0) {
@@ -259,6 +264,62 @@ export default function DefenseDesigner() {
     }
   };
 
+  const handleAutoGenerate = async () => {
+    if (!session) {
+      toast.error("Aucune session de défense active.");
+      return;
+    }
+    setIsAutoGenerating(true);
+    try {
+      const data = await api<{ schedule: Record<string, { id: string; title: string; date: string; time: string; roomId: string }> }>(
+        "/coordinator/schedule/auto-generate",
+        { method: "POST", body: JSON.stringify({ defenseSessionId: session.id }) },
+      );
+      const cards: Record<string, ScheduledCard> = {};
+      for (const [key, assignment] of Object.entries(data.schedule)) {
+        const [date, roomId, time] = key.split("|");
+        cards[key] = {
+          id: assignment.id,
+          title: assignment.title,
+          date,
+          roomName: rooms.find((r) => r.id === roomId)?.name ?? "Salle",
+          time,
+        };
+      }
+      setScheduledProjects(cards);
+      toast.success(`${Object.keys(cards).length} créneaux générés automatiquement.`);
+    } catch (error) {
+      toastError(error, "Erreur lors de la génération automatique.");
+    } finally {
+      setIsAutoGenerating(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!session) {
+      toast.error("Aucune session de défense active.");
+      return;
+    }
+    if (Object.keys(scheduledProjects).length === 0) {
+      toast.error("Aucun créneau à publier.");
+      return;
+    }
+    if (!window.confirm("Publier le planning va convertir les créneaux en soutenances et notifier les utilisateurs. Continuer ?")) return;
+    setIsPublishing(true);
+    try {
+      const result = await api<{ message: string }>(
+        "/coordinator/schedule/publish",
+        { method: "POST", body: JSON.stringify({ defenseSessionId: session.id }) },
+      );
+      setScheduledProjects({});
+      toast.success(result.message);
+    } catch (error) {
+      toastError(error, "Erreur lors de la publication.");
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -279,14 +340,34 @@ export default function DefenseDesigner() {
               Placez les projets prêts dans les créneaux disponibles.
             </p>
           </div>
-          <Button
-            onClick={handleSave}
-            isLoading={saveMutation.isPending}
-            loadingText="Validation..."
-          >
-            <Save className="mr-2 size-4" />
-            Valider le planning
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              onClick={handleAutoGenerate}
+              isLoading={isAutoGenerating}
+              loadingText="Génération..."
+            >
+              <Wand2 className="mr-2 size-4" />
+              Auto-générer
+            </Button>
+            <Button
+              onClick={handleSave}
+              isLoading={saveMutation.isPending}
+              loadingText="Validation..."
+            >
+              <Save className="mr-2 size-4" />
+              Valider le planning
+            </Button>
+            <Button
+              variant="default"
+              onClick={handlePublish}
+              isLoading={isPublishing}
+              loadingText="Publication..."
+            >
+              <Send className="mr-2 size-4" />
+              Publier le planning
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-end gap-4">

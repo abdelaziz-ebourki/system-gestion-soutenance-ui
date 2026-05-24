@@ -22,6 +22,7 @@ import { defenses as _defenses, defenseTeachers, evaluations as _evaluations } f
 import { groups as _groups, groupMembers as _groupMembers } from "./groups";
 import { studentGroups as _studentGroups, studentDocuments as _studentDocuments } from "./student";
 import { unavailability as _unavailability } from "./unavailability";
+import { notifications as _notifications } from "./notifications";
 import { generalSettings, defenseTypeConfig, documentConfig } from "./config";
 
 export { majors, levels, grades, juryRoleTemplates, generalSettings, defenseTypeConfig, documentConfig } from "./config";
@@ -70,6 +71,7 @@ export const tblGroupMembers: typeof _groupMembers = createPersisted("groupMembe
 export const tblStudentGroups: typeof _studentGroups = createPersisted("studentGroups", [..._studentGroups]);
 export const tblStudentDocuments: typeof _studentDocuments = createPersisted("studentDocuments", [..._studentDocuments]);
 export const tblUnavailability: typeof _unavailability = createPersisted("unavailability", [..._unavailability]);
+export const tblNotifications: typeof _notifications = createPersisted("notifications", [..._notifications]);
 
   // The demo student ID used for student flows (no seed student anymore)
 export const currentStudentId = "std-demo";
@@ -395,4 +397,87 @@ export function getDefenseGrade(defenseId: string): {
   const finalScore = totalCoeff > 0 ? Math.round((weightedSum / totalCoeff) * 100) / 100 : null;
 
   return { finalScore, evaluationCoefficients: coeffs, individualScores };
+}
+
+// ─── Notification helpers ──────────────────────────────────────────
+
+export interface CreateNotificationParams {
+  type?: string;
+  title: string;
+  message: string;
+  actionLink?: string;
+  actor?: string;
+}
+
+export function createNotification(params: CreateNotificationParams) {
+  const n = {
+    id: `n${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    type: params.type ?? "info",
+    title: params.title,
+    message: params.message,
+    timestamp: new Date().toISOString(),
+    read: false,
+    actionLink: params.actionLink,
+    actor: params.actor ?? "system",
+  };
+  tblNotifications.push(n);
+  return n;
+}
+
+// ─── Auto-schedule helper ─────────────────────────────────────────
+
+export function generateAutoSchedule(defenseSessionId: string): Record<string, SlotAssignment> {
+  const session = tblDefenseSessions.find((s) => s.id === defenseSessionId);
+  if (!session) return {};
+
+  const schedule: Record<string, SlotAssignment> = {};
+  const rooms = tblRooms;
+  const projects = tblProjects.filter(
+    (p) => p.status === "approved" && !Object.values(schedule).some((s) => s.id === p.id),
+  );
+
+  // Generate time slots
+  const times: string[] = [];
+  const startHour = 8;
+  const endHour = 18;
+  const duration = session.defenseDuration || 30;
+  for (let h = startHour; h < endHour; h++) {
+    for (let m = 0; m < 60; m += duration) {
+      times.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+    }
+  }
+
+  // Iterate days within session range
+  const startDate = new Date(session.startDate);
+  const endDate = new Date(session.endDate);
+  const days: string[] = [];
+  for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+    days.push(d.toISOString().slice(0, 10));
+  }
+
+  for (const date of days) {
+    for (const room of rooms) {
+      for (const time of times) {
+        const slotKey = `${date}|${room.id}|${time}`;
+        const candidate = projects.find((p) => {
+          if (Object.values(schedule).some((s) => s.id === p.id)) return false;
+          return true;
+        });
+        if (!candidate) continue;
+
+        const jury = tblJuries.find((j) => j.projectId === candidate.id);
+        schedule[slotKey] = {
+          id: candidate.id,
+          title: candidate.title,
+          date,
+          time,
+          roomId: room.id,
+          supervisorId: candidate.supervisorId,
+          juryTeacherIds: jury?.members.map((m) => m.teacherId) ?? [],
+        };
+      }
+    }
+  }
+
+  return schedule;
 }

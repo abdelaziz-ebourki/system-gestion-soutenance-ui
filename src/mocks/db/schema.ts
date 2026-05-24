@@ -140,7 +140,7 @@ export interface DbDefense {
   startTime: string;
   endTime: string;
   roomId: string;
-  status: "scheduled" | "completed";
+  status: "scheduled" | "completed" | "cancelled";
 }
 
 export interface DbDefenseTeacher {
