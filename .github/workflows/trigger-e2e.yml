@@ -15,26 +15,23 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.E2E_SSH_KEY }}
 
-      - name: Push trigger to e2e repo
+      - name: Sync source to e2e repo
         run: |
-          git clone git@github.com:abdelaziz-ebourki/system-gestion-soutenance-e2e.git e2e
-          cd e2e
+          git clone git@github.com:abdelaziz-ebourki/system-gestion-soutenance-e2e.git /tmp/e2e-repo
+          cd /tmp/e2e-repo
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          mkdir -p triggers
-          cat > triggers/ui-update.json << EOF
-          {
-            "repo": "system-gestion-soutenance-ui",
-            "sha": "${{ github.sha }}",
-            "ref": "${{ github.ref }}"
-          }
-          EOF
+          rm -rf ui/
+          mkdir -p ui
+          rsync -a --exclude=.git --exclude=node_modules --exclude=dist --exclude=archive \
+            "${{ github.workspace }}/" ui/
 
-          git add triggers/ui-update.json
+          git add ui/
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "trigger: ui-update ${{ github.sha }}"
+            git commit -m "sync: ui-update ${{ github.sha }}"
+            git pull --rebase origin main
             git push origin main
           fi
