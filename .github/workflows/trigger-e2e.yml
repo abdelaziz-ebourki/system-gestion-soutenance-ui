@@ -1,0 +1,17 @@
+name: Trigger E2E Tests
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch e2e workflow
+        run: |
+          gh api repos/abdelaziz-ebourki/system-gestion-soutenance-e2e/dispatches \
+            --field event_type=ui-update \
+            --field client_payload="{\"source_repo\":\"system-gestion-soutenance-ui\",\"sha\":\"${{ github.sha }}\",\"ref\":\"${{ github.ref }}\"}"
+        env:
+          GH_TOKEN: ${{ secrets.E2E_TRIGGER_PAT }}
