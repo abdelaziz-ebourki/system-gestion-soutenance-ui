@@ -158,34 +158,34 @@ export function useDeleteLevel() {
   });
 }
 
-export function useGrades() {
-  return useQuery({ queryKey: ["grades"], queryFn: api.getGrades });
+export function useGradeLevels() {
+  return useQuery({ queryKey: ["grades"], queryFn: api.getGradeLevels });
 }
 
-export function useCreateGrade() {
+export function useCreateGradeLevel() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Grade, "id">) => api.createGrade(data),
+    mutationFn: (data: Omit<Grade, "id">) => api.createGradeLevel(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"] }),
   });
 }
 
-export function useUpdateGrade() {
+export function useUpdateGradeLevel() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<Grade, "id"> }) =>
-      api.updateGrade(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Omit<Grade, "id"> }) => api.updateGradeLevel(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"] }),
   });
 }
 
-export function useDeleteGrade() {
+export function useDeleteGradeLevel() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteGrade(id),
+    mutationFn: (id: string) => api.deleteGradeLevel(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"] }),
   });
 }
+
 
 export function useDefenseSettings() {
   return useQuery({

@@ -164,18 +164,18 @@ export const updateLevel = (id: string, data: Omit<Level, "id">) =>
 export const deleteLevel = (id: string) =>
   api<void>(`/admin/config/levels/${id}`, { method: "DELETE" });
 
-export const getGrades = () => api<Grade[]>("/admin/config/grades");
-export const createGrade = (data: Omit<Grade, "id">) =>
+export const getGradeLevels = () => api<Grade[]>("/admin/config/grades");
+export const createGradeLevel = (data: Omit<Grade, "id">) =>
   api<Grade>("/admin/config/grades", {
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateGrade = (id: string, data: Omit<Grade, "id">) =>
+export const updateGradeLevel = (id: string, data: Omit<Grade, "id">) =>
   api<Grade>(`/admin/config/grades/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
-export const deleteGrade = (id: string) =>
+export const deleteGradeLevel = (id: string) =>
   api<void>(`/admin/config/grades/${id}`, { method: "DELETE" });
 
 export const getJuryRoleTemplates = () => api<JuryRoleTemplate[]>("/admin/config/jury-role-templates");

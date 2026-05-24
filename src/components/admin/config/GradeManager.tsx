@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { GraduationCap } from "lucide-react";
 import {
-  useGrades, useCreateGrade, useUpdateGrade, useDeleteGrade,
+  useGradeLevels, useCreateGradeLevel, useUpdateGradeLevel, useDeleteGradeLevel,
 } from "@/hooks/use-queries";
 import { validate, configNameSchema } from "@/lib/validations";
 import { toast } from "sonner";
@@ -27,10 +27,10 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { ConfigCard } from "./ConfigCard";
 
 export function GradeManager() {
-  const { data: grades } = useGrades();
-  const createMut = useCreateGrade();
-  const updateMut = useUpdateGrade();
-  const deleteMut = useDeleteGrade();
+  const { data: grades } = useGradeLevels();
+  const createMut = useCreateGradeLevel();
+  const updateMut = useUpdateGradeLevel();
+  const deleteMut = useDeleteGradeLevel();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);

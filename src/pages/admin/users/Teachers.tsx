@@ -2,7 +2,7 @@ import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 import { Plus, Users } from "lucide-react";
 
-import { useTeachers, useDepartments, useGrades } from "@/hooks/use-queries";
+import { useTeachers, useDepartments, useGradeLevels } from "@/hooks/use-queries";
 import type { Teacher } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -47,7 +47,7 @@ export default function Teachers() {
     isFiltering ? FILTER_LIMIT : pagination.pageSize,
   );
   const { data: departments = [] } = useDepartments();
-  const { data: grades = [] } = useGrades();
+  const { data: grades = [] } = useGradeLevels();
   const crud = useTeacherCrud();
 
   const data = teachersData?.items ?? [];

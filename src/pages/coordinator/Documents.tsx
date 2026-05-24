@@ -1,5 +1,5 @@
 import { FileText, Users, Calendar, ClipboardList, Printer, ScrollText } from "lucide-react";
-import { useJuries, useProjects, useCoordinatorDefenseSessions, useGrades } from "@/hooks/use-queries";
+import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades } from "@/hooks/use-queries";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Skeleton, EmptyState } from "@/components/ui";
 import { toast } from "sonner";
 
@@ -72,7 +72,7 @@ export default function Documents() {
   const projectsQuery = useProjects();
   const juriesQuery = useJuries();
   const sessionsQuery = useCoordinatorDefenseSessions();
-  const gradesQuery = useGrades();
+  const gradesQuery = useProjectGrades();
 
   const juries = juriesQuery.data ?? [];
   const sessions = sessionsQuery.data ?? [];
