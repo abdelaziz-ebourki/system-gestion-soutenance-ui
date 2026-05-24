@@ -123,6 +123,7 @@ export interface GeneralSettings {
   institutionLogoUrl: string;
   timezone: string;
   dateFormat: string;
+  setupCompleted: boolean;
 }
 
 export interface DefenseTypeItem {
@@ -143,4 +144,14 @@ export interface DocumentConfig {
   maxFileSizeMb: number;
   allowedExtensions: string;
   versionLimit: number;
+}
+
+export interface EmailConfig {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  senderName: string;
+  senderEmail: string;
+  encryption: "tls" | "ssl" | "none";
 }

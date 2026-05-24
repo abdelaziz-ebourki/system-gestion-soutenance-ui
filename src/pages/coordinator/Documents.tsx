@@ -1,4 +1,4 @@
-import { FileText, Users, Calendar, ClipboardList, Printer, ScrollText } from "lucide-react";
+import { FileText, Users, Calendar, ClipboardList, Printer, ScrollText, Award } from "lucide-react";
 import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades } from "@/hooks/use-queries";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Skeleton, EmptyState } from "@/components/ui";
 import { toast } from "sonner";
@@ -65,6 +65,15 @@ const DOC_TYPES: {
     color: "bg-teal-500/10 text-teal-600",
     getUrl: () => `/print/student-convocation`,
     requiresData: () => true,
+  },
+  {
+    id: "certificate",
+    title: "Attestations",
+    description: "Générer les attestations de soutenance pour les étudiants admis.",
+    icon: Award,
+    color: "bg-amber-500/10 text-amber-600",
+    getUrl: (projectId: string) => `/print/certificate?projectId=${projectId}`,
+    requiresData: (grades) => grades.length > 0,
   },
 ];
 
@@ -146,7 +155,7 @@ export default function Documents() {
               <CardDescription>{doc.description}</CardDescription>
             </CardHeader>
             <CardContent className="mt-auto">
-              {doc.id === "evaluation-sheet" || doc.id === "proces-verbal" ? (
+              {doc.id === "evaluation-sheet" || doc.id === "proces-verbal" || doc.id === "certificate" ? (
                 <div className="space-y-1">
                   {grades.length === 0 ? (
                     <EmptyState variant="dashed" description="Aucune note disponible" />

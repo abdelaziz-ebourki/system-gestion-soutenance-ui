@@ -6,11 +6,34 @@ function daysFromNow(days: number): string {
   return d.toISOString().slice(0, 10);
 }
 
-export const majors: DbMajor[] = [];
+export const majors: DbMajor[] = [
+  { id: "m1", name: "Informatique" },
+  { id: "m2", name: "Mathématiques" },
+  { id: "m3", name: "MI" },
+  { id: "m4", name: "Physique Fondamentale" },
+  { id: "m5", name: "Chimie" },
+  { id: "m6", name: "Biologie Moléculaire" },
+  { id: "m7", name: "Génie Civil" },
+  { id: "m8", name: "Génie Mécanique" },
+  { id: "m9", name: "Électronique" },
+  { id: "m10", name: "Sciences de Gestion" },
+];
 
-export const levels: DbLevel[] = [];
+export const levels: DbLevel[] = [
+  { id: "l1", name: "L1" },
+  { id: "l2", name: "L2" },
+  { id: "l3", name: "L3" },
+  { id: "m1", name: "M1" },
+  { id: "m2", name: "M2" },
+];
 
-export const grades: DbGrade[] = [];
+export const grades: DbGrade[] = [
+  { id: "g1", name: "Professeur" },
+  { id: "g2", name: "Maître de Conférences A" },
+  { id: "g3", name: "Maître de Conférences B" },
+  { id: "g4", name: "Maître Assistant A" },
+  { id: "g5", name: "Maître Assistant B" },
+];
 
 export const juryRoleTemplates: DbJuryRoleTemplate[] = [
   {
@@ -50,6 +73,7 @@ export const generalSettings = {
   institutionLogoUrl: "",
   timezone: "Africa/Algiers",
   dateFormat: "DD/MM/YYYY",
+  setupCompleted: false,
 };
 
 export const defenseTypeConfig = {
@@ -62,6 +86,16 @@ export const documentConfig = {
   maxFileSizeMb: 50,
   allowedExtensions: "pdf,docx,pptx,xlsx,zip",
   versionLimit: 5,
+};
+
+export const emailConfig = {
+  host: "smtp.univ-tlemcen.dz",
+  port: 587,
+  username: "noreply@univ-tlemcen.dz",
+  password: "",
+  senderName: "Université de Tlemcen",
+  senderEmail: "noreply@univ-tlemcen.dz",
+  encryption: "tls" as const,
 };
 
 export const defenseSettings: DbDefenseSettings = {

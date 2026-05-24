@@ -166,6 +166,7 @@ export const generalSettingsSchema = z.object({
   institutionLogoUrl: z.string().optional(),
   timezone: z.string().min(1, "Le fuseau horaire est requis"),
   dateFormat: z.string().min(1, "Le format de date est requis"),
+  setupCompleted: z.boolean().optional(),
 });
 
 // --- Admin: Defense Type Config ---

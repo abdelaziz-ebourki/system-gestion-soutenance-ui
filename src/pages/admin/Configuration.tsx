@@ -6,6 +6,7 @@ import { JuryRoleTemplateManager } from "@/components/admin/config/JuryRoleTempl
 import { GeneralSettingsForm } from "@/components/admin/config/GeneralSettingsForm";
 import { DefenseTypeConfigForm } from "@/components/admin/config/DefenseTypeConfigForm";
 import { DocumentConfigForm } from "@/components/admin/config/DocumentConfigForm";
+import { EmailConfigForm } from "@/components/admin/config/EmailConfigForm";
 
 export default function Configuration() {
   return (
@@ -25,6 +26,7 @@ export default function Configuration() {
         <DefenseTypeConfigForm />
         <DocumentConfigForm />
         <JuryRoleTemplateManager />
+        <EmailConfigForm />
         <DefenseSettingsForm />
       </div>
     </div>

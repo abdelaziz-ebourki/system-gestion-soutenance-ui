@@ -5,7 +5,7 @@ import {
   tblUsers, tblStudents, tblTeachers, tblCoordinators,
   tblDepartments, tblSessions, tblRooms, tblDefenseSessions,
   majors, levels, grades, juryRoleTemplates, tblDefenseSettings,
-  tblGeneralSettings, tblDefenseTypeConfig, tblDocumentConfig,
+  tblGeneralSettings, tblDefenseTypeConfig, tblDocumentConfig, tblEmailConfig,
   tblJuries, tblProjects, tblProjectStudents,
   getFlatUser, deriveEvaluationCoefficients,
 } from "./db";
@@ -941,6 +941,22 @@ export const adminHandlers = [
     return HttpResponse.json({ ...tblDocumentConfig });
   }),
   http.put("/api/admin/config/documents", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = await request.json() as Record<string, unknown>;
+    Object.assign(tblDocumentConfig, body);
+    return HttpResponse.json({ ...tblDocumentConfig });
+  }),
+
+  http.get("/api/admin/config/email", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json({ ...tblEmailConfig });
+  }),
+  http.put("/api/admin/config/email", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = await request.json() as Record<string, unknown>;
+    Object.assign(tblEmailConfig, body);
+    return HttpResponse.json({ ...tblEmailConfig });
+  }),
     await delay(MOCK_DELAY);
     const body = await request.json() as Record<string, unknown>;
     Object.assign(tblDocumentConfig, body);

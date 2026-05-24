@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import SetupGuard from "./components/auth/SetupGuard";
 import DashboardLayout from "./components/layout/DashboardLayout";
 
 const Login = lazy(() => import("./pages/Login"));
@@ -35,6 +36,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 const AdminDefenseSessions = lazy(() => import("./pages/admin/DefenseSessions"));
+const SetupWizard = lazy(() => import("./pages/admin/SetupWizard"));
 const CoordinatorDocuments = lazy(() => import("./pages/coordinator/Documents"));
 const PrintEvaluationSheet = lazy(() => import("./pages/print/PrintEvaluationSheet"));
 const PrintAttendanceList = lazy(() => import("./pages/print/PrintAttendanceList"));
@@ -42,6 +44,7 @@ const PrintJuryConvocation = lazy(() => import("./pages/print/PrintJuryConvocati
 const PrintDefenseSchedule = lazy(() => import("./pages/print/PrintDefenseSchedule"));
 const PrintProcesVerbal = lazy(() => import("./pages/print/PrintProcesVerbal"));
 const PrintStudentConvocation = lazy(() => import("./pages/print/PrintStudentConvocation"));
+const PrintCertificate = lazy(() => import("./pages/print/PrintCertificate"));
 
 function PageLoader() {
   return (
@@ -66,19 +69,26 @@ export default function App() {
         <Route path="/print/schedule" element={<PrintDefenseSchedule />} />
         <Route path="/print/proces-verbal" element={<PrintProcesVerbal />} />
         <Route path="/print/student-convocation" element={<PrintStudentConvocation />} />
+        <Route path="/print/certificate" element={<PrintCertificate />} />
+
+        <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+          <Route path="/admin/setup" element={<SetupWizard />} />
+        </Route>
 
         <Route element={<DashboardLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/departments" element={<Departments />} />
-            <Route path="/admin/sessions" element={<Sessions />} />
-            <Route path="/admin/rooms" element={<Rooms />} />
-            <Route path="/admin/users/students" element={<Students />} />
-            <Route path="/admin/users/teachers" element={<Teachers />} />
-            <Route path="/admin/users/coordinators" element={<Coordinators />} />
-            <Route path="/admin/config" element={<Configuration />} />
-            <Route path="/admin/audit-logs" element={<AuditLogs />} />
-            <Route path="/admin/defense-sessions" element={<AdminDefenseSessions />} />
+            <Route element={<SetupGuard />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/departments" element={<Departments />} />
+              <Route path="/admin/sessions" element={<Sessions />} />
+              <Route path="/admin/rooms" element={<Rooms />} />
+              <Route path="/admin/users/students" element={<Students />} />
+              <Route path="/admin/users/teachers" element={<Teachers />} />
+              <Route path="/admin/users/coordinators" element={<Coordinators />} />
+              <Route path="/admin/config" element={<Configuration />} />
+              <Route path="/admin/audit-logs" element={<AuditLogs />} />
+              <Route path="/admin/defense-sessions" element={<AdminDefenseSessions />} />
+            </Route>
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>

@@ -50,6 +50,7 @@ export function GeneralSettingsForm() {
     institutionLogoUrl: "",
     timezone: "Africa/Algiers",
     dateFormat: "DD/MM/YYYY",
+    setupCompleted: false,
   });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 

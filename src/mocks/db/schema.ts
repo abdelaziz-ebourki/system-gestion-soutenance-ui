@@ -182,6 +182,16 @@ export interface DbStudentDocument {
   submittedAt?: string;
 }
 
+export interface DbEmailConfig {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  senderName: string;
+  senderEmail: string;
+  encryption: "tls" | "ssl" | "none";
+}
+
 export interface Tables {
   juryRoleTemplates: DbJuryRoleTemplate[];
   users: DbUser[];
@@ -196,6 +206,7 @@ export interface Tables {
   levels: DbLevel[];
   grades: DbGrade[];
   defenseSettings: DbDefenseSettings;
+  emailConfig: DbEmailConfig;
   projects: DbProject[];
   projectStudents: DbProjectStudent[];
   juries: DbJury[];

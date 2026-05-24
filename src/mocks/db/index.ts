@@ -23,7 +23,7 @@ import { groups as _groups, groupMembers as _groupMembers } from "./groups";
 import { studentGroups as _studentGroups, studentDocuments as _studentDocuments } from "./student";
 import { unavailability as _unavailability } from "./unavailability";
 import { notifications as _notifications } from "./notifications";
-import { generalSettings, defenseTypeConfig, documentConfig } from "./config";
+import { generalSettings, defenseTypeConfig, documentConfig, emailConfig } from "./config";
 
 export { majors, levels, grades, juryRoleTemplates, generalSettings, defenseTypeConfig, documentConfig } from "./config";
 export type {
@@ -33,7 +33,7 @@ export type {
   DbProject, DbProjectStudent,
   DbJury, DbGroup, DbGroupMember,
   DbDefense, DbDefenseTeacher, DbEvaluation,
-  DbUnavailability, DbStudentGroup, DbStudentDocument,
+  DbUnavailability, DbStudentGroup, DbStudentDocument, DbEmailConfig,
 } from "./schema";
 
 export const MOCK_DELAY = Number(import.meta.env.VITE_MOCK_DELAY) || 1000;
@@ -58,6 +58,7 @@ export const tblDefenseSettings = createPersisted("defenseSettings", { ..._defen
 export const tblGeneralSettings = createPersisted("generalSettings", { ...generalSettings });
 export const tblDefenseTypeConfig = createPersisted("defenseTypeConfig", { ...defenseTypeConfig });
 export const tblDocumentConfig = createPersisted("documentConfig", { ...documentConfig });
+export const tblEmailConfig = createPersisted("emailConfig", { ...emailConfig });
 
 export const defenseSettings = tblDefenseSettings;
 export const tblProjects: typeof _projects = createPersisted("projects", [..._projects]);
@@ -421,6 +422,15 @@ export function createNotification(params: CreateNotificationParams) {
     actor: params.actor ?? "system",
   };
   tblNotifications.push(n);
+
+  // Simulate email notification when email is configured
+  const emailSenderName = tblEmailConfig?.senderName;
+  if (emailSenderName) {
+    console.log(
+      `[EMAIL] To: teachers/students involved | Subject: ${params.title} | Body: ${params.message}`,
+    );
+  }
+
   return n;
 }
 

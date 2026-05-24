@@ -382,9 +382,9 @@ export const coordinatorHandlers = [
         }
       }
 
-      // Notify teacher
-      const teacher = tblUsers.find((u) => u.id === project.supervisorId);
-      if (teacher) {
+      // Notify supervisor
+      const supervisor = tblUsers.find((u) => u.id === project.supervisorId);
+      if (supervisor) {
         createNotification({
           title: "Soutenance programmée",
           message: `La soutenance de "${project.title}" est programmée le ${date} à ${time}.`,
@@ -393,8 +393,31 @@ export const coordinatorHandlers = [
         });
       }
 
+      // Notify jury members
+      if (jury) {
+        for (const member of jury.members) {
+          const teacher = tblUsers.find((u) => u.id === member.teacherId);
+          if (teacher) {
+            createNotification({
+              title: "Soutenance programmée",
+              message: `Vous êtes ${member.roleName} pour la soutenance de "${project.title}" le ${date} à ${time}.`,
+              actionLink: "/teacher/schedule",
+              actor: "system",
+            });
+          }
+        }
+      }
+
       publishedCount++;
     }
+
+    // General publish notification
+    createNotification({
+      title: "Planning publié",
+      message: `Le planning de la session "${session.name}" a été publié (${publishedCount} soutenance(s)).`,
+      actionLink: "/coordinator/schedule",
+      actor: "system",
+    });
 
     // Transition session to scheduled
     if (session.status === "active") {
@@ -577,7 +600,6 @@ export const coordinatorHandlers = [
     const projectId = url.searchParams.get("projectId");
     if (!projectId) return new HttpResponse(null, { status: 400 });
 
-    const defense = tblDefenses.find((d) => d.projectId === projectId);
     const pv = getProjectView(tblProjects.find((p) => p.id === projectId)!);
     const jury = tblJuries.find((j) => j.projectId === projectId);
     const grade = tblJuries
@@ -603,6 +625,39 @@ export const coordinatorHandlers = [
       studentNames: pv?.studentNames ?? [],
       supervisorName: pv?.supervisorName ?? "",
       juryMembers: jury?.members.map((m) => ({ roleName: m.roleName, teacherName: getUserFullName(m.teacherId) })) ?? [],
+    });
+  }),
+
+  http.get("/api/coordinator/document-data/certificate", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const url = new URL(request.url);
+    const projectId = url.searchParams.get("projectId");
+    if (!projectId) return new HttpResponse(null, { status: 400 });
+
+    const defense = tblDefenses.find((d) => d.projectId === projectId);
+    if (!defense) return HttpResponse.json({ message: "Aucune soutenance trouvée." }, { status: 404 });
+
+    const gradeResult = getDefenseGrade(defense.id);
+    if (!gradeResult?.finalScore || gradeResult.finalScore < 10) {
+      return HttpResponse.json({ message: "L'étudiant n'est pas admissible." }, { status: 400 });
+    }
+
+    const project = tblProjects.find((p) => p.id === projectId);
+    const pv = getProjectView(project!);
+    const defenseType = project?.defenseType === "pfe" ? "Projet de Fin d'Études" : project?.defenseType === "memoire" ? "Mémoire" : "Thèse";
+
+    const date = defense.date
+      ? new Date(defense.date).toLocaleDateString("fr-FR")
+      : "";
+
+    return HttpResponse.json({
+      settings: { ...tblGeneralSettings },
+      studentName: pv?.studentNames?.join(", ") ?? "",
+      projectTitle: pv?.title ?? "",
+      defenseType,
+      date,
+      grade: String(gradeResult.finalScore),
+      decision: "Admis",
     });
   }),
 ];
