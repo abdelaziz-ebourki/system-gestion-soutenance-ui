@@ -7,7 +7,7 @@ export default function SetupGuard() {
   if (isLoading) return null;
 
   if (settings && !settings.setupCompleted) {
-    return <Navigate to="/admin/setup" replace />;
+    return <Navigate to="/admin/config" replace />;
   }
 
   return <Outlet />;

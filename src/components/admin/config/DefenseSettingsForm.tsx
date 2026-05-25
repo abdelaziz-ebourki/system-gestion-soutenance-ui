@@ -57,7 +57,7 @@ export function DefenseSettingsForm() {
           <Settings className="size-5" /> Paramètres des Soutenances
         </CardTitle>
         <CardDescription>
-          Définissez les créneaux horaires globaux.
+          Définissez les créneaux horaires et les dates de création des groupes.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -84,28 +84,7 @@ export function DefenseSettingsForm() {
               />
             </Field>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field>
-              <FieldLabel>Durée soutenance (min)</FieldLabel>
-              <Input
-                type="number"
-                value={settings.defenseDuration}
-                onChange={(e) => setSettings({ ...settings, defenseDuration: parseInt(e.target.value) || 0 })}
-                required
-                error={fieldErrors?.defenseDuration}
-              />
-            </Field>
-            <Field>
-              <FieldLabel>Durée repos (min)</FieldLabel>
-              <Input
-                type="number"
-                value={settings.breakDuration}
-                onChange={(e) => setSettings({ ...settings, breakDuration: parseInt(e.target.value) || 0 })}
-                required
-                error={fieldErrors?.breakDuration}
-              />
-            </Field>
-          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <Field>
               <FieldLabel>Début création groupes</FieldLabel>

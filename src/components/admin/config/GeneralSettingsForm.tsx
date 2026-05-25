@@ -64,7 +64,7 @@ export function GeneralSettingsForm() {
     if (errors) { setFieldErrors(errors); return; }
     setFieldErrors({});
     try {
-      await updateMut.mutateAsync(settings);
+      await updateMut.mutateAsync({ ...settings, setupCompleted: true });
       toast.success("Paramètres généraux mis à jour");
     } catch (error) {
       toastError(error, "Erreur lors de la mise à jour");
