@@ -1,9 +1,9 @@
 import { http, HttpResponse, delay } from "msw";
-import type { Teacher, Coordinator, Department, Session, Room, Major, Level, Grade, Student, DefenseSession } from "@/types";
+import type { Teacher, Coordinator, Department, Session, Room, Major, Level, Grade, Student, DefenseSession, Faculty } from "@/types";
 import {
   MOCK_DELAY,
   tblUsers, tblStudents, tblTeachers, tblCoordinators,
-  tblDepartments, tblSessions, tblRooms, tblDefenseSessions,
+  tblFaculties, tblDepartments, tblSessions, tblRooms, tblDefenseSessions,
   majors, levels, grades, juryRoleTemplates, tblDefenseSettings,
   tblGeneralSettings, tblDefenseTypeConfig, tblDocumentConfig, tblEmailConfig,
   tblJuries, tblProjects, tblProjectStudents,
@@ -568,6 +568,58 @@ export const adminHandlers = [
     }
 
     tblDepartments.splice(index, 1);
+    return new HttpResponse(null, { status: 204 });
+  }),
+
+  // ─── Faculties ────────────────────────────────────────────────────
+
+  http.get("/api/admin/faculties", async () => {
+    await delay(MOCK_DELAY);
+    return HttpResponse.json(tblFaculties);
+  }),
+
+  http.get("/api/admin/faculties/:id", async ({ params }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const faculty = tblFaculties.find((f) => f.id === id);
+    if (!faculty) return new HttpResponse(null, { status: 404 });
+    return HttpResponse.json(faculty);
+  }),
+
+  http.post("/api/admin/faculties", async ({ request }) => {
+    await delay(MOCK_DELAY);
+    const body = (await request.json()) as { name: string; code: string };
+    const id = `f${Date.now()}`;
+    const faculty = { id, name: body.name, code: body.code, deanId: undefined, logoUrl: undefined };
+    tblFaculties.push(faculty);
+    return HttpResponse.json(faculty, { status: 201 });
+  }),
+
+  http.put("/api/admin/faculties/:id", async ({ params, request }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const body = (await request.json()) as { name?: string; code?: string };
+    const index = tblFaculties.findIndex((f) => f.id === id);
+    if (index === -1) return new HttpResponse(null, { status: 404 });
+    tblFaculties[index] = { ...tblFaculties[index], ...body };
+    return HttpResponse.json(tblFaculties[index]);
+  }),
+
+  http.delete("/api/admin/faculties/:id", async ({ params }) => {
+    await delay(MOCK_DELAY);
+    const { id } = params;
+    const index = tblFaculties.findIndex((f) => f.id === id);
+    if (index === -1) return new HttpResponse(null, { status: 404 });
+
+    const nbDepartments = tblDepartments.filter((d) => d.facultyId === id).length;
+    if (nbDepartments > 0) {
+      return HttpResponse.json(
+        { message: `Impossible de supprimer cette faculté : ${nbDepartments} département(s) y sont rattaché(s).` },
+        { status: 409 },
+      );
+    }
+
+    tblFaculties.splice(index, 1);
     return new HttpResponse(null, { status: 204 });
   }),
 

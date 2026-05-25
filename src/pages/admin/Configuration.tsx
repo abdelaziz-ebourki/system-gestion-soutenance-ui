@@ -1,3 +1,4 @@
+import { FacultyManager } from "@/components/admin/config/FacultyManager";
 import { MajorManager } from "@/components/admin/config/MajorManager";
 import { LevelManager } from "@/components/admin/config/LevelManager";
 import { GradeManager } from "@/components/admin/config/GradeManager";
@@ -20,6 +21,7 @@ export default function Configuration() {
 
       <div className="grid md:grid-cols-2 gap-6">
         <GeneralSettingsForm />
+        <FacultyManager />
         <MajorManager />
         <LevelManager />
         <GradeManager />

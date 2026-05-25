@@ -24,8 +24,8 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field";
 
 const TIMEZONES = [
-  "Africa/Algiers",
   "Africa/Casablanca",
+  "Africa/Algiers",
   "Africa/Tunis",
   "Africa/Cairo",
   "Europe/Paris",
@@ -48,7 +48,7 @@ export function GeneralSettingsForm() {
   const [settings, setSettings] = useState<GeneralSettings>({
     institutionName: "",
     institutionLogoUrl: "",
-    timezone: "Africa/Algiers",
+    timezone: "Africa/Casablanca",
     dateFormat: "DD/MM/YYYY",
     setupCompleted: false,
   });

@@ -28,11 +28,20 @@ export interface DbCoordinator {
   id: string;
 }
 
+export interface DbFaculty {
+  id: string;
+  name: string;
+  code: string;
+  deanId?: string;
+  logoUrl?: string;
+}
+
 export interface DbDepartment {
   id: string;
   name: string;
   code: string;
   headId?: string;
+  facultyId: string;
 }
 
 export interface DbSession {
@@ -193,6 +202,7 @@ export interface DbEmailConfig {
 }
 
 export interface Tables {
+  faculties: DbFaculty[];
   juryRoleTemplates: DbJuryRoleTemplate[];
   users: DbUser[];
   defenseSessions: DbDefenseSession[];

@@ -25,11 +25,11 @@ import { groups as _groups, groupMembers as _groupMembers } from "./groups";
 import { studentGroups as _studentGroups, studentDocuments as _studentDocuments } from "./student";
 import { unavailability as _unavailability } from "./unavailability";
 import { notifications as _notifications } from "./notifications";
-import { generalSettings, defenseTypeConfig, documentConfig, emailConfig, juryRoleTemplates } from "./config";
+import { generalSettings, defenseTypeConfig, documentConfig, emailConfig, juryRoleTemplates, faculties as _faculties } from "./config";
 
-export { majors, levels, grades, juryRoleTemplates, generalSettings, defenseTypeConfig, documentConfig } from "./config";
+export { majors, levels, grades, juryRoleTemplates, generalSettings, defenseTypeConfig, documentConfig, _faculties as faculties } from "./config";
 export type {
-  DbUser, DbStudent, DbTeacher, DbCoordinator,
+  DbUser, DbStudent, DbTeacher, DbCoordinator, DbFaculty,
   DbDepartment, DbSession, DbRoom,
   DbMajor, DbLevel, DbGrade, DbDefenseSession, DbDefenseSettings, DbJuryRoleTemplate,
   DbProject, DbProjectStudent,
@@ -56,6 +56,7 @@ export const tblDepartments: typeof _departments = createPersisted("departments"
 export const tblSessions: typeof _sessions = createPersisted("sessions", [..._sessions]);
 export const tblRooms: typeof _rooms = createPersisted("rooms", [..._rooms]);
 export const tblDefenseSessions: typeof _defenseSessions = createPersisted("defenseSessions", [..._defenseSessions]);
+export const tblFaculties: typeof _faculties = createPersisted("faculties", [..._faculties]);
 export const tblDefenseSettings = createPersisted("defenseSettings", { ..._defenseSettings });
 export const tblGeneralSettings = createPersisted("generalSettings", { ...generalSettings });
 export const tblDefenseTypeConfig = createPersisted("defenseTypeConfig", { ...defenseTypeConfig });

@@ -82,7 +82,7 @@ export default function ForgotPassword() {
               <FieldLabel>Email académique</FieldLabel>
               <Input
                 type="email"
-                placeholder="nom.prenom@univ.com"
+                placeholder="nom.prenom@univh2c.ma"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

@@ -43,11 +43,20 @@ export interface Coordinator extends User {
   role: "coordinator";
 }
 
+export interface Faculty {
+  id: string;
+  name: string;
+  code: string;
+  deanId?: string;
+  logoUrl?: string;
+}
+
 export interface Department {
   id: string;
   name: string;
   code: string;
   headId?: string;
+  facultyId: string;
 }
 
 export interface Session {

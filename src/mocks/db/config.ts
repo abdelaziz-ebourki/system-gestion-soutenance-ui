@@ -1,4 +1,4 @@
-import type { DbMajor, DbLevel, DbGrade, DbDefenseSettings, DbJuryRoleTemplate } from "./schema";
+import type { DbMajor, DbLevel, DbGrade, DbDefenseSettings, DbJuryRoleTemplate, DbFaculty } from "./schema";
 
 function daysFromNow(days: number): string {
   const d = new Date();
@@ -68,10 +68,14 @@ export const juryRoleTemplates: DbJuryRoleTemplate[] = [
   },
 ];
 
+export const faculties: DbFaculty[] = [
+  { id: "f1", name: "Faculté des Sciences Ben M'Sik", code: "FSBM", logoUrl: "" },
+];
+
 export const generalSettings = {
-  institutionName: "Université de Tlemcen",
+  institutionName: "Université Hassan II",
   institutionLogoUrl: "",
-  timezone: "Africa/Algiers",
+  timezone: "Africa/Casablanca",
   dateFormat: "DD/MM/YYYY",
   setupCompleted: false,
 };
@@ -89,12 +93,12 @@ export const documentConfig = {
 };
 
 export const emailConfig = {
-  host: "smtp.univ-tlemcen.dz",
+  host: "smtp.univh2c.ma",
   port: 587,
-  username: "noreply@univ-tlemcen.dz",
+  username: "noreply@soutenance.univh2c.ma",
   password: "",
-  senderName: "Université de Tlemcen",
-  senderEmail: "noreply@univ-tlemcen.dz",
+  senderName: "FSBM Soutenance",
+  senderEmail: "noreply@soutenance.univh2c.ma",
   encryption: "tls" as const,
 };
 

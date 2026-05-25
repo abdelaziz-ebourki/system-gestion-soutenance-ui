@@ -26,10 +26,10 @@ Opens at `http://localhost:5173`.
 
 | Email | Password | Role |
 |---|---|---|
-| `admin@univ.com` | `1234` | Administrateur |
-| `coord@univ.com` | `1234` | Coordinateur |
-| `teacher@univ.com` | `1234` | Enseignant |
-| `student@univ.com` | `1234` | Étudiant |
+| `admin@univh2c.ma` | `1234` | Administrateur |
+| `coord@univh2c.ma` | `1234` | Coordinateur |
+| `teacher@univh2c.ma` | `1234` | Enseignant |
+| `student@univh2c.ma` | `1234` | Étudiant |
 
 ## Available Scripts
 

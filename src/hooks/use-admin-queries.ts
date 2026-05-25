@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import type {
-  Session, Room, Department, Major, Level, Grade, DefenseSession, JuryRoleTemplate,
+  Session, Room, Department, Faculty, Major, Level, Grade, DefenseSession, JuryRoleTemplate,
 } from "@/types";
 import type { DefenseSettings, GeneralSettings, DefenseTypeConfig, DocumentConfig, EmailConfig } from "@/lib/api";
 
@@ -97,6 +97,35 @@ export function useDeleteDepartment() {
   return useMutation({
     mutationFn: (id: string) => api.deleteDepartment(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["departments"] }),
+  });
+}
+
+export function useFaculties() {
+  return useQuery({ queryKey: ["faculties"], queryFn: api.getFaculties });
+}
+
+export function useCreateFaculty() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Omit<Faculty, "id">) => api.createFaculty(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["faculties"] }),
+  });
+}
+
+export function useUpdateFaculty() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Omit<Faculty, "id"> }) =>
+      api.updateFaculty(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["faculties"] }),
+  });
+}
+
+export function useDeleteFaculty() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.deleteFaculty(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["faculties"] }),
   });
 }
 

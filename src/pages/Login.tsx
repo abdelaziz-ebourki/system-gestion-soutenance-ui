@@ -126,7 +126,7 @@ export default function Login() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="nom.prenom@univ.com"
+                    placeholder="nom.prenom@univh2c.ma"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required

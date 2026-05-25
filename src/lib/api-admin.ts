@@ -2,7 +2,7 @@ import { api, type PaginatedResponse, type UserCreateParams, type RoomImportData
 import type { DashboardStats, DefenseSession, JuryRoleTemplate } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import type {
-  User, Student, Teacher, Coordinator,
+  User, Student, Teacher, Coordinator, Faculty,
   Department, Session, Room, Major, Level, Grade,
 } from "@/types";
 
@@ -92,6 +92,20 @@ export const updateDepartment = (id: string, data: Omit<Department, "id">) =>
   });
 export const deleteDepartment = (id: string) =>
   api<void>(`/admin/departments/${id}`, { method: "DELETE" });
+
+export const getFaculties = () => api<Faculty[]>("/admin/faculties");
+export const createFaculty = (data: Omit<Faculty, "id">) =>
+  api<Faculty>("/admin/faculties", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+export const updateFaculty = (id: string, data: Omit<Faculty, "id">) =>
+  api<Faculty>(`/admin/faculties/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+export const deleteFaculty = (id: string) =>
+  api<void>(`/admin/faculties/${id}`, { method: "DELETE" });
 
 export const getSessions = () => api<Session[]>("/admin/sessions");
 export const createSession = (data: Omit<Session, "id">) =>

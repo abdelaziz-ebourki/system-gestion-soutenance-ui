@@ -28,7 +28,6 @@ import {
   FileCheck2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
-import { NotificationBadge } from "@/components/notification-badge";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
