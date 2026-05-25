@@ -23,7 +23,6 @@ import type { ConflictContext, ConflictIssue } from "@/lib/conflict-engine";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
 import { api } from "@/lib/api";
-import { defenseSettings } from "@/mocks/db";
 import {
   Badge,
   Button,
@@ -92,9 +91,9 @@ export default function DefenseDesigner() {
   const session = defenseSessions[0];
   const SLOTS = useMemo(
     () => generateSlots(
-      defenseSettings.startTime,
-      defenseSettings.endTime,
-      session?.defenseDuration ?? defenseSettings.defenseDuration,
+      "08:00",
+      "18:00",
+      session?.defenseDuration ?? 30,
     ),
     [session?.defenseDuration],
   );

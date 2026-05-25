@@ -40,11 +40,16 @@ export async function api<T>(
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
 
     if (!response.ok) {
-      const data = responseType === "blob"
-        ? await response.json().catch(() => ({}))
-        : await response.json().catch(() => ({}));
+      let data: Record<string, unknown>;
+      try {
+        data = await (responseType === "blob"
+          ? response.text().then((t) => { try { return JSON.parse(t); } catch { return {}; } })
+          : response.json());
+      } catch {
+        data = {};
+      }
       const errorMessage =
-        data.message || "Une erreur est survenue lors de la requête.";
+        (data?.message as string) || "Une erreur est survenue lors de la requête.";
       throw new Error(errorMessage, { cause: response.statusText });
     }
 

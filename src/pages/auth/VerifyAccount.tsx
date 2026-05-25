@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
 import { adjacencyGraphs } from "@zxcvbn-ts/language-common";
@@ -38,20 +38,20 @@ export default function VerifyAccount() {
   const navigate = useNavigate();
   const token = searchParams.get("token");
 
-  const [password, setPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const passwordResult = password ? zxcvbn(password) : null;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!token) {
       navigate("/login", { replace: true });
     }
   }, [token, navigate]);
 
-  const handleVerify = async (e: React.SubmitEvent) => {
+  const handleVerify = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const errors = validate(verifyAccountSchema, { password, confirmPassword });
     if (errors) { setFieldErrors(errors); return; }

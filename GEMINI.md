@@ -12,7 +12,6 @@ A modern web application built for managing university thesis defenses (Soutenan
 - **UI Primitives:** Radix UI & Base UI
 - **Components:** Shadcn UI implementation
 - **Data Fetching:** Standard `fetch` with a centralized API wrapper
-- **API Mocking:** Mock Service Worker (MSW) for development and testing
 - **Routing:** React Router 7+
 - **State Management:** React `useState`/`useContext` (centralized site config in `src/config/site.ts`)
 - **Notifications:** Sonner
@@ -25,7 +24,7 @@ A modern web application built for managing university thesis defenses (Soutenan
 npm run dev
 ```
 
-Starts the development server at `http://localhost:5173`. MSW handlers in `src/mocks/handlers.ts` intercept API calls.
+Starts the development server at `http://localhost:5173`. API requests are proxied to the backend at `http://localhost:8080`.
 
 ### Build
 
@@ -59,7 +58,7 @@ Serves the production build locally for verification.
 - `src/components/academic/`: Feature-specific academic components (calendars, dialogs, convocation).
 - `src/pages/`: Page components organized by user role (admin, coordinator, etc.).
 - `src/lib/`: Core utilities (`utils.ts`) and the API client (`api.ts`).
-- `src/mocks/`: MSW service worker and API handlers for local development.
+
 - `src/types/`: Centralized TypeScript interfaces and types.
 
 ### API Usage
@@ -88,7 +87,6 @@ Always use the centralized `api` function in `src/lib/api.ts` for network reques
 - Never duplicate code.
 - Never use any Typescript type unless absolutely necessary.
 - Never declare and not use a variable, if you declare a variable it should be used.
-- All mock data should be coming from `src/mocks/handlers.ts`. If an endpoint does not existe create it.
 - Always use service function from `src/lib/api.ts`. If a service function does not exist create it.
 - Always use CSS variables for styling, never hardcode values
 - Styles must be consistent

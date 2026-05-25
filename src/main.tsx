@@ -19,30 +19,19 @@ const queryClient = new QueryClient({
   },
 });
 
-async function enableMocking() {
-  if (import.meta.env.DEV && import.meta.env.VITE_USE_MOCKS === "true") {
-    const { worker } = await import("./mocks/browser");
-    return worker.start();
-  }
-}
-
-enableMocking().catch((err) => {
-  console.warn("MSW failed to start:", err);
-}).then(() => {
-  createRoot(document.getElementById("root")!).render(
-    <StrictMode>
-      <ThemeProvider>
-        <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <TooltipProvider>
-              <AuthProvider>
-                  <App />
-                <Toaster position="top-center" />
-              </AuthProvider>
-            </TooltipProvider>
-          </BrowserRouter>
-        </QueryClientProvider>
-      </ThemeProvider>
-    </StrictMode>,
-  );
-});
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <TooltipProvider>
+            <AuthProvider>
+                <App />
+              <Toaster position="top-center" />
+            </AuthProvider>
+          </TooltipProvider>
+        </BrowserRouter>
+      </QueryClientProvider>
+    </ThemeProvider>
+  </StrictMode>,
+);

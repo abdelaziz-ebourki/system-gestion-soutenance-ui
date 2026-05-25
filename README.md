@@ -9,7 +9,6 @@ Frontend de la plateforme de gestion, planification et suivi des soutenances uni
 - **Tailwind CSS 4** (styling) + **shadcn/ui** (component primitives)
 - **TanStack React Query v5** (server state) + **React Table v8** (data grids)
 - **React Router v7** (routing)
-- **MSW v2** (mock API in development)
 - **Zod** (validation)
 - **Recharts** (charts), **DnD Kit** (drag & drop), **Sonner** (toasts)
 
@@ -22,7 +21,7 @@ npm run dev
 
 Opens at `http://localhost:5173`.
 
-### Demo accounts (mock data)
+### Demo accounts
 
 | Email | Password | Role |
 |---|---|---|
@@ -35,16 +34,11 @@ Opens at `http://localhost:5173`.
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Start dev server with MSW mock API |
+| `npm run dev` | Start dev server with Vite proxy to API |
 | `npm run build` | TypeScript check + production build |
 | `npm run lint` | ESLint on all source files |
 | `npm run lint:spell` | Spell check on all source files |
 | `npm run preview` | Preview production build |
-
-## Environment Variables
-
-See `.env.example` for available variables:
-- `VITE_MOCK_DELAY` — simulated API latency in ms (default: 1000)
 
 ## Architecture
 
@@ -54,7 +48,6 @@ src/
   components/   — UI primitives (shadcn) + business components
   hooks/        — React Query wrappers + entity CRUD hooks
   lib/          — API client, Zod validations, utilities
-  mocks/        — MSW handlers + mock data store
   types/        — TypeScript interfaces & types
   contexts/     — Auth, theme, sidebar providers
   config/       — App configuration (site name, links)
@@ -62,6 +55,6 @@ src/
 
 Route structure follows roles: `/admin/*`, `/coordinator/*`, `/teacher/*`, `/student/*`. Each role has its own layout, sidebar navigation, and protected routes.
 
-## Mock API
+## Backend API
 
-This project uses **MSW** (Mock Service Worker) in development mode. All `/api/*` requests are intercepted in the browser — no backend server is required. Mock data lives in `src/mocks/data.ts` and handlers are split by domain in `src/mocks/handlers-*.ts`.
+All `/api/*` requests are proxied to the backend server via Vite. Start the API with `./mvnw spring-boot:run` from the `system-gestion-soutenance-api` directory.

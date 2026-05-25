@@ -1,10 +1,10 @@
+import type { DefenseType } from "@/types";
+
 export const STORAGE_KEYS = {
   TOKEN: "token",
   USER: "user",
   EXPIRES_AT: "expiresAt",
 } as const;
-
-import type { DefenseType } from "@/types";
 
 export const DEFENSE_TYPE_LABELS: Record<DefenseType, string> = {
   pfe: "Projet de Fin d'Études",
