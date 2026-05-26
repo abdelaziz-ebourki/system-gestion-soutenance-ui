@@ -1,12 +1,6 @@
-import { FacultyManager } from "@/components/admin/config/FacultyManager";
 import { MajorManager } from "@/components/admin/config/MajorManager";
 import { LevelManager } from "@/components/admin/config/LevelManager";
-import { GradeManager } from "@/components/admin/config/GradeManager";
-import { DefenseSettingsForm } from "@/components/admin/config/DefenseSettingsForm";
-import { JuryRoleTemplateManager } from "@/components/admin/config/JuryRoleTemplateManager";
-import { GeneralSettingsForm } from "@/components/admin/config/GeneralSettingsForm";
 import { DefenseTypeConfigForm } from "@/components/admin/config/DefenseTypeConfigForm";
-import { DocumentConfigForm } from "@/components/admin/config/DocumentConfigForm";
 import { EmailConfigForm } from "@/components/admin/config/EmailConfigForm";
 
 export default function Configuration() {
@@ -20,16 +14,10 @@ export default function Configuration() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <GeneralSettingsForm />
-        <FacultyManager />
         <MajorManager />
         <LevelManager />
-        <GradeManager />
         <DefenseTypeConfigForm />
-        <DocumentConfigForm />
-        <JuryRoleTemplateManager />
         <EmailConfigForm />
-        <DefenseSettingsForm />
       </div>
     </div>
   );

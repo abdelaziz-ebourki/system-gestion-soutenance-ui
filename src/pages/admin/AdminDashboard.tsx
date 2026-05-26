@@ -52,7 +52,7 @@ const FILTER_LIMIT = 5000;
 export default function AdminDashboard() {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 5,
+    pageSize: 10,
   });
   const [isFiltering, setIsFiltering] = React.useState(false);
 
