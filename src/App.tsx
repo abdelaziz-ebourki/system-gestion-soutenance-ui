@@ -42,8 +42,6 @@ const PrintAttendanceList = lazy(() => import("./pages/print/PrintAttendanceList
 const PrintJuryConvocation = lazy(() => import("./pages/print/PrintJuryConvocation"));
 const PrintDefenseSchedule = lazy(() => import("./pages/print/PrintDefenseSchedule"));
 const PrintProcesVerbal = lazy(() => import("./pages/print/PrintProcesVerbal"));
-const PrintStudentConvocation = lazy(() => import("./pages/print/PrintStudentConvocation"));
-const PrintCertificate = lazy(() => import("./pages/print/PrintCertificate"));
 
 function PageLoader() {
   return (
@@ -67,8 +65,6 @@ export default function App() {
         <Route path="/print/jury-convocation" element={<PrintJuryConvocation />} />
         <Route path="/print/schedule" element={<PrintDefenseSchedule />} />
         <Route path="/print/proces-verbal" element={<PrintProcesVerbal />} />
-        <Route path="/print/student-convocation" element={<PrintStudentConvocation />} />
-        <Route path="/print/certificate" element={<PrintCertificate />} />
 
         <Route element={<DashboardLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>

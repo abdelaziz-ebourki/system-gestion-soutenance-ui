@@ -14,8 +14,10 @@ export default function PrintProcesVerbal() {
 
   useEffect(() => {
     if (!projectId) { setError("Paramètre projectId manquant"); return; }
-    api<typeof data>(`/coordinator/document-data/proces-verbal?projectId=${projectId}`, { requiresAuth: false })
-      .then(setData).catch((e) => setError(e.message));
+    api<typeof data>("/coordinator/documents/proces-verbal", {
+      method: "POST",
+      body: JSON.stringify({ projectId }),
+    }).then(setData).catch((e) => setError(e.message));
   }, [projectId]);
 
   if (error) return <div className="p-8 text-red-600">{error}</div>;

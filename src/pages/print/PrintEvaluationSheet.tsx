@@ -15,8 +15,11 @@ export default function PrintEvaluationSheet() {
   useEffect(() => {
     if (!projectId) { setError("Paramètre projectId manquant"); return; }
     api<{ settings: GeneralSettings; grade: ProjectGrade; studentNames: string[] }>(
-      `/coordinator/document-data/evaluation-sheet?projectId=${projectId}`,
-      { requiresAuth: false },
+      "/coordinator/documents/evaluation-sheets",
+      {
+        method: "POST",
+        body: JSON.stringify({ projectId }),
+      },
     ).then(setData).catch((e) => setError(e.message));
   }, [projectId]);
 

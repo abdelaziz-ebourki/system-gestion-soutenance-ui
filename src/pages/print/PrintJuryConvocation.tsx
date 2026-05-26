@@ -5,6 +5,17 @@ import type { GeneralSettings } from "@/lib/api-core";
 import PrintLayout from "@/components/print/PrintLayout";
 import JuryConvocation from "@/components/print/JuryConvocation";
 
+interface BackendConvocation {
+  teacherName: string;
+  role: string;
+  projectTitle: string;
+  studentNames: string[];
+  date: string;
+  time: string;
+  roomName: string;
+  defenseSessionName: string;
+}
+
 export default function PrintJuryConvocation() {
   const [params] = useSearchParams();
   const projectId = params.get("projectId");
@@ -14,8 +25,28 @@ export default function PrintJuryConvocation() {
 
   useEffect(() => {
     if (!projectId || !teacherId) { setError("Paramètres projectId et teacherId requis"); return; }
-    api<typeof data>(`/coordinator/document-data/jury-convocation?projectId=${projectId}&teacherId=${teacherId}`, { requiresAuth: false })
-      .then(setData).catch((e) => setError(e.message));
+    api<BackendConvocation[]>(
+      "/coordinator/documents/jury-convocations",
+      {
+        method: "POST",
+        body: JSON.stringify({ projectId }),
+      },
+    ).then((convocations) => {
+      const conv = convocations.find((c) => c.teacherName.includes(teacherId));
+      if (!conv) { setError("Convocation introuvable pour ce professeur."); return; }
+      setData({
+        settings: {} as GeneralSettings,
+        projectTitle: conv.projectTitle,
+        studentNames: conv.studentNames,
+        date: conv.date,
+        startTime: conv.time,
+        endTime: "",
+        roomName: conv.roomName,
+        role: conv.role,
+        juryPresident: "",
+        teacherName: conv.teacherName,
+      });
+    }).catch((e) => setError(e.message));
   }, [projectId, teacherId]);
 
   if (error) return <div className="p-8 text-red-600">{error}</div>;

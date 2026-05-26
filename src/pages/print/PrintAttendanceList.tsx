@@ -12,6 +12,14 @@ interface AttendanceSlot {
   supervisor: string;
 }
 
+interface BackendSlot {
+  date: string;
+  time: string;
+  roomName: string;
+  projectTitle: string;
+  studentNames: string[];
+}
+
 export default function PrintAttendanceList() {
   const [params] = useSearchParams();
   const date = params.get("date");
@@ -21,9 +29,29 @@ export default function PrintAttendanceList() {
 
   useEffect(() => {
     if (!date) { setError("Paramètre date manquant"); return; }
-    const q = `/coordinator/document-data/attendance-list?date=${date}${sessionId ? `&sessionId=${sessionId}` : ""}`;
-    api<{ settings: GeneralSettings; sessionName: string; date: string; slots: AttendanceSlot[] }>(q, { requiresAuth: false })
-      .then(setData).catch((e) => setError(e.message));
+    if (!sessionId) { setError("Paramètre sessionId manquant"); return; }
+
+    api<{ defenseSessionName: string; slots: BackendSlot[] }>(
+      "/coordinator/documents/attendance-lists",
+      {
+        method: "POST",
+        body: JSON.stringify({ defenseSessionId: sessionId }),
+      },
+    ).then((res) => {
+      const filtered = res.slots.filter((s) => s.date === date);
+      const slots: AttendanceSlot[] = filtered.map((s) => ({
+        time: s.time,
+        project: { title: s.projectTitle, students: s.studentNames },
+        jury: "",
+        supervisor: "",
+      }));
+      setData({
+        settings: {} as GeneralSettings,
+        sessionName: res.defenseSessionName,
+        date,
+        slots,
+      });
+    }).catch((e) => setError(e.message));
   }, [date, sessionId]);
 
   if (error) return <div className="p-8 text-red-600">{error}</div>;
