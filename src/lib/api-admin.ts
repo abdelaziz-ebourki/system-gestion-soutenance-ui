@@ -1,5 +1,5 @@
 import { api, type PaginatedResponse, type UserCreateParams, type RoomImportData, type DefenseSettings, type GeneralSettings, type DocumentConfig, type EmailConfig } from "./api-core";
-import type { DashboardStats, DefenseSession, JuryRoleTemplate } from "@/types";
+import type { DashboardStats, JuryRoleTemplate } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import type {
   User, Student, Teacher, Coordinator, Faculty,
@@ -120,20 +120,6 @@ export const updateSession = (id: string, data: Omit<Session, "id">) =>
   });
 export const deleteSession = (id: string) =>
   api<void>(`/admin/sessions/${id}`, { method: "DELETE" });
-
-export const getDefenseSessions = () => api<DefenseSession[]>("/admin/defense-sessions");
-export const createDefenseSession = (data: Omit<DefenseSession, "id">) =>
-  api<DefenseSession>("/admin/defense-sessions", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-export const updateDefenseSession = (id: string, data: Omit<DefenseSession, "id">) =>
-  api<DefenseSession>(`/admin/defense-sessions/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-export const deleteDefenseSession = (id: string) =>
-  api<void>(`/admin/defense-sessions/${id}`, { method: "DELETE" });
 
 
 export const getRooms = () => api<Room[]>("/admin/rooms");

@@ -60,11 +60,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             icon: <LayersIcon />,
           },
           {
-            title: "Soutenances",
-            url: "/admin/defense-sessions",
-            icon: <GraduationCapIcon />,
-          },
-          {
             title: "Utilisateurs",
             url: "#",
             icon: <UsersIcon />,

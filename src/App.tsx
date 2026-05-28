@@ -35,7 +35,6 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
-const AdminDefenseSessions = lazy(() => import("./pages/admin/DefenseSessions"));
 const CoordinatorDocuments = lazy(() => import("./pages/coordinator/Documents"));
 const PrintEvaluationSheet = lazy(() => import("./pages/print/PrintEvaluationSheet"));
 const PrintAttendanceList = lazy(() => import("./pages/print/PrintAttendanceList"));
@@ -78,7 +77,6 @@ export default function App() {
               <Route path="/admin/users/teachers" element={<Teachers />} />
               <Route path="/admin/users/coordinators" element={<Coordinators />} />
               <Route path="/admin/audit-logs" element={<AuditLogs />} />
-              <Route path="/admin/defense-sessions" element={<AdminDefenseSessions />} />
             </Route>
           </Route>
 

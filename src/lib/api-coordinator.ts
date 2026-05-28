@@ -2,6 +2,21 @@ import { api } from "./api-core";
 import type { Project, Group, Jury, DefenseSession, DefenseSessionStatus } from "@/types";
 import type { SlotAssignment } from "@/lib/conflict-engine";
 
+export interface CreateDefenseSessionPayload {
+  globalSessionId: string;
+  name: string;
+  defenseType: string;
+  status?: string;
+  maxGroupSize: number;
+  defenseDuration: number;
+  breakDuration: number;
+  submissionDeadline: string;
+  juryRoleTemplateId: string;
+  startDate: string;
+  endDate: string;
+  evaluationCoefficients: Record<string, number>;
+}
+
 export interface CoordinatorStats {
   totalProjects: number;
   totalGroups: number;
@@ -89,6 +104,19 @@ export const transitionDefenseSession = (id: string, toStatus: DefenseSessionSta
     method: "POST",
     body: JSON.stringify({ toStatus }),
   });
+
+export const createCoordinatorDefenseSession = (data: CreateDefenseSessionPayload) =>
+  api<DefenseSession>("/coordinator/defense-sessions", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+export const updateCoordinatorDefenseSession = (id: string, data: CreateDefenseSessionPayload) =>
+  api<DefenseSession>(`/coordinator/defense-sessions/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+export const deleteCoordinatorDefenseSession = (id: string) =>
+  api<void>(`/coordinator/defense-sessions/${id}`, { method: "DELETE" });
 
 export const getDefenseSchedule = () =>
   api<Record<string, SlotAssignment>>("/coordinator/schedule");

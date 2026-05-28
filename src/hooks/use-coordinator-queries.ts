@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import type { Group, DefenseSessionStatus } from "@/types";
-import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload } from "@/lib/api-coordinator";
+import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload, CreateDefenseSessionPayload } from "@/lib/api-coordinator";
 import type { SlotAssignment } from "@/lib/conflict-engine";
 
 export function useCoordinatorStats() {
@@ -93,6 +93,31 @@ export function useCoordinatorDefenseSessions() {
   return useQuery({
     queryKey: ["coordinator", "defense-sessions"],
     queryFn: api.getCoordinatorDefenseSessions,
+  });
+}
+
+export function useCreateDefenseSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateDefenseSessionPayload) => api.createCoordinatorDefenseSession(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["coordinator", "defense-sessions"] }),
+  });
+}
+
+export function useUpdateDefenseSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: CreateDefenseSessionPayload }) =>
+      api.updateCoordinatorDefenseSession(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["coordinator", "defense-sessions"] }),
+  });
+}
+
+export function useDeleteDefenseSession() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.deleteCoordinatorDefenseSession(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["coordinator", "defense-sessions"] }),
   });
 }
 

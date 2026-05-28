@@ -47,7 +47,6 @@ const VALID_ROUTES = new Set([
   "/admin",
   "/admin/audit-logs",
   "/admin/config",
-  "/admin/defense-sessions",
   "/admin/departments",
   "/admin/rooms",
   "/admin/sessions",
