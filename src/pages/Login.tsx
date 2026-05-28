@@ -138,6 +138,7 @@ export default function Login() {
                   <FieldLabel>Mot de passe</FieldLabel>
                   <PasswordInput
                     id="password"
+                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required

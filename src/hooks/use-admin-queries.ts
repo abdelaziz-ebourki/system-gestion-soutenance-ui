@@ -3,7 +3,7 @@ import * as api from "@/lib/api";
 import type {
   Session, Room, Department, Faculty, Major, Level, DefenseSession, JuryRoleTemplate,
 } from "@/types";
-import type { DefenseSettings, GeneralSettings, DefenseTypeConfig, DocumentConfig, EmailConfig } from "@/lib/api";
+import type { DefenseSettings, GeneralSettings, DocumentConfig, EmailConfig } from "@/lib/api";
 
 export function useAdminStats() {
   return useQuery({ queryKey: ["admin", "stats"], queryFn: api.getAdminStats });
@@ -341,21 +341,6 @@ export function useUpdateGeneralSettings() {
   return useMutation({
     mutationFn: (data: GeneralSettings) => api.updateGeneralSettings(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "general"] }),
-  });
-}
-
-export function useDefenseTypeConfig() {
-  return useQuery({
-    queryKey: ["admin", "config", "defense-types"],
-    queryFn: api.getDefenseTypeConfig,
-  });
-}
-
-export function useUpdateDefenseTypeConfig() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: DefenseTypeConfig) => api.updateDefenseTypeConfig(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "defense-types"] }),
   });
 }
 

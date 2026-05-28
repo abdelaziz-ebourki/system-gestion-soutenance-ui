@@ -1,6 +1,5 @@
 import { MajorManager } from "@/components/admin/config/MajorManager";
 import { LevelManager } from "@/components/admin/config/LevelManager";
-import { DefenseTypeConfigForm } from "@/components/admin/config/DefenseTypeConfigForm";
 import { EmailConfigForm } from "@/components/admin/config/EmailConfigForm";
 
 export default function Configuration() {
@@ -16,7 +15,6 @@ export default function Configuration() {
       <div className="grid md:grid-cols-2 gap-6">
         <MajorManager />
         <LevelManager />
-        <DefenseTypeConfigForm />
         <EmailConfigForm />
       </div>
     </div>

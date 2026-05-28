@@ -168,22 +168,6 @@ export const generalSettingsSchema = z.object({
   setupCompleted: z.boolean().optional(),
 });
 
-// --- Admin: Defense Type Config ---
-
-const defenseTypeItemSchema = z.object({
-  enabled: z.boolean(),
-  label: z.string().min(1, "Le libellé est requis"),
-  labelPlural: z.string().min(1, "Le libellé pluriel est requis"),
-  defaultDuration: z.coerce.number().min(5, "Doit être au moins 5 min").max(180, "Ne peut pas dépasser 180 min"),
-  defaultBreak: z.coerce.number().min(0, "Ne peut pas être négative"),
-});
-
-export const defenseTypeConfigSchema = z.object({
-  pfe: defenseTypeItemSchema,
-  memoire: defenseTypeItemSchema,
-  these: defenseTypeItemSchema,
-});
-
 // --- Admin: Document Config ---
 
 export const documentConfigSchema = z.object({

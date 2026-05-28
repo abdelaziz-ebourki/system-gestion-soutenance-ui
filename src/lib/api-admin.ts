@@ -1,4 +1,4 @@
-import { api, type PaginatedResponse, type UserCreateParams, type RoomImportData, type DefenseSettings, type GeneralSettings, type DefenseTypeConfig, type DocumentConfig, type EmailConfig } from "./api-core";
+import { api, type PaginatedResponse, type UserCreateParams, type RoomImportData, type DefenseSettings, type GeneralSettings, type DocumentConfig, type EmailConfig } from "./api-core";
 import type { DashboardStats, DefenseSession, JuryRoleTemplate } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import type {
@@ -212,14 +212,6 @@ export const getEmailConfig = () =>
   api<EmailConfig>("/admin/config/email");
 export const updateEmailConfig = (data: EmailConfig) =>
   api<EmailConfig>("/admin/config/email", {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-
-export const getDefenseTypeConfig = () =>
-  api<DefenseTypeConfig>("/admin/config/defense-types");
-export const updateDefenseTypeConfig = (data: DefenseTypeConfig) =>
-  api<DefenseTypeConfig>("/admin/config/defense-types", {
     method: "PUT",
     body: JSON.stringify(data),
   });

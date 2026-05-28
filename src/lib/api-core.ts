@@ -131,20 +131,6 @@ export interface GeneralSettings {
   setupCompleted: boolean;
 }
 
-export interface DefenseTypeItem {
-  enabled: boolean;
-  label: string;
-  labelPlural: string;
-  defaultDuration: number;
-  defaultBreak: number;
-}
-
-export interface DefenseTypeConfig {
-  pfe: DefenseTypeItem;
-  memoire: DefenseTypeItem;
-  these: DefenseTypeItem;
-}
-
 export interface DocumentConfig {
   maxFileSizeMb: number;
   allowedExtensions: string;
