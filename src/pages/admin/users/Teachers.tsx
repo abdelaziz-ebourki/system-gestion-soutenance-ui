@@ -65,6 +65,15 @@ export default function Teachers() {
       },
     },
     {
+      accessorKey: "isActive",
+      header: "Statut",
+      cell: ({ row }) => (
+        <Badge variant={row.getValue("isActive") ? "default" : "secondary"}>
+          {row.getValue("isActive") ? "Actif" : "Inactif"}
+        </Badge>
+      ),
+    },
+    {
       id: "actions",
       header: "",
       cell: ({ row }) => (
