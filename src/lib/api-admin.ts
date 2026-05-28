@@ -3,7 +3,7 @@ import type { DashboardStats, DefenseSession, JuryRoleTemplate } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import type {
   User, Student, Teacher, Coordinator, Faculty,
-  Department, Session, Room, Major, Level, Grade,
+  Department, Session, Room, Major, Level,
 } from "@/types";
 
 export const getAdminStats = () => api<DashboardStats>("/admin/stats");
@@ -177,20 +177,6 @@ export const updateLevel = (id: string, data: Omit<Level, "id">) =>
   });
 export const deleteLevel = (id: string) =>
   api<void>(`/admin/config/levels/${id}`, { method: "DELETE" });
-
-export const getGradeLevels = () => api<Grade[]>("/admin/config/grades");
-export const createGradeLevel = (data: Omit<Grade, "id">) =>
-  api<Grade>("/admin/config/grades", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-export const updateGradeLevel = (id: string, data: Omit<Grade, "id">) =>
-  api<Grade>(`/admin/config/grades/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-export const deleteGradeLevel = (id: string) =>
-  api<void>(`/admin/config/grades/${id}`, { method: "DELETE" });
 
 export const getJuryRoleTemplates = () => api<JuryRoleTemplate[]>("/admin/config/jury-role-templates");
 export const createJuryRoleTemplate = (data: Omit<JuryRoleTemplate, "id">) =>

@@ -20,11 +20,6 @@ export interface Level {
   name: string;
 }
 
-export interface Grade {
-  id: string;
-  name: string;
-}
-
 export interface Student extends User {
   role: "student";
   cne: string;
@@ -35,7 +30,6 @@ export interface Student extends User {
 
 export interface Teacher extends User {
   role: "teacher";
-  gradeId: string;
   departmentId: string;
 }
 

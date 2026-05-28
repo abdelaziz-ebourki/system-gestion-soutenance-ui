@@ -10,12 +10,11 @@ type TeacherFormData = {
   lastName: string;
   firstName: string;
   email: string;
-  gradeId: string;
   departmentId: string;
 };
 
 const defaultForm: TeacherFormData = {
-  lastName: "", firstName: "", email: "", gradeId: "", departmentId: "",
+  lastName: "", firstName: "", email: "", departmentId: "",
 };
 
 export function useTeacherCrud() {
@@ -39,7 +38,6 @@ export function useTeacherCrud() {
       lastName: entity.lastName,
       firstName: entity.firstName,
       email: entity.email,
-      gradeId: entity.gradeId,
       departmentId: entity.departmentId,
     });
     setSelected(entity);

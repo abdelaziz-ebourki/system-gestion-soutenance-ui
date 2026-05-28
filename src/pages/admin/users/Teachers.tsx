@@ -2,7 +2,7 @@ import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 import { Plus, Users } from "lucide-react";
 
-import { useTeachers, useDepartments, useGradeLevels } from "@/hooks/use-queries";
+import { useTeachers, useDepartments } from "@/hooks/use-queries";
 import type { Teacher } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -47,7 +47,6 @@ export default function Teachers() {
     isFiltering ? FILTER_LIMIT : pagination.pageSize,
   );
   const { data: departments = [] } = useDepartments();
-  const { data: grades = [] } = useGradeLevels();
   const crud = useTeacherCrud();
 
   const data = teachersData?.items ?? [];
@@ -57,15 +56,6 @@ export default function Teachers() {
     { accessorKey: "lastName", header: "Nom", cell: ({ row }) => <div className="font-medium">{row.original.lastName}</div> },
     { accessorKey: "firstName", header: "Prénom", cell: ({ row }) => <div className="font-medium">{row.original.firstName}</div> },
     { accessorKey: "email", header: "Email" },
-    {
-      accessorKey: "gradeId",
-      header: "Grade",
-      cell: ({ row }) => {
-        const id = row.getValue("gradeId") as string;
-        const name = grades.find((g) => g.id === id)?.name || id;
-        return <Badge variant="outline">{name}</Badge>;
-      },
-    },
     {
       accessorKey: "departmentId",
       header: "Département",
@@ -83,26 +73,16 @@ export default function Teachers() {
         </div>
       ),
     },
-  ], [crud, departments, grades]);
+  ], [crud, departments]);
 
-  const missingDepartments = departments.length === 0;
-  const missingGrades = grades.length === 0;
-  if (missingDepartments || missingGrades) {
-    const parts: string[] = [];
-    if (missingDepartments) parts.push("départements");
-    if (missingGrades) parts.push("grades");
+  if (departments.length === 0) {
     return (
       <div className="space-y-6">
         <EmptyState
           icon={Users}
           title="Configuration requise"
-          description={`Vous devez d'abord configurer ${parts.join(" et ")} avant de pouvoir gérer les enseignants.`}
-          action={
-            <div className="flex gap-2">
-              {missingDepartments && <Button asChild><Link to="/admin/departments">Départements</Link></Button>}
-              {missingGrades && <Button asChild><Link to="/admin/config">Grades</Link></Button>}
-            </div>
-          }
+          description="Vous devez d'abord configurer les départements avant de pouvoir gérer les enseignants."
+          action={<Button asChild><Link to="/admin/departments">Départements</Link></Button>}
         />
       </div>
     );
@@ -225,17 +205,6 @@ export default function Teachers() {
                 <Input type="email" value={crud.formData.email}
                   onChange={(e) => crud.setFormData({ ...crud.formData, email: e.target.value })}
                   required error={crud.fieldErrors?.email} />
-              </Field>
-              <Field>
-                <FieldLabel>Grade</FieldLabel>
-                <Select value={crud.formData.gradeId}
-                  onValueChange={(v) => crud.setFormData({ ...crud.formData, gradeId: v || "" })}>
-                  <SelectTrigger><SelectValue placeholder="Choisir un grade" /></SelectTrigger>
-                  <SelectContent>
-                    {grades.map((g) => <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                {crud.fieldErrors?.gradeId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.gradeId}</p>}
               </Field>
               <Field>
                 <FieldLabel>Département</FieldLabel>

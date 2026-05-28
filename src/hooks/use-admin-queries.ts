@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import type {
-  Session, Room, Department, Faculty, Major, Level, Grade, DefenseSession, JuryRoleTemplate,
+  Session, Room, Department, Faculty, Major, Level, DefenseSession, JuryRoleTemplate,
 } from "@/types";
 import type { DefenseSettings, GeneralSettings, DefenseTypeConfig, DocumentConfig, EmailConfig } from "@/lib/api";
 
@@ -186,35 +186,6 @@ export function useDeleteLevel() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["levels"] }),
   });
 }
-
-export function useGradeLevels() {
-  return useQuery({ queryKey: ["grades"], queryFn: api.getGradeLevels });
-}
-
-export function useCreateGradeLevel() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Omit<Grade, "id">) => api.createGradeLevel(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"] }),
-  });
-}
-
-export function useUpdateGradeLevel() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<Grade, "id"> }) => api.updateGradeLevel(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"] }),
-  });
-}
-
-export function useDeleteGradeLevel() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.deleteGradeLevel(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"] }),
-  });
-}
-
 
 export function useDefenseSettings() {
   return useQuery({

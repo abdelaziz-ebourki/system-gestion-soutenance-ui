@@ -121,7 +121,6 @@ export const studentSchema = userBaseSchema.extend({
 });
 
 export const teacherSchema = userBaseSchema.extend({
-  gradeId: z.string().min(1, "Le grade est requis"),
   departmentId: z.string().min(1, "Le département est requis"),
 });
 

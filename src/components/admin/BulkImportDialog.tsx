@@ -25,7 +25,7 @@ interface BulkImportDialogProps {
 
 const ENTITY_HEADERS: Record<string, string[]> = {
   student: ["prénom", "nom", "email", "cne", "major", "niveau"],
-  teacher: ["prénom", "nom", "email", "département", "grade"],
+  teacher: ["prénom", "nom", "email", "département"],
   coordinator: ["prénom", "nom", "email"],
   room: ["nom", "département", "capacité"],
 };
@@ -104,8 +104,6 @@ export function BulkImportDialog({
             if (entity === "room") newItem.departmentId = item[key];
             else newItem.departmentName = item[key];
           }
-          else if (normalizedKey.includes("grade"))
-            newItem.gradeName = item[key];
           else if (normalizedKey.includes("capacité"))
             newItem.capacity = item[key];
           else newItem[normalizedKey] = item[key];
