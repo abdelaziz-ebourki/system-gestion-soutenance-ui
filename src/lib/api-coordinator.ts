@@ -3,7 +3,6 @@ import type { Project, Group, Jury, DefenseSession, DefenseSessionStatus } from 
 import type { SlotAssignment } from "@/lib/conflict-engine";
 
 export interface CreateDefenseSessionPayload {
-  globalSessionId: string;
   name: string;
   defenseType: string;
   status?: string;

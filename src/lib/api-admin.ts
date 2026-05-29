@@ -107,19 +107,6 @@ export const updateFaculty = (id: string, data: Omit<Faculty, "id">) =>
 export const deleteFaculty = (id: string) =>
   api<void>(`/admin/faculties/${id}`, { method: "DELETE" });
 
-export const getSessions = () => api<Session[]>("/admin/sessions");
-export const createSession = (data: Omit<Session, "id">) =>
-  api<Session>("/admin/sessions", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-export const updateSession = (id: string, data: Omit<Session, "id">) =>
-  api<Session>(`/admin/sessions/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-export const deleteSession = (id: string) =>
-  api<void>(`/admin/sessions/${id}`, { method: "DELETE" });
 
 
 export const getRooms = () => api<Room[]>("/admin/rooms");

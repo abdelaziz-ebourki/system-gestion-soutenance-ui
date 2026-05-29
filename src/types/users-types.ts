@@ -53,15 +53,6 @@ export interface Department {
   facultyId: string;
 }
 
-export interface Session {
-  id: string;
-  name: string;
-  type: string;
-  status: "active" | "draft" | "archived";
-  startDate: string;
-  endDate: string;
-}
-
 export interface Room {
   id: string;
   name: string;

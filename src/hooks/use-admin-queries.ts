@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import type {
-  Session, Room, Department, Faculty, Major, Level, JuryRoleTemplate,
+  Room, Department, Faculty, Major, Level, JuryRoleTemplate,
 } from "@/types";
 import type { DefenseSettings, GeneralSettings, DocumentConfig, EmailConfig } from "@/lib/api";
 
@@ -11,35 +11,6 @@ export function useAdminStats() {
 
 export function useAuditLogs() {
   return useQuery({ queryKey: ["admin", "audit-logs"], queryFn: api.getAuditLogs });
-}
-
-export function useSessions() {
-  return useQuery({ queryKey: ["sessions"], queryFn: api.getSessions });
-}
-
-export function useCreateSession() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Omit<Session, "id">) => api.createSession(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["sessions"] }),
-  });
-}
-
-export function useUpdateSession() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<Session, "id"> }) =>
-      api.updateSession(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["sessions"] }),
-  });
-}
-
-export function useDeleteSession() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.deleteSession(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["sessions"] }),
-  });
 }
 
 export function useRooms() {

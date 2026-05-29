@@ -167,7 +167,6 @@ export interface JuryMember {
 
 export interface DefenseSession {
   id: string;
-  globalSessionId: string;
   name: string;
   defenseType: DefenseType;
   status: DefenseSessionStatus;

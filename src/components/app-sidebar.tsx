@@ -22,7 +22,6 @@ import {
   FileTextIcon,
   BuildingIcon,
   HistoryIcon,
-  LayersIcon,
   University,
   AlertTriangle,
   FileCheck2,
@@ -53,11 +52,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: "Salles",
             url: "/admin/rooms",
             icon: <BuildingIcon />,
-          },
-          {
-            title: "Session académique",
-            url: "/admin/sessions",
-            icon: <LayersIcon />,
           },
           {
             title: "Utilisateurs",

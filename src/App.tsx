@@ -11,7 +11,6 @@ const ForgotPassword = lazy(() => import("./pages/auth/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/auth/ResetPassword"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Departments = lazy(() => import("./pages/admin/Departments"));
-const Sessions = lazy(() => import("./pages/admin/Sessions"));
 const Rooms = lazy(() => import("./pages/admin/Rooms"));
 const Students = lazy(() => import("./pages/admin/users/Students"));
 const Teachers = lazy(() => import("./pages/admin/users/Teachers"));
@@ -71,7 +70,6 @@ export default function App() {
             <Route element={<SetupGuard />}>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/departments" element={<Departments />} />
-              <Route path="/admin/sessions" element={<Sessions />} />
               <Route path="/admin/rooms" element={<Rooms />} />
               <Route path="/admin/users/students" element={<Students />} />
               <Route path="/admin/users/teachers" element={<Teachers />} />

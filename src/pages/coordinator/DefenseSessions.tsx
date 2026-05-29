@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowRight, Calendar, ShieldCheck, Clock, FileText, CheckCircle2, Plus } from "lucide-react";
-import { Link } from "react-router-dom";
-
 import type { DefenseSession, DefenseSessionStatus, DefenseType } from "@/types";
 import {
   useCoordinatorDefenseSessions,
@@ -10,7 +8,6 @@ import {
   useCreateDefenseSession,
   useUpdateDefenseSession,
   useDeleteDefenseSession,
-  useSessions,
   useJuryRoleTemplates,
 } from "@/hooks/use-queries";
 import {
@@ -54,7 +51,6 @@ const DEFAULT_DURATION_BY_TYPE: Record<DefenseType, number> = {
 };
 
 const defaultForm = {
-  globalSessionId: "",
   name: "",
   defenseType: "pfe" as DefenseType,
   status: "draft" as DefenseSession["status"],
@@ -78,8 +74,6 @@ const statusIcons: Record<string, typeof ShieldCheck> = {
 
 export default function CoordinatorDefenseSessions() {
   const { data: sessions = [], isLoading } = useCoordinatorDefenseSessions();
-  const sessionsQuery = useSessions();
-  const globalSessions = sessionsQuery.data ?? [];
   const templatesQuery = useJuryRoleTemplates();
   const templates = templatesQuery.data ?? [];
   const createMutation = useCreateDefenseSession();
@@ -94,14 +88,13 @@ export default function CoordinatorDefenseSessions() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ ...defaultForm, globalSessionId: globalSessions[0]?.id ?? "" });
+    setForm(defaultForm);
     setDialogOpen(true);
   };
 
   const openEdit = (ds: DefenseSession) => {
     setEditing(ds);
     setForm({
-      globalSessionId: ds.globalSessionId,
       name: ds.name,
       defenseType: ds.defenseType,
       status: ds.status,
@@ -170,14 +163,7 @@ export default function CoordinatorDefenseSessions() {
         </Button>
       </div>
 
-      {globalSessions.length === 0 ? (
-        <EmptyState
-          icon={Calendar}
-          title="Aucune session académique configurée"
-          description="Vous devez d'abord configurer au moins une session académique avant de pouvoir gérer les soutenances."
-          action={<Button asChild><Link to="/coordinator/sessions">Configurer les sessions académiques</Link></Button>}
-        />
-      ) : sessions.length === 0 ? (
+      {sessions.length === 0 ? (
         <EmptyState
           variant="card"
           description="Aucune session de soutenance pour le moment."
@@ -285,20 +271,6 @@ export default function CoordinatorDefenseSessions() {
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <FieldGroup className="space-y-4 py-4">
-              <Field>
-                <FieldLabel>Session globale</FieldLabel>
-                <Select
-                  value={form.globalSessionId}
-                  onValueChange={(v) => setForm({ ...form, globalSessionId: v ?? "" })}
-                >
-                  <SelectTrigger><SelectValue placeholder="Choisir" /></SelectTrigger>
-                  <SelectContent>
-                    {globalSessions.map((s) => (
-                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
               <Field>
                 <FieldLabel>Nom</FieldLabel>
                 <Input
