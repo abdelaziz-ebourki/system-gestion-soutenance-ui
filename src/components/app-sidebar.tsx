@@ -42,7 +42,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     switch (role) {
       case "admin":
         return [
-          { title: "Dashboard", url: "/admin", icon: <LayoutDashboardIcon /> },
+          { title: "Tableau de bord", url: "/admin", icon: <LayoutDashboardIcon /> },
           {
             title: "Départements",
             url: "/admin/departments",
@@ -78,7 +78,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             icon: <Settings2Icon />,
           },
           {
-            title: "Audit Log",
+            title: "Journal d'audit",
             url: "/admin/audit-logs",
             icon: <HistoryIcon />,
           },

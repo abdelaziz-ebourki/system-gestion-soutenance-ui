@@ -166,7 +166,7 @@ export default function Students() {
           </DialogHeader>
           <div className="py-4">
             <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
-              <SelectTrigger><SelectValue placeholder="Choisir une major" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Choisir une filière" /></SelectTrigger>
               <SelectContent>
                 {majors.map((f) => (
                   <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>

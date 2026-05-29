@@ -261,7 +261,6 @@ export default function AdminDashboard() {
                     <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
                       <SelectTrigger><SelectValue placeholder="Choisir un rôle" /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="admin">Admin</SelectItem>
                         <SelectItem value="coordinator">Coordinateur</SelectItem>
                         <SelectItem value="teacher">Enseignant</SelectItem>
                         <SelectItem value="student">Étudiant</SelectItem>
@@ -306,7 +305,7 @@ export default function AdminDashboard() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Audit Log</CardTitle>
+            <CardTitle>Journal d'audit</CardTitle>
           </CardHeader>
           <CardContent>
               <DataTable

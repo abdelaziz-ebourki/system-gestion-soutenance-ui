@@ -9,14 +9,14 @@ export default function AuditLogs() {
   const columns: ColumnDef<AuditLog>[] = [
     { accessorKey: "action", header: "Action" },
     { accessorKey: "entity", header: "Entité" },
-    { accessorKey: "performedBy", header: "Utilisateur" },
+    { accessorKey: "adminEmail", header: "Utilisateur" },
     { accessorKey: "timestamp", header: "Date" },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Audit Log</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Journal d'audit</h1>
         <p className="text-muted-foreground">
           Consultez l'historique des actions administratives.
         </p>

@@ -3,7 +3,7 @@ import type { DashboardStats, JuryRoleTemplate } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import type {
   User, Student, Teacher, Coordinator, Faculty,
-  Department, Session, Room, Major, Level,
+  Department, Room, Major, Level,
 } from "@/types";
 
 export const getAdminStats = () => api<DashboardStats>("/admin/stats");
