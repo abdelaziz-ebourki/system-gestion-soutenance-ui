@@ -16,12 +16,12 @@ import {
   Input,
 } from "@/components/ui";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
+import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useCoordinatorCrud } from "@/hooks/entities/use-coordinator-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
 
 const FILTER_LIMIT = 5000;
 
@@ -32,7 +32,6 @@ export default function Coordinators() {
   });
   const [isFiltering, setIsFiltering] = useState(false);
   const [selectedCoordinators, setSelectedCoordinators] = useState<Coordinator[]>([]);
-  const [batchDialog, setBatchDialog] = useState<"delete" | null>(null);
 
   const { data: coordinatorsData, isLoading, refetch } = useCoordinators(
     isFiltering ? 0 : pagination.pageIndex,
@@ -97,32 +96,15 @@ export default function Coordinators() {
           onFiltering={setIsFiltering}
           filterColumns={["lastName", "firstName", "email"]} filterPlaceholder="Rechercher par nom, prénom ou email..." />
 
-      {selectedCoordinators.length > 0 && (
-        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4 shadow-lg">
-          <span className="text-sm font-medium">{selectedCoordinators.length} coordinateur(s) sélectionné(s)</span>
-          <div className="flex gap-2">
-            <Button variant="destructive" size="sm" onClick={() => setBatchDialog("delete")}>
-              Supprimer
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <DeleteAlert
-        isOpen={batchDialog === "delete"}
-        onOpenChange={(o) => { if (!o) setBatchDialog(null); }}
-        entityName={`${selectedCoordinators.length} coordinateur(s)`}
-        onDelete={async () => {
-          try {
-            await Promise.all(selectedCoordinators.map((c) => crud.deleteMutation(c.id)));
-            toast.success(`${selectedCoordinators.length} coordinateur(s) supprimé(s)`);
-            setSelectedCoordinators([]);
-            setBatchDialog(null);
-          } catch {
-            toast.error("Erreur lors de la suppression");
-          }
+      <BatchActionsBar
+        selectedCount={selectedCoordinators.length}
+        entityLabel="coordinateur(s)"
+        actions={[{ key: "delete", label: "Supprimer" }]}
+        onDeleteSelected={async () => {
+          await Promise.all(selectedCoordinators.map((c) => crud.deleteMutation(c.id)));
         }}
         isPending={crud.isPending}
+        onClearSelection={() => setSelectedCoordinators([])}
       />
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>

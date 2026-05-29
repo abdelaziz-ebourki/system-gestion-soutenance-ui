@@ -1,8 +1,4 @@
-import { useState } from "react";
-import { BookOpen } from "lucide-react";
-import {
-  useMajors, useCreateMajor, useUpdateMajor, useDeleteMajor,
-} from "@/hooks/use-queries";
+import { useState, type ReactNode } from "react";
 import { validate, configNameSchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
@@ -25,13 +21,31 @@ import {
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { ConfigCard } from "./ConfigCard";
+import type { UseMutationResult } from "@tanstack/react-query";
 
-export function MajorManager() {
-  const { data: majors } = useMajors();
-  const createMut = useCreateMajor();
-  const updateMut = useUpdateMajor();
-  const deleteMut = useDeleteMajor();
+interface ConfigEntityManagerProps {
+  title: string;
+  description: string;
+  icon: ReactNode;
+  entityLabel: string;
+  entityLabelPlural: string;
+  data: { id: string; name: string }[] | undefined;
+  createMut: UseMutationResult<unknown, Error, { name: string }, unknown>;
+  updateMut: UseMutationResult<unknown, Error, { id: string; data: { name: string } }, unknown>;
+  deleteMut: UseMutationResult<unknown, Error, string, unknown>;
+}
 
+export function ConfigEntityManager({
+  title,
+  description,
+  icon,
+  entityLabel,
+  entityLabelPlural,
+  data,
+  createMut,
+  updateMut,
+  deleteMut,
+}: ConfigEntityManagerProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -80,10 +94,10 @@ export function MajorManager() {
   return (
     <>
       <ConfigCard
-        title="Filières"
-        description="Liste des majors disponibles."
-        icon={<BookOpen className="size-5" />}
-        items={majors ?? []}
+        title={title}
+        description={description}
+        icon={icon}
+        items={data ?? []}
         onAdd={() => handleOpenDialog(null)}
         onEdit={(item) => handleOpenDialog(item)}
         onDelete={(item) => {
@@ -95,7 +109,7 @@ export function MajorManager() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{selectedItem ? "Modifier" : "Ajouter"} Filière</DialogTitle>
+            <DialogTitle>{selectedItem ? "Modifier" : "Ajouter"} {entityLabel}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <FieldGroup className="py-4">
@@ -123,7 +137,7 @@ export function MajorManager() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmation</AlertDialogTitle>
             <AlertDialogDescription>
-              Supprimer cette filière ? Cela pourrait affecter les étudiants liés.
+              Supprimer {entityLabel.toLowerCase()} "{selectedItem?.name}" ? Cela pourrait affecter les {entityLabelPlural.toLowerCase()} liés.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

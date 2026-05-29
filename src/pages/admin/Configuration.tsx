@@ -1,5 +1,6 @@
-import { MajorManager } from "@/components/admin/config/MajorManager";
-import { LevelManager } from "@/components/admin/config/LevelManager";
+import { BookOpen, Layers } from "lucide-react";
+import { useMajors, useCreateMajor, useUpdateMajor, useDeleteMajor, useLevels, useCreateLevel, useUpdateLevel, useDeleteLevel } from "@/hooks/use-queries";
+import { ConfigEntityManager } from "@/components/admin/config/ConfigEntityManager";
 import { EmailConfigForm } from "@/components/admin/config/EmailConfigForm";
 
 export default function Configuration() {
@@ -13,8 +14,28 @@ export default function Configuration() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-6">
-        <MajorManager />
-        <LevelManager />
+        <ConfigEntityManager
+          title="Filières"
+          description="Liste des majors disponibles."
+          icon={<BookOpen className="size-5" />}
+          entityLabel="Filière"
+          entityLabelPlural="Filières"
+          data={useMajors().data}
+          createMut={useCreateMajor()}
+          updateMut={useUpdateMajor()}
+          deleteMut={useDeleteMajor()}
+        />
+        <ConfigEntityManager
+          title="Niveaux"
+          description="Cycles universitaires."
+          icon={<Layers className="size-5" />}
+          entityLabel="Niveau"
+          entityLabelPlural="Niveaux"
+          data={useLevels().data}
+          createMut={useCreateLevel()}
+          updateMut={useUpdateLevel()}
+          deleteMut={useDeleteLevel()}
+        />
         <EmailConfigForm />
       </div>
     </div>

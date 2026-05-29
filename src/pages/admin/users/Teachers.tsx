@@ -23,12 +23,12 @@ import {
   SelectValue,
 } from "@/components/ui";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
+import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useTeacherCrud } from "@/hooks/entities/use-teacher-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
 
 const FILTER_LIMIT = 5000;
 
@@ -39,8 +39,6 @@ export default function Teachers() {
   });
   const [isFiltering, setIsFiltering] = useState(false);
   const [selectedTeachers, setSelectedTeachers] = useState<Teacher[]>([]);
-  const [batchDialog, setBatchDialog] = useState<"department" | "delete" | null>(null);
-  const [batchValue, setBatchValue] = useState("");
 
   const { data: teachersData, isLoading, refetch } = useTeachers(
     isFiltering ? 0 : pagination.pageIndex,
@@ -121,70 +119,23 @@ export default function Teachers() {
             { column: "departmentId", label: "Département", options: departments.map(d => ({ value: d.id, label: d.name })) },
           ]} />
 
-      {selectedTeachers.length > 0 && (
-        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4 shadow-lg">
-          <span className="text-sm font-medium">{selectedTeachers.length} enseignant(s) sélectionné(s)</span>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => { setBatchDialog("department"); setBatchValue(""); }}>
-              Modifier le département
-            </Button>
-            <Button variant="destructive" size="sm" onClick={() => setBatchDialog("delete")}>
-              Supprimer
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <Dialog open={batchDialog === "department"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Modifier le département</DialogTitle>
-            <DialogDescription>{selectedTeachers.length} enseignant(s) sélectionné(s).</DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
-              <SelectTrigger><SelectValue placeholder="Choisir un département" /></SelectTrigger>
-              <SelectContent>
-                {departments.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setBatchDialog(null)}>Annuler</Button>
-            <Button onClick={async () => {
-              if (!batchValue) return;
-              try {
-                await Promise.all(selectedTeachers.map((t) => crud.updateMutation(t.id, { departmentId: batchValue, role: "teacher" as const })));
-                toast.success(`${selectedTeachers.length} enseignant(s) mis à jour`);
-                setSelectedTeachers([]);
-                setBatchDialog(null);
-                refetch();
-              } catch {
-                toast.error("Erreur lors de la mise à jour");
-              }
-            }} isLoading={crud.isPending}>Enregistrer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <DeleteAlert
-        isOpen={batchDialog === "delete"}
-        onOpenChange={(o) => { if (!o) setBatchDialog(null); }}
-        entityName={`${selectedTeachers.length} enseignant(s)`}
-        onDelete={async () => {
-          try {
-            await Promise.all(selectedTeachers.map((t) => crud.deleteMutation(t.id)));
-            toast.success(`${selectedTeachers.length} enseignant(s) supprimé(s)`);
-            setSelectedTeachers([]);
-            setBatchDialog(null);
-            refetch();
-          } catch {
-            toast.error("Erreur lors de la suppression");
-          }
+      <BatchActionsBar
+        selectedCount={selectedTeachers.length}
+        entityLabel="enseignant(s)"
+        actions={[{ key: "department", label: "Modifier le département" }, { key: "delete", label: "Supprimer" }]}
+        fieldOptionsMap={{
+          department: departments.map((d) => ({ value: d.id, label: d.name })),
+        }}
+        onUpdateField={async (_field, value) => {
+          await Promise.all(selectedTeachers.map((t) => crud.updateMutation(t.id, { departmentId: value, role: "teacher" as const })));
+          refetch();
+        }}
+        onDeleteSelected={async () => {
+          await Promise.all(selectedTeachers.map((t) => crud.deleteMutation(t.id)));
+          refetch();
         }}
         isPending={crud.isPending}
+        onClearSelection={() => setSelectedTeachers([])}
       />
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
