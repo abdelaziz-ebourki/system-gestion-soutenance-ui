@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import type {
-  Room, Department, Faculty, Major, Level, JuryRoleTemplate,
+  Room, Department, Major, Level,
 } from "@/types";
-import type { DefenseSettings, GeneralSettings, DocumentConfig, EmailConfig } from "@/lib/api";
+import type { EmailConfig } from "@/lib/api";
 
 export function useAdminStats() {
   return useQuery({ queryKey: ["admin", "stats"], queryFn: api.getAdminStats });
@@ -71,35 +71,6 @@ export function useDeleteDepartment() {
   });
 }
 
-export function useFaculties() {
-  return useQuery({ queryKey: ["faculties"], queryFn: api.getFaculties });
-}
-
-export function useCreateFaculty() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Omit<Faculty, "id">) => api.createFaculty(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["faculties"] }),
-  });
-}
-
-export function useUpdateFaculty() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<Faculty, "id"> }) =>
-      api.updateFaculty(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["faculties"] }),
-  });
-}
-
-export function useDeleteFaculty() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.deleteFaculty(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["faculties"] }),
-  });
-}
-
 export function useMajors() {
   return useQuery({ queryKey: ["majors"], queryFn: api.getMajors });
 }
@@ -158,48 +129,8 @@ export function useDeleteLevel() {
   });
 }
 
-export function useDefenseSettings() {
-  return useQuery({
-    queryKey: ["defense-settings"],
-    queryFn: api.getDefenseSettings,
-  });
-}
-
 export function useJuryRoleTemplates() {
   return useQuery({ queryKey: ["jury-role-templates"], queryFn: api.getJuryRoleTemplates });
-}
-
-export function useCreateJuryRoleTemplate() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: Omit<JuryRoleTemplate, "id">) => api.createJuryRoleTemplate(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["jury-role-templates"] }),
-  });
-}
-
-export function useUpdateJuryRoleTemplate() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<JuryRoleTemplate, "id"> }) =>
-      api.updateJuryRoleTemplate(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["jury-role-templates"] }),
-  });
-}
-
-export function useDeleteJuryRoleTemplate() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: string) => api.deleteJuryRoleTemplate(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["jury-role-templates"] }),
-  });
-}
-
-export function useUpdateDefenseSettings() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: DefenseSettings) => api.updateDefenseSettings(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["defense-settings"] }),
-  });
 }
 
 export function useUsers(params: { role?: string; page?: number; limit?: number }) {
@@ -238,14 +169,6 @@ export function useTeachersList() {
   });
 }
 
-export function useStudentsList() {
-  return useQuery({
-    queryKey: ["users", "students", "list"],
-    queryFn: api.getStudentsList,
-    staleTime: 60_000,
-  });
-}
-
 export function useCreateUser() {
   const qc = useQueryClient();
   return useMutation({
@@ -275,29 +198,6 @@ export function useGeneralSettings() {
   return useQuery({
     queryKey: ["admin", "config", "general"],
     queryFn: api.getGeneralSettings,
-  });
-}
-
-export function useUpdateGeneralSettings() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: GeneralSettings) => api.updateGeneralSettings(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "general"] }),
-  });
-}
-
-export function useDocumentConfig() {
-  return useQuery({
-    queryKey: ["admin", "config", "documents"],
-    queryFn: api.getDocumentConfig,
-  });
-}
-
-export function useUpdateDocumentConfig() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: DocumentConfig) => api.updateDocumentConfig(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "documents"] }),
   });
 }
 

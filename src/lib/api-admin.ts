@@ -1,8 +1,8 @@
-import { api, type PaginatedResponse, type UserCreateParams, type RoomImportData, type DefenseSettings, type GeneralSettings, type DocumentConfig, type EmailConfig } from "./api-core";
+import { api, type PaginatedResponse, type UserCreateParams, type RoomImportData, type GeneralSettings, type EmailConfig } from "./api-core";
 import type { DashboardStats, JuryRoleTemplate } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import type {
-  User, Student, Teacher, Coordinator, Faculty,
+  User, Student, Teacher, Coordinator,
   Department, Room, Major, Level,
 } from "@/types";
 
@@ -36,11 +36,6 @@ export const getTeachers = (page = 0, limit = 10) =>
 
 export const getTeachersList = () =>
   api<PaginatedResponse<Teacher>>("/admin/teachers?limit=1000").then(
-    (res) => res.items,
-  );
-
-export const getStudentsList = () =>
-  api<PaginatedResponse<Student>>("/admin/students?limit=1000").then(
     (res) => res.items,
   );
 
@@ -93,19 +88,6 @@ export const updateDepartment = (id: string, data: Omit<Department, "id">) =>
 export const deleteDepartment = (id: string) =>
   api<void>(`/admin/departments/${id}`, { method: "DELETE" });
 
-export const getFaculties = () => api<Faculty[]>("/admin/faculties");
-export const createFaculty = (data: Omit<Faculty, "id">) =>
-  api<Faculty>("/admin/faculties", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-export const updateFaculty = (id: string, data: Omit<Faculty, "id">) =>
-  api<Faculty>(`/admin/faculties/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-export const deleteFaculty = (id: string) =>
-  api<void>(`/admin/faculties/${id}`, { method: "DELETE" });
 
 
 
@@ -152,35 +134,9 @@ export const deleteLevel = (id: string) =>
   api<void>(`/admin/config/levels/${id}`, { method: "DELETE" });
 
 export const getJuryRoleTemplates = () => api<JuryRoleTemplate[]>("/admin/config/jury-role-templates");
-export const createJuryRoleTemplate = (data: Omit<JuryRoleTemplate, "id">) =>
-  api<JuryRoleTemplate>("/admin/config/jury-role-templates", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-export const updateJuryRoleTemplate = (id: string, data: Omit<JuryRoleTemplate, "id">) =>
-  api<JuryRoleTemplate>(`/admin/config/jury-role-templates/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-export const deleteJuryRoleTemplate = (id: string) =>
-  api<void>(`/admin/config/jury-role-templates/${id}`, { method: "DELETE" });
-
-export const getDefenseSettings = () =>
-  api<DefenseSettings>("/admin/config/settings");
-export const updateDefenseSettings = (data: DefenseSettings) =>
-  api<DefenseSettings>("/admin/config/settings", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
 
 export const getGeneralSettings = () =>
   api<GeneralSettings>("/admin/config/general");
-export const updateGeneralSettings = (data: GeneralSettings) =>
-  api<GeneralSettings>("/admin/config/general", {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-
 export const getEmailConfig = () =>
   api<EmailConfig>("/admin/config/email");
 export const updateEmailConfig = (data: EmailConfig) =>
@@ -189,10 +145,4 @@ export const updateEmailConfig = (data: EmailConfig) =>
     body: JSON.stringify(data),
   });
 
-export const getDocumentConfig = () =>
-  api<DocumentConfig>("/admin/config/documents");
-export const updateDocumentConfig = (data: DocumentConfig) =>
-  api<DocumentConfig>("/admin/config/documents", {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
+
