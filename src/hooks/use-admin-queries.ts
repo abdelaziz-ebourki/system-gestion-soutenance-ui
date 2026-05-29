@@ -17,7 +17,7 @@ export function useAuditLogs(page = 0, limit = 20) {
 }
 
 export function useRooms() {
-  return useQuery({ queryKey: ["rooms"], queryFn: api.getRooms });
+  return useQuery({ queryKey: ["rooms"], queryFn: api.getRooms, staleTime: 5 * 60_000 });
 }
 
 export function useCreateRoom() {
@@ -46,7 +46,7 @@ export function useDeleteRoom() {
 }
 
 export function useDepartments() {
-  return useQuery({ queryKey: ["departments"], queryFn: api.getDepartments });
+  return useQuery({ queryKey: ["departments"], queryFn: api.getDepartments, staleTime: 5 * 60_000 });
 }
 
 export function useCreateDepartment() {
@@ -75,7 +75,7 @@ export function useDeleteDepartment() {
 }
 
 export function useMajors() {
-  return useQuery({ queryKey: ["majors"], queryFn: api.getMajors });
+  return useQuery({ queryKey: ["majors"], queryFn: api.getMajors, staleTime: 5 * 60_000 });
 }
 
 export function useCreateMajor() {
@@ -104,7 +104,7 @@ export function useDeleteMajor() {
 }
 
 export function useLevels() {
-  return useQuery({ queryKey: ["levels"], queryFn: api.getLevels });
+  return useQuery({ queryKey: ["levels"], queryFn: api.getLevels, staleTime: 5 * 60_000 });
 }
 
 export function useCreateLevel() {
@@ -133,7 +133,7 @@ export function useDeleteLevel() {
 }
 
 export function useJuryRoleTemplates() {
-  return useQuery({ queryKey: ["jury-role-templates"], queryFn: api.getJuryRoleTemplates });
+  return useQuery({ queryKey: ["jury-role-templates"], queryFn: api.getJuryRoleTemplates, staleTime: 5 * 60_000 });
 }
 
 export function useUsers(params: { role?: string; page?: number; limit?: number }) {
@@ -168,7 +168,7 @@ export function useTeachersList() {
   return useQuery({
     queryKey: ["users", "teachers", "list"],
     queryFn: api.getTeachersList,
-    staleTime: 60_000,
+    staleTime: 5 * 60_000,
   });
 }
 
@@ -201,6 +201,7 @@ export function useGeneralSettings() {
   return useQuery({
     queryKey: ["admin", "config", "general"],
     queryFn: api.getGeneralSettings,
+    staleTime: 5 * 60_000,
   });
 }
 
@@ -208,6 +209,7 @@ export function useEmailConfig() {
   return useQuery({
     queryKey: ["admin", "config", "email"],
     queryFn: api.getEmailConfig,
+    staleTime: 5 * 60_000,
   });
 }
 
