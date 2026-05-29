@@ -9,8 +9,11 @@ export function useAdminStats() {
   return useQuery({ queryKey: ["admin", "stats"], queryFn: api.getAdminStats });
 }
 
-export function useAuditLogs() {
-  return useQuery({ queryKey: ["admin", "audit-logs"], queryFn: api.getAuditLogs });
+export function useAuditLogs(page = 0, limit = 20) {
+  return useQuery({
+    queryKey: ["admin", "audit-logs", page, limit],
+    queryFn: () => api.getAuditLogs(page, limit),
+  });
 }
 
 export function useRooms() {

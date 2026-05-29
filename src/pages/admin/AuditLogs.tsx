@@ -1,10 +1,12 @@
 import { useAuditLogs } from "@/hooks/use-queries";
 import type { AuditLog } from "@/types/audit-log";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
+import { useState } from "react";
 
 export default function AuditLogs() {
-  const { data: logs = [], isLoading } = useAuditLogs();
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 20 });
+  const { data, isLoading } = useAuditLogs(pagination.pageIndex, pagination.pageSize);
 
   const columns: ColumnDef<AuditLog>[] = [
     { accessorKey: "action", header: "Action" },
@@ -24,11 +26,15 @@ export default function AuditLogs() {
 
       <DataTable
         columns={columns}
-        data={logs}
+        data={data?.items ?? []}
         loading={isLoading}
-        getRowId={(row) => row.id}
+        getRowId={(row) => String(row.id)}
         filterColumns="action"
         filterPlaceholder="Rechercher une action..."
+        manualPagination
+        pageCount={data?.pageCount ?? 0}
+        pagination={pagination}
+        onPaginationChange={setPagination}
       />
     </div>
   );

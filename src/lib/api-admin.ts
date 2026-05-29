@@ -8,7 +8,8 @@ import type {
 
 export const getAdminStats = () => api<DashboardStats>("/admin/stats");
 
-export const getAuditLogs = () => api<AuditLog[]>("/admin/audit-logs");
+export const getAuditLogs = (page = 0, limit = 20) =>
+  api<PaginatedResponse<AuditLog>>(`/admin/audit-logs?page=${page}&limit=${limit}`);
 
 export const getUsers = (params: {
   role?: string;
