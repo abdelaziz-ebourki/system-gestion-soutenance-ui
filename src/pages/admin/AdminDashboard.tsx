@@ -70,7 +70,7 @@ export default function AdminDashboard() {
 
   const users = usersData?.items ?? [];
   const pageCount = usersData?.pageCount ?? 0;
-  const auditLogs = logs ?? [];
+  const auditLogs = logs?.items ?? [];
 
   const userColumns: ColumnDef<User>[] = [
     {

@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "prepare": "husky"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -45,6 +46,11 @@
     "xlsx": "^0.18.5",
     "zod": "^4.4.3"
   },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --quiet --fix"
+    ]
+  },
   "devDependencies": {
     "@cspell/dict-fr-fr": "^2.3.2",
     "@eslint/js": "^10.0.1",
@@ -62,7 +68,9 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "eslint-plugin-tailwindcss": "^3.18.3",
     "globals": "^17.5.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.6",
     "msw": "^2.14.6",
     "prettier-plugin-tailwindcss-canonical-classes": "^0.1.5",
     "typescript": "~6.0.2",

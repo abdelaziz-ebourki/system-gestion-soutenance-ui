@@ -31,3 +31,6 @@ dist-ssr
 *.sw?
 
 archive
+
+# Build output
+coverage

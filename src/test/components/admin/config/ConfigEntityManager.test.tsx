@@ -3,20 +3,21 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { GraduationCap } from "lucide-react";
+import type { UseMutationResult } from "@tanstack/react-query";
 import { ConfigEntityManager } from "@/components/admin/config/ConfigEntityManager";
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-function createMockMut() {
+function createMockMut<TVariables>(): UseMutationResult<unknown, Error, TVariables, unknown> {
   return {
     mutateAsync: vi.fn().mockResolvedValue({}),
     isPending: false,
-  } as unknown as ReturnType<typeof vi.fn>;
+  } as unknown as UseMutationResult<unknown, Error, TVariables, unknown>;
 }
 
-function renderManager(overrideProps = {}) {
+function renderManager(overrideProps: Record<string, unknown> = {}) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -30,9 +31,9 @@ function renderManager(overrideProps = {}) {
       { id: "1", name: "Génie Informatique" },
       { id: "2", name: "Génie Civil" },
     ],
-    createMut: createMockMut(),
-    updateMut: createMockMut(),
-    deleteMut: createMockMut(),
+    createMut: createMockMut<{ name: string }>(),
+    updateMut: createMockMut<{ id: string; data: { name: string } }>(),
+    deleteMut: createMockMut<string>(),
   };
   return render(
     <QueryClientProvider client={queryClient}>

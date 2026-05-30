@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toast } from "sonner";
 import { cn, getFullName, toastError } from "@/lib/utils";
 
@@ -12,7 +12,8 @@ describe("cn", () => {
   });
 
   it("handles conditional classes", () => {
-    expect(cn("base", false && "hidden", "visible")).toBe("base visible");
+    const show = false;
+    expect(cn("base", show && "hidden", "visible")).toBe("base visible");
   });
 
   it("handles array of classes", () => {

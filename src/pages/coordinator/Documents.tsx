@@ -1,4 +1,4 @@
-import { FileText, Users, Calendar, ClipboardList, ScrollText } from "lucide-react";
+import { FileText, Users, Calendar, ClipboardList, ScrollText, Printer } from "lucide-react";
 import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades } from "@/hooks/use-queries";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Skeleton, EmptyState } from "@/components/ui";
 import { toast } from "sonner";

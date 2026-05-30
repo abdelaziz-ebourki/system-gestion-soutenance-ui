@@ -53,14 +53,10 @@ describe("Rooms", () => {
   });
 
   it("shows empty state guard when no departments", async () => {
-    const user = userEvent.setup();
     renderRooms();
 
-    // Wait for data to load first
     await screen.findByText("Salle 101");
 
-    // Simulate no departments by adding a handler override
-    // This test verifies the guard is bypassable - the main test is structural
     expect(screen.queryByText("Aucun département configuré")).not.toBeInTheDocument();
   });
 });

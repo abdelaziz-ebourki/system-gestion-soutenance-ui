@@ -50,7 +50,7 @@ export interface Department {
   name: string;
   code: string;
   headId?: string;
-  facultyId: string;
+  facultyId?: string;
 }
 
 export interface Room {

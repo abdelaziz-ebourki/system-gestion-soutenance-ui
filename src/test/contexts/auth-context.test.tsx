@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach } from "vitest";
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { STORAGE_KEYS } from "@/lib/constants";
-import type { ReactNode } from "react";
+
 
 function TestConsumer() {
   const { user, token, isAuthenticated, isLoading, wasExpired, login, logout } = useAuth();
