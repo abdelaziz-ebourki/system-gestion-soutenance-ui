@@ -143,24 +143,24 @@ export function useUsers(params: { role?: string; page?: number; limit?: number 
   });
 }
 
-export function useStudents(page = 0, limit = 10) {
+export function useStudents(page = 0, limit = 10, search?: string) {
   return useQuery({
-    queryKey: ["users", "students", page, limit],
-    queryFn: () => api.getStudents(page, limit),
+    queryKey: ["users", "students", page, limit, search],
+    queryFn: () => api.getStudents(page, limit, search),
   });
 }
 
-export function useTeachers(page = 0, limit = 10) {
+export function useTeachers(page = 0, limit = 10, search?: string) {
   return useQuery({
-    queryKey: ["users", "teachers", page, limit],
-    queryFn: () => api.getTeachers(page, limit),
+    queryKey: ["users", "teachers", page, limit, search],
+    queryFn: () => api.getTeachers(page, limit, search),
   });
 }
 
-export function useCoordinators(page = 0, limit = 10) {
+export function useCoordinators(page = 0, limit = 10, search?: string) {
   return useQuery({
-    queryKey: ["users", "coordinators", page, limit],
-    queryFn: () => api.getCoordinators(page, limit),
+    queryKey: ["users", "coordinators", page, limit, search],
+    queryFn: () => api.getCoordinators(page, limit, search),
   });
 }
 

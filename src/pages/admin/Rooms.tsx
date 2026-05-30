@@ -98,50 +98,7 @@ export default function Rooms() {
         </div>
         <div className="flex gap-2">
           <BulkImportDialog entity="room" triggerButtonText="Importation en masse" onSuccess={refetch} />
-          <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
-            <Button onClick={() => { crud.openCreate(); }}><Plus className="size-4" />Nouvelle Salle</Button>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{crud.selected ? "Modifier la salle" : "Ajouter une Salle"}</DialogTitle>
-                <DialogDescription>
-                  {crud.selected ? "Mettez à jour les informations de la salle." : "Créez une nouvelle salle pour les examens et soutenances."}
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={crud.handleSubmit}>
-                <FieldGroup className="py-4">
-                  <Field>
-                    <FieldLabel>Nom de la Salle</FieldLabel>
-                    <Input placeholder="ex: Salle 101" value={crud.formData.name}
-                      onChange={(e) => crud.setFormData({ ...crud.formData, name: e.target.value })}
-                      required error={crud.fieldErrors?.name} />
-                  </Field>
-                  <Field>
-                    <FieldLabel>Département</FieldLabel>
-                    <Select value={crud.formData.departmentId}
-                      onValueChange={(v) => crud.setFormData({ ...crud.formData, departmentId: v || "" })}>
-                      <SelectTrigger><SelectValue placeholder="Choisir un département" /></SelectTrigger>
-                      <SelectContent>
-                        {departments.map((d) => (
-                          <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {crud.fieldErrors?.departmentId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.departmentId}</p>}
-                  </Field>
-                  <Field>
-                    <FieldLabel>Capacité (places)</FieldLabel>
-                    <Input type="number" placeholder="ex: 30" value={crud.formData.capacity}
-                      onChange={(e) => crud.setFormData({ ...crud.formData, capacity: Number(e.target.value) || 0 })}
-                      required error={crud.fieldErrors?.capacity} />
-                  </Field>
-                </FieldGroup>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => crud.setIsDialogOpen(false)}>Annuler</Button>
-                  <Button type="submit" isLoading={crud.isPending} loadingText="Enregistrement...">Enregistrer</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={crud.openCreate}><Plus className="size-4" />Nouvelle Salle</Button>
         </div>
       </div>
 
@@ -166,7 +123,6 @@ export default function Rooms() {
             toast.success(`${selectedRooms.length} salle(s) supprimée(s)`);
             setSelectedRooms([]);
             setBatchDialog(null);
-            refetch();
           } catch {
             toast.error("Erreur lors de la suppression");
           }
@@ -176,6 +132,50 @@ export default function Rooms() {
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
         onDelete={crud.handleDelete} entityName={crud.selected?.name} isPending={crud.isPending} />
+
+      <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{crud.selected ? "Modifier la salle" : "Ajouter une Salle"}</DialogTitle>
+            <DialogDescription>
+              {crud.selected ? "Mettez à jour les informations de la salle." : "Créez une nouvelle salle pour les examens et soutenances."}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={crud.handleSubmit}>
+            <FieldGroup className="py-4">
+              <Field>
+                <FieldLabel>Nom de la Salle</FieldLabel>
+                <Input placeholder="ex: Salle 101" value={crud.formData.name}
+                  onChange={(e) => crud.setFormData({ ...crud.formData, name: e.target.value })}
+                  required error={crud.fieldErrors?.name} />
+              </Field>
+              <Field>
+                <FieldLabel>Département</FieldLabel>
+                <Select value={crud.formData.departmentId}
+                  onValueChange={(v) => crud.setFormData({ ...crud.formData, departmentId: v || "" })}>
+                  <SelectTrigger><SelectValue placeholder="Choisir un département" /></SelectTrigger>
+                  <SelectContent>
+                    {departments.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {crud.fieldErrors?.departmentId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.departmentId}</p>}
+              </Field>
+              <Field>
+                <FieldLabel>Capacité (places)</FieldLabel>
+                <Input type="number" min={0} placeholder="ex: 30" value={crud.formData.capacity}
+                  onChange={(e) => crud.setFormData({ ...crud.formData, capacity: Number(e.target.value) || 0 })}
+                  required error={crud.fieldErrors?.capacity} />
+              </Field>
+            </FieldGroup>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => crud.setIsDialogOpen(false)}>Annuler</Button>
+              <Button type="submit" isLoading={crud.isPending} loadingText="Enregistrement...">Enregistrer</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

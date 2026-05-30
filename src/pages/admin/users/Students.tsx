@@ -57,9 +57,11 @@ export default function Students() {
     { accessorKey: "cne", header: "CNE", cell: ({ row }) => <code className="font-bold">{row.getValue("cne")}</code> },
     { accessorKey: "lastName", header: "Nom", cell: ({ row }) => <div className="font-medium">{row.original.lastName}</div> },
     { accessorKey: "firstName", header: "Prénom", cell: ({ row }) => <div className="font-medium">{row.original.firstName}</div> },
+    { accessorKey: "email", header: "Email" },
     {
       accessorKey: "majorId",
       header: "Filière",
+      filterFn: "equalsString",
       cell: ({ row }) => {
         const id = row.getValue("majorId") as string;
         return majors.find((f) => f.id === id)?.name || id;
@@ -68,6 +70,7 @@ export default function Students() {
     {
       accessorKey: "levelId",
       header: "Niveau",
+      filterFn: "equalsString",
       cell: ({ row }) => {
         const id = row.getValue("levelId") as string;
         const name = levels.find((l) => l.id === id)?.name || id;
@@ -131,8 +134,8 @@ export default function Students() {
           onFiltering={setIsFiltering}
           filterColumns={["lastName", "firstName", "email"]} filterPlaceholder="Rechercher par nom, prénom ou email..."
           filters={[
-            { column: "majorId", label: "Filière", options: majors.map(f => ({ value: f.id, label: f.name })) },
-            { column: "levelId", label: "Niveau", options: levels.map(l => ({ value: l.id, label: l.name })) },
+            { column: "majorId", label: "Filière", options: majors.map(f => ({ value: String(f.id), label: f.name })) },
+            { column: "levelId", label: "Niveau", options: levels.map(l => ({ value: String(l.id), label: l.name })) },
           ]} />
 
       <BatchActionsBar
@@ -149,11 +152,9 @@ export default function Students() {
           } else if (field === "level") {
             await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { levelId: value, role: "student" as const })));
           }
-          refetch();
         }}
         onDeleteSelected={async () => {
           await Promise.all(selectedStudents.map((s) => crud.deleteMutation(s.id)));
-          refetch();
         }}
         isPending={crud.isPending}
         onClearSelection={() => setSelectedStudents([])}

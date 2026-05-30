@@ -57,6 +57,7 @@ export default function Teachers() {
     {
       accessorKey: "departmentId",
       header: "Département",
+      filterFn: "equalsString",
       cell: ({ row }) => {
         const id = row.getValue("departmentId") as string;
         return departments.find((d) => d.id === id)?.name || id;
@@ -116,7 +117,7 @@ export default function Teachers() {
           onFiltering={setIsFiltering}
           filterColumns={["lastName", "firstName", "email"]} filterPlaceholder="Rechercher par nom, prénom ou email..."
           filters={[
-            { column: "departmentId", label: "Département", options: departments.map(d => ({ value: d.id, label: d.name })) },
+            { column: "departmentId", label: "Département", options: departments.map(d => ({ value: String(d.id), label: d.name })) },
           ]} />
 
       <BatchActionsBar
@@ -128,11 +129,9 @@ export default function Teachers() {
         }}
         onUpdateField={async (_field, value) => {
           await Promise.all(selectedTeachers.map((t) => crud.updateMutation(t.id, { departmentId: value, role: "teacher" as const })));
-          refetch();
         }}
         onDeleteSelected={async () => {
           await Promise.all(selectedTeachers.map((t) => crud.deleteMutation(t.id)));
-          refetch();
         }}
         isPending={crud.isPending}
         onClearSelection={() => setSelectedTeachers([])}

@@ -102,6 +102,8 @@ export default function Coordinators() {
         actions={[{ key: "delete", label: "Supprimer" }]}
         onDeleteSelected={async () => {
           await Promise.all(selectedCoordinators.map((c) => crud.deleteMutation(c.id)));
+          setSelectedCoordinators([]);
+          refetch();
         }}
         isPending={crud.isPending}
         onClearSelection={() => setSelectedCoordinators([])}

@@ -27,7 +27,7 @@ import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
 export default function Departments() {
-  const { data, isLoading, refetch } = useDepartments();
+  const { data, isLoading } = useDepartments();
   const [selectedDepartments, setSelectedDepartments] = useState<Department[]>([]);
   const [batchDialog, setBatchDialog] = useState<"delete" | null>(null);
   const { data: teachers = [] } = useTeachersList();
@@ -108,7 +108,6 @@ export default function Departments() {
             toast.success(`${selectedDepartments.length} département(s) supprimé(s)`);
             setSelectedDepartments([]);
             setBatchDialog(null);
-            refetch();
           } catch {
             toast.error("Erreur lors de la suppression");
           }

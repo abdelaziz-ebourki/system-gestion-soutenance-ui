@@ -15,35 +15,39 @@ export const getUsers = (params: {
   role?: string;
   page?: number;
   limit?: number;
+  search?: string;
 }) => {
   const query = new URLSearchParams();
   if (params.role) query.append("role", params.role);
   if (params.page !== undefined) query.append("page", params.page.toString());
-  if (params.limit !== undefined)
-    query.append("limit", params.limit.toString());
+  if (params.limit !== undefined) query.append("limit", params.limit.toString());
+  if (params.search) query.append("search", params.search);
 
   return api<PaginatedResponse<User>>(`/admin/users?${query.toString()}`);
 };
 
-export const getStudents = (page = 0, limit = 10) =>
-  api<PaginatedResponse<Student>>(
-    `/admin/students?page=${page}&limit=${limit}`,
-  );
+export const getStudents = (page = 0, limit = 10, search?: string) => {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (search) params.append("search", search);
+  return api<PaginatedResponse<Student>>(`/admin/students?${params}`);
+};
 
-export const getTeachers = (page = 0, limit = 10) =>
-  api<PaginatedResponse<Teacher>>(
-    `/admin/teachers?page=${page}&limit=${limit}`,
-  );
+export const getTeachers = (page = 0, limit = 10, search?: string) => {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (search) params.append("search", search);
+  return api<PaginatedResponse<Teacher>>(`/admin/teachers?${params}`);
+};
 
 export const getTeachersList = () =>
   api<PaginatedResponse<Teacher>>("/admin/teachers?limit=1000").then(
     (res) => res.items,
   );
 
-export const getCoordinators = (page = 0, limit = 10) =>
-  getUsers({ role: "coordinator", page, limit }) as unknown as Promise<
-    PaginatedResponse<Coordinator>
-  >;
+export const getCoordinators = (page = 0, limit = 10, search?: string) => {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  if (search) params.append("search", search);
+  return api<PaginatedResponse<Coordinator>>(`/admin/coordinators?${params}`);
+};
 
 export const createUser = (data: UserCreateParams) =>
   api<User>("/admin/users", {
