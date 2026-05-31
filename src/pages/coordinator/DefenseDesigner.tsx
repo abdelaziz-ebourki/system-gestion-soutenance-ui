@@ -15,8 +15,9 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 
-import { useJuries, useRooms, useTeachersList, useSaveDefenseSchedule, useCoordinatorDefenseSessions, useCoordinatorUnavailability } from "@/hooks/use-queries";
+import { useJuries, useRooms, useSaveDefenseSchedule, useCoordinatorDefenseSessions, useCoordinatorUnavailability } from "@/hooks/use-queries";
 import { validateSlotAssignment } from "@/lib/conflict-engine";
+import type { ConflictContext } from "@/lib/conflict-engine";
 import type { Jury } from "@/types";
 import {
   Button,
@@ -37,8 +38,8 @@ import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { toast } from "sonner";
 import { RoomSearchSelect } from "@/components/coordinator/RoomSearchSelect";
-import { DraggableJurySlot } from "@/components/coordinator/DraggableJurySlot";
-import { DroppableCalendarCell } from "@/components/coordinator/DroppableCalendarCell";
+import DraggableJurySlot from "@/components/coordinator/DraggableJurySlot";
+import DroppableCalendarCell from "@/components/coordinator/DroppableCalendarCell";
 
 const DAYS_TO_SHOW = 14;
 
@@ -49,7 +50,7 @@ export default function DefenseDesigner() {
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
 
   const { data: sessions } = useCoordinatorDefenseSessions();
-  const { data: juries = [] } = useJuries(selectedSessionId || "");
+  const { data: juries = [] } = useJuries();
   const { data: rooms = [] } = useRooms();
   const { data: unavailabilities = [] } = useCoordinatorUnavailability();
   const saveSchedule = useSaveDefenseSchedule();
@@ -114,21 +115,47 @@ export default function DefenseDesigner() {
       const jury = juries.find((j) => j.id === juryId);
       if (!jury) return;
 
-      const errors = validateSlotAssignment({
-        jury,
-        date,
-        time,
-        roomId: selectedRoomId,
-        existingSchedule: Object.entries(schedule).map(([id, s]) => ({
-          juryId: id,
-          ...s,
-          jury: juries.find((j) => j.id === id)!,
-        })),
-        teacherUnavailabilities: unavailabilities,
-      });
+      const slotKey = `${date}|${selectedRoomId}|${time}`;
 
-      if (errors.length > 0) {
-        toast.error(errors[0]);
+      const context: ConflictContext = {
+        schedule: Object.fromEntries(
+          Object.entries(schedule).map(([id, s]) => [
+            id,
+            {
+              id,
+              title: juries.find((j) => j.id === id)?.projectTitle ?? "",
+              date: s.date,
+              time: s.time,
+              roomId: s.roomId,
+            },
+          ]),
+        ),
+        rooms: Object.fromEntries(
+          rooms.map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }]),
+        ),
+        groups: {},
+        projects: {},
+        teachers: {},
+        juries: Object.fromEntries(
+          juries.map((j) => [
+            j.id,
+            { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) },
+          ]),
+        ),
+        unavailability: Object.fromEntries(
+          (unavailabilities as { id: string; teacherId: string; date: string; slots: string[] }[]).map(
+            (u) => [u.teacherId, [{ date: u.date, slots: u.slots, teacherId: u.teacherId }]],
+          ),
+        ),
+        defenseSession: currentSession
+          ? { startDate: currentSession.startDate, endDate: currentSession.endDate, breakDuration: currentSession.breakDuration }
+          : undefined,
+      };
+
+      const result = validateSlotAssignment(jury.projectId, slotKey, context);
+
+      if (!result.isValid) {
+        toast.error(result.issues[0]?.message ?? "Conflit détecté");
         return;
       }
 
@@ -156,13 +183,21 @@ export default function DefenseDesigner() {
 
     try {
       await saveSchedule.mutateAsync(
-        Object.entries(schedule).map(([juryId, s]) => ({
-          juryId,
-          ...s,
-        })),
+        Object.fromEntries(
+          Object.entries(schedule).map(([juryId, s]) => [
+            juryId,
+            {
+              id: juryId,
+              title: juries.find((j) => j.id === juryId)?.projectTitle ?? "",
+              date: s.date,
+              time: s.time,
+              roomId: s.roomId,
+            },
+          ]),
+        ),
       );
       toast.success("Planning enregistré avec succès");
-    } catch (error) {
+    } catch {
       toast.error("Erreur lors de l'enregistrement");
     }
   };
@@ -291,7 +326,7 @@ export default function DefenseDesigner() {
                             const scheduledJuryId = Object.keys(schedule).find(
                               (id) => schedule[id].date === dateStr && schedule[id].time === slot && schedule[id].roomId === selectedRoomId
                             );
-                            const jury = scheduledJuryId ? juries.find(j => j.id === scheduledJuryId) : null;
+                            const jury: Jury | null = scheduledJuryId ? juries.find(j => j.id === scheduledJuryId) ?? null : null;
 
                             return (
                               <DroppableCalendarCell

@@ -50,7 +50,7 @@ export default function DashboardLayout() {
     const label = SEGMENT_LABELS[segment] || segment;
     const path = "/" + segments.slice(0, index + 1).join("/");
     const isLast = index === segments.length - 1;
-    const isLinkable = VALID_DASHBOARD_ROUTES.has(path);
+    const isLinkable = VALID_DASHBOARD_ROUTES.has(path as (typeof VALID_DASHBOARD_ROUTES) extends Set<infer T> ? T : never);
     return { label, path, isLast, isLinkable };
   });
 

@@ -32,6 +32,7 @@ export interface Jury {
   id: string;
   projectId: string;
   projectTitle: string;
+  studentNames: string[];
   defenseType: DefenseType;
   templateId: string;
   templateName: string;
@@ -161,6 +162,7 @@ export interface JuryRoleTemplate {
 
 export interface JuryMember {
   roleName: string;
+  role?: string;
   teacherId: string;
   teacherName: string;
 }
@@ -178,6 +180,8 @@ export interface DefenseSession {
   juryRoleTemplateId: string;
   startDate: string;
   endDate: string;
+  startTime: string;
+  endTime: string;
 }
 
 export interface StudentGroupWorkspace {

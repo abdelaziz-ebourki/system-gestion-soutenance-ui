@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
-import { useJuries, useProjects, useTeachersList, useDeleteJury } from "@/hooks/use-queries";
+import { useJuries, useProjects, useDeleteJury } from "@/hooks/use-queries";
 import type { Jury } from "@/types";
 import { toastError } from "@/lib/utils";
 import {
@@ -15,17 +15,15 @@ import {
   CardTitle,
   DataTable,
 } from "@/components/ui";
-import { CreateJuryDialog } from "@/components/coordinator/CreateJuryDialog";
+import { CreateJuryDialog } from "@/components/academic/CreateJuryDialog";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
 export default function Jurys() {
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [juryToDelete, setJuryToDelete] = useState<Jury | null>(null);
 
-  const { data: juries = [], isLoading } = useJuries(selectedSessionId || "");
+  const { data: juries = [], isLoading } = useJuries();
   const { data: projects = [] } = useProjects();
-  const { data: teachers = [] } = useTeachersList();
   const deleteJury = useDeleteJury();
 
   const columns: ColumnDef<Jury>[] = [
@@ -142,10 +140,9 @@ export default function Jurys() {
       </Card>
 
       <CreateJuryDialog
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
-        projects={projects.filter((p) => !juries.find((j) => j.projectId === p.id))}
-        teachers={teachers}
+        open={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
+        onSuccess={() => setIsCreateOpen(false)}
       />
 
       <DeleteAlert
