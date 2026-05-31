@@ -40,10 +40,10 @@ export default function Teachers() {
   const [isFiltering, setIsFiltering] = useState(false);
   const [selectedTeachers, setSelectedTeachers] = useState<Teacher[]>([]);
 
-  const { data: teachersData, isLoading, refetch } = useTeachers(
-    isFiltering ? 0 : pagination.pageIndex,
-    isFiltering ? FILTER_LIMIT : pagination.pageSize,
-  );
+  const { data: teachersData, isLoading, refetch } = useTeachers({
+    page: isFiltering ? 0 : pagination.pageIndex,
+    limit: isFiltering ? FILTER_LIMIT : pagination.pageSize,
+  });
   const { data: departments = [] } = useDepartments();
   const crud = useTeacherCrud();
 

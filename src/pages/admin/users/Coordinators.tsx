@@ -33,10 +33,10 @@ export default function Coordinators() {
   const [isFiltering, setIsFiltering] = useState(false);
   const [selectedCoordinators, setSelectedCoordinators] = useState<Coordinator[]>([]);
 
-  const { data: coordinatorsData, isLoading, refetch } = useCoordinators(
-    isFiltering ? 0 : pagination.pageIndex,
-    isFiltering ? FILTER_LIMIT : pagination.pageSize,
-  );
+  const { data: coordinatorsData, isLoading, refetch } = useCoordinators({
+    page: isFiltering ? 0 : pagination.pageIndex,
+    limit: isFiltering ? FILTER_LIMIT : pagination.pageSize,
+  });
   const crud = useCoordinatorCrud();
 
   const data = coordinatorsData?.items ?? [];

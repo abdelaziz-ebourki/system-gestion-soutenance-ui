@@ -1,68 +1,36 @@
-import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { api } from "@/lib/api";
+import { useJuryConvocations } from "@/hooks/use-queries";
 import type { GeneralSettings } from "@/lib/api-core";
 import PrintLayout from "@/components/print/PrintLayout";
 import JuryConvocation from "@/components/print/JuryConvocation";
-
-interface BackendConvocation {
-  teacherName: string;
-  role: string;
-  projectTitle: string;
-  studentNames: string[];
-  date: string;
-  time: string;
-  roomName: string;
-  defenseSessionName: string;
-}
 
 export default function PrintJuryConvocation() {
   const [params] = useSearchParams();
   const projectId = params.get("projectId");
   const teacherId = params.get("teacherId");
-  const [data, setData] = useState<{ settings: GeneralSettings; projectTitle: string; studentNames: string[]; date: string; startTime: string; endTime: string; roomName: string; role: string; juryPresident: string; teacherName: string } | null>(null);
-  const [error, setError] = useState("");
+  const { data: convocations, isLoading, error } = useJuryConvocations(projectId);
 
-  useEffect(() => {
-    if (!projectId || !teacherId) { setError("Paramètres projectId et teacherId requis"); return; }
-    api<BackendConvocation[]>(
-      "/coordinator/documents/jury-convocations",
-      {
-        method: "POST",
-        body: JSON.stringify({ projectId }),
-      },
-    ).then((convocations) => {
-      const conv = convocations.find((c) => c.teacherName.includes(teacherId));
-      if (!conv) { setError("Convocation introuvable pour ce professeur."); return; }
-      setData({
-        settings: {} as GeneralSettings,
-        projectTitle: conv.projectTitle,
-        studentNames: conv.studentNames,
-        date: conv.date,
-        startTime: conv.time,
-        endTime: "",
-        roomName: conv.roomName,
-        role: conv.role,
-        juryPresident: "",
-        teacherName: conv.teacherName,
-      });
-    }).catch((e) => setError(e.message));
-  }, [projectId, teacherId]);
+  if (!projectId || !teacherId) {
+    return <div className="p-8 text-red-600">Paramètres projectId et teacherId requis</div>;
+  }
 
-  if (error) return <div className="p-8 text-red-600">{error}</div>;
-  if (!data) return <div className="p-8">Chargement...</div>;
+  if (error) return <div className="p-8 text-red-600">{(error as Error).message}</div>;
+  if (isLoading || !convocations) return <div className="p-8">Chargement...</div>;
+
+  const conv = convocations.find((c) => c.teacherName.includes(teacherId));
+  if (!conv) return <div className="p-8 text-red-600">Convocation introuvable pour ce professeur.</div>;
 
   return (
-    <PrintLayout title="Convocation — Membre du jury" settings={data.settings} autoPrint>
+    <PrintLayout title="Convocation — Membre du jury" settings={{} as GeneralSettings} autoPrint>
       <JuryConvocation
-        projectTitle={data.projectTitle}
-        studentNames={data.studentNames}
-        date={data.date}
-        startTime={data.startTime}
-        endTime={data.endTime}
-        roomName={data.roomName}
-        role={data.role}
-        juryPresident={data.juryPresident}
+        projectTitle={conv.projectTitle}
+        studentNames={conv.studentNames}
+        date={conv.date}
+        startTime={conv.time}
+        endTime=""
+        roomName={conv.roomName}
+        role={conv.role}
+        juryPresident=""
       />
     </PrintLayout>
   );

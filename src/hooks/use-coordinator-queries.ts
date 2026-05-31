@@ -183,3 +183,50 @@ export function useAssignProjectToGroup() {
     },
   });
 }
+
+// --- Document generation hooks ---
+
+export function useEvaluationSheet(projectId: string | null) {
+  return useQuery({
+    queryKey: ["coordinator", "documents", "evaluation-sheet", projectId],
+    queryFn: () => api.getEvaluationSheet(projectId!),
+    enabled: !!projectId,
+    staleTime: 60_000,
+  });
+}
+
+export function useAttendanceList(defenseSessionId: string | null) {
+  return useQuery({
+    queryKey: ["coordinator", "documents", "attendance-list", defenseSessionId],
+    queryFn: () => api.getAttendanceList(defenseSessionId!),
+    enabled: !!defenseSessionId,
+    staleTime: 60_000,
+  });
+}
+
+export function useJuryConvocations(projectId: string | null) {
+  return useQuery({
+    queryKey: ["coordinator", "documents", "jury-convocations", projectId],
+    queryFn: () => api.getJuryConvocations(projectId!),
+    enabled: !!projectId,
+    staleTime: 60_000,
+  });
+}
+
+export function useDefenseScheduleDoc(defenseSessionId: string | null) {
+  return useQuery({
+    queryKey: ["coordinator", "documents", "schedule", defenseSessionId],
+    queryFn: () => api.getDefenseScheduleDoc(defenseSessionId!),
+    enabled: !!defenseSessionId,
+    staleTime: 60_000,
+  });
+}
+
+export function useProcesVerbal(projectId: string | null) {
+  return useQuery({
+    queryKey: ["coordinator", "documents", "proces-verbal", projectId],
+    queryFn: () => api.getProcesVerbal(projectId!),
+    enabled: !!projectId,
+    staleTime: 60_000,
+  });
+}

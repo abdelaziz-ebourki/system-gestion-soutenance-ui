@@ -42,10 +42,10 @@ export default function Students() {
   const [isFiltering, setIsFiltering] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
 
-  const { data: studentsData, isLoading, refetch } = useStudents(
-    isFiltering ? 0 : pagination.pageIndex,
-    isFiltering ? FILTER_LIMIT : pagination.pageSize,
-  );
+  const { data: studentsData, isLoading, refetch } = useStudents({
+    page: isFiltering ? 0 : pagination.pageIndex,
+    limit: isFiltering ? FILTER_LIMIT : pagination.pageSize,
+  });
   const { data: majors = [] } = useMajors();
   const { data: levels = [] } = useLevels();
   const crud = useStudentCrud();

@@ -136,28 +136,31 @@ export function useJuryRoleTemplates() {
   return useQuery({ queryKey: ["jury-role-templates"], queryFn: api.getJuryRoleTemplates, staleTime: 5 * 60_000 });
 }
 
-export function useUsers(params: { role?: string; page?: number; limit?: number }) {
+export function useUsers(params: { role?: string; page?: number; limit?: number; search?: string }) {
   return useQuery({
     queryKey: ["users", params],
     queryFn: () => api.getUsers(params),
   });
 }
 
-export function useStudents(page = 0, limit = 10, search?: string) {
+export function useStudents(params?: { page?: number; limit?: number; search?: string }) {
+  const { page = 0, limit = 10, search } = params ?? {};
   return useQuery({
     queryKey: ["users", "students", page, limit, search],
     queryFn: () => api.getStudents(page, limit, search),
   });
 }
 
-export function useTeachers(page = 0, limit = 10, search?: string) {
+export function useTeachers(params?: { page?: number; limit?: number; search?: string }) {
+  const { page = 0, limit = 10, search } = params ?? {};
   return useQuery({
     queryKey: ["users", "teachers", page, limit, search],
     queryFn: () => api.getTeachers(page, limit, search),
   });
 }
 
-export function useCoordinators(page = 0, limit = 10, search?: string) {
+export function useCoordinators(params?: { page?: number; limit?: number; search?: string }) {
+  const { page = 0, limit = 10, search } = params ?? {};
   return useQuery({
     queryKey: ["users", "coordinators", page, limit, search],
     queryFn: () => api.getCoordinators(page, limit, search),

@@ -1,4 +1,4 @@
-import { api } from "./api-core";
+import { api, type GeneralSettings } from "./api-core";
 import type { Project, Group, Jury, DefenseSession, DefenseSessionStatus } from "@/types";
 import type { SlotAssignment } from "@/lib/conflict-engine";
 
@@ -167,4 +167,71 @@ export const assignProjectToGroup = (projectId: string, groupId: string) =>
   api<Project>(`/coordinator/projects/${projectId}/assign-group`, {
     method: "POST",
     body: JSON.stringify({ groupId }),
+  });
+
+// --- Document generation ---
+
+export interface EvaluationSheetData {
+  settings: GeneralSettings;
+  grade: ProjectGrade;
+  studentNames: string[];
+}
+
+export const getEvaluationSheet = (projectId: string) =>
+  api<EvaluationSheetData>("/coordinator/documents/evaluation-sheets", {
+    method: "POST",
+    body: JSON.stringify({ projectId }),
+  });
+
+export interface AttendanceListData {
+  defenseSessionName: string;
+  slots: { date: string; time: string; roomName: string; projectTitle: string; studentNames: string[] }[];
+}
+
+export const getAttendanceList = (defenseSessionId: string) =>
+  api<AttendanceListData>("/coordinator/documents/attendance-lists", {
+    method: "POST",
+    body: JSON.stringify({ defenseSessionId }),
+  });
+
+export interface JuryConvocationData {
+  teacherName: string;
+  role: string;
+  projectTitle: string;
+  studentNames: string[];
+  date: string;
+  time: string;
+  roomName: string;
+  defenseSessionName: string;
+}
+
+export const getJuryConvocations = (projectId: string) =>
+  api<JuryConvocationData[]>("/coordinator/documents/jury-convocations", {
+    method: "POST",
+    body: JSON.stringify({ projectId }),
+  });
+
+export interface DefenseScheduleData {
+  defenseSessionName: string;
+  slots: { date: string; time: string; roomName: string; projectTitle: string; studentNames: string[] }[];
+}
+
+export const getDefenseScheduleDoc = (defenseSessionId: string) =>
+  api<DefenseScheduleData>("/coordinator/documents/schedule", {
+    method: "POST",
+    body: JSON.stringify({ defenseSessionId }),
+  });
+
+export interface ProcesVerbalData {
+  settings: GeneralSettings;
+  grade: ProjectGrade;
+  studentNames: string[];
+  supervisorName: string;
+  juryMembers: { roleName: string; teacherName: string }[];
+}
+
+export const getProcesVerbal = (projectId: string) =>
+  api<ProcesVerbalData>("/coordinator/documents/proces-verbal", {
+    method: "POST",
+    body: JSON.stringify({ projectId }),
   });
