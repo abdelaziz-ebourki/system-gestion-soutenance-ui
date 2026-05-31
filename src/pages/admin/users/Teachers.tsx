@@ -128,7 +128,7 @@ export default function Teachers() {
           department: departments.map((d) => ({ value: d.id, label: d.name })),
         }}
         onUpdateField={async (_field, value) => {
-          await Promise.all(selectedTeachers.map((t) => crud.updateMutation(t.id, { departmentId: value, role: "teacher" as const })));
+          await Promise.all(selectedTeachers.map((t) => crud.updateMutation(t.id, { departmentId: value, role: "teacher" })));
         }}
         onDeleteSelected={async () => {
           await Promise.all(selectedTeachers.map((t) => crud.deleteMutation(t.id)));

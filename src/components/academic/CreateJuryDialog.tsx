@@ -52,8 +52,8 @@ export function CreateJuryDialog({
   const updateJuryMutation = useUpdateJury();
 
   const teachers = teachersQuery.data ?? [];
-  const projects = projectsQuery.data ?? [];
-  const templates = templatesQuery.data ?? [];
+  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
+  const templates = useMemo(() => templatesQuery.data ?? [], [templatesQuery.data]);
   const isLoadingOptions = teachersQuery.isLoading || projectsQuery.isLoading || templatesQuery.isLoading;
   const isEdit = !!jury;
 
@@ -86,7 +86,7 @@ export function CreateJuryDialog({
         members: slotEntries.map((s) => ({ roleName: s.roleName, teacherId: "" })),
       });
     }
-  }, [selectedTemplate, slotEntries]);
+  }, [selectedTemplate, slotEntries, form]);
 
   React.useEffect(() => {
     if (open) {
@@ -101,7 +101,7 @@ export function CreateJuryDialog({
         form.resetForm();
       }
     }
-  }, [open]);
+  }, [open, form, jury]);
 
   const availableTemplates = useMemo(() => {
     if (!selectedProject) return [];

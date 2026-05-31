@@ -71,7 +71,7 @@ export function ProjectDialog({
         form.resetForm();
       }
     }
-  }, [open]);
+  }, [open, form, project]);
 
   const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();

@@ -28,7 +28,7 @@ export default function TeacherUnavailability() {
   const scheduleQuery = useTeacherSchedule();
   const unavailabilityQuery = useTeacherUnavailability();
   const saveMutation = useSaveTeacherUnavailability();
-  const schedule = scheduleQuery.data ?? [];
+  const schedule = useMemo(() => scheduleQuery.data ?? [], [scheduleQuery.data]);
   const isLoading = scheduleQuery.isLoading || unavailabilityQuery.isLoading;
   const [unavailability, setUnavailability] =
     React.useState<TeacherUnavailability>({

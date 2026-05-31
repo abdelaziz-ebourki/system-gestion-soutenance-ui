@@ -24,7 +24,7 @@ const statusLabel: Record<TeacherDefense["status"], string> = {
 
 export default function TeacherSchedule() {
   const scheduleQuery = useTeacherSchedule();
-  const schedule = scheduleQuery.data ?? [];
+  const schedule = useMemo(() => scheduleQuery.data ?? [], [scheduleQuery.data]);
   const isLoading = scheduleQuery.isLoading;
 
   const columns: ColumnDef<TeacherDefense>[] = [

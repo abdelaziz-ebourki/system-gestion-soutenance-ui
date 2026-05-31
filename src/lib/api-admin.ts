@@ -93,9 +93,6 @@ export const updateDepartment = (id: string, data: Omit<Department, "id">) =>
 export const deleteDepartment = (id: string) =>
   api<void>(`/admin/departments/${id}`, { method: "DELETE" });
 
-
-
-
 export const getRooms = () => api<Room[]>("/admin/rooms");
 export const createRoom = (data: Omit<Room, "id">) =>
   api<Room>("/admin/rooms", {
@@ -149,5 +146,4 @@ export const updateEmailConfig = (data: EmailConfig) =>
     method: "PUT",
     body: JSON.stringify(data),
   });
-
 

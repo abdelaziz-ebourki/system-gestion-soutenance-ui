@@ -49,7 +49,7 @@ export default function CoordinatorProjects() {
   const projectsQuery = useProjects();
   const updateProjectMutation = useUpdateProject();
   const deleteProjectMutation = useDeleteProject();
-  const projects = projectsQuery.data ?? [];
+  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
   const isLoading = projectsQuery.isLoading;
   const [selectedProjects, setSelectedProjects] = useState<Project[]>([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);

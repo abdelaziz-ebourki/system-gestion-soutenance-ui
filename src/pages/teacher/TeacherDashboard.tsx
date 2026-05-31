@@ -21,8 +21,8 @@ export default function TeacherDashboard() {
   const scheduleQuery = useTeacherSchedule();
   const evaluationsQuery = useTeacherEvaluations();
   const stats = statsQuery.data ?? null;
-  const schedule = scheduleQuery.data ?? [];
-  const evaluations = evaluationsQuery.data ?? [];
+  const schedule = useMemo(() => scheduleQuery.data ?? [], [scheduleQuery.data]);
+  const evaluations = useMemo(() => evaluationsQuery.data ?? [], [evaluationsQuery.data]);
   const isLoading = statsQuery.isLoading || scheduleQuery.isLoading || evaluationsQuery.isLoading;
 
   const upcomingDefenses = useMemo(() => schedule

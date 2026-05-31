@@ -148,9 +148,9 @@ export default function Students() {
         }}
         onUpdateField={async (field, value) => {
           if (field === "major") {
-            await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { majorId: value, role: "student" as const })));
+            await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { majorId: value, role: "student" })));
           } else if (field === "level") {
-            await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { levelId: value, role: "student" as const })));
+            await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { levelId: value, role: "student" })));
           }
         }}
         onDeleteSelected={async () => {

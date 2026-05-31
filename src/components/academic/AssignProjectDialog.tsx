@@ -32,8 +32,8 @@ export function AssignProjectDialog({
   const projectsQuery = useProjects();
   const groupsQuery = useStudentGroups();
   const assignMutation = useAssignProjectToGroup();
-  const projects = projectsQuery.data ?? [];
-  const groups = groupsQuery.data ?? [];
+  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
+  const groups = useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
 
   const assignedProjectIds = useMemo(
