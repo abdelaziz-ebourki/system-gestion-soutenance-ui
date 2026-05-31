@@ -38,8 +38,8 @@ export const getTeachers = (page = 0, limit = 10, search?: string) => {
   return api<PaginatedResponse<Teacher>>(`/admin/teachers?${params}`);
 };
 
-export const getTeachersList = () =>
-  api<PaginatedResponse<Teacher>>("/admin/teachers?limit=1000").then(
+export const getTeachersList = (limit = 5000) =>
+  api<PaginatedResponse<Teacher>>(`/admin/teachers?limit=${limit}`).then(
     (res) => res.items,
   );
 

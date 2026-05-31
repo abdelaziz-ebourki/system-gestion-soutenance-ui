@@ -156,7 +156,7 @@ export default function Students() {
         onDeleteSelected={async () => {
           await Promise.all(selectedStudents.map((s) => crud.deleteMutation(s.id)));
         }}
-        isPending={crud.isPending}
+        isPending={crud.isDeletePending}
         onClearSelection={() => setSelectedStudents([])}
       />
 
@@ -216,14 +216,14 @@ export default function Students() {
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <Button type="submit" isLoading={crud.isPending} loadingText="Enregistrement...">Enregistrer</Button>
+              <Button type="submit" isLoading={crud.isCreatePending || crud.isUpdatePending} loadingText="Enregistrement...">Enregistrer</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
-        onDelete={crud.handleDelete} entityName={crud.selected ? `${crud.selected.lastName} ${crud.selected.firstName}` : undefined} isPending={crud.isPending} />
+        onDelete={crud.handleDelete} entityName={crud.selected ? `${crud.selected.lastName} ${crud.selected.firstName}` : undefined} isPending={crud.isDeletePending} />
     </div>
   );
 }

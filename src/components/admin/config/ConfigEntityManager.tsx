@@ -10,17 +10,10 @@ import {
   DialogHeader,
   DialogTitle,
   Input,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
 } from "@/components/ui";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { ConfigCard } from "./ConfigCard";
+import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import type { UseMutationResult } from "@tanstack/react-query";
 
 interface ConfigEntityManagerProps {
@@ -132,25 +125,14 @@ export function ConfigEntityManager({
         </DialogContent>
       </Dialog>
 
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmation</AlertDialogTitle>
-            <AlertDialogDescription>
-              Supprimer {entityLabel.toLowerCase()} "{selectedItem?.name}" ? Cela pourrait affecter les {entityLabelPlural.toLowerCase()} liés.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction variant="destructive"
-              onClick={(e) => { e.preventDefault(); handleDelete(); }}
-              disabled={deleteMut.isPending}
-            >
-              {deleteMut.isPending ? "Suppression..." : "Supprimer"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteAlert
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onDelete={handleDelete}
+        entityName={selectedItem?.name ? `"${selectedItem.name}"` : undefined}
+        description={selectedItem?.name ? `Supprimer ${entityLabel.toLowerCase()} "${selectedItem.name}" ? Cela pourrait affecter les ${entityLabelPlural.toLowerCase()} liés.` : undefined}
+        isPending={deleteMut.isPending}
+      />
     </>
   );
 }

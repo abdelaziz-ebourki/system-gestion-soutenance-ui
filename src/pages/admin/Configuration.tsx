@@ -4,6 +4,15 @@ import { ConfigEntityManager } from "@/components/admin/config/ConfigEntityManag
 import { EmailConfigForm } from "@/components/admin/config/EmailConfigForm";
 
 export default function Configuration() {
+  const majors = useMajors();
+  const createMajor = useCreateMajor();
+  const updateMajor = useUpdateMajor();
+  const deleteMajor = useDeleteMajor();
+  const levels = useLevels();
+  const createLevel = useCreateLevel();
+  const updateLevel = useUpdateLevel();
+  const deleteLevel = useDeleteLevel();
+
   return (
     <div className="space-y-6">
       <div>
@@ -20,10 +29,10 @@ export default function Configuration() {
           icon={<BookOpen className="size-5" />}
           entityLabel="Filière"
           entityLabelPlural="Filières"
-          data={useMajors().data}
-          createMut={useCreateMajor()}
-          updateMut={useUpdateMajor()}
-          deleteMut={useDeleteMajor()}
+          data={majors.data}
+          createMut={createMajor}
+          updateMut={updateMajor}
+          deleteMut={deleteMajor}
         />
         <ConfigEntityManager
           title="Niveaux"
@@ -31,10 +40,10 @@ export default function Configuration() {
           icon={<Layers className="size-5" />}
           entityLabel="Niveau"
           entityLabelPlural="Niveaux"
-          data={useLevels().data}
-          createMut={useCreateLevel()}
-          updateMut={useUpdateLevel()}
-          deleteMut={useDeleteLevel()}
+          data={levels.data}
+          createMut={createLevel}
+          updateMut={updateLevel}
+          deleteMut={deleteLevel}
         />
         <EmailConfigForm />
       </div>

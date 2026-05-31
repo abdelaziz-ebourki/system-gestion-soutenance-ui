@@ -103,6 +103,9 @@ export function useStudentCrud() {
     handleDelete,
     updateMutation,
     deleteMutation,
+    isCreatePending: create.isPending,
+    isUpdatePending: update.isPending,
+    isDeletePending: del.isPending,
     isPending: create.isPending || update.isPending || del.isPending,
   };
 }

@@ -19,6 +19,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Skeleton,
 } from "@/components/ui";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { PasswordInput } from "@/components/ui";
@@ -56,7 +57,7 @@ export function EmailConfigForm() {
     }
   };
 
-  if (isLoading) return null;
+  if (isLoading) return <Skeleton className="h-96 rounded-xl" />;
 
   return (
     <Card>

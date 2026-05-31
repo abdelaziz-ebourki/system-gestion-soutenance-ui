@@ -127,11 +127,11 @@ export default function Rooms() {
             toast.error("Erreur lors de la suppression");
           }
         }}
-        isPending={crud.isPending}
+        isPending={crud.isDeletePending}
       />
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
-        onDelete={crud.handleDelete} entityName={crud.selected?.name} isPending={crud.isPending} />
+        onDelete={crud.handleDelete} entityName={crud.selected?.name} isPending={crud.isDeletePending} />
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
         <DialogContent>
@@ -171,7 +171,7 @@ export default function Rooms() {
             </FieldGroup>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => crud.setIsDialogOpen(false)}>Annuler</Button>
-              <Button type="submit" isLoading={crud.isPending} loadingText="Enregistrement...">Enregistrer</Button>
+              <Button type="submit" isLoading={crud.isCreatePending || crud.isUpdatePending} loadingText="Enregistrement...">Enregistrer</Button>
             </DialogFooter>
           </form>
         </DialogContent>

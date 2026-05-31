@@ -170,7 +170,7 @@ export function useCoordinators(params?: { page?: number; limit?: number; search
 export function useTeachersList() {
   return useQuery({
     queryKey: ["users", "teachers", "list"],
-    queryFn: api.getTeachersList,
+    queryFn: () => api.getTeachersList(),
     staleTime: 5 * 60_000,
   });
 }

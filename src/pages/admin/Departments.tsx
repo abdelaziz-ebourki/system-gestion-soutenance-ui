@@ -112,7 +112,7 @@ export default function Departments() {
             toast.error("Erreur lors de la suppression");
           }
         }}
-        isPending={crud.isPending}
+        isPending={crud.isDeletePending}
       />
 
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
@@ -176,7 +176,7 @@ export default function Departments() {
             <DialogFooter>
               <Button
                 type="submit"
-                isLoading={crud.isPending}
+                isLoading={crud.isCreatePending || crud.isUpdatePending}
                 loadingText="Enregistrement..."
               >
                 Enregistrer
@@ -191,7 +191,7 @@ export default function Departments() {
         onOpenChange={crud.setIsDeleteDialogOpen}
         onDelete={crud.handleDelete}
         entityName={crud.selected?.name}
-        isPending={crud.isPending}
+        isPending={crud.isDeletePending}
       />
     </div>
   );

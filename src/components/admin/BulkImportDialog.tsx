@@ -59,7 +59,7 @@ export function BulkImportDialog({
     const reader = new FileReader();
     reader.onload = (evt) => {
       const bstr = evt.target?.result;
-      const wb = XLSX.read(bstr, { type: "binary" });
+      const wb = XLSX.read(bstr, { type: "array" });
       const wsname = wb.SheetNames[0];
       const ws = wb.Sheets[wsname];
       const rawData = XLSX.utils.sheet_to_json(ws) as Record<string, string | number>[];
@@ -113,7 +113,7 @@ export function BulkImportDialog({
 
       setData(mappedData);
     };
-    reader.readAsBinaryString(selectedFile);
+    reader.readAsArrayBuffer(selectedFile);
   };
 
   const handleDragOver = (e: React.DragEvent) => {

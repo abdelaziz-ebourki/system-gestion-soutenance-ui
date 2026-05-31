@@ -103,9 +103,8 @@ export default function Coordinators() {
         onDeleteSelected={async () => {
           await Promise.all(selectedCoordinators.map((c) => crud.deleteMutation(c.id)));
           setSelectedCoordinators([]);
-          refetch();
         }}
-        isPending={crud.isPending}
+        isPending={crud.isDeletePending}
         onClearSelection={() => setSelectedCoordinators([])}
       />
 
@@ -137,14 +136,14 @@ export default function Coordinators() {
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <Button type="submit" isLoading={crud.isPending} loadingText="Enregistrement...">Enregistrer</Button>
+              <Button type="submit" isLoading={crud.isCreatePending || crud.isUpdatePending} loadingText="Enregistrement...">Enregistrer</Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
       <DeleteAlert isOpen={crud.isDeleteDialogOpen} onOpenChange={crud.setIsDeleteDialogOpen}
-        onDelete={crud.handleDelete} entityName={crud.selected ? `${crud.selected.lastName} ${crud.selected.firstName}` : undefined} isPending={crud.isPending} />
+        onDelete={crud.handleDelete} entityName={crud.selected ? `${crud.selected.lastName} ${crud.selected.firstName}` : undefined} isPending={crud.isDeletePending} />
     </div>
   );
 }
