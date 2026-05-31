@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useProjects, useStudentGroups, useAssignProjectToGroup } from "@/hooks/use-queries";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
@@ -35,6 +35,12 @@ export function AssignProjectDialog({
   const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
   const groups = useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedProjectId("");
+    }
+  }, [open]);
 
   const assignedProjectIds = useMemo(
     () => new Set(
@@ -77,7 +83,11 @@ export function AssignProjectDialog({
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="py-4">
-            {availableProjects.length === 0 ? (
+            {projectsQuery.isLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+              </div>
+            ) : availableProjects.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-4">
                 Aucun projet disponible. Créez d'abord un projet.
               </p>

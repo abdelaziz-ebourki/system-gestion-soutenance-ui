@@ -70,7 +70,7 @@ export default function AvailabilityCalendar({
   const [currentDate, setCurrentDate] = useState(
     new Date(initialYear, initialMonth, 1),
   );
-  const [activeDay, setActiveDay] = useState<number>(15);
+  const [activeDay, setActiveDay] = useState<number>(new Date().getDate());
 
   const viewMonth = currentDate.getMonth();
   const viewYear = currentDate.getFullYear();

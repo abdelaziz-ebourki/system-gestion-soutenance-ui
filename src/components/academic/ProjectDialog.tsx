@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useTeachersList, useCreateProject, useUpdateProject } from "@/hooks/use-queries";
+import { useTeachersList, useStudents, useCreateProject, useUpdateProject } from "@/hooks/use-queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, projectSchema } from "@/lib/validations";
 import type { DefenseType, Project } from "@/types";
@@ -17,6 +17,7 @@ import {
   DialogTitle,
   Input,
   Label,
+  MultiSelect,
   Select,
   SelectContent,
   SelectItem,
@@ -51,6 +52,14 @@ export function ProjectDialog({
   const createProjectMutation = useCreateProject();
   const updateProjectMutation = useUpdateProject();
   const teachers = teachersQuery.data ?? [];
+  const studentsQuery = useStudents({ limit: 5000 });
+  const studentOptions = React.useMemo(() => 
+    (studentsQuery.data?.items ?? []).map((s) => ({
+      value: s.id,
+      label: getFullName(s),
+    })),
+    [studentsQuery.data?.items],
+  );
 
   const form = useEntityForm(projectSchema, defaultForm);
 
@@ -199,6 +208,20 @@ export function ProjectDialog({
             )}
           </div>
 
+          <div className="grid gap-2">
+            <Label>Étudiants</Label>
+            <MultiSelect
+              options={studentOptions}
+              value={form.formData.studentIds}
+              onChange={(ids) => form.setFormData({ ...form.formData, studentIds: ids })}
+              placeholder="Sélectionner des étudiants..."
+              disabled={studentsQuery.isLoading}
+            />
+            {form.fieldErrors?.studentIds && (
+              <p className="text-sm font-medium text-destructive">{form.fieldErrors.studentIds}</p>
+            )}
+          </div>
+
         </form>
         <DialogFooter>
           <Button
@@ -214,7 +237,7 @@ export function ProjectDialog({
             isLoading={isEdit ? updateProjectMutation.isPending : createProjectMutation.isPending}
             disabled={teachersQuery.isLoading}
           >
-            {isEdit ? "Sauvegarder" : "Creer le projet"}
+            {isEdit ? "Sauvegarder" : "Créer le projet"}
           </Button>
         </DialogFooter>
       </DialogContent>

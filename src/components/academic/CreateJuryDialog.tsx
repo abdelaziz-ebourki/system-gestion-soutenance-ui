@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useMemo } from "react";
 
 import {
   useTeachersList, useProjects, useCreateJury, useUpdateJury, useJuryRoleTemplates,
@@ -52,8 +51,8 @@ export function CreateJuryDialog({
   const updateJuryMutation = useUpdateJury();
 
   const teachers = teachersQuery.data ?? [];
-  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
-  const templates = useMemo(() => templatesQuery.data ?? [], [templatesQuery.data]);
+  const projects = React.useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
+  const templates = React.useMemo(() => templatesQuery.data ?? [], [templatesQuery.data]);
   const isLoadingOptions = teachersQuery.isLoading || projectsQuery.isLoading || templatesQuery.isLoading;
   const isEdit = !!jury;
 
@@ -62,7 +61,7 @@ export function CreateJuryDialog({
   const selectedProject = projects.find((p) => p.id === form.formData.projectId);
   const selectedTemplate = templates.find((t) => t.id === form.formData.templateId);
 
-  const slotEntries: { index: number; roleName: string; label: string }[] = useMemo(() => {
+  const slotEntries: { index: number; roleName: string; label: string }[] = React.useMemo(() => {
     if (!selectedTemplate) return [];
     const entries: { index: number; roleName: string; label: string }[] = [];
     for (const role of selectedTemplate.roles) {
@@ -77,10 +76,11 @@ export function CreateJuryDialog({
     return entries;
   }, [selectedTemplate]);
 
-  const prevTemplateRef = React.useRef(selectedTemplate?.id);
+  const prevTemplateKey = React.useRef<string | null>(null);
   React.useEffect(() => {
-    if (selectedTemplate && selectedTemplate.id !== prevTemplateRef.current) {
-      prevTemplateRef.current = selectedTemplate.id;
+    const key = selectedTemplate ? `${selectedTemplate.id}-${JSON.stringify(selectedTemplate.roles)}` : null;
+    if (key !== null && key !== prevTemplateKey.current) {
+      prevTemplateKey.current = key;
       form.setFormData({
         ...form.formData,
         members: slotEntries.map((s) => ({ roleName: s.roleName, teacherId: "" })),
@@ -103,7 +103,7 @@ export function CreateJuryDialog({
     }
   }, [open, form, jury]);
 
-  const availableTemplates = useMemo(() => {
+  const availableTemplates = React.useMemo(() => {
     if (!selectedProject) return [];
     return templates.filter((t) => t.defenseType === selectedProject.defenseType);
   }, [templates, selectedProject]);
@@ -139,7 +139,7 @@ export function CreateJuryDialog({
     }
   };
 
-  const filteredProjects = useMemo(
+  const filteredProjects = React.useMemo(
     () => projects.filter((p) => p.status !== "rejected"),
     [projects],
   );
