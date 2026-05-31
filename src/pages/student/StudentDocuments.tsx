@@ -6,6 +6,8 @@ import {
   FolderArchive,
   Upload,
 } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
 
 import { useStudentDocuments, useUploadStudentDocument } from "@/hooks/use-queries";
 import type { StudentDocument } from "@/types";
@@ -19,6 +21,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  EmptyState,
   Input,
   Label,
   Skeleton,
@@ -43,10 +46,20 @@ const statusClass: Record<StudentDocument["status"], string> = {
   missing: "bg-destructive/10 text-destructive",
 };
 
+const formatDate = (dateStr: string | null | undefined) => {
+  if (!dateStr) return "Non déposé";
+  try {
+    return format(parseISO(dateStr), "dd MMM yyyy", { locale: fr });
+  } catch {
+    return dateStr;
+  }
+};
+
 export default function StudentDocuments() {
   const { data: documents = [], isLoading } = useStudentDocuments();
   const uploadMutation = useUploadStudentDocument();
   const [files, setFiles] = useState<Record<string, File | null>>({});
+  const [uploadingId, setUploadingId] = useState<string | null>(null);
 
   const validatedCount = useMemo(
     () => documents.filter((document) => document.status === "validated").length,
@@ -79,12 +92,15 @@ export default function StudentDocuments() {
       toast.warning(`Date limite dépassée. Dépôt en période de grâce (${GRACE_PERIOD_DAYS} jours).`);
     }
 
+    setUploadingId(document.id);
     try {
       await uploadMutation.mutateAsync({ documentId: document.id, file });
       toast.success("Document envoyé avec succès");
       setFiles((prev) => ({ ...prev, [document.id]: null }));
     } catch (error) {
       toastError(error, "Erreur lors de l'envoi du document");
+    } finally {
+      setUploadingId(null);
     }
   };
 
@@ -150,8 +166,8 @@ export default function StudentDocuments() {
                   </div>
                   <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
                     <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-                      <span>Échéance: {document.deadline}</span>
-                      <span>Dépôt: {document.submittedAt || "Non déposé"}</span>
+                      <span>Échéance: {formatDate(document.deadline)}</span>
+                      <span>Dépôt: {formatDate(document.submittedAt)}</span>
                     </div>
                     {document.status === "missing" && (
                       <div className="flex items-end gap-2">
@@ -170,10 +186,15 @@ export default function StudentDocuments() {
                               setFiles((prev) => ({ ...prev, [document.id]: f }));
                             }}
                           />
+                          {files[document.id] && (
+                            <p className="text-xs text-muted-foreground mt-1 truncate max-w-full">
+                              {files[document.id]!.name}
+                            </p>
+                          )}
                         </div>
                         <Button
                           onClick={() => handleUpload(document)}
-                          isLoading={uploadMutation.isPending}
+                          isLoading={uploadingId === document.id}
                           loadingText="Envoi..."
                         >
                           <Upload className="mr-2 size-4" />
@@ -186,9 +207,7 @@ export default function StudentDocuments() {
               );
             })
           ) : (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                Aucun document trouvé.
-              </div>
+              <EmptyState variant="dashed" description="Aucun document trouvé." />
             ))}
         </CardContent>
       </Card>
