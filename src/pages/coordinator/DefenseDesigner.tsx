@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect } from "react";
-import type { ComponentProps } from "react";
 import {
   CalendarDays,
   MapPin,
@@ -7,6 +6,7 @@ import {
   Search,
   Wand2,
   Send,
+  Users,
 } from "lucide-react";
 import {
   DndContext,
@@ -306,7 +306,7 @@ export default function DefenseDesigner() {
           <Card className="col-span-3 h-[calc(100vh-12rem)] flex flex-col">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
-                <UsersIcon className="size-5" /> À positionner
+                <Users className="size-5" /> À positionner
                 <Badge variant="secondary" className="ml-auto">{filteredJuries.length}</Badge>
               </CardTitle>
               <div className="relative mt-2">
@@ -429,27 +429,5 @@ export default function DefenseDesigner() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
-}
-
-function UsersIcon(props: ComponentProps<"svg">) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
   );
 }
