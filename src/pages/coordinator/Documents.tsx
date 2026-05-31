@@ -1,4 +1,4 @@
-import { FileText, Users, Calendar, ClipboardList, ScrollText, Printer } from "lucide-react";
+import { FileText, Users, Calendar, ClipboardList, ScrollText } from "lucide-react";
 import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades } from "@/hooks/use-queries";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Skeleton, EmptyState } from "@/components/ui";
 import { toast } from "sonner";
@@ -81,8 +81,6 @@ export default function Documents() {
     } else if (doc.id === "schedule") {
       if (sessions.length === 0) { toast.error("Aucune session disponible."); return; }
       url = doc.getUrl(sessions[0].id);
-    } else if (doc.id === "student-convocation") {
-      url = doc.getUrl();
     } else if (doc.id === "jury-convocation" && projectId) {
       const jury = juries.find((j) => j.projectId === projectId);
       if (!jury) { toast.error("Aucun jury pour ce projet."); return; }
@@ -182,11 +180,6 @@ export default function Documents() {
                     Générer le planning
                   </Button>
                 )
-              ) : doc.id === "student-convocation" ? (
-                <Button className="w-full" variant="secondary" onClick={() => handleOpen(doc)}>
-                  <Printer className="mr-2 size-4" />
-                  Ma convocation
-                </Button>
               ) : doc.id === "attendance-list" ? (
                 <Button className="w-full" variant="secondary" onClick={() => handleOpen(doc)}>
                   <Users className="mr-2 size-4" />

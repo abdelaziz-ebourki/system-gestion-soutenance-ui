@@ -27,6 +27,7 @@ interface AvailabilityCalendarProps {
   onToggleSlot: (dateKey: string, slot: string) => void;
   sessions: Session[];
   onSave?: () => void;
+  slots?: string[];
 }
 
 const weekDays = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
@@ -64,6 +65,7 @@ export default function AvailabilityCalendar({
   onToggleSlot,
   sessions,
   onSave,
+  slots = ADMIN_SLOTS,
 }: AvailabilityCalendarProps) {
   const [currentDate, setCurrentDate] = useState(
     new Date(initialYear, initialMonth, 1),
@@ -105,9 +107,9 @@ export default function AvailabilityCalendar({
   const activeDateKey = formatDateKey(viewYear, viewMonth, activeDay);
 
   const getDayStatus = (dateKey: string) => {
-    const slots = unavailableSlots[dateKey] || [];
-    if (slots.length === 0) return "available";
-    if (slots.length === ADMIN_SLOTS.length) return "full-unavailable";
+    const daySlots = unavailableSlots[dateKey] || [];
+    if (daySlots.length === 0) return "available";
+    if (daySlots.length === slots.length) return "full-unavailable";
     return "partial";
   };
 
@@ -230,7 +232,7 @@ export default function AvailabilityCalendar({
           </div>
 
           <div className="flex-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
-            {ADMIN_SLOTS.map((slot) => {
+            {slots.map((slot) => {
               const isUnavailable = (
                 unavailableSlots[activeDateKey] || []
               ).includes(slot);

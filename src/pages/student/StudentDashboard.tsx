@@ -118,7 +118,7 @@ export default function StudentDashboard() {
               <Button
                 variant="outline"
                 className="w-fit"
-                onClick={() => window.open("/print/student-convocation", "_blank")}
+                onClick={() => window.print()}
               >
                 <Printer className="mr-2 size-4" />
                 Imprimer la convocation
