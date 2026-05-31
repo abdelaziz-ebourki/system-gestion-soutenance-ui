@@ -1,9 +1,26 @@
 import { Button } from "@/components/ui";
 import { FileQuestion } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/auth-context";
+
+const ROLE_HOMES: Record<string, string> = {
+  admin: "/admin",
+  coordinator: "/coordinator",
+  teacher: "/teacher",
+  student: "/student",
+};
 
 export default function NotFound() {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+
+  const handleHome = () => {
+    if (isAuthenticated && user) {
+      navigate(ROLE_HOMES[user.role] ?? "/login");
+    } else {
+      navigate("/login");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -14,7 +31,7 @@ export default function NotFound() {
           Page introuvable. La page que vous cherchez n'existe pas ou a été
           déplacée.
         </p>
-        <Button onClick={() => navigate("/login")} variant="default" size="lg">
+        <Button onClick={handleHome} variant="default" size="lg">
           Retour à l'accueil
         </Button>
       </div>

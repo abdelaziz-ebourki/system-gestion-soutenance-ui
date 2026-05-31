@@ -1,10 +1,17 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@/components/ui";
 import { useAuth } from "@/contexts/auth-context";
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Administrateur",
+  coordinator: "Coordinateur",
+  teacher: "Enseignant",
+  student: "Étudiant",
+};
 
 export default function Profile() {
   const { user } = useAuth();
 
-  if (!user) return null;
+  if (!user) return <Skeleton className="h-48 rounded-xl" />;
 
   return (
     <div className="space-y-6">
@@ -29,7 +36,7 @@ export default function Profile() {
           </div>
           <div className="grid gap-2">
             <p className="text-sm font-medium">Rôle</p>
-            <p className="text-sm text-muted-foreground">{user.role}</p>
+            <p className="text-sm text-muted-foreground">{ROLE_LABELS[user.role] ?? user.role}</p>
           </div>
         </CardContent>
       </Card>

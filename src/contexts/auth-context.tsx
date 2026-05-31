@@ -103,6 +103,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  useEffect(() => {
+    const checkExpiry = () => {
+      const expiresAt = localStorage.getItem(STORAGE_KEYS.EXPIRES_AT);
+      if (expiresAt && Date.now() >= Number.parseInt(expiresAt)) {
+        setWasExpired(true);
+        logout();
+      }
+    };
+
+    const interval = setInterval(checkExpiry, 60_000);
+    window.addEventListener("storage", checkExpiry);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("storage", checkExpiry);
+    };
+  }, [logout]);
+
   return (
     <AuthContext.Provider
       value={{

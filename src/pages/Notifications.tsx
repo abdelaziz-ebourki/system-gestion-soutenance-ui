@@ -1,6 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { BellIcon, CheckCheck, Info, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { format, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
 
 import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/use-queries";
 import type { AppNotification } from "@/types";
@@ -27,11 +29,20 @@ const typeColors: Record<string, string> = {
   error: "bg-destructive/10 text-destructive",
 };
 
+const formatTimestamp = (ts: string) => {
+  try {
+    return format(parseISO(ts), "dd MMM yyyy 'à' HH:mm", { locale: fr });
+  } catch {
+    return ts;
+  }
+};
+
 export default function NotificationsPage() {
   const { data: notifications = [], isLoading } = useNotifications();
   const markReadMutation = useMarkNotificationRead();
   const markAllReadMutation = useMarkAllNotificationsRead();
   const navigate = useNavigate();
+  const [readingId, setReadingId] = useState<string | null>(null);
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
@@ -39,7 +50,12 @@ export default function NotificationsPage() {
   );
 
   const handleMarkRead = async (id: string) => {
-    await markReadMutation.mutateAsync(id);
+    setReadingId(id);
+    try {
+      await markReadMutation.mutateAsync(id);
+    } finally {
+      setReadingId(null);
+    }
   };
 
   const handleMarkAllRead = async () => {
@@ -123,7 +139,7 @@ export default function NotificationsPage() {
                     </div>
                     <p className="text-sm text-muted-foreground">{notification.message}</p>
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span>{notification.timestamp}</span>
+                      <span>{formatTimestamp(notification.timestamp)}</span>
                       {notification.actor && <span>• {notification.actor}</span>}
                     </div>
                   </div>
@@ -139,7 +155,7 @@ export default function NotificationsPage() {
                         size="icon"
                         className="size-8"
                         onClick={() => handleMarkRead(notification.id)}
-                        isLoading={markReadMutation.isPending}
+                        isLoading={readingId === notification.id}
                       >
                         <CheckCheck className="size-4" />
                       </Button>

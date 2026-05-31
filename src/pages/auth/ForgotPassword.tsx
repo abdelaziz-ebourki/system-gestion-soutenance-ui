@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
@@ -13,26 +13,23 @@ import {
   Input,
 } from "@/components/ui";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { api } from "@/lib/api";
+import { forgotPassword } from "@/lib/api-auth";
 import { validate, forgotPasswordSchema } from "@/lib/validations";
 
 export default function ForgotPassword() {
-  const [email, setEmail] = React.useState("");
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [sent, setSent] = React.useState(false);
-  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const errors = validate(forgotPasswordSchema, { email });
     if (errors) { setFieldErrors(errors); return; }
     setFieldErrors({});
     setIsSubmitting(true);
     try {
-      await api("/auth/forgot-password", {
-        method: "POST",
-        body: JSON.stringify({ email }),
-      });
+      await forgotPassword(email);
       setSent(true);
       toast.success("Si cet email existe, un lien de réinitialisation a été envoyé.");
     } catch (error) {

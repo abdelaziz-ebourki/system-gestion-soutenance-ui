@@ -1,4 +1,4 @@
-import React from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
 import { adjacencyGraphs } from "@zxcvbn-ts/language-common";
@@ -12,10 +12,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Input,
+  PasswordInput,
 } from "@/components/ui";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { api } from "@/lib/api";
+import { resetPassword as apiResetPassword } from "@/lib/api-auth";
 import { validate, resetPasswordSchema } from "@/lib/validations";
 
 zxcvbnOptions.setOptions({
@@ -38,14 +38,14 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const token = searchParams.get("token");
 
-  const [password, setPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const passwordResult = password ? zxcvbn(password) : null;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!token) {
       navigate("/login", { replace: true });
     }
@@ -58,10 +58,7 @@ export default function ResetPassword() {
     setFieldErrors({});
     setIsSubmitting(true);
     try {
-      await api("/auth/reset-password", {
-        method: "POST",
-        body: JSON.stringify({ token, password }),
-      });
+      await apiResetPassword(token!, password);
       toast.success("Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter.");
       navigate("/login");
     } catch (error) {
@@ -86,8 +83,7 @@ export default function ResetPassword() {
           <form onSubmit={handleReset} className="space-y-4">
             <Field>
               <FieldLabel>Nouveau mot de passe</FieldLabel>
-              <Input
-                type="password"
+              <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -122,8 +118,7 @@ export default function ResetPassword() {
             </Field>
             <Field>
               <FieldLabel>Confirmer le mot de passe</FieldLabel>
-              <Input
-                type="password"
+              <PasswordInput
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required

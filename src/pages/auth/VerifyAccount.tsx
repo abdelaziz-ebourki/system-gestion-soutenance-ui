@@ -12,10 +12,10 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Input,
+  PasswordInput,
 } from "@/components/ui";
 import { Field, FieldLabel } from "@/components/ui/field";
-import { api } from "@/lib/api";
+import { verifyAccount as apiVerifyAccount } from "@/lib/api-auth";
 import { validate, verifyAccountSchema } from "@/lib/validations";
 
 zxcvbnOptions.setOptions({
@@ -24,7 +24,7 @@ zxcvbnOptions.setOptions({
   useLevenshteinDistance: true,
 });
 
-const PASSWORD_LABELS = ["Tres faible", "Faible", "Moyen", "Fort", "Tres fort"];
+const PASSWORD_LABELS = ["Très faible", "Faible", "Moyen", "Fort", "Très fort"];
 const PASSWORD_COLORS = [
   "bg-red-500",
   "bg-orange-500",
@@ -58,10 +58,7 @@ export default function VerifyAccount() {
     setFieldErrors({});
     setIsSubmitting(true);
     try {
-      await api("/auth/verify-account", {
-        method: "POST",
-        body: JSON.stringify({ token, password }),
-      });
+      await apiVerifyAccount(token!, password);
       toast.success(
         "Compte activé avec succès, vous pouvez maintenant vous connecter.",
       );
@@ -88,8 +85,7 @@ export default function VerifyAccount() {
           <form onSubmit={handleVerify} className="space-y-4">
             <Field>
               <FieldLabel>Nouveau mot de passe</FieldLabel>
-              <Input
-                type="password"
+              <PasswordInput
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -124,8 +120,7 @@ export default function VerifyAccount() {
             </Field>
             <Field>
               <FieldLabel>Confirmer le mot de passe</FieldLabel>
-              <Input
-                type="password"
+              <PasswordInput
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required

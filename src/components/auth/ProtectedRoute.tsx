@@ -21,6 +21,7 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   }
 
   if (!allowedRoles.includes(user!.role)) {
+    toast.error("Vous n'avez pas les droits nécessaires pour accéder à cette page.");
     return <Navigate to="/login" replace />;
   }
 
