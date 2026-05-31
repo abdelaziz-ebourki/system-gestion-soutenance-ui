@@ -15,6 +15,7 @@ import {
   Separator,
 } from "@/components/ui";
 import { Outlet, useLocation, Link } from "react-router-dom";
+import { VALID_DASHBOARD_ROUTES } from "@/config/routes";
 
 const SEGMENT_LABELS: Record<string, string> = {
   admin: "Admin",
@@ -42,31 +43,6 @@ const SEGMENT_LABELS: Record<string, string> = {
   users: "Utilisateurs",
 };
 
-const VALID_ROUTES = new Set([
-  "/admin",
-  "/admin/audit-logs",
-  "/admin/config",
-  "/admin/departments",
-  "/admin/rooms",
-  "/admin/users/students",
-  "/admin/users/teachers",
-  "/admin/users/coordinators",
-  "/coordinator",
-  "/coordinator/conflicts",
-  "/coordinator/juries",
-  "/coordinator/projects",
-  "/coordinator/schedule",
-  "/notifications",
-  "/profile",
-  "/student",
-  "/student/documents",
-  "/student/group",
-  "/teacher",
-  "/teacher/evaluations",
-  "/teacher/schedule",
-  "/teacher/unavailability",
-]);
-
 export default function DashboardLayout() {
   const location = useLocation();
   const segments = location.pathname.split("/").filter(Boolean);
@@ -74,7 +50,7 @@ export default function DashboardLayout() {
     const label = SEGMENT_LABELS[segment] || segment;
     const path = "/" + segments.slice(0, index + 1).join("/");
     const isLast = index === segments.length - 1;
-    const isLinkable = VALID_ROUTES.has(path);
+    const isLinkable = VALID_DASHBOARD_ROUTES.has(path);
     return { label, path, isLast, isLinkable };
   });
 

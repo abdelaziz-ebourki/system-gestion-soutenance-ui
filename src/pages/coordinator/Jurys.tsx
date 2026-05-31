@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import * as React from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
@@ -7,206 +6,163 @@ import { toast } from "sonner";
 import { useJuries, useProjects, useTeachersList, useDeleteJury } from "@/hooks/use-queries";
 import type { Jury } from "@/types";
 import { toastError } from "@/lib/utils";
-
 import {
   Badge,
   Button,
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
-  StatsCard,
+  DataTable,
 } from "@/components/ui";
-import { DataTable } from "@/components/ui/data-table";
-import { CreateJuryDialog } from "@/components/academic/CreateJuryDialog";
-import { CrudActions } from "@/components/admin/CrudActions";
+import { CreateJuryDialog } from "@/components/coordinator/CreateJuryDialog";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
 export default function Jurys() {
-  const juriesQuery = useJuries();
-  const teachersQuery = useTeachersList();
-  const projectsQuery = useProjects();
-  const deleteJuryMutation = useDeleteJury();
-  const juries = juriesQuery.data ?? [];
-  const teachers = teachersQuery.data ?? [];
-  const projects = projectsQuery.data ?? [];
-  const isLoading = juriesQuery.isLoading || teachersQuery.isLoading || projectsQuery.isLoading;
-  const [isCreateOpen, setIsCreateOpen] = React.useState(false);
-  const [editingJury, setEditingJury] = useState<Jury | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<Jury | null>(null);
-  const isDialogOpen = isCreateOpen || editingJury !== null;
-  const handleDialogChange = (open: boolean) => {
-    if (!open) {
-      setIsCreateOpen(false);
-      setEditingJury(null);
-    }
-  };
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [juryToDelete, setJuryToDelete] = useState<Jury | null>(null);
 
-  const teachersLoad = React.useMemo(() => {
-    const counts = new Map<string, number>();
-    juries.forEach((jury) => {
-      jury.members.forEach((m) => {
-        counts.set(m.teacherId, (counts.get(m.teacherId) || 0) + 1);
-      });
-    });
-    return counts;
-  }, [juries]);
+  const { data: juries = [], isLoading } = useJuries(selectedSessionId || "");
+  const { data: projects = [] } = useProjects();
+  const { data: teachers = [] } = useTeachersList();
+  const deleteJury = useDeleteJury();
 
-  const projectsWithoutJury = useMemo(() => projects.filter(
-    (project) => !juries.some((jury) => jury.projectId === project.id),
-  ), [projects, juries]);
-
-  const columns = useMemo<ColumnDef<Jury>[]>(() => [
+  const columns: ColumnDef<Jury>[] = [
     {
       accessorKey: "projectTitle",
       header: "Projet",
       cell: ({ row }) => (
-        <div className="space-y-1">
-          <div className="font-medium">{row.original.projectTitle}</div>
-          <div className="text-xs text-muted-foreground">
-            {projects
-              .find((project) => project.id === row.original.projectId)
-              ?.studentNames?.join(", ") || "Groupe non renseigné"}
-          </div>
+        <div className="max-w-[300px] truncate font-medium" title={row.original.projectTitle}>
+          {row.original.projectTitle}
         </div>
       ),
     },
     {
-      id: "members",
-      header: "Membres",
+      accessorKey: "studentNames",
+      header: "Étudiants",
       cell: ({ row }) => (
         <div className="flex flex-wrap gap-1">
-          {row.original.members.map((m, i) => (
-            <Badge key={i} variant="secondary" className="whitespace-nowrap text-xs">
-              {m.roleName}: {m.teacherName}
+          {row.original.studentNames.map((name) => (
+            <Badge key={name} variant="secondary" className="text-[10px]">
+              {name}
             </Badge>
           ))}
         </div>
       ),
     },
     {
-      id: "templateName",
-      header: "Modèle",
+      accessorKey: "members",
+      header: "Jury",
       cell: ({ row }) => (
-        <span className="text-sm text-muted-foreground">{row.original.templateName}</span>
+        <div className="space-y-1">
+          {row.original.members.map((m) => (
+            <div key={m.teacherId} className="text-xs">
+              <span className="font-bold text-muted-foreground mr-1 uppercase">{m.role}:</span>
+              {m.teacherName}
+            </div>
+          ))}
+        </div>
       ),
     },
     {
       id: "actions",
-      header: "",
       cell: ({ row }) => (
-        <div className="text-right">
-          <CrudActions entity={row.original} onEdit={setEditingJury} onDelete={setDeleteTarget} />
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          onClick={() => setJuryToDelete(row.original)}
+        >
+          Supprimer
+        </Button>
       ),
     },
-  ], [projects]);
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Gestion des jurys
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Gestion des Jurys</h1>
           <p className="text-muted-foreground">
-            Composez des jurys lisibles, répartissez la charge et fermez les
-            trous avant la planification.
+            Configurez les commissions d'examen pour chaque soutenance.
           </p>
         </div>
         <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
-          <UserPlus className="size-4" />
-          Nouveau jury
+          <UserPlus className="size-4" /> Nouveau Jury
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatsCard label="Jurys composés" value={juries.length} icon={ShieldCheck} />
-        <StatsCard label="Projets sans jury" value={projectsWithoutJury.length} icon={AlertTriangle} />
-        <StatsCard label="Enseignants mobilisés" value={`${Array.from(teachersLoad.keys()).length}/${teachers.length}`} icon={Users} />
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <Card>
-          <CardHeader>
-            <CardTitle>Composition des jurys</CardTitle>
-            <CardDescription>
-              Chaque ligne correspond à un projet avec les membres de son jury.
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Jurys</CardTitle>
+            <Users className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-              <DataTable
-                columns={columns}
-                data={juries}
-                loading={isLoading}
-                getRowId={(row) => row.id}
-                filterColumns="projectTitle"
-                filterPlaceholder="Rechercher un projet..."
-              />
+            <div className="text-2xl font-bold">{juries.length}</div>
           </CardContent>
         </Card>
-
         <Card>
-          <CardHeader>
-            <CardTitle>Charge enseignants</CardTitle>
-            <CardDescription>
-              Un aperçu rapide pour éviter de surcharger toujours les mêmes.
-            </CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Projets sans Jury</CardTitle>
+            <AlertTriangle className="size-4 text-warning" />
           </CardHeader>
-          <CardContent className="space-y-3">
-            {teachers.length > 0 ? (
-              teachers.map((teacher) => {
-              const fullName = `${teacher.lastName} ${teacher.firstName}`;
-              const load = teachersLoad.get(teacher.id) || 0;
-
-              return (
-                <div key={teacher.id} className="rounded-lg border p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{fullName}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {teacher.email}
-                      </p>
-                    </div>
-                    <Badge>
-                      {load} affectation{load > 1 ? "s" : ""}
-                    </Badge>
-                  </div>
-                </div>
-              );
-            })
-            ) : (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                Aucun enseignant à afficher.
-              </div>
-            )}
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {projects.filter((p) => !juries.find((j) => j.projectId === p.id)).length}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Vérification</CardTitle>
+            <ShieldCheck className="size-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">OK</div>
           </CardContent>
         </Card>
       </div>
 
+      <Card>
+        <CardHeader>
+          <CardTitle>Liste des Commissions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <DataTable
+            columns={columns}
+            data={juries}
+            loading={isLoading}
+            filterColumns="projectTitle"
+            filterPlaceholder="Filtrer par projet..."
+          />
+        </CardContent>
+      </Card>
+
       <CreateJuryDialog
-        open={isDialogOpen}
-        onOpenChange={handleDialogChange}
-        jury={editingJury}
-        onSuccess={() => {}}
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        projects={projects.filter((p) => !juries.find((j) => j.projectId === p.id))}
+        teachers={teachers}
       />
 
       <DeleteAlert
-        isOpen={deleteTarget !== null}
-        onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}
-        entityName={deleteTarget?.projectTitle}
+        isOpen={!!juryToDelete}
+        onOpenChange={(open) => !open && setJuryToDelete(null)}
+        entityName={`le jury pour "${juryToDelete?.projectTitle}"`}
         onDelete={async () => {
-          if (!deleteTarget) return;
+          if (!juryToDelete) return;
           try {
-            await deleteJuryMutation.mutateAsync(deleteTarget.id);
-            toast.success("Jury supprimé");
-            setDeleteTarget(null);
+            await deleteJury.mutateAsync(juryToDelete.id);
+            toast.success("Jury supprimé avec succès");
+            setJuryToDelete(null);
           } catch (error) {
-            toastError(error, "Erreur lors de la suppression");
+            toastError(error, "Erreur lors de la suppression du jury");
           }
         }}
-        isPending={deleteJuryMutation.isPending}
+        isPending={deleteJury.isPending}
       />
     </div>
   );

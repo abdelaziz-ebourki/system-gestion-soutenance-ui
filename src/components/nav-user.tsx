@@ -46,6 +46,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { useUnreadCount } from "@/hooks/use-queries";
 import { Badge } from "@/components/ui/badge";
+import { ROUTES } from "@/config/routes";
 
 export function NavUser({
   user,
@@ -68,7 +69,7 @@ export function NavUser({
   const handleLogout = () => {
     logout();
     toast.success("Déconnexion réussie");
-    navigate("/login");
+    navigate(ROUTES.AUTH.LOGIN);
   };
 
   return (
@@ -124,11 +125,11 @@ export function NavUser({
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/profile")}>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate(ROUTES.SHARED.PROFILE)}>
                   <CircleUserRoundIcon className="size-4" />
                   Mon Profil
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/notifications")}>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate(ROUTES.SHARED.NOTIFICATIONS)}>
                   <BellIcon className="size-4" />
                   Notifications
                   <UnreadBadge />

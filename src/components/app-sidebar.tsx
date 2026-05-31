@@ -27,6 +27,7 @@ import {
   FileCheck2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
+import { ROUTES } from "@/config/routes";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
@@ -42,15 +43,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     switch (role) {
       case "admin":
         return [
-          { title: "Tableau de bord", url: "/admin", icon: <LayoutDashboardIcon /> },
+          { title: "Tableau de bord", url: ROUTES.ADMIN.DASHBOARD, icon: <LayoutDashboardIcon /> },
           {
             title: "Départements",
-            url: "/admin/departments",
+            url: ROUTES.ADMIN.DEPARTMENTS,
             icon: <University />,
           },
           {
             title: "Salles",
-            url: "/admin/rooms",
+            url: ROUTES.ADMIN.ROOMS,
             icon: <BuildingIcon />,
           },
           {
@@ -60,26 +61,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             items: [
               {
                 title: "Étudiants",
-                url: "/admin/users/students",
+                url: ROUTES.ADMIN.USERS.STUDENTS,
               },
               {
                 title: "Enseignants",
-                url: "/admin/users/teachers",
+                url: ROUTES.ADMIN.USERS.TEACHERS,
               },
               {
                 title: "Coordinateurs",
-                url: "/admin/users/coordinators",
+                url: ROUTES.ADMIN.USERS.COORDINATORS,
               },
             ],
           },
           {
             title: "Configuration",
-            url: "/admin/config",
+            url: ROUTES.ADMIN.CONFIG,
             icon: <Settings2Icon />,
           },
           {
             title: "Journal d'audit",
-            url: "/admin/audit-logs",
+            url: ROUTES.ADMIN.AUDIT_LOGS,
             icon: <HistoryIcon />,
           },
         ];
@@ -87,38 +88,38 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         return [
           {
             title: "Dashboard",
-            url: "/coordinator",
+            url: ROUTES.COORDINATOR.DASHBOARD,
             icon: <LayoutDashboardIcon />,
           },
           {
             title: "Projets & Groupes",
-            url: "/coordinator/projects",
+            url: ROUTES.COORDINATOR.PROJECTS,
             icon: <BookOpenIcon />,
           },
           {
             title: "Planification",
-            url: "/coordinator/schedule",
+            url: ROUTES.COORDINATOR.SCHEDULE,
             icon: <CalendarIcon />,
           },
-          { title: "Jurys", url: "/coordinator/juries", icon: <UsersIcon /> },
+          { title: "Jurys", url: ROUTES.COORDINATOR.JURIES, icon: <UsersIcon /> },
           {
             title: "Sessions",
-            url: "/coordinator/defense-sessions",
+            url: ROUTES.COORDINATOR.DEFENSE_SESSIONS,
             icon: <GraduationCapIcon />,
           },
           {
             title: "Conflits",
-            url: "/coordinator/conflicts",
+            url: ROUTES.COORDINATOR.CONFLICTS,
             icon: <AlertTriangle />,
           },
           {
             title: "Notes",
-            url: "/coordinator/grades",
+            url: ROUTES.COORDINATOR.GRADES,
             icon: <FileCheck2 />,
           },
           {
             title: "Documents",
-            url: "/coordinator/documents",
+            url: ROUTES.COORDINATOR.DOCUMENTS,
             icon: <FileTextIcon />,
           },
         ];
@@ -126,22 +127,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         return [
           {
             title: "Mon Dashboard",
-            url: "/teacher",
+            url: ROUTES.TEACHER.DASHBOARD,
             icon: <LayoutDashboardIcon />,
           },
           {
             title: "Mon Planning",
-            url: "/teacher/schedule",
+            url: ROUTES.TEACHER.SCHEDULE,
             icon: <CalendarIcon />,
           },
           {
             title: "Évaluations",
-            url: "/teacher/evaluations",
+            url: ROUTES.TEACHER.EVALUATIONS,
             icon: <GraduationCapIcon />,
           },
           {
             title: "Mes Indisponibilités",
-            url: "/teacher/unavailability",
+            url: ROUTES.TEACHER.UNAVAILABILITY,
             icon: <HistoryIcon />,
           },
         ];
@@ -149,13 +150,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         return [
           {
             title: "Ma Soutenance",
-            url: "/student",
+            url: ROUTES.STUDENT.DASHBOARD,
             icon: <GraduationCapIcon />,
           },
-          { title: "Mon Groupe", url: "/student/group", icon: <UsersIcon /> },
+          { title: "Mon Groupe", url: ROUTES.STUDENT.GROUP, icon: <UsersIcon /> },
           {
             title: "Documents",
-            url: "/student/documents",
+            url: ROUTES.STUDENT.DOCUMENTS,
             icon: <FileTextIcon />,
           },
         ];

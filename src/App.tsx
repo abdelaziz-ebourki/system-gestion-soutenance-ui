@@ -4,6 +4,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import SetupGuard from "./components/auth/SetupGuard";
 import DashboardLayout from "./components/layout/DashboardLayout";
+import { ROUTES } from "./config/routes";
 
 const Login = lazy(() => import("./pages/Login"));
 const VerifyAccount = lazy(() => import("./pages/auth/VerifyAccount"));
@@ -54,70 +55,70 @@ export default function App() {
     <ErrorBoundary>
     <Suspense fallback={<PageLoader />}>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/verify-account" element={<VerifyAccount />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/print/evaluation-sheet" element={<PrintEvaluationSheet />} />
-        <Route path="/print/attendance-list" element={<PrintAttendanceList />} />
-        <Route path="/print/jury-convocation" element={<PrintJuryConvocation />} />
-        <Route path="/print/schedule" element={<PrintDefenseSchedule />} />
-        <Route path="/print/proces-verbal" element={<PrintProcesVerbal />} />
+        <Route path={ROUTES.AUTH.LOGIN} element={<Login />} />
+        <Route path={ROUTES.AUTH.VERIFY_ACCOUNT} element={<VerifyAccount />} />
+        <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
+        <Route path={ROUTES.AUTH.RESET_PASSWORD} element={<ResetPassword />} />
+        <Route path={ROUTES.PRINT.EVALUATION_SHEET} element={<PrintEvaluationSheet />} />
+        <Route path={ROUTES.PRINT.ATTENDANCE_LIST} element={<PrintAttendanceList />} />
+        <Route path={ROUTES.PRINT.JURY_CONVOCATION} element={<PrintJuryConvocation />} />
+        <Route path={ROUTES.PRINT.SCHEDULE} element={<PrintDefenseSchedule />} />
+        <Route path={ROUTES.PRINT.PROCES_VERBAL} element={<PrintProcesVerbal />} />
 
         <Route element={<DashboardLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-            <Route path="/admin/config" element={<Configuration />} />
+            <Route path={ROUTES.ADMIN.CONFIG} element={<Configuration />} />
             <Route element={<SetupGuard />}>
-              <Route path="/admin" element={<AdminDashboard />} />
-              <Route path="/admin/departments" element={<Departments />} />
-              <Route path="/admin/rooms" element={<Rooms />} />
-              <Route path="/admin/users/students" element={<Students />} />
-              <Route path="/admin/users/teachers" element={<Teachers />} />
-              <Route path="/admin/users/coordinators" element={<Coordinators />} />
-              <Route path="/admin/audit-logs" element={<AuditLogs />} />
+              <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
+              <Route path={ROUTES.ADMIN.DEPARTMENTS} element={<Departments />} />
+              <Route path={ROUTES.ADMIN.ROOMS} element={<Rooms />} />
+              <Route path={ROUTES.ADMIN.USERS.STUDENTS} element={<Students />} />
+              <Route path={ROUTES.ADMIN.USERS.TEACHERS} element={<Teachers />} />
+              <Route path={ROUTES.ADMIN.USERS.COORDINATORS} element={<Coordinators />} />
+              <Route path={ROUTES.ADMIN.AUDIT_LOGS} element={<AuditLogs />} />
             </Route>
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>
-            <Route path="/coordinator" element={<CoordinatorDashboard />} />
+            <Route path={ROUTES.COORDINATOR.DASHBOARD} element={<CoordinatorDashboard />} />
             <Route
-              path="/coordinator/schedule"
+              path={ROUTES.COORDINATOR.SCHEDULE}
               element={<DefenseDesigner />}
             />
             <Route
-              path="/coordinator/projects"
+              path={ROUTES.COORDINATOR.PROJECTS}
               element={<CoordinatorProjects />}
             />
-            <Route path="/coordinator/juries" element={<Jurys />} />
-            <Route path="/coordinator/defense-sessions" element={<CoordinatorDefenseSessions />} />
-            <Route path="/coordinator/conflicts" element={<CoordinatorConflicts />} />
-            <Route path="/coordinator/grades" element={<CoordinatorGrades />} />
-            <Route path="/coordinator/documents" element={<CoordinatorDocuments />} />
+            <Route path={ROUTES.COORDINATOR.JURIES} element={<Jurys />} />
+            <Route path={ROUTES.COORDINATOR.DEFENSE_SESSIONS} element={<CoordinatorDefenseSessions />} />
+            <Route path={ROUTES.COORDINATOR.CONFLICTS} element={<CoordinatorConflicts />} />
+            <Route path={ROUTES.COORDINATOR.GRADES} element={<CoordinatorGrades />} />
+            <Route path={ROUTES.COORDINATOR.DOCUMENTS} element={<CoordinatorDocuments />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["teacher"]} />}>
-            <Route path="/teacher" element={<TeacherDashboard />} />
-            <Route path="/teacher/schedule" element={<TeacherSchedule />} />
-            <Route path="/teacher/evaluations" element={<TeacherEvaluations />} />
+            <Route path={ROUTES.TEACHER.DASHBOARD} element={<TeacherDashboard />} />
+            <Route path={ROUTES.TEACHER.SCHEDULE} element={<TeacherSchedule />} />
+            <Route path={ROUTES.TEACHER.EVALUATIONS} element={<TeacherEvaluations />} />
             <Route
-              path="/teacher/unavailability"
+              path={ROUTES.TEACHER.UNAVAILABILITY}
               element={<TeacherUnavailability />}
             />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
-            <Route path="/student" element={<StudentDashboard />} />
-            <Route path="/student/group" element={<StudentGroup />} />
-            <Route path="/student/documents" element={<StudentDocuments />} />
+            <Route path={ROUTES.STUDENT.DASHBOARD} element={<StudentDashboard />} />
+            <Route path={ROUTES.STUDENT.GROUP} element={<StudentGroup />} />
+            <Route path={ROUTES.STUDENT.DOCUMENTS} element={<StudentDocuments />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["admin", "coordinator", "teacher", "student"]} />}>
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/notifications" element={<Notifications />} />
+            <Route path={ROUTES.SHARED.PROFILE} element={<Profile />} />
+            <Route path={ROUTES.SHARED.NOTIFICATIONS} element={<Notifications />} />
           </Route>
         </Route>
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to={ROUTES.AUTH.LOGIN} replace />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

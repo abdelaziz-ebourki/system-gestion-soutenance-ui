@@ -110,28 +110,32 @@ export const handlers = [
     }),
   ),
 
-  // Audit logs (returns array — component uses `?? []`)
+  // Audit logs
   http.get("*/api/admin/audit-logs", () =>
-    HttpResponse.json([
-      {
-        id: "1",
-        action: "LOGIN",
-        entity: "user",
-        entityId: "1",
-        adminEmail: "admin@univh2c.ma",
-        details: "Connexion admin",
-        timestamp: new Date().toISOString(),
-      },
-      {
-        id: "2",
-        action: "CREATE",
-        entity: "room",
-        entityId: "2",
-        adminEmail: "admin@univh2c.ma",
-        details: "Création salle S101",
-        timestamp: new Date().toISOString(),
-      },
-    ]),
+    HttpResponse.json({
+      items: [
+        {
+          id: "1",
+          action: "LOGIN",
+          entity: "user",
+          entityId: "1",
+          adminEmail: "admin@univh2c.ma",
+          details: "Connexion admin",
+          timestamp: new Date().toISOString(),
+        },
+        {
+          id: "2",
+          action: "CREATE",
+          entity: "room",
+          entityId: "2",
+          adminEmail: "admin@univh2c.ma",
+          details: "Création salle S101",
+          timestamp: new Date().toISOString(),
+        },
+      ],
+      total: 2,
+      pageCount: 1,
+    }),
   ),
 
   // Users
