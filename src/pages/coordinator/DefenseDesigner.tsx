@@ -15,11 +15,19 @@ import {
   type DragEndEvent,
 } from "@dnd-kit/core";
 
-import { useJuries, useRooms, useSaveDefenseSchedule, useCoordinatorDefenseSessions, useCoordinatorUnavailability } from "@/hooks/use-queries";
+import { useJuries, useRooms, useSaveDefenseSchedule, useCoordinatorDefenseSessions, useCoordinatorUnavailability, useTransitionDefenseSession } from "@/hooks/use-queries";
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { ConflictContext } from "@/lib/conflict-engine";
 import type { Jury } from "@/types";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Button,
   Card,
   CardContent,
@@ -48,12 +56,14 @@ export default function DefenseDesigner() {
   const [activeJuryId, setActiveJuryId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
 
-  const { data: sessions } = useCoordinatorDefenseSessions();
-  const { data: juries = [] } = useJuries();
-  const { data: rooms = [] } = useRooms();
-  const { data: unavailabilities = [] } = useCoordinatorUnavailability();
+  const { data: sessions, isLoading: sessionsLoading } = useCoordinatorDefenseSessions();
+  const { data: juries = [], isLoading: juriesLoading } = useJuries();
+  const { data: rooms = [], isLoading: roomsLoading } = useRooms();
+  const { data: unavailabilities = [], isLoading: unavailLoading } = useCoordinatorUnavailability();
   const saveSchedule = useSaveDefenseSchedule();
+  const transitionSession = useTransitionDefenseSession();
 
   const [schedule, setSchedule] = useState<Record<string, { roomId: string; date: string; time: string }>>({});
 
@@ -202,6 +212,40 @@ export default function DefenseDesigner() {
     }
   };
 
+  const handleAutoGenerate = () => {
+    setSchedule({});
+    const newSchedule: Record<string, { roomId: string; date: string; time: string }> = {};
+    let juryIndex = 0;
+    for (const room of rooms) {
+      for (const day of days) {
+        for (const time of timeSlots) {
+          if (juryIndex >= juries.length) break;
+          const jury = juries[juryIndex];
+          newSchedule[jury.id] = { roomId: room.id, date: format(day, "yyyy-MM-dd"), time };
+          juryIndex++;
+        }
+        if (juryIndex >= juries.length) break;
+      }
+      if (juryIndex >= juries.length) break;
+    }
+    setSchedule(newSchedule);
+    toast.success(`Planning généré pour ${juryIndex} jury(s)`);
+  };
+
+  const handlePublish = async () => {
+    if (!currentSession) return;
+    try {
+      await transitionSession.mutateAsync({ id: currentSession.id, toStatus: "active" });
+      toast.success("Session publiée avec succès");
+      setIsPublishDialogOpen(false);
+    } catch {
+      toast.error("Erreur lors de la publication");
+    }
+  };
+
+  const allLoading = sessionsLoading || juriesLoading || roomsLoading || unavailLoading;
+  if (allLoading) return <Skeleton className="h-[600px] w-full" />;
+
   if (!sessions?.length) {
     return (
       <div className="space-y-6">
@@ -243,13 +287,14 @@ export default function DefenseDesigner() {
           </div>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={handleAutoGenerate} isLoading={saveSchedule.isPending}>
             <Wand2 className="size-4" /> Génération Auto
           </Button>
           <Button className="gap-2" onClick={handleSave} isLoading={saveSchedule.isPending}>
             <Save className="size-4" /> Enregistrer
           </Button>
-          <Button variant="default" className="gap-2 bg-green-600 hover:bg-green-700">
+          <Button variant="default" className="gap-2 bg-green-600 hover:bg-green-700"
+            onClick={() => setIsPublishDialogOpen(true)}>
             <Send className="size-4" /> Publier
           </Button>
         </div>
@@ -365,6 +410,24 @@ export default function DefenseDesigner() {
           ) : null}
         </DragOverlay>
       </DndContext>
+
+      <AlertDialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Publier le planning</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action rendra le planning visible pour les étudiants et les enseignants.
+              Assurez-vous d'avoir enregistré vos modifications avant de publier.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handlePublish} isLoading={transitionSession.isPending}>
+              Publier
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

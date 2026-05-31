@@ -22,21 +22,11 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   StatsCard,
   Skeleton,
   EmptyState,
 } from "@/components/ui";
+import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DataTable } from "@/components/ui/data-table";
@@ -62,8 +52,6 @@ export default function CoordinatorProjects() {
   const projects = projectsQuery.data ?? [];
   const isLoading = projectsQuery.isLoading;
   const [selectedProjects, setSelectedProjects] = useState<Project[]>([]);
-  const [batchDialog, setBatchDialog] = useState<"status" | "delete" | null>(null);
-  const [batchValue, setBatchValue] = useState("");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Project | null>(null);
@@ -225,68 +213,28 @@ export default function CoordinatorProjects() {
         </CardContent>
       </Card>
 
-      {selectedProjects.length > 0 && (
-        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4 shadow-lg">
-          <span className="text-sm font-medium">{selectedProjects.length} projet(s) sélectionné(s)</span>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => { setBatchDialog("status"); setBatchValue(""); }}>
-              Changer le statut
-            </Button>
-            <Button variant="destructive" size="sm" onClick={() => setBatchDialog("delete")}>
-              Supprimer
-            </Button>
-          </div>
-        </div>
-      )}
-
-      <Dialog open={batchDialog === "status"} onOpenChange={(o) => { if (!o) setBatchDialog(null); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Changer le statut</DialogTitle>
-            <DialogDescription>{selectedProjects.length} projet(s) sélectionné(s).</DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
-              <SelectTrigger><SelectValue placeholder="Choisir un statut" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="pending">En attente</SelectItem>
-                <SelectItem value="approved">Valide</SelectItem>
-                <SelectItem value="rejected">Refuse</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setBatchDialog(null)}>Annuler</Button>
-            <Button onClick={async () => {
-              if (!batchValue) return;
-              try {
-                await Promise.all(selectedProjects.map((p) => updateProjectMutation.mutateAsync({ id: p.id, data: { status: batchValue as Project["status"] } })));
-                toast.success(`${selectedProjects.length} projet(s) mis à jour`);
-                setSelectedProjects([]);
-                setBatchDialog(null);
-              } catch (error) {
-                toastError(error, "Erreur lors de la mise à jour");
-              }
-            }} isLoading={updateProjectMutation.isPending}>Enregistrer</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <DeleteAlert
-        isOpen={batchDialog === "delete"}
-        onOpenChange={(o) => { if (!o) setBatchDialog(null); }}
-        entityName={`${selectedProjects.length} projet(s)`}
-        onDelete={async () => {
-          try {
-            await Promise.all(selectedProjects.map((p) => deleteProjectMutation.mutateAsync(p.id)));
-            toast.success(`${selectedProjects.length} projet(s) supprimé(s)`);
-            setSelectedProjects([]);
-            setBatchDialog(null);
-          } catch (error) {
-            toastError(error, "Erreur lors de la suppression");
-          }
+      <BatchActionsBar
+        selectedCount={selectedProjects.length}
+        entityLabel="projet(s)"
+        actions={[
+          { key: "status", label: "Changer le statut" },
+          { key: "delete", label: "Supprimer" },
+        ]}
+        fieldOptionsMap={{
+          status: [
+            { value: "pending", label: "En attente" },
+            { value: "approved", label: "Valide" },
+            { value: "rejected", label: "Refuse" },
+          ],
         }}
-        isPending={deleteProjectMutation.isPending}
+        onUpdateField={async (_field, value) => {
+          await Promise.all(selectedProjects.map((p) => updateProjectMutation.mutateAsync({ id: p.id, data: { status: value as Project["status"] } })));
+        }}
+        onDeleteSelected={async () => {
+          await Promise.all(selectedProjects.map((p) => deleteProjectMutation.mutateAsync(p.id)));
+        }}
+        isPending={updateProjectMutation.isPending || deleteProjectMutation.isPending}
+        onClearSelection={() => setSelectedProjects([])}
       />
 
       <DeleteAlert

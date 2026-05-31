@@ -53,7 +53,7 @@ export default function Grades() {
       ) : grades.length === 0 ? (
         <Card>
           <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            Aucun jury configuré pour l'instant.
+            Aucune évaluation disponible pour le moment.
           </CardContent>
         </Card>
       ) : (

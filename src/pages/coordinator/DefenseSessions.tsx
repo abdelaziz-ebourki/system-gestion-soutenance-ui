@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { ArrowRight, Calendar, ShieldCheck, Clock, FileText, CheckCircle2, Plus } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
 import type { DefenseSession, DefenseSessionStatus, DefenseType } from "@/types";
 import {
   useCoordinatorDefenseSessions,
@@ -64,6 +66,14 @@ const defaultForm = {
   evaluationCoefficients: {} as Record<string, number>,
 };
 
+const formatDate = (dateStr: string) => {
+  try {
+    return format(parseISO(dateStr), "dd MMM yyyy", { locale: fr });
+  } catch {
+    return dateStr;
+  }
+};
+
 const statusIcons: Record<string, typeof ShieldCheck> = {
   draft: FileText,
   active: Clock,
@@ -85,6 +95,7 @@ export default function CoordinatorDefenseSessions() {
   const [deleteTarget, setDeleteTarget] = useState<DefenseSession | null>(null);
   const [editing, setEditing] = useState<DefenseSession | null>(null);
   const [form, setForm] = useState(defaultForm);
+  const [transitioningId, setTransitioningId] = useState<string | null>(null);
 
   const openCreate = () => {
     setEditing(null);
@@ -112,6 +123,10 @@ export default function CoordinatorDefenseSessions() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (form.startDate && form.endDate && form.startDate > form.endDate) {
+      toast.error("La date de début doit être antérieure à la date de fin");
+      return;
+    }
     try {
       if (editing) {
         await updateMutation.mutateAsync({ id: editing.id, data: form });
@@ -127,11 +142,14 @@ export default function CoordinatorDefenseSessions() {
   };
 
   const handleTransition = async (id: string, toStatus: DefenseSessionStatus) => {
+    setTransitioningId(id);
     try {
       await transitionMutation.mutateAsync({ id, toStatus });
       toast.success(`Session passée en "${DEFENSE_SESSION_STATUS_LABELS[toStatus]}"`);
     } catch (error: unknown) {
       toast.error(error instanceof Error ? error.message : "Transition impossible");
+    } finally {
+      setTransitioningId(null);
     }
   };
 
@@ -211,20 +229,20 @@ export default function CoordinatorDefenseSessions() {
                     </div>
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground">Dépôt avant</p>
-                      <p className="font-medium">{session.submissionDeadline}</p>
+                      <p className="font-medium">{formatDate(session.submissionDeadline)}</p>
                     </div>
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground">Début</p>
                       <p className="font-medium">
                         <Calendar className="mr-1 inline size-3" />
-                        {session.startDate}
+                        {formatDate(session.startDate)}
                       </p>
                     </div>
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground">Fin</p>
                       <p className="font-medium">
                         <Calendar className="mr-1 inline size-3" />
-                        {session.endDate}
+                        {formatDate(session.endDate)}
                       </p>
                     </div>
                   </div>
@@ -239,7 +257,7 @@ export default function CoordinatorDefenseSessions() {
                           onClick={() =>
                             handleTransition(session.id, next as DefenseSessionStatus)
                           }
-                          isLoading={transitionMutation.isPending}
+                          isLoading={transitioningId === session.id}
                           className="gap-1"
                         >
                           {DEFENSE_SESSION_STATUS_LABELS[next]}

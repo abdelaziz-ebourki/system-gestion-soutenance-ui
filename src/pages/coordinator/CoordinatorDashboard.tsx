@@ -67,13 +67,24 @@ export default function CoordinatorDashboard() {
       : 0,
   [projects.length, juries.length]);
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-48 w-full rounded-3xl" />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.5fr_1fr] md:px-8">
           <div className="space-y-4">
             <Badge className="w-fit" variant="secondary">
-              Campagne de soutenance 2026
+              Campagne de soutenance {new Date().getFullYear()}
             </Badge>
             <div className="space-y-2">
               <h1 className="max-w-2xl text-3xl font-bold tracking-tight md:text-4xl">

@@ -1,4 +1,4 @@
-import * as React from "react";
+import type { CSSProperties } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Virtuoso } from "react-virtuoso";
 import { Badge } from "@/components/ui";
@@ -28,7 +28,7 @@ function DraggableProjectCard({
       disabled: !isDndMode,
     });
 
-  const style: React.CSSProperties | undefined = transform
+  const style: CSSProperties | undefined = transform
     ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`, opacity: isDragging ? 0 : undefined }
     : undefined;
 

@@ -1,6 +1,22 @@
+import { useState } from "react";
 import { FileText, Users, Calendar, ClipboardList, ScrollText } from "lucide-react";
 import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades } from "@/hooks/use-queries";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Button, Skeleton, EmptyState } from "@/components/ui";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Skeleton,
+  EmptyState,
+} from "@/components/ui";
 import { toast } from "sonner";
 
 const DOC_TYPES: {
@@ -60,6 +76,9 @@ const DOC_TYPES: {
 ];
 
 export default function Documents() {
+  const [isDateDialogOpen, setIsDateDialogOpen] = useState(false);
+  const [dateInput, setDateInput] = useState(() => new Date().toISOString().split("T")[0]);
+
   const projectsQuery = useProjects();
   const juriesQuery = useJuries();
   const sessionsQuery = useCoordinatorDefenseSessions();
@@ -71,13 +90,15 @@ export default function Documents() {
 
   const isLoading = projectsQuery.isLoading || juriesQuery.isLoading || sessionsQuery.isLoading;
 
+  const handleOpenDateDialog = () => {
+    setDateInput(new Date().toISOString().split("T")[0]);
+    setIsDateDialogOpen(true);
+  };
+
   const handleOpen = (doc: (typeof DOC_TYPES)[number], projectId?: string) => {
     let url: string;
     if (doc.id === "attendance-list") {
-      const date = prompt("Date (JJ/MM/AAAA) :", new Date().toLocaleDateString("fr-FR"));
-      if (!date) return;
-      const sessionId = sessions[0]?.id;
-      url = doc.getUrl(date, sessionId);
+      return;
     } else if (doc.id === "schedule") {
       if (sessions.length === 0) { toast.error("Aucune session disponible."); return; }
       url = doc.getUrl(sessions[0].id);
@@ -181,7 +202,7 @@ export default function Documents() {
                   </Button>
                 )
               ) : doc.id === "attendance-list" ? (
-                <Button className="w-full" variant="secondary" onClick={() => handleOpen(doc)}>
+                <Button className="w-full" variant="secondary" onClick={handleOpenDateDialog}>
                   <Users className="mr-2 size-4" />
                   Choisir une date
                 </Button>
@@ -190,6 +211,26 @@ export default function Documents() {
           </Card>
         ))}
       </div>
+
+      <Dialog open={isDateDialogOpen} onOpenChange={setIsDateDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Choisir une date</DialogTitle>
+          </DialogHeader>
+          <Input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)} />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDateDialogOpen(false)}>Annuler</Button>
+            <Button onClick={() => {
+              const sessionId = sessions[0]?.id;
+              const url = DOC_TYPES.find((d) => d.id === "attendance-list")!.getUrl(dateInput, sessionId);
+              window.open(url, "_blank");
+              setIsDateDialogOpen(false);
+            }}>
+              Générer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

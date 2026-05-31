@@ -48,7 +48,7 @@ export default function ConflictDashboard() {
   const scheduleQuery = useDefenseSchedule();
   const unavailabilityQuery = useCoordinatorUnavailability();
 
-  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || scheduleQuery.isLoading;
+  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || groupsQuery.isLoading || sessionsQuery.isLoading || scheduleQuery.isLoading || unavailabilityQuery.isLoading;
 
   const currentSession = sessionsQuery.data?.[0];
 
