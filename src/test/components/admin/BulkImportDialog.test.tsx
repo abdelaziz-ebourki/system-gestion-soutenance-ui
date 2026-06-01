@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -52,7 +52,9 @@ describe("BulkImportDialog", () => {
     expect(fileInput).toBeInTheDocument();
 
     const badFile = createMockFile([{ name: "Test" }]);
-    await user.upload(fileInput, badFile);
+    await act(async () => {
+      await user.upload(fileInput, badFile);
+    });
 
     await vi.waitFor(() => {
       expect(toast.error).toHaveBeenCalled();
@@ -70,7 +72,9 @@ describe("BulkImportDialog", () => {
       { prénom: "Jean", nom: "Dupont", email: "jean@test.com", cne: "CNE001", major: "Génie Info", niveau: "L3" },
     ]);
 
-    await user.upload(fileInput, validData);
+    await act(async () => {
+      await user.upload(fileInput, validData);
+    });
 
     expect(await screen.findByText(/1 enregistrements trouvés/i)).toBeInTheDocument();
   });

@@ -34,8 +34,8 @@ vi.mock("@/components/ui", async (importOriginal) => {
         {children}
       </select>
     ),
-    SelectTrigger: () => <div />,
-    SelectValue: () => <div />,
+    SelectTrigger: () => null,
+    SelectValue: () => null,
     SelectContent: ({ children }: { children: React.ReactNode }) => children,
     SelectItem: ({ children, value }: { children: React.ReactNode; value: string }) => <option value={value}>{children}</option>,
   };

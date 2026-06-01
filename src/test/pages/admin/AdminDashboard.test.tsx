@@ -4,6 +4,21 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 
+vi.mock("recharts", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("recharts")>();
+  return {
+    ...actual,
+    BarChart: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-barchart">{children}</div>,
+    Bar: () => <div data-testid="mock-bar" />,
+    XAxis: () => <div data-testid="mock-xaxis" />,
+    CartesianGrid: () => <div data-testid="mock-grid" />,
+    Tooltip: () => <div data-testid="mock-tooltip" />,
+    ChartTooltip: () => <div data-testid="mock-tooltip" />,
+    Legend: () => <div data-testid="mock-legend" />,
+  };
+});
+
+
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));

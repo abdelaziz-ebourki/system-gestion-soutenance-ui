@@ -63,25 +63,25 @@ export default function TeacherDashboard() {
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   À venir
                 </p>
-                <p className="mt-2 text-2xl font-semibold">
+                <div className="mt-2 text-2xl font-semibold">
                   {isLoading ? (
                     <Skeleton className="h-8 w-12" />
                   ) : (
                     stats?.upcomingDefenses
                   )}
-                </p>
+                </div>
               </div>
               <div className="rounded-lg border bg-background/80 p-4">
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   Notes
                 </p>
-                <p className="mt-2 text-2xl font-semibold">
+                <div className="mt-2 text-2xl font-semibold">
                   {isLoading ? (
                     <Skeleton className="h-8 w-12" />
                   ) : (
                     stats?.pendingEvaluations
                   )}
-                </p>
+                </div>
               </div>
             </CardContent>
           </Card>

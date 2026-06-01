@@ -28,7 +28,9 @@ describe("DroppableCalendarCell", () => {
     render(
       <table>
         <tbody>
-          <DroppableCalendarCell id="cell-1" jury={null} onRemove={vi.fn()} />
+          <tr>
+            <DroppableCalendarCell id="cell-1" jury={null} onRemove={vi.fn()} />
+          </tr>
         </tbody>
       </table>
     );

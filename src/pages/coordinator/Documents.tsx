@@ -10,6 +10,7 @@ import {
   CardTitle,
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -217,6 +218,9 @@ export default function Documents() {
           <DialogHeader>
             <DialogTitle>Choisir une date</DialogTitle>
           </DialogHeader>
+          <DialogDescription className="sr-only">
+            Sélectionnez la date pour laquelle vous souhaitez générer la liste de présence.
+          </DialogDescription>
           <Input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)} data-testid="coord-documents-date-input" />
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDateDialogOpen(false)} data-testid="coord-documents-date-cancel">Annuler</Button>

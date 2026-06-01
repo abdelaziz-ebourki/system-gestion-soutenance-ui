@@ -6,6 +6,7 @@ import {
   Button,
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -104,6 +105,9 @@ export function ConfigEntityManager({
           <DialogHeader>
             <DialogTitle>{selectedItem ? "Modifier" : "Ajouter"} {entityLabel}</DialogTitle>
           </DialogHeader>
+          <DialogDescription className="sr-only">
+            {selectedItem ? `Modifier les informations de ${entityLabel}` : `Ajouter un nouveau ${entityLabel}`}
+          </DialogDescription>
           <form onSubmit={handleSubmit}>
             <FieldGroup className="py-4">
               <Field>
