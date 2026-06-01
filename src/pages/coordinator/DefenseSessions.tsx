@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import { ArrowRight, Calendar, ShieldCheck, Clock, FileText, CheckCircle2, Plus } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -136,8 +137,8 @@ export default function CoordinatorDefenseSessions() {
         toast.success("Session de soutenance créée");
       }
       setDialogOpen(false);
-    } catch {
-      toast.error("Erreur lors de l'enregistrement");
+    } catch (error) {
+      toastError(error, "Erreur lors de l'enregistrement");
     }
   };
 
@@ -146,8 +147,8 @@ export default function CoordinatorDefenseSessions() {
     try {
       await transitionMutation.mutateAsync({ id, toStatus });
       toast.success(`Session passée en "${DEFENSE_SESSION_STATUS_LABELS[toStatus]}"`);
-    } catch (error: unknown) {
-      toast.error(error instanceof Error ? error.message : "Transition impossible");
+    } catch (error) {
+      toastError(error, "Transition impossible");
     } finally {
       setTransitioningId(null);
     }
@@ -452,8 +453,8 @@ export default function CoordinatorDefenseSessions() {
             await deleteMutation.mutateAsync(deleteTarget.id);
             toast.success("Session de soutenance supprimée");
             setDeleteTarget(null);
-          } catch {
-            toast.error("Erreur lors de la suppression");
+          } catch (error) {
+            toastError(error, "Erreur lors de la suppression");
           }
         }}
         isPending={deleteMutation.isPending}

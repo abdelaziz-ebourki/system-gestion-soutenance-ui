@@ -12,6 +12,7 @@ import type { ConflictContext } from "@/lib/conflict-engine";
 import type { UnavailabilityEntry } from "@/lib/api-coordinator";
 import type { Jury, Room, DefenseSession } from "@/types";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import { format, addDays } from "date-fns";
 import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
 
@@ -179,8 +180,8 @@ export function useDefenseSchedule() {
         ),
       );
       toast.success("Planning enregistré avec succès");
-    } catch {
-      toast.error("Erreur lors de l'enregistrement");
+    } catch (error) {
+      toastError(error, "Erreur lors de l'enregistrement");
     }
   };
 
@@ -210,8 +211,8 @@ export function useDefenseSchedule() {
       await transitionSession.mutateAsync({ id: currentSession.id, toStatus: "active" });
       toast.success("Session publiée avec succès");
       setIsPublishDialogOpen(false);
-    } catch {
-      toast.error("Erreur lors de la publication");
+    } catch (error) {
+      toastError(error, "Erreur lors de la publication");
     }
   };
 

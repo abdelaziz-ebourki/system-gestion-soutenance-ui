@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus, BuildingIcon } from "lucide-react";
 
@@ -123,8 +124,8 @@ export default function Rooms() {
             toast.success(`${selectedRooms.length} salle(s) supprimée(s)`);
             setSelectedRooms([]);
             setBatchDialog(null);
-          } catch {
-            toast.error("Erreur lors de la suppression");
+          } catch (error) {
+            toastError(error, "Erreur lors de la suppression");
           }
         }}
         isPending={crud.isDeletePending}

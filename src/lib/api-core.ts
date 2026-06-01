@@ -1,3 +1,4 @@
+import { ApiError } from "@/lib/api-error";
 import type {
   User,
   Student,
@@ -12,23 +13,26 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const CSRF_COOKIE_NAME = "XSRF-TOKEN";
 const CSRF_HEADER_NAME = "X-XSRF-TOKEN";
 
+const MUTATING_METHODS = new Set(["POST", "PUT", "DELETE", "PATCH"]);
+
+export const DEFAULT_TIMEOUT = 15_000;
+
 function getCsrfToken(): string | null {
   const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${CSRF_COOKIE_NAME}=([^;]*)`));
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-const MUTATING_METHODS = new Set(["POST", "PUT", "DELETE", "PATCH"]);
-
 interface ApiOptions extends RequestInit {
   requiresAuth?: boolean;
   responseType?: "json" | "blob";
+  timeout?: number;
 }
 
 export async function api<T>(
   endpoint: string,
   options: ApiOptions = {},
 ): Promise<T> {
-  const { requiresAuth = true, responseType = "json", ...customConfig } = options;
+  const { requiresAuth = true, responseType = "json", timeout = DEFAULT_TIMEOUT, ...customConfig } = options;
 
   const headers: Record<string, string> = {
     ...(requiresAuth
@@ -49,14 +53,19 @@ export async function api<T>(
     headers["Content-Type"] = "application/json";
   }
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
   const config = {
     ...customConfig,
     method,
     headers,
+    signal: controller.signal,
   };
 
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, config);
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
       let data: Record<string, unknown>;
@@ -69,7 +78,11 @@ export async function api<T>(
       }
       const errorMessage =
         (data?.message as string) || "Une erreur est survenue lors de la requête.";
-      throw new Error(errorMessage, { cause: response.statusText });
+      throw new ApiError({
+        status: response.status,
+        message: errorMessage,
+        fieldErrors: data?.fieldErrors as Record<string, string> | undefined,
+      });
     }
 
     if (
@@ -84,10 +97,32 @@ export async function api<T>(
       : await response.json();
     return data as T;
   } catch (error: unknown) {
-    if (error instanceof Error) {
+    clearTimeout(timeoutId);
+
+    if (controller.signal.aborted) {
+      throw new ApiError({
+        status: null,
+        message: "La requête a expiré. Veuillez réessayer.",
+        isTimeout: true,
+      });
+    }
+
+    if (error instanceof ApiError) {
       throw error;
     }
-    throw new Error("Une erreur inattendue est survenue.", { cause: error });
+
+    if (error instanceof TypeError) {
+      throw new ApiError({
+        status: null,
+        message: "Impossible de contacter le serveur. Vérifiez votre connexion.",
+        isNetworkError: true,
+      });
+    }
+
+    throw new ApiError({
+      status: null,
+      message: "Une erreur inattendue est survenue.",
+    });
   }
 }
 

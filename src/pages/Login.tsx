@@ -13,6 +13,7 @@ import {
   PasswordInput,
 } from "@/components/ui";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Link, useNavigate } from "react-router-dom";
 import { authenticate } from "@/lib/api";
@@ -49,10 +50,8 @@ export default function Login() {
       };
 
       navigate(roleRoutes[data.user.role] || "/login");
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : "Erreur de connexion";
-      toast.error(message);
+    } catch (error) {
+      toastError(error, "Erreur de connexion");
     } finally {
       setIsLoading(false);
     }

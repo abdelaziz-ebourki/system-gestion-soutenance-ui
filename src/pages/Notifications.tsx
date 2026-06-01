@@ -6,6 +6,7 @@ import { fr } from "date-fns/locale";
 
 import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/use-queries";
 import type { AppNotification } from "@/types";
+import { toastError } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -53,6 +54,8 @@ export default function NotificationsPage() {
     setReadingId(id);
     try {
       await markReadMutation.mutateAsync(id);
+    } catch (error) {
+      toastError(error, "Erreur lors du marquage de la notification");
     } finally {
       setReadingId(null);
     }

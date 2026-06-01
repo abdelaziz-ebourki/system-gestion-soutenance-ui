@@ -16,6 +16,7 @@ import type { User } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import { DataTable } from "@/components/ui/data-table";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -274,8 +275,8 @@ export default function AdminDashboard() {
                         toast.success(`${selectedUsers.length} utilisateur(s) mis à jour`);
                         setSelectedUsers([]);
                         setBatchDialog(null);
-                      } catch {
-                        toast.error("Erreur lors de la mise à jour");
+                      } catch (error) {
+                        toastError(error, "Erreur lors de la mise à jour");
                       }
                     }} isLoading={updateUser.isPending}>Enregistrer</Button>
                   </DialogFooter>
@@ -292,8 +293,8 @@ export default function AdminDashboard() {
                     toast.success(`${selectedUsers.length} utilisateur(s) supprimé(s)`);
                     setSelectedUsers([]);
                     setBatchDialog(null);
-                  } catch {
-                    toast.error("Erreur lors de la suppression");
+                  } catch (error) {
+                    toastError(error, "Erreur lors de la suppression");
                   }
                 }}
                 isPending={deleteUser.isPending}

@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { toastError } from "@/lib/utils";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 
@@ -108,8 +109,8 @@ export default function Departments() {
             toast.success(`${selectedDepartments.length} département(s) supprimé(s)`);
             setSelectedDepartments([]);
             setBatchDialog(null);
-          } catch {
-            toast.error("Erreur lors de la suppression");
+          } catch (error) {
+            toastError(error, "Erreur lors de la suppression");
           }
         }}
         isPending={crud.isDeletePending}
