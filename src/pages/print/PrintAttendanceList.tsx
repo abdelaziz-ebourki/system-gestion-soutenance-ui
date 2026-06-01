@@ -18,11 +18,11 @@ export default function PrintAttendanceList() {
   const { data, isLoading, error } = useAttendanceList(sessionId);
 
   if (!date || !sessionId) {
-    return <div className="p-8 text-red-600">Paramètres date et sessionId requis</div>;
+    return <div className="p-8 text-red-600" data-testid="print-attendance-missing-params">Paramètres date et sessionId requis</div>;
   }
 
-  if (error) return <div className="p-8 text-red-600">{(error as Error).message}</div>;
-  if (isLoading || !data) return <div className="p-8">Chargement...</div>;
+  if (error) return <div className="p-8 text-red-600" data-testid="print-attendance-error">{(error as Error).message}</div>;
+  if (isLoading || !data) return <div className="p-8" data-testid="print-attendance-loading">Chargement...</div>;
 
   const filtered = data.slots.filter((s) => s.date === date);
   const slots: AttendanceSlot[] = filtered.map((s) => ({
@@ -33,8 +33,10 @@ export default function PrintAttendanceList() {
   }));
 
   return (
-    <PrintLayout title="Liste de présence" settings={{} as GeneralSettings} autoPrint>
-      <AttendanceList sessionName={data.defenseSessionName} date={date} slots={slots} />
-    </PrintLayout>
+    <div data-testid="print-attendance-root">
+      <PrintLayout title="Liste de présence" settings={{} as GeneralSettings} autoPrint>
+        <AttendanceList sessionName={data.defenseSessionName} date={date} slots={slots} />
+      </PrintLayout>
+    </div>
   );
 }

@@ -14,8 +14,8 @@ export default function PrintDefenseSchedule() {
   const sessionId = params.get("sessionId");
   const { data, isLoading, error } = useDefenseScheduleDoc(sessionId);
 
-  if (error) return <div className="p-8 text-red-600">{(error as Error).message}</div>;
-  if (isLoading || !data) return <div className="p-8">Chargement...</div>;
+  if (error) return <div className="p-8 text-red-600" data-testid="print-schedule-error">{(error as Error).message}</div>;
+  if (isLoading || !data) return <div className="p-8" data-testid="print-schedule-loading">Chargement...</div>;
 
   const grouped: Record<string, ScheduleDay> = {};
   for (const s of data.slots) {
@@ -32,8 +32,10 @@ export default function PrintDefenseSchedule() {
   }
 
   return (
-    <PrintLayout title="Planning des soutenances" settings={{} as GeneralSettings} autoPrint>
-      <DefenseSchedule sessionName={data.defenseSessionName} days={Object.values(grouped)} />
-    </PrintLayout>
+    <div data-testid="print-schedule-root">
+      <PrintLayout title="Planning des soutenances" settings={{} as GeneralSettings} autoPrint>
+        <DefenseSchedule sessionName={data.defenseSessionName} days={Object.values(grouped)} />
+      </PrintLayout>
+    </div>
   );
 }

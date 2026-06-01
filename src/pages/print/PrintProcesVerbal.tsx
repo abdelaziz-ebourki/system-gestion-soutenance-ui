@@ -8,13 +8,15 @@ export default function PrintProcesVerbal() {
   const projectId = params.get("projectId");
   const { data, isLoading, error } = useProcesVerbal(projectId);
 
-  if (error) return <div className="p-8 text-red-600">{(error as Error).message}</div>;
-  if (isLoading || !data) return <div className="p-8">Chargement...</div>;
-  if (!data.grade) return <div className="p-8 text-muted-foreground">Aucune donnée disponible pour ce projet.</div>;
+  if (error) return <div className="p-8 text-red-600" data-testid="print-pv-error">{(error as Error).message}</div>;
+  if (isLoading || !data) return <div className="p-8" data-testid="print-pv-loading">Chargement...</div>;
+  if (!data.grade) return <div className="p-8 text-muted-foreground" data-testid="print-pv-empty">Aucune donnée disponible pour ce projet.</div>;
 
   return (
-    <PrintLayout title="Procès-Verbal de Soutenance" settings={data.settings} autoPrint>
-      <ProcesVerbal grade={data.grade} studentNames={data.studentNames} supervisorName={data.supervisorName} juryMembers={data.juryMembers} />
-    </PrintLayout>
+    <div data-testid="print-pv-root">
+      <PrintLayout title="Procès-Verbal de Soutenance" settings={data.settings} autoPrint>
+        <ProcesVerbal grade={data.grade} studentNames={data.studentNames} supervisorName={data.supervisorName} juryMembers={data.juryMembers} />
+      </PrintLayout>
+    </div>
   );
 }
