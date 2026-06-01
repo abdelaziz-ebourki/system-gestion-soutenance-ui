@@ -1,0 +1,99 @@
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { MapPin, CalendarDays } from "lucide-react";
+import {
+  Card,
+} from "@/components/ui";
+import { RoomSearchSelect } from "@/components/coordinator/RoomSearchSelect";
+import DroppableCalendarCell from "@/components/coordinator/DroppableCalendarCell";
+import type { Jury, Room } from "@/types";
+
+interface DefenseCalendarProps {
+  days: Date[];
+  timeSlots: string[];
+  schedule: Record<string, { roomId: string; date: string; time: string }>;
+  juries: Jury[];
+  selectedRoomId: string | null;
+  onRemove: (juryId: string) => void;
+  rooms: Room[];
+  onRoomChange: (roomId: string | null) => void;
+}
+
+export default function DefenseCalendar({
+  days,
+  timeSlots,
+  schedule,
+  juries,
+  selectedRoomId,
+  onRemove,
+  rooms,
+  onRoomChange,
+}: DefenseCalendarProps) {
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-4 bg-muted/50 p-4 rounded-xl border">
+        <div className="flex-1 max-w-sm">
+          <RoomSearchSelect
+            rooms={rooms}
+            value={selectedRoomId}
+            onChange={onRoomChange}
+          />
+        </div>
+        <div className="text-sm text-muted-foreground flex items-center gap-2">
+          <CalendarDays className="size-4" />
+          Sélectionnez une salle pour voir son planning
+        </div>
+      </div>
+
+      {selectedRoomId ? (
+        <Card className="overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-muted/50">
+                  <th className="p-3 border text-left font-medium text-xs uppercase tracking-wider w-24">Heure</th>
+                  {days.map((day) => (
+                    <th key={day.toISOString()} className="p-3 border text-center font-medium min-w-[200px]">
+                      <div className="text-xs uppercase text-muted-foreground">{format(day, "EEEE", { locale: fr })}</div>
+                      <div className="text-sm">{format(day, "dd MMM", { locale: fr })}</div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {timeSlots.map((slot) => (
+                  <tr key={slot}>
+                    <td className="p-3 border font-mono text-sm font-medium bg-muted/20 text-center">{slot}</td>
+                    {days.map((day) => {
+                      const dateStr = format(day, "yyyy-MM-dd");
+                      const scheduledJuryId = Object.keys(schedule).find(
+                        (id) => schedule[id].date === dateStr && schedule[id].time === slot && schedule[id].roomId === selectedRoomId
+                      );
+                      const jury: Jury | null = scheduledJuryId ? juries.find(j => j.id === scheduledJuryId) ?? null : null;
+
+                      return (
+                        <DroppableCalendarCell
+                          key={`${dateStr}|${slot}`}
+                          id={`${dateStr}|${slot}`}
+                          jury={jury}
+                          onRemove={() => jury && onRemove(jury.id)}
+                        />
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      ) : (
+        <div className="h-[500px] border-2 border-dashed rounded-3xl flex flex-col items-center justify-center text-muted-foreground gap-4 bg-muted/5">
+          <div className="p-4 rounded-full bg-muted/20">
+            <MapPin className="size-10 opacity-20" />
+          </div>
+          <p className="text-lg">Veuillez sélectionner une salle pour afficher le planning</p>
+        </div>
+      )}
+    </div>
+  );
+}

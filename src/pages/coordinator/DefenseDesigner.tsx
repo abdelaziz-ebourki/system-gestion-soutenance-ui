@@ -1,24 +1,13 @@
-import { useMemo, useState, useEffect } from "react";
-import {
-  CalendarDays,
-  MapPin,
-  Save,
-  Search,
-  Wand2,
-  Send,
-  Users,
-} from "lucide-react";
+import { useDefenseSchedule } from "@/hooks/use-defense-schedule";
 import {
   DndContext,
   DragOverlay,
-  type DragStartEvent,
-  type DragEndEvent,
 } from "@dnd-kit/core";
-
-import { useJuries, useRooms, useSaveDefenseSchedule, useCoordinatorDefenseSessions, useCoordinatorUnavailability, useTransitionDefenseSession } from "@/hooks/use-queries";
-import { validateSlotAssignment } from "@/lib/conflict-engine";
-import type { ConflictContext } from "@/lib/conflict-engine";
-import type { Jury } from "@/types";
+import {
+  Wand2,
+  Save,
+  Send,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,221 +18,47 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Skeleton,
-  Badge,
-  Input,
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Skeleton,
 } from "@/components/ui";
-import { format, addDays } from "date-fns";
-import { fr } from "date-fns/locale";
-import { toast } from "sonner";
-import { RoomSearchSelect } from "@/components/coordinator/RoomSearchSelect";
+import JurySidebar from "@/components/coordinator/JurySidebar";
+import DefenseCalendar from "@/components/coordinator/DefenseCalendar";
 import DraggableJurySlot from "@/components/coordinator/DraggableJurySlot";
-import DroppableCalendarCell from "@/components/coordinator/DroppableCalendarCell";
-
-const DAYS_TO_SHOW = 14;
 
 export default function DefenseDesigner() {
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
-  const [activeJuryId, setActiveJuryId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
-  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
+  const {
+    sessions,
+    juries,
+    rooms,
+    allLoading,
+    selectedSessionId,
+    setSelectedSessionId,
+    currentSession,
+    days,
+    timeSlots,
+    searchQuery,
+    setSearchQuery,
+    selectedRoomId,
+    setSelectedRoomId,
+    filteredJuries,
+    activeJuryId,
+    schedule,
+    handleDragStart,
+    handleDragEnd,
+    handleRemove,
+    handleSave,
+    handleAutoGenerate,
+    handlePublish,
+    isPublishDialogOpen,
+    setIsPublishDialogOpen,
+    saveSchedule,
+    transitionSession,
+  } = useDefenseSchedule();
 
-  const { data: sessions, isLoading: sessionsLoading } = useCoordinatorDefenseSessions();
-  const { data: juries = [], isLoading: juriesLoading } = useJuries();
-  const { data: rooms = [], isLoading: roomsLoading } = useRooms();
-  const { data: unavailabilities = [], isLoading: unavailLoading } = useCoordinatorUnavailability();
-  const saveSchedule = useSaveDefenseSchedule();
-  const transitionSession = useTransitionDefenseSession();
-
-  const [schedule, setSchedule] = useState<Record<string, { roomId: string; date: string; time: string }>>({});
-
-  useEffect(() => {
-    if (sessions?.length && !selectedSessionId) {
-      setSelectedSessionId(sessions[0].id);
-    }
-  }, [sessions, selectedSessionId]);
-
-  const currentSession = useMemo(
-    () => sessions?.find((s) => s.id === selectedSessionId),
-    [sessions, selectedSessionId],
-  );
-
-  const days = useMemo(() => {
-    if (!currentSession) return [];
-    const start = new Date(currentSession.startDate);
-    return Array.from({ length: DAYS_TO_SHOW }).map((_, i) => addDays(start, i));
-  }, [currentSession]);
-
-  const timeSlots = useMemo(() => {
-    if (!currentSession) return [];
-    const slots = [];
-    let current = new Date(`2000-01-01T${currentSession.startTime}`);
-    const end = new Date(`2000-01-01T${currentSession.endTime}`);
-
-    while (current < end) {
-      slots.push(format(current, "HH:mm"));
-      current = new Date(current.getTime() + currentSession.defenseDuration * 60000);
-    }
-    return slots;
-  }, [currentSession]);
-
-  const filteredJuries = useMemo(
-    () =>
-      juries.filter(
-        (j) =>
-          !schedule[j.id] &&
-          (j.projectTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            j.studentNames.some((n) =>
-              n.toLowerCase().includes(searchQuery.toLowerCase()),
-            )),
-      ),
-    [juries, searchQuery, schedule],
-  );
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveJuryId(event.active.id as string);
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveJuryId(null);
-
-    if (over && selectedRoomId) {
-      const juryId = active.id as string;
-      const [date, time] = (over.id as string).split("|");
-
-      const jury = juries.find((j) => j.id === juryId);
-      if (!jury) return;
-
-      const slotKey = `${date}|${selectedRoomId}|${time}`;
-
-      const context: ConflictContext = {
-        schedule: Object.fromEntries(
-          Object.entries(schedule).map(([id, s]) => [
-            id,
-            {
-              id,
-              title: juries.find((j) => j.id === id)?.projectTitle ?? "",
-              date: s.date,
-              time: s.time,
-              roomId: s.roomId,
-            },
-          ]),
-        ),
-        rooms: Object.fromEntries(
-          rooms.map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }]),
-        ),
-        groups: {},
-        projects: {},
-        teachers: {},
-        juries: Object.fromEntries(
-          juries.map((j) => [
-            j.id,
-            { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) },
-          ]),
-        ),
-        unavailability: Object.fromEntries(
-          (unavailabilities as { id: string; teacherId: string; date: string; slots: string[] }[]).map(
-            (u) => [u.teacherId, [{ date: u.date, slots: u.slots, teacherId: u.teacherId }]],
-          ),
-        ),
-        defenseSession: currentSession
-          ? { startDate: currentSession.startDate, endDate: currentSession.endDate, breakDuration: currentSession.breakDuration }
-          : undefined,
-      };
-
-      const result = validateSlotAssignment(jury.projectId, slotKey, context);
-
-      if (!result.isValid) {
-        toast.error(result.issues[0]?.message ?? "Conflit détecté");
-        return;
-      }
-
-      setSchedule((prev) => ({
-        ...prev,
-        [juryId]: { roomId: selectedRoomId, date, time },
-      }));
-      toast.success("Positionné avec succès");
-    }
-  };
-
-  const handleRemove = (juryId: string) => {
-    setSchedule((prev) => {
-      const next = { ...prev };
-      delete next[juryId];
-      return next;
-    });
-  };
-
-  const handleSave = async () => {
-    if (Object.keys(schedule).length === 0) {
-      toast.error("Aucune modification à enregistrer");
-      return;
-    }
-
-    try {
-      await saveSchedule.mutateAsync(
-        Object.fromEntries(
-          Object.entries(schedule).map(([juryId, s]) => [
-            juryId,
-            {
-              id: juryId,
-              title: juries.find((j) => j.id === juryId)?.projectTitle ?? "",
-              date: s.date,
-              time: s.time,
-              roomId: s.roomId,
-            },
-          ]),
-        ),
-      );
-      toast.success("Planning enregistré avec succès");
-    } catch {
-      toast.error("Erreur lors de l'enregistrement");
-    }
-  };
-
-  const handleAutoGenerate = () => {
-    setSchedule({});
-    const newSchedule: Record<string, { roomId: string; date: string; time: string }> = {};
-    let juryIndex = 0;
-    for (const room of rooms) {
-      for (const day of days) {
-        for (const time of timeSlots) {
-          if (juryIndex >= juries.length) break;
-          const jury = juries[juryIndex];
-          newSchedule[jury.id] = { roomId: room.id, date: format(day, "yyyy-MM-dd"), time };
-          juryIndex++;
-        }
-        if (juryIndex >= juries.length) break;
-      }
-      if (juryIndex >= juries.length) break;
-    }
-    setSchedule(newSchedule);
-    toast.success(`Planning généré pour ${juryIndex} jury(s)`);
-  };
-
-  const handlePublish = async () => {
-    if (!currentSession) return;
-    try {
-      await transitionSession.mutateAsync({ id: currentSession.id, toStatus: "active" });
-      toast.success("Session publiée avec succès");
-      setIsPublishDialogOpen(false);
-    } catch {
-      toast.error("Erreur lors de la publication");
-    }
-  };
-
-  const allLoading = sessionsLoading || juriesLoading || roomsLoading || unavailLoading;
   if (allLoading) return <Skeleton className="h-[600px] w-full" />;
 
   if (!sessions?.length) {
@@ -302,100 +117,22 @@ export default function DefenseDesigner() {
 
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-12 gap-6">
-          {/* Sidebar - Jury List */}
-          <Card className="col-span-3 h-[calc(100vh-12rem)] flex flex-col">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Users className="size-5" /> À positionner
-                <Badge variant="secondary" className="ml-auto">{filteredJuries.length}</Badge>
-              </CardTitle>
-              <div className="relative mt-2">
-                <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-                <Input
-                  placeholder="Rechercher un jury..."
-                  className="pl-8"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto space-y-3 pt-0">
-              {filteredJuries.map((jury) => (
-                <DraggableJurySlot key={jury.id} jury={jury} />
-              ))}
-              {filteredJuries.length === 0 && (
-                <div className="text-center py-10 text-muted-foreground italic text-sm">
-                  Aucun jury en attente
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Main Content - Calendar */}
-          <div className="col-span-9 space-y-4">
-            <div className="flex items-center gap-4 bg-muted/50 p-4 rounded-xl border">
-              <div className="flex-1 max-w-sm">
-                <RoomSearchSelect
-                  rooms={rooms}
-                  value={selectedRoomId}
-                  onChange={setSelectedRoomId}
-                />
-              </div>
-              <div className="text-sm text-muted-foreground flex items-center gap-2">
-                <CalendarDays className="size-4" />
-                Sélectionnez une salle pour voir son planning
-              </div>
-            </div>
-
-            {selectedRoomId ? (
-              <Card className="overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full border-collapse">
-                    <thead>
-                      <tr className="bg-muted/50">
-                        <th className="p-3 border text-left font-medium text-xs uppercase tracking-wider w-24">Heure</th>
-                        {days.map((day) => (
-                          <th key={day.toISOString()} className="p-3 border text-center font-medium min-w-[200px]">
-                            <div className="text-xs uppercase text-muted-foreground">{format(day, "EEEE", { locale: fr })}</div>
-                            <div className="text-sm">{format(day, "dd MMM", { locale: fr })}</div>
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {timeSlots.map((slot) => (
-                        <tr key={slot}>
-                          <td className="p-3 border font-mono text-sm font-medium bg-muted/20 text-center">{slot}</td>
-                          {days.map((day) => {
-                            const dateStr = format(day, "yyyy-MM-dd");
-                            const scheduledJuryId = Object.keys(schedule).find(
-                              (id) => schedule[id].date === dateStr && schedule[id].time === slot && schedule[id].roomId === selectedRoomId
-                            );
-                            const jury: Jury | null = scheduledJuryId ? juries.find(j => j.id === scheduledJuryId) ?? null : null;
-
-                            return (
-                              <DroppableCalendarCell
-                                key={`${dateStr}|${slot}`}
-                                id={`${dateStr}|${slot}`}
-                                jury={jury}
-                                onRemove={() => jury && handleRemove(jury.id)}
-                              />
-                            );
-                          })}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </Card>
-            ) : (
-              <div className="h-[500px] border-2 border-dashed rounded-3xl flex flex-col items-center justify-center text-muted-foreground gap-4 bg-muted/5">
-                <div className="p-4 rounded-full bg-muted/20">
-                  <MapPin className="size-10 opacity-20" />
-                </div>
-                <p className="text-lg">Veuillez sélectionner une salle pour afficher le planning</p>
-              </div>
-            )}
+          <JurySidebar
+            juries={filteredJuries}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+          <div className="col-span-9">
+            <DefenseCalendar
+              days={days}
+              timeSlots={timeSlots}
+              schedule={schedule}
+              juries={juries}
+              selectedRoomId={selectedRoomId}
+              onRemove={handleRemove}
+              rooms={rooms}
+              onRoomChange={setSelectedRoomId}
+            />
           </div>
         </div>
 
