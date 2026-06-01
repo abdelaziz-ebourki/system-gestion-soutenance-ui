@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface StatsCardProps {
+interface StatsCardProps extends React.HTMLAttributes<HTMLDivElement> {
   label: string;
   value: string | number | null | undefined;
   icon: LucideIcon;
@@ -16,9 +16,10 @@ export function StatsCard({
   icon: Icon,
   loading,
   valueClassName = "text-2xl font-bold",
+  ...props
 }: StatsCardProps) {
   return (
-    <Card>
+    <Card {...props}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{label}</CardTitle>
         <Icon className="size-4 text-muted-foreground" />

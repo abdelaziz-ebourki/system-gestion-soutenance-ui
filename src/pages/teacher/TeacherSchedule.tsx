@@ -83,19 +83,19 @@ export default function TeacherSchedule() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Mon planning</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold tracking-tight" data-testid="teacher-schedule-header">Mon planning</h1>
+        <p className="text-muted-foreground" data-testid="teacher-schedule-description">
           Voici le planning des soutenances auxquelles vous participez.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatsCard label="Soutenances à venir" value={upcomingCount} icon={CalendarDays} />
-        <StatsCard label="Rôles de jury" value={schedule.length - supervisorCount} icon={ShieldCheck} />
-        <StatsCard label="Encadrements" value={supervisorCount} icon={Timer} />
+        <StatsCard label="Soutenances à venir" value={upcomingCount} icon={CalendarDays} data-testid="teacher-schedule-stats-upcoming" />
+        <StatsCard label="Rôles de jury" value={schedule.length - supervisorCount} icon={ShieldCheck} data-testid="teacher-schedule-stats-jury" />
+        <StatsCard label="Encadrements" value={supervisorCount} icon={Timer} data-testid="teacher-schedule-stats-supervisor" />
       </div>
 
-      <Card >
+      <Card data-testid="teacher-schedule-table-card">
         <CardHeader>
           <CardTitle>Planning détaillé</CardTitle>
           <CardDescription>
@@ -118,7 +118,7 @@ export default function TeacherSchedule() {
       {scheduled.length > 0 ? (
         <div className="grid gap-4 lg:grid-cols-2">
           {scheduled.map((defense) => (
-            <Card key={defense.id} >
+            <Card key={defense.id} data-testid={`teacher-schedule-card-${defense.id}`}>
               <CardContent className="flex items-start justify-between gap-4 p-5">
                 <div>
                   <p className="font-medium">{defense.projectTitle}</p>
@@ -144,7 +144,7 @@ export default function TeacherSchedule() {
           ))}
         </div>
       ) : (
-        <div className="py-6 text-center text-sm text-muted-foreground">
+        <div className="py-6 text-center text-sm text-muted-foreground" data-testid="teacher-schedule-empty">
           Aucune soutenance programmée pour la période sélectionnée.
         </div>
       )}

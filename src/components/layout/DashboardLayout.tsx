@@ -58,16 +58,16 @@ export default function DashboardLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b px-4">
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 border-b px-4" data-testid="dashboard-layout-header">
           <div className="flex items-center gap-2">
-            <SidebarTrigger className="-ml-1" />
+            <SidebarTrigger className="-ml-1" data-testid="dashboard-layout-sidebar-trigger" />
             <Separator orientation="vertical" className="mr-2" />
             <Breadcrumb>
-              <BreadcrumbList>
+              <BreadcrumbList data-testid="dashboard-layout-breadcrumb">
                 {breadcrumbs.map((crumb, index) => (
                   <Fragment key={crumb.path}>
                     {index > 0 && <BreadcrumbSeparator />}
-                    <BreadcrumbItem>
+                    <BreadcrumbItem data-testid={`dashboard-layout-breadcrumb-item-${index}`}>
                       {crumb.isLast ? (
                         <BreadcrumbPage className="font-heading font-bold uppercase tracking-widest text-xs text-muted-foreground">
                           {crumb.label}

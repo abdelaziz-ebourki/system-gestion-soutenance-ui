@@ -42,20 +42,20 @@ export default function TeacherEvaluations() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Évaluations</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold tracking-tight" data-testid="teacher-evaluations-header">Évaluations</h1>
+        <p className="text-muted-foreground" data-testid="teacher-evaluations-description">
           Gérez les notes et les appréciations des soutenances.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatsCard label="À compléter" value={pendingEvaluations.length} icon={PencilLine} />
-        <StatsCard label="Soumises" value={submittedEvaluations.length} icon={FileCheck2} />
-        <StatsCard label="Commentaires" value={evaluations.filter((e) => e.comment).length} icon={MessageSquareText} />
+        <StatsCard label="À compléter" value={pendingEvaluations.length} icon={PencilLine} data-testid="teacher-evaluations-stats-pending" />
+        <StatsCard label="Soumises" value={submittedEvaluations.length} icon={FileCheck2} data-testid="teacher-evaluations-stats-submitted" />
+        <StatsCard label="Commentaires" value={evaluations.filter((e) => e.comment).length} icon={MessageSquareText} data-testid="teacher-evaluations-stats-comments" />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <Card>
+        <Card data-testid="teacher-evaluations-pending-card">
           <CardHeader>
             <CardTitle>Évaluations en attente</CardTitle>
             <CardDescription>
@@ -76,7 +76,7 @@ export default function TeacherEvaluations() {
               </div>
             ) : (
               pendingEvaluations.map((evaluation) => (
-                <div key={evaluation.id} className="rounded-lg border p-4">
+                <div key={evaluation.id} className="rounded-lg border p-4" data-testid={`teacher-evaluations-pending-item-${evaluation.id}`}>
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="font-medium">{evaluation.projectTitle}</p>
@@ -89,7 +89,7 @@ export default function TeacherEvaluations() {
                     </Badge>
                   </div>
                   <div className="mt-4">
-                    <Button onClick={() => form.openEdit(evaluation)}>
+                    <Button onClick={() => form.openEdit(evaluation)} data-testid={`teacher-evaluations-pending-btn-${evaluation.id}`}>
                       Saisir l'évaluation
                     </Button>
                   </div>
@@ -99,7 +99,7 @@ export default function TeacherEvaluations() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card data-testid="teacher-evaluations-submitted-card">
           <CardHeader>
             <CardTitle>Historique récent</CardTitle>
             <CardDescription>
@@ -109,7 +109,7 @@ export default function TeacherEvaluations() {
           <CardContent className="space-y-3">
             {submittedEvaluations.length > 0 ? (
               submittedEvaluations.map((evaluation) => (
-              <div key={evaluation.id} className="rounded-lg border p-4">
+              <div key={evaluation.id} className="rounded-lg border p-4" data-testid={`teacher-evaluations-submitted-item-${evaluation.id}`}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-medium">{evaluation.projectTitle}</p>
@@ -141,10 +141,10 @@ export default function TeacherEvaluations() {
         open={form.isDialogOpen}
         onOpenChange={form.setIsDialogOpen}
       >
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg" data-testid="teacher-evaluations-dialog">
           <DialogHeader>
-            <DialogTitle>Compléter une évaluation</DialogTitle>
-            <DialogDescription>
+            <DialogTitle data-testid="teacher-evaluations-dialog-title">Compléter une évaluation</DialogTitle>
+            <DialogDescription data-testid="teacher-evaluations-dialog-description">
               Enregistrez votre note et votre appréciation pour ce dossier.
             </DialogDescription>
           </DialogHeader>
@@ -152,6 +152,7 @@ export default function TeacherEvaluations() {
             id="teacher-evaluation-form"
             className="grid gap-4"
             onSubmit={form.handleSubmit}
+            data-testid="teacher-evaluations-form"
           >
             <div className="rounded-lg border bg-secondary/40 p-4">
               <p className="font-medium">{form.selected?.projectTitle}</p>
@@ -171,6 +172,7 @@ export default function TeacherEvaluations() {
                 onChange={(event) => form.setFormData({ ...form.formData, score: Number(event.target.value) })}
                 required
                 error={form.fieldErrors?.score}
+                data-testid="teacher-evaluations-score"
               />
             </div>
             <div className="grid gap-2">
@@ -181,6 +183,7 @@ export default function TeacherEvaluations() {
                 onChange={(event) => form.setFormData({ ...form.formData, comment: event.target.value })}
                 className="min-h-28"
                 required
+                data-testid="teacher-evaluations-comment"
               />
             </div>
           </form>
@@ -190,6 +193,7 @@ export default function TeacherEvaluations() {
               form="teacher-evaluation-form"
               isLoading={form.isPending}
               loadingText="Enregistrement..."
+              data-testid="teacher-evaluations-save"
             >
               Enregistrer
             </Button>

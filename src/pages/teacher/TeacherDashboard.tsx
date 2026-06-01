@@ -37,21 +37,21 @@ export default function TeacherDashboard() {
       <section className="rounded-lg border bg-card">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.4fr_1fr] md:px-8">
           <div className="space-y-4">
-            <Badge className="w-fit" variant="secondary">
+            <Badge className="w-fit" variant="secondary" data-testid="teacher-dashboard-hero-badge">
               Session de soutenance
             </Badge>
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tight md:text-4xl">
+              <h1 className="text-3xl font-bold tracking-tight md:text-4xl" data-testid="teacher-dashboard-hero-title">
                 Un espace enseignant clair pour suivre jurys, planning et notes.
               </h1>
-              <p className="max-w-2xl text-sm text-muted-foreground md:text-base">
+              <p className="max-w-2xl text-sm text-muted-foreground md:text-base" data-testid="teacher-dashboard-hero-description">
                 Retrouvez vos passages à venir, les évaluations à rendre et vos
                 indisponibilités depuis un point d'entrée unique.
               </p>
             </div>
           </div>
 
-          <Card className="bg-secondary/40 shadow-none">
+          <Card className="bg-secondary/40 shadow-none" data-testid="teacher-dashboard-quick-view">
             <CardHeader className="pb-3">
               <CardTitle className="text-base">Vue rapide</CardTitle>
               <CardDescription>
@@ -89,14 +89,14 @@ export default function TeacherDashboard() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatsCard label="Soutenances à venir" value={stats?.upcomingDefenses} icon={Clock3} loading={isLoading} />
-        <StatsCard label="Évaluations en attente" value={stats?.pendingEvaluations} icon={FileCheck2} loading={isLoading} />
-        <StatsCard label="Créneaux bloqués" value={stats?.declaredUnavailabilitySlots} icon={ClipboardCheck} loading={isLoading} />
-        <StatsCard label="Jurys assignés" value={stats?.juryAssignments} icon={ShieldCheck} loading={isLoading} />
+        <StatsCard label="Soutenances à venir" value={stats?.upcomingDefenses} icon={Clock3} loading={isLoading} data-testid="teacher-dashboard-stats-upcoming" />
+        <StatsCard label="Évaluations en attente" value={stats?.pendingEvaluations} icon={FileCheck2} loading={isLoading} data-testid="teacher-dashboard-stats-pending" />
+        <StatsCard label="Créneaux bloqués" value={stats?.declaredUnavailabilitySlots} icon={ClipboardCheck} loading={isLoading} data-testid="teacher-dashboard-stats-unavailability" />
+        <StatsCard label="Jurys assignés" value={stats?.juryAssignments} icon={ShieldCheck} loading={isLoading} data-testid="teacher-dashboard-stats-juries" />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card >
+        <Card data-testid="teacher-dashboard-upcoming-card">
           <CardHeader>
             <CardTitle>Prochaines soutenances</CardTitle>
             <CardDescription>
@@ -106,7 +106,7 @@ export default function TeacherDashboard() {
           <CardContent className="space-y-3">
             {upcomingDefenses.length > 0 ? (
               upcomingDefenses.map((defense) => (
-              <div key={defense.id} className="rounded-lg border p-4">
+              <div key={defense.id} className="rounded-lg border p-4" data-testid={`teacher-dashboard-upcoming-item-${defense.id}`}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-medium">{defense.projectTitle}</p>
@@ -132,7 +132,7 @@ export default function TeacherDashboard() {
           </CardContent>
         </Card>
 
-        <Card >
+        <Card data-testid="teacher-dashboard-evaluations-card">
           <CardHeader>
             <CardTitle>Évaluations à rendre</CardTitle>
             <CardDescription>
@@ -141,7 +141,7 @@ export default function TeacherDashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             {pendingEvaluations.map((evaluation) => (
-              <div key={evaluation.id} className="rounded-lg border p-4">
+              <div key={evaluation.id} className="rounded-lg border p-4" data-testid={`teacher-dashboard-evaluations-item-${evaluation.id}`}>
                 <p className="font-medium">{evaluation.projectTitle}</p>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {evaluation.studentNames.join(", ")}

@@ -16,25 +16,25 @@ export default function Profile() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Mon Profil</h1>
-        <p className="text-muted-foreground">Informations personnelles de votre compte.</p>
+        <h1 className="text-3xl font-bold tracking-tight" data-testid="profile-header">Mon Profil</h1>
+        <p className="text-muted-foreground" data-testid="profile-description">Informations personnelles de votre compte.</p>
       </div>
 
-      <Card>
+      <Card data-testid="profile-card">
         <CardHeader>
           <CardTitle>Identité</CardTitle>
           <CardDescription>Les informations associées à votre compte.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-2">
+          <div className="grid gap-2" data-testid="profile-field-name">
             <p className="text-sm font-medium">Nom complet</p>
             <p className="text-sm text-muted-foreground">{user.firstName} {user.lastName}</p>
           </div>
-          <div className="grid gap-2">
+          <div className="grid gap-2" data-testid="profile-field-email">
             <p className="text-sm font-medium">Email</p>
             <p className="text-sm text-muted-foreground">{user.email}</p>
           </div>
-          <div className="grid gap-2">
+          <div className="grid gap-2" data-testid="profile-field-role">
             <p className="text-sm font-medium">Rôle</p>
             <p className="text-sm text-muted-foreground">{ROLE_LABELS[user.role] ?? user.role}</p>
           </div>

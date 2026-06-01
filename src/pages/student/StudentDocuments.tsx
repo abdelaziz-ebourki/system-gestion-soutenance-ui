@@ -107,19 +107,19 @@ export default function StudentDocuments() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Documents</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold tracking-tight" data-testid="student-documents-header">Documents</h1>
+        <p className="text-muted-foreground" data-testid="student-documents-description">
           Suivez les dépôts attendus, les échéances et l'état de validation.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatsCard label="Documents attendus" value={documents.length} icon={FileText} />
-        <StatsCard label="Validés" value={validatedCount} icon={FileCheck2} />
-        <StatsCard label="Échéances ouvertes" value={missingCount} icon={CalendarClock} />
+        <StatsCard label="Documents attendus" value={documents.length} icon={FileText} data-testid="student-documents-stats-total" />
+        <StatsCard label="Validés" value={validatedCount} icon={FileCheck2} data-testid="student-documents-stats-validated" />
+        <StatsCard label="Échéances ouvertes" value={missingCount} icon={CalendarClock} data-testid="student-documents-stats-missing" />
       </div>
 
-      <Card>
+      <Card data-testid="student-documents-list-card">
         <CardHeader>
           <CardTitle>Suivi des pièces</CardTitle>
           <CardDescription>
@@ -147,7 +147,7 @@ export default function StudentDocuments() {
               const Icon = documentIcons[document.type] || FileText;
 
               return (
-                <div key={document.id} className="rounded-lg border p-4">
+                <div key={document.id} className="rounded-lg border p-4" data-testid={`student-documents-item-${document.id}`}>
                   <div className="flex flex-wrap items-center justify-between gap-4">
                     <div className="flex items-start gap-3">
                       <div className="rounded-lg bg-secondary p-3 text-primary">
@@ -185,6 +185,7 @@ export default function StudentDocuments() {
                               const f = e.target.files?.[0] ?? null;
                               setFiles((prev) => ({ ...prev, [document.id]: f }));
                             }}
+                            data-testid={`student-documents-file-input-${document.id}`}
                           />
                           {files[document.id] && (
                             <p className="text-xs text-muted-foreground mt-1 truncate max-w-full">
@@ -196,6 +197,7 @@ export default function StudentDocuments() {
                           onClick={() => handleUpload(document)}
                           isLoading={uploadingId === document.id}
                           loadingText="Envoi..."
+                          data-testid={`student-documents-upload-btn-${document.id}`}
                         >
                           <Upload className="mr-2 size-4" />
                           Déposer

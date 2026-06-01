@@ -72,8 +72,8 @@ export default function NotificationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Notifications</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight" data-testid="notifications-header">Notifications</h1>
+          <p className="text-muted-foreground" data-testid="notifications-subtitle">
             {unreadCount > 0
               ? `${unreadCount} notification${unreadCount > 1 ? "s" : ""} non lue${unreadCount > 1 ? "s" : ""}`
               : "Toutes les notifications sont lues"}
@@ -85,6 +85,7 @@ export default function NotificationsPage() {
             size="sm"
             onClick={handleMarkAllRead}
             isLoading={markAllReadMutation.isPending}
+            data-testid="notifications-mark-all-read"
           >
             <CheckCheck className="mr-2 size-4" />
             Tout marquer comme lu
@@ -92,7 +93,7 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      <Card>
+      <Card data-testid="notifications-card">
         {isLoading ? (
           <CardContent>
             <div className="space-y-3">
@@ -108,7 +109,7 @@ export default function NotificationsPage() {
             </div>
           </CardContent>
         ) : notifications.length === 0 ? (
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+          <CardContent className="flex flex-col items-center justify-center py-16 text-center" data-testid="notifications-empty">
             <BellIcon className="mb-4 size-12 text-muted-foreground/50" />
             <p className="text-lg font-medium">Aucune notification</p>
             <p className="text-sm text-muted-foreground">
@@ -126,6 +127,7 @@ export default function NotificationsPage() {
                     "flex items-start gap-4 px-6 py-4 transition hover:bg-muted/30",
                     !notification.read && "bg-muted/20",
                   )}
+                  data-testid={`notifications-item-${notification.id}`}
                 >
                   <div className={cn("rounded-full p-2", typeColors[notification.type])}>
                     <Icon className="size-4" />
@@ -145,7 +147,7 @@ export default function NotificationsPage() {
                   </div>
                   <div className="flex shrink-0 gap-1">
                     {notification.actionLink && (
-                      <Button variant="ghost" size="sm" onClick={() => handleAction(notification)}>
+                      <Button variant="ghost" size="sm" onClick={() => handleAction(notification)} data-testid={`notifications-action-${notification.id}`}>
                         Voir
                       </Button>
                     )}
@@ -156,6 +158,7 @@ export default function NotificationsPage() {
                         className="size-8"
                         onClick={() => handleMarkRead(notification.id)}
                         isLoading={readingId === notification.id}
+                        data-testid={`notifications-mark-read-${notification.id}`}
                       >
                         <CheckCheck className="size-4" />
                       </Button>

@@ -84,10 +84,10 @@ export default function TeacherUnavailability() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight" data-testid="teacher-unavailability-header">
             Mes indisponibilités
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground" data-testid="teacher-unavailability-description">
             Gérez vos créneaux d'indisponibilité pour la planification des
             soutenances.
           </p>
@@ -96,6 +96,7 @@ export default function TeacherUnavailability() {
           onClick={handleSave}
           isLoading={saveMutation.isPending}
           loadingText="Enregistrement..."
+          data-testid="teacher-unavailability-save"
         >
           <Save className="mr-2 size-4" />
           Enregistrer
@@ -103,8 +104,8 @@ export default function TeacherUnavailability() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatsCard label="Créneaux bloqués" value={totalBlockedSlots} icon={Ban} />
-        <StatsCard label="Jours concernés" value={Object.keys(unavailability.slotsByDate).length} icon={CalendarClock} />
+        <StatsCard label="Créneaux bloqués" value={totalBlockedSlots} icon={Ban} data-testid="teacher-unavailability-stats-blocked" />
+        <StatsCard label="Jours concernés" value={Object.keys(unavailability.slotsByDate).length} icon={CalendarClock} data-testid="teacher-unavailability-stats-days" />
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Rappel</CardTitle>

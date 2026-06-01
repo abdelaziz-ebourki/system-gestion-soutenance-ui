@@ -49,8 +49,8 @@ export default function StudentGroup() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Mon groupe</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-3xl font-bold tracking-tight" data-testid="student-group-header">Mon groupe</h1>
+        <p className="text-muted-foreground" data-testid="student-group-description">
           Consultez la composition de votre groupe et les informations du
           projet.
         </p>
@@ -63,19 +63,21 @@ export default function StudentGroup() {
           icon={Users}
           loading={isLoading}
           valueClassName="text-xl font-semibold"
+          data-testid="student-group-stats-name"
         />
-        <StatsCard label="Membres" value={group?.members.length || 0} icon={UserRound} loading={isLoading} />
+        <StatsCard label="Membres" value={group?.members.length || 0} icon={UserRound} loading={isLoading} data-testid="student-group-stats-members" />
         <StatsCard
           label="Encadrant"
           value={group?.supervisorName || "En attente"}
           icon={FolderKanban}
           loading={isLoading}
           valueClassName="text-xl font-semibold"
+          data-testid="student-group-stats-supervisor"
         />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card>
+        <Card data-testid="student-group-project-card">
           <CardHeader>
             <CardTitle>Projet affecté</CardTitle>
             <CardDescription>
@@ -100,7 +102,7 @@ export default function StudentGroup() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card data-testid="student-group-members-card">
           <CardHeader>
             <CardTitle>Membres du groupe</CardTitle>
             <CardDescription>
@@ -109,7 +111,7 @@ export default function StudentGroup() {
           </CardHeader>
           <CardContent className="space-y-3">
             {group?.members.map((member) => (
-              <div key={member.id} className="rounded-lg border p-4">
+              <div key={member.id} className="rounded-lg border p-4" data-testid={`student-group-member-${member.id}`}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-medium">{member.fullName}</p>
@@ -135,7 +137,7 @@ export default function StudentGroup() {
         </Card>
       </div>
 
-      <Card>
+      <Card data-testid="student-group-creation-card">
         <CardHeader>
           <CardTitle>Fenêtre de création des groupes</CardTitle>
           <CardDescription>
@@ -154,6 +156,7 @@ export default function StudentGroup() {
                 onClick={handleCreateGroup}
                 isLoading={isSubmitting}
                 disabled={Boolean(group)}
+                data-testid="student-group-create-btn"
               >
                 <Plus className="mr-2 size-4" />
                 Créer un groupe
@@ -172,6 +175,7 @@ export default function StudentGroup() {
                 <div
                   key={availableGroup.id}
                   className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4"
+                  data-testid={`student-group-available-${availableGroup.id}`}
                 >
                   <div>
                     <p className="font-medium">{availableGroup.groupName}</p>
@@ -184,6 +188,7 @@ export default function StudentGroup() {
                     onClick={() => handleJoinGroup(availableGroup.id)}
                     isLoading={isSubmitting}
                     disabled={!workspace.isGroupCreationOpen}
+                    data-testid={`student-group-join-btn-${availableGroup.id}`}
                   >
                     Rejoindre
                   </Button>

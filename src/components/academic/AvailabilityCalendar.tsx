@@ -114,7 +114,7 @@ export default function AvailabilityCalendar({
   };
 
   return (
-    <Card className="border-border shadow bg-card overflow-hidden rounded-lg">
+    <Card className="border-border shadow bg-card overflow-hidden rounded-lg" data-testid="teacher-availability-calendar">
       <div className="grid lg:grid-cols-3 border-b border-border">
         <div className="lg:col-span-2 p-10">
           <div className="flex items-center justify-between mb-10">
@@ -123,7 +123,7 @@ export default function AvailabilityCalendar({
                 <CalendarIcon className="size-7" />
               </div>
               <div>
-                <h2 className="text-2xl font-heading font-bold text-foreground">
+                <h2 className="text-2xl font-heading font-bold text-foreground" data-testid="teacher-availability-title">
                   Calendrier des Indisponibilités
                 </h2>
                 <p className="text-muted-foreground text-sm">
@@ -138,10 +138,11 @@ export default function AvailabilityCalendar({
                 size="icon"
                 className="h-10 w-10 rounded-full hover:bg-muted"
                 onClick={() => changeMonth(-1)}
+                data-testid="teacher-availability-prev-month"
               >
                 <ChevronLeft className="size-6 text-muted-foreground" />
               </Button>
-              <span className="font-heading font-bold text-xl px-4 text-foreground min-w-37 text-center">
+              <span className="font-heading font-bold text-xl px-4 text-foreground min-w-37 text-center" data-testid="teacher-availability-month-label">
                 {monthNames[viewMonth]} {viewYear}
               </span>
               <Button
@@ -149,6 +150,7 @@ export default function AvailabilityCalendar({
                 size="icon"
                 className="h-10 w-10 rounded-full hover:bg-muted"
                 onClick={() => changeMonth(1)}
+                data-testid="teacher-availability-next-month"
               >
                 <ChevronRight className="size-6 text-muted-foreground" />
               </Button>
@@ -176,6 +178,7 @@ export default function AvailabilityCalendar({
                 <div
                   key={`${day || 0}-${i}`}
                   onClick={() => day !== 0 && setActiveDay(day)}
+                  data-testid={day !== 0 ? `teacher-availability-day-${dateKey}` : undefined}
                   className={`
                     relative aspect-square rounded-lg border transition-all cursor-pointer p-3 group
                     ${day === 0 ? "invisible" : ""}
@@ -221,7 +224,7 @@ export default function AvailabilityCalendar({
         </div>
 
         {/* Side Panel */}
-        <div className="bg-muted/30 p-8 space-y-8 border-l border-border flex flex-col h-full">
+        <div className="bg-muted/30 p-8 space-y-8 border-l border-border flex flex-col h-full" data-testid="teacher-availability-side-panel">
           <div className="space-y-1">
             <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
               Détails : {activeDay} {monthNames[viewMonth]}
@@ -249,6 +252,7 @@ export default function AvailabilityCalendar({
                     !hasSession && onToggleSlot(activeDateKey, slot)
                   }
                   disabled={hasSession}
+                  data-testid={`teacher-availability-slot-${slot.replace(/:/g, "h").replace(/[\s-]+/g, "-")}`}
                   className={`
 										w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left
 										${
@@ -300,6 +304,7 @@ export default function AvailabilityCalendar({
               <Button
                 onClick={onSave}
                 className="w-full rounded-lg h-14 font-bold shadow transition-all hover:scale-105 active:scale-95 gap-2"
+                data-testid="teacher-availability-save"
               >
                 <CheckCircle2 className="size-5" />
                 Valider mes choix
