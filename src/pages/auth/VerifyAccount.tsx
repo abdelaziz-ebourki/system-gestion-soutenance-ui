@@ -82,7 +82,7 @@ export default function VerifyAccount() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleVerify} className="space-y-4">
+          <form onSubmit={handleVerify} className="space-y-4" data-testid="verify-account-form">
             <Field>
               <FieldLabel>Nouveau mot de passe</FieldLabel>
               <PasswordInput
@@ -90,6 +90,7 @@ export default function VerifyAccount() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 error={fieldErrors?.password}
+                data-testid="verify-account-password-input"
               />
               {passwordResult && (
                 <div className="mt-2 space-y-1">
@@ -125,6 +126,7 @@ export default function VerifyAccount() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 error={fieldErrors?.confirmPassword}
+                data-testid="verify-account-confirm-input"
               />
             </Field>
             <Button
@@ -132,6 +134,7 @@ export default function VerifyAccount() {
               type="submit"
               isLoading={isSubmitting}
               loadingText="Activation..."
+              data-testid="verify-account-submit-button"
             >
               Activer mon compte
             </Button>

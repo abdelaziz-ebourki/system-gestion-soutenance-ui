@@ -67,13 +67,13 @@ export default function Departments() {
   ], [crud, teachers]);
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-20" data-testid="admin-departments-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Départements</h1>
           <p className="text-muted-foreground">Structure académique.</p>
         </div>
-        <Button onClick={crud.openCreate}>
+        <Button onClick={crud.openCreate} data-testid="admin-departments-add-button">
           <Plus className="size-4" /> Nouveau Département
         </Button>
       </div>

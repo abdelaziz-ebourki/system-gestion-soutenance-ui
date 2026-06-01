@@ -80,7 +80,7 @@ export default function ResetPassword() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleReset} className="space-y-4">
+          <form onSubmit={handleReset} className="space-y-4" data-testid="reset-password-form">
             <Field>
               <FieldLabel>Nouveau mot de passe</FieldLabel>
               <PasswordInput
@@ -88,6 +88,7 @@ export default function ResetPassword() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 error={fieldErrors?.password}
+                data-testid="reset-password-input"
               />
               {passwordResult && (
                 <div className="mt-2 space-y-1">
@@ -123,6 +124,7 @@ export default function ResetPassword() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 error={fieldErrors?.confirmPassword}
+                data-testid="reset-password-confirm-input"
               />
             </Field>
             <Button
@@ -130,6 +132,7 @@ export default function ResetPassword() {
               type="submit"
               isLoading={isSubmitting}
               loadingText="Réinitialisation..."
+              data-testid="reset-password-submit-button"
             >
               Réinitialiser le mot de passe
             </Button>

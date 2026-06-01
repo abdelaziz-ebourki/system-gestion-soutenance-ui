@@ -42,7 +42,7 @@ export default function ForgotPassword() {
   if (sent) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-md">
+        <Card className="w-full max-w-md" data-testid="forgot-password-success-card">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
               <Mail className="h-6 w-6 text-primary" />
@@ -74,7 +74,7 @@ export default function ForgotPassword() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" data-testid="forgot-password-form">
             <Field>
               <FieldLabel>Email académique</FieldLabel>
               <Input
@@ -84,6 +84,7 @@ export default function ForgotPassword() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 error={fieldErrors?.email}
+                data-testid="forgot-password-email-input"
               />
             </Field>
             <Button
@@ -91,6 +92,7 @@ export default function ForgotPassword() {
               type="submit"
               isLoading={isSubmitting}
               loadingText="Envoi en cours..."
+              data-testid="forgot-password-submit-button"
             >
               Envoyer le lien
             </Button>

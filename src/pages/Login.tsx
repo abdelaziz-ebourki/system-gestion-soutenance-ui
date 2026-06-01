@@ -107,7 +107,7 @@ export default function Login() {
               Veuillez entrer vos identifiants pour accéder à votre espace
             </CardDescription>
           </CardHeader>
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleLogin} data-testid="login-form">
             <CardContent className="grid gap-4">
               <div className="relative py-4">
                 <div className="absolute inset-0 flex items-center">
@@ -132,6 +132,7 @@ export default function Login() {
                     required
                     disabled={isLoading}
                     error={fieldErrors?.email}
+                    data-testid="login-email-input"
                   />
                 </Field>
                 <Field>
@@ -144,6 +145,7 @@ export default function Login() {
                     required
                     disabled={isLoading}
                     error={fieldErrors?.password}
+                    data-testid="login-password-input"
                   />
                 </Field>
               </FieldGroup>
@@ -163,6 +165,7 @@ export default function Login() {
                 variant="default"
                 isLoading={isLoading}
                 loadingText="Connexion en cours..."
+                data-testid="login-submit-button"
               >
                 Se connecter
               </Button>

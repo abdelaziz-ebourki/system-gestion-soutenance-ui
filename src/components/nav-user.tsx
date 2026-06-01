@@ -77,10 +77,11 @@ export function NavUser({
       <SidebarMenuItem>
         <AlertDialog>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+                <DropdownMenuTrigger asChild>
               <SidebarMenuButton
                 size="lg"
                 className="aria-expanded:bg-muted"
+                data-testid="nav-user-trigger"
               >
                 <Avatar className="size-8 rounded-lg grayscale">
                   <AvatarImage src={user.avatar} alt={displayName} />
@@ -125,11 +126,11 @@ export function NavUser({
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate(ROUTES.SHARED.PROFILE)}>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate(ROUTES.SHARED.PROFILE)} data-testid="nav-user-profile">
                   <CircleUserRoundIcon className="size-4" />
                   Mon Profil
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate(ROUTES.SHARED.NOTIFICATIONS)}>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => navigate(ROUTES.SHARED.NOTIFICATIONS)} data-testid="nav-user-notifications">
                   <BellIcon className="size-4" />
                   Notifications
                   <UnreadBadge />
@@ -183,14 +184,14 @@ export function NavUser({
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <AlertDialogTrigger asChild>
-                <DropdownMenuItem variant="destructive" className="cursor-pointer">
+                <DropdownMenuItem variant="destructive" className="cursor-pointer" data-testid="nav-user-logout-trigger">
                   <LogOutIcon className="size-4" />
                   Se déconnecter
                 </DropdownMenuItem>
               </AlertDialogTrigger>
             </DropdownMenuContent>
           </DropdownMenu>
-          <AlertDialogContent>
+          <AlertDialogContent data-testid="nav-user-logout-dialog">
             <AlertDialogHeader>
               <AlertDialogTitle>Déconnexion</AlertDialogTitle>
               <AlertDialogDescription>
@@ -199,8 +200,8 @@ export function NavUser({
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction variant="destructive" onClick={handleLogout}>
+              <AlertDialogCancel data-testid="nav-user-logout-cancel">Annuler</AlertDialogCancel>
+              <AlertDialogAction variant="destructive" onClick={handleLogout} data-testid="nav-user-logout-confirm">
                 Se déconnecter
               </AlertDialogAction>
             </AlertDialogFooter>

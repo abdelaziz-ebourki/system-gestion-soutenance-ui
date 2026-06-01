@@ -90,7 +90,7 @@ export default function Rooms() {
   }
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-20" data-testid="admin-rooms-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Salles</h1>
@@ -98,7 +98,7 @@ export default function Rooms() {
         </div>
         <div className="flex gap-2">
           <BulkImportDialog entity="room" triggerButtonText="Importation en masse" onSuccess={refetch} />
-          <Button onClick={crud.openCreate}><Plus className="size-4" />Nouvelle Salle</Button>
+          <Button onClick={crud.openCreate} data-testid="admin-rooms-add-button"><Plus className="size-4" />Nouvelle Salle</Button>
         </div>
       </div>
 

@@ -14,7 +14,7 @@ export default function Configuration() {
   const deleteLevel = useDeleteLevel();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="admin-configuration-page">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Configuration</h1>
         <p className="text-muted-foreground">

@@ -272,6 +272,7 @@ function DataTableToolbar() {
             table.setPageIndex(0);
           }}
           className="max-w-sm"
+          data-testid="data-table-search"
         />
       )}
       {filters?.map((f) => {
@@ -478,7 +479,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
   return (
     <DataTableProvider {...props}>
       <DataTableToolbar />
-      <div className="rounded-md border overflow-x-auto">
+      <div className="rounded-md border overflow-x-auto" data-testid="data-table">
         <Table>
           <DataTableHeader />
           <DataTableBody />

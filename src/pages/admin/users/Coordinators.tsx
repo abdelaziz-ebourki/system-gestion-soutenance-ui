@@ -76,7 +76,7 @@ export default function Coordinators() {
   ], [crud]);
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-20" data-testid="admin-coordinators-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Coordinateurs</h1>
@@ -84,7 +84,7 @@ export default function Coordinators() {
         </div>
         <div className="flex gap-2">
           <BulkImportDialog entity="coordinator" triggerButtonText="Importation en masse" onSuccess={refetch} />
-          <Button onClick={crud.openCreate}>
+          <Button onClick={crud.openCreate} data-testid="admin-coordinators-add-button">
             <Plus className="size-4" /> Nouveau Coordinateur
           </Button>
         </div>

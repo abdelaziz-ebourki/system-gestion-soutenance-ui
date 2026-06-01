@@ -30,7 +30,7 @@ export function DeleteAlert({
 }: DeleteAlertProps) {
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
+      <AlertDialogContent data-testid="delete-alert">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription>
@@ -53,6 +53,7 @@ export function DeleteAlert({
             }}
             variant="destructive"
             isLoading={isPending}
+            data-testid="delete-alert-confirm"
           >
             Supprimer
           </AlertDialogAction>

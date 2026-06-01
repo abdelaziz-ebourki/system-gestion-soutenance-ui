@@ -97,7 +97,7 @@ export default function Teachers() {
   }
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-20" data-testid="admin-teachers-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Enseignants</h1>
@@ -105,7 +105,7 @@ export default function Teachers() {
         </div>
         <div className="flex gap-2">
           <BulkImportDialog entity="teacher" triggerButtonText="Importation en masse" onSuccess={refetch} />
-          <Button onClick={crud.openCreate}>
+          <Button onClick={crud.openCreate} data-testid="admin-teachers-add-button">
             <Plus className="size-4" /> Nouvel Enseignant
           </Button>
         </div>

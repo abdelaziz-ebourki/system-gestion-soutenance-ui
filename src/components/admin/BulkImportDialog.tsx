@@ -167,12 +167,12 @@ export function BulkImportDialog({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" data-testid="bulk-import-trigger">
           <FileUp className="mr-2 size-4" />
           {triggerButtonText}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-125">
+      <DialogContent className="sm:max-w-125" data-testid="bulk-import-dialog">
         <DialogHeader>
           <DialogTitle>Importation en masse : {entity}</DialogTitle>
           <DialogDescription>

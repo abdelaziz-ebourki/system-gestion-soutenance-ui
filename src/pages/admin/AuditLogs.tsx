@@ -16,7 +16,7 @@ export default function AuditLogs() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="admin-audit-logs-page">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Journal d'audit</h1>
         <p className="text-muted-foreground">

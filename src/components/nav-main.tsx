@@ -52,7 +52,7 @@ export function NavMain({
                     asChild
                     isActive={isItemActive}
                   >
-                    <Link to={item.url}>
+                    <Link to={item.url} data-testid={`nav-${item.url.replace(/\//g, '-').replace(/^-/, '')}`}>
                       {item.icon}
                       <span>{item.title}</span>
                     </Link>
@@ -83,9 +83,9 @@ export function NavMain({
                             asChild
                             isActive={location.pathname === subItem.url}
                           >
-                            <Link to={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </Link>
+<Link to={subItem.url} data-testid={`nav-${subItem.url.replace(/\//g, '-').replace(/^-/, '')}`}>
+                            <span>{subItem.title}</span>
+                          </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       ))}
