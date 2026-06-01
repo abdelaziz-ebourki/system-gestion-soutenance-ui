@@ -22,11 +22,11 @@ export default function JurySidebar({
   onSearchChange,
 }: JurySidebarProps) {
   return (
-    <Card className="col-span-3 h-[calc(100vh-12rem)] flex flex-col">
+    <Card className="col-span-3 h-[calc(100vh-12rem)] flex flex-col" data-testid="coord-designer-jury-sidebar">
       <CardHeader className="pb-3">
 <CardTitle className="text-lg flex items-center gap-2">
   <Users className="size-5" /> À positionner
-  <Badge variant="secondary" className="ml-auto">{juries.length}</Badge>
+  <Badge variant="secondary" className="ml-auto" data-testid="coord-designer-jury-count">{juries.length}</Badge>
 </CardTitle>
         <div className="relative mt-2">
           <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
@@ -35,10 +35,11 @@ export default function JurySidebar({
             className="pl-8"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
+            data-testid="coord-designer-jury-search"
           />
         </div>
       </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto space-y-3 pt-0">
+      <CardContent className="flex-1 overflow-y-auto space-y-3 pt-0" data-testid="coord-designer-jury-list">
         {juries.map((jury) => (
           <DraggableJurySlot key={jury.id} jury={jury} />
         ))}

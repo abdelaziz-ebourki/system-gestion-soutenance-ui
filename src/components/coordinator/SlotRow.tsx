@@ -66,10 +66,11 @@ export function SlotRow({
               ? "min-h-32 rounded-xl border-2 border-dashed border-border bg-card p-4 transition"
               : "min-h-32 rounded-xl border-2 border-dashed border-border bg-card p-4 transition"
       }
+      data-testid={`coord-slot-${slotKey}`}
     >
       <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>{time}</span>
-        <span>{scheduled ? "Occupé" : "Libre"}</span>
+        <span data-testid={`coord-slot-time-${slotKey}`}>{time}</span>
+        <span data-testid={`coord-slot-status-${slotKey}`}>{scheduled ? "Occupé" : "Libre"}</span>
       </div>
 
       {scheduled && (
@@ -88,6 +89,7 @@ export function SlotRow({
                 onRemove(slotKey);
               }}
               className="rounded-full p-1 text-primary-foreground/70 transition hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              data-testid={`coord-slot-remove-${slotKey}`}
             >
               <X className="size-4" />
             </button>

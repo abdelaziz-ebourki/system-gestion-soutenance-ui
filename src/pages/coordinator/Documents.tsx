@@ -135,7 +135,7 @@ export default function Documents() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="coord-documents-page">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Génération de documents</h1>
         <p className="text-muted-foreground">
@@ -145,7 +145,7 @@ export default function Documents() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {DOC_TYPES.map((doc) => (
-          <Card key={doc.id} className="flex flex-col">
+          <Card key={doc.id} className="flex flex-col" data-testid={`coord-documents-card-${doc.id}`}>
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className={`rounded-lg p-2.5 ${doc.color}`}>
@@ -213,19 +213,19 @@ export default function Documents() {
       </div>
 
       <Dialog open={isDateDialogOpen} onOpenChange={setIsDateDialogOpen}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent className="sm:max-w-sm" data-testid="coord-documents-date-dialog">
           <DialogHeader>
             <DialogTitle>Choisir une date</DialogTitle>
           </DialogHeader>
-          <Input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)} />
+          <Input type="date" value={dateInput} onChange={(e) => setDateInput(e.target.value)} data-testid="coord-documents-date-input" />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDateDialogOpen(false)}>Annuler</Button>
+            <Button variant="outline" onClick={() => setIsDateDialogOpen(false)} data-testid="coord-documents-date-cancel">Annuler</Button>
             <Button onClick={() => {
               const sessionId = sessions[0]?.id;
               const url = DOC_TYPES.find((d) => d.id === "attendance-list")!.getUrl(dateInput, sessionId);
               window.open(url, "_blank");
               setIsDateDialogOpen(false);
-            }}>
+            }} data-testid="coord-documents-date-generate">
               Générer
             </Button>
           </DialogFooter>

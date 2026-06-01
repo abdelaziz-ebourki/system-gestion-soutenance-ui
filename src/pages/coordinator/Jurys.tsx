@@ -79,7 +79,7 @@ export default function Jurys() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="coord-juries-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Gestion des Jurys</h1>
@@ -87,7 +87,7 @@ export default function Jurys() {
             Configurez les commissions d'examen pour chaque soutenance.
           </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)} className="gap-2">
+        <Button onClick={() => setIsCreateOpen(true)} className="gap-2" data-testid="coord-juries-add-button">
           <UserPlus className="size-4" /> Nouveau Jury
         </Button>
       </div>

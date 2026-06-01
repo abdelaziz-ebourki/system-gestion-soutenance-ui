@@ -79,8 +79,8 @@ export default function CoordinatorDashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
+    <div className="space-y-6" data-testid="coord-dashboard-page">
+      <section className="overflow-hidden rounded-3xl border bg-card shadow-sm" data-testid="coord-dashboard-hero">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.5fr_1fr] md:px-8">
           <div className="space-y-4">
             <Badge className="w-fit" variant="secondary">
@@ -100,12 +100,14 @@ export default function CoordinatorDashboard() {
               <Link
                 to="/coordinator/schedule"
                 className={buttonVariants({ size: "lg" })}
+                data-testid="coord-dashboard-open-planner"
               >
                 Ouvrir le planificateur
               </Link>
               <Link
                 to="/coordinator/juries"
                 className={buttonVariants({ variant: "outline", size: "lg" })}
+                data-testid="coord-dashboard-check-juries"
               >
                 Verifier les jurys
               </Link>
@@ -129,10 +131,11 @@ export default function CoordinatorDashboard() {
                   <span>{juryCoverage}%</span>
                 </div>
                 <div className="mt-3 h-2 rounded-full bg-secondary">
-                  <div
-                    className="h-2 rounded-full bg-primary"
-                    style={{ width: `${Math.min(juryCoverage, 100)}%` }}
-                  />
+                    <div
+                      className="h-2 rounded-full bg-primary"
+                      style={{ width: `${Math.min(juryCoverage, 100)}%` }}
+                      data-testid="coord-dashboard-jury-coverage"
+                    />
                 </div>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
@@ -172,7 +175,7 @@ export default function CoordinatorDashboard() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-testid="coord-dashboard-stats">
         <StatsCard label="Projets" value={stats?.totalProjects} icon={BookOpen} />
         <StatsCard label="Groupes" value={stats?.totalGroups} icon={Users} />
         <StatsCard label="Jurys" value={stats?.totalJuries} icon={ClipboardCheck} />
@@ -180,7 +183,7 @@ export default function CoordinatorDashboard() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <Card>
+        <Card data-testid="coord-dashboard-quick-access">
           <CardHeader>
             <CardTitle>Acces directs</CardTitle>
             <CardDescription>
@@ -212,7 +215,7 @@ export default function CoordinatorDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card data-testid="coord-dashboard-attention-points">
           <CardHeader>
             <CardTitle>Points d'attention</CardTitle>
             <CardDescription>

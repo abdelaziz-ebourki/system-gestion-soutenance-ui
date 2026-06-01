@@ -78,7 +78,7 @@ export default function DefenseDesigner() {
   if (!currentSession) return <Skeleton className="h-[600px] w-full" />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="coord-designer-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Planificateur de Soutenances</h1>
@@ -88,7 +88,7 @@ export default function DefenseDesigner() {
               value={selectedSessionId ?? undefined}
               onValueChange={setSelectedSessionId}
             >
-              <SelectTrigger className="w-72">
+              <SelectTrigger className="w-72" data-testid="coord-designer-session-select">
                 <SelectValue placeholder="Sélectionner une session" />
               </SelectTrigger>
               <SelectContent>
@@ -102,14 +102,14 @@ export default function DefenseDesigner() {
           </div>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="gap-2" onClick={handleAutoGenerate} isLoading={saveSchedule.isPending}>
+          <Button variant="outline" className="gap-2" onClick={handleAutoGenerate} isLoading={saveSchedule.isPending} data-testid="coord-designer-auto-generate">
             <Wand2 className="size-4" /> Génération Auto
           </Button>
-          <Button className="gap-2" onClick={handleSave} isLoading={saveSchedule.isPending}>
+          <Button className="gap-2" onClick={handleSave} isLoading={saveSchedule.isPending} data-testid="coord-designer-save">
             <Save className="size-4" /> Enregistrer
           </Button>
           <Button variant="default" className="gap-2 bg-green-600 hover:bg-green-700"
-            onClick={() => setIsPublishDialogOpen(true)}>
+            onClick={() => setIsPublishDialogOpen(true)} data-testid="coord-designer-publish">
             <Send className="size-4" /> Publier
           </Button>
         </div>
@@ -122,7 +122,7 @@ export default function DefenseDesigner() {
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
-          <div className="col-span-9">
+          <div className="col-span-9" data-testid="coord-designer-calendar">
             <DefenseCalendar
               days={days}
               timeSlots={timeSlots}
@@ -149,7 +149,7 @@ export default function DefenseDesigner() {
       </DndContext>
 
       <AlertDialog open={isPublishDialogOpen} onOpenChange={setIsPublishDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent data-testid="coord-designer-publish-dialog">
           <AlertDialogHeader>
             <AlertDialogTitle>Publier le planning</AlertDialogTitle>
             <AlertDialogDescription>
@@ -158,8 +158,8 @@ export default function DefenseDesigner() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePublish} isLoading={transitionSession.isPending}>
+            <AlertDialogCancel data-testid="coord-designer-publish-cancel">Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handlePublish} isLoading={transitionSession.isPending} data-testid="coord-designer-publish-confirm">
               Publier
             </AlertDialogAction>
           </AlertDialogFooter>

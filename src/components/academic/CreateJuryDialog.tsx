@@ -162,7 +162,7 @@ export function CreateJuryDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-155">
+      <DialogContent className="sm:max-w-155" data-testid="coord-jury-create-dialog">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Modifier le jury" : "Nouveau jury"}</DialogTitle>
           <DialogDescription>
@@ -184,7 +184,7 @@ export function CreateJuryDialog({
               })}
               disabled={isLoadingOptions || isEdit}
             >
-              <SelectTrigger id="jury-project" fullWidth>
+              <SelectTrigger id="jury-project" fullWidth data-testid="coord-jury-create-project">
                 <SelectValue placeholder="Sélectionner un projet" />
               </SelectTrigger>
               <SelectContent>
@@ -212,7 +212,7 @@ export function CreateJuryDialog({
                 })}
                 disabled={isLoadingOptions || isEdit}
               >
-                <SelectTrigger id="jury-template" fullWidth>
+                <SelectTrigger id="jury-template" fullWidth data-testid="coord-jury-create-template">
                   <SelectValue placeholder="Sélectionner un modèle" />
                 </SelectTrigger>
                 <SelectContent>
@@ -233,7 +233,7 @@ export function CreateJuryDialog({
             const value = form.formData.members[idx]?.teacherId ?? "";
             const filtered = getFilteredTeachers(idx);
             return (
-              <div key={`slot-${idx}`} className="grid gap-2">
+              <div key={`slot-${idx}`} className="grid gap-2" data-testid={`coord-jury-create-slot-${idx}`}>
                 <Label>{slot.label}</Label>
                 <Select
                   value={value}
@@ -256,7 +256,7 @@ export function CreateJuryDialog({
           })}
         </form>
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} data-testid="coord-jury-create-cancel">
             Annuler
           </Button>
           <Button
@@ -264,6 +264,7 @@ export function CreateJuryDialog({
             form="create-jury-form"
             isLoading={isPending}
             disabled={isLoadingOptions}
+            data-testid="coord-jury-create-submit"
           >
             {isEdit ? "Enregistrer" : "Créer le jury"}
           </Button>

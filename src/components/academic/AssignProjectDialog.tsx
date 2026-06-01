@@ -69,7 +69,7 @@ export function AssignProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" data-testid="coord-assign-project-dialog">
         <DialogHeader>
           <DialogTitle>Assigner un projet</DialogTitle>
           <DialogDescription>
@@ -92,7 +92,7 @@ export function AssignProjectDialog({
                 Aucun projet disponible. Créez d'abord un projet.
               </p>
             ) : (
-              <Select value={selectedProjectId} onValueChange={(v) => setSelectedProjectId(v ?? "")}>
+              <Select value={selectedProjectId} onValueChange={(v) => setSelectedProjectId(v ?? "")} data-testid="coord-assign-project-select">
                 <SelectTrigger>
                   <SelectValue placeholder="Choisir un projet" />
                 </SelectTrigger>
@@ -107,10 +107,10 @@ export function AssignProjectDialog({
             )}
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} data-testid="coord-assign-project-cancel">
               Annuler
             </Button>
-            <Button type="submit" disabled={!selectedProjectId} isLoading={assignMutation.isPending}>
+            <Button type="submit" disabled={!selectedProjectId} isLoading={assignMutation.isPending} data-testid="coord-assign-project-submit">
               Assigner
             </Button>
           </DialogFooter>

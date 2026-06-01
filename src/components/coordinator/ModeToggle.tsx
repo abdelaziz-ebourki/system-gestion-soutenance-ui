@@ -20,12 +20,13 @@ export function ModeToggle({ value, onChange }: ModeToggleProps) {
       variant="outline"
       spacing={0}
       size="sm"
+      data-testid="coord-toggle-mode"
     >
-      <ToggleGroupItem value="click" className="gap-2">
+      <ToggleGroupItem value="click" className="gap-2" data-testid="coord-toggle-click">
         <MousePointerClick className="size-4" />
         Placement rapide
       </ToggleGroupItem>
-      <ToggleGroupItem value="dnd" className="gap-2">
+      <ToggleGroupItem value="dnd" className="gap-2" data-testid="coord-toggle-dnd">
         <GripVertical className="size-4" />
         Glisser-déposer
       </ToggleGroupItem>

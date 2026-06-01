@@ -30,7 +30,7 @@ export default function Grades() {
   const completed = grades.filter((g) => g.status === "completed").length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="coord-grades-page">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Notes</h1>
         <p className="text-muted-foreground">

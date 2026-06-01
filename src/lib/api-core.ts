@@ -9,6 +9,16 @@ import { STORAGE_KEYS } from "@/lib/constants";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
+const CSRF_COOKIE_NAME = "XSRF-TOKEN";
+const CSRF_HEADER_NAME = "X-XSRF-TOKEN";
+
+function getCsrfToken(): string | null {
+  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${CSRF_COOKIE_NAME}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+const MUTATING_METHODS = new Set(["POST", "PUT", "DELETE", "PATCH"]);
+
 interface ApiOptions extends RequestInit {
   requiresAuth?: boolean;
   responseType?: "json" | "blob";
@@ -27,12 +37,21 @@ export async function api<T>(
     ...customConfig.headers as Record<string, string> | undefined,
   };
 
+  const method = (customConfig.method || "GET").toUpperCase();
+  if (MUTATING_METHODS.has(method)) {
+    const csrfToken = getCsrfToken();
+    if (csrfToken) {
+      headers[CSRF_HEADER_NAME] = csrfToken;
+    }
+  }
+
   if (responseType === "json" && !(customConfig.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
 
   const config = {
     ...customConfig,
+    method,
     headers,
   };
 

@@ -51,15 +51,16 @@ function DraggableProjectCard({
             ? "cursor-pointer rounded-lg border-2 border-primary bg-primary/5 p-4 transition hover:-translate-y-0.5"
             : "cursor-pointer rounded-lg border bg-card p-4 transition hover:-translate-y-0.5"
       }
+      data-testid={`coord-project-card-${project.id}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-medium">{project.title}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="font-medium" data-testid={`coord-project-title-${project.id}`}>{project.title}</p>
+          <p className="mt-1 text-sm text-muted-foreground" data-testid={`coord-project-students-${project.id}`}>
             {project.studentNames?.join(", ") || "Groupe non renseigné"}
           </p>
         </div>
-        <Badge variant="outline">{project.supervisorName}</Badge>
+        <Badge variant="outline" data-testid={`coord-project-supervisor-${project.id}`}>{project.supervisorName}</Badge>
       </div>
     </div>
   );

@@ -129,7 +129,7 @@ export function ProjectDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-160">
+      <DialogContent className="sm:max-w-160" data-testid="coord-project-dialog">
         <DialogHeader>
           <DialogTitle>{isEdit ? "Modifier le projet" : "Nouveau projet"}</DialogTitle>
           <DialogDescription>
@@ -151,6 +151,7 @@ export function ProjectDialog({
               onChange={(event) => form.setFormData({ ...form.formData, title: event.target.value })}
               required
               error={form.fieldErrors?.title}
+              data-testid="coord-project-dialog-title"
             />
           </div>
 
@@ -161,6 +162,7 @@ export function ProjectDialog({
               value={form.formData.description}
               onChange={(event) => form.setFormData({ ...form.formData, description: event.target.value })}
               className="min-h-28"
+              data-testid="coord-project-dialog-description"
             />
           </div>
 
@@ -170,7 +172,7 @@ export function ProjectDialog({
               value={form.formData.defenseType}
               onValueChange={(val) => form.setFormData({ ...form.formData, defenseType: val as DefenseType })}
             >
-              <SelectTrigger id={`${formId}-defenseType`} fullWidth>
+              <SelectTrigger id={`${formId}-defenseType`} fullWidth data-testid="coord-project-dialog-defense-type">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -188,6 +190,7 @@ export function ProjectDialog({
             <Combobox
               value={form.formData.supervisorId}
               onValueChange={(val) => form.setFormData({ ...form.formData, supervisorId: val || "" })}
+              data-testid="coord-project-dialog-supervisor"
             >
               <ComboboxInput placeholder="Rechercher un encadrant..." showTrigger>
                 <ComboboxValue />
@@ -216,6 +219,7 @@ export function ProjectDialog({
               onChange={(ids) => form.setFormData({ ...form.formData, studentIds: ids })}
               placeholder="Sélectionner des étudiants..."
               disabled={studentsQuery.isLoading}
+              data-testid="coord-project-dialog-students"
             />
             {form.fieldErrors?.studentIds && (
               <p className="text-sm font-medium text-destructive">{form.fieldErrors.studentIds}</p>
@@ -228,6 +232,7 @@ export function ProjectDialog({
             type="button"
             variant="outline"
             onClick={() => onOpenChange(false)}
+            data-testid="coord-project-dialog-cancel"
           >
             Annuler
           </Button>
@@ -236,6 +241,7 @@ export function ProjectDialog({
             form={formId}
             isLoading={isEdit ? updateProjectMutation.isPending : createProjectMutation.isPending}
             disabled={teachersQuery.isLoading}
+            data-testid="coord-project-dialog-submit"
           >
             {isEdit ? "Sauvegarder" : "Créer le projet"}
           </Button>

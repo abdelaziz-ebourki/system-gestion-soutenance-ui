@@ -30,7 +30,7 @@ export default function DefenseCalendar({
   onRoomChange,
 }: DefenseCalendarProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="coord-calendar">
       <div className="flex items-center gap-4 bg-muted/50 p-4 rounded-xl border">
         <div className="flex-1 max-w-sm">
           <RoomSearchSelect
@@ -48,7 +48,7 @@ export default function DefenseCalendar({
       {selectedRoomId ? (
         <Card className="overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+            <table className="w-full border-collapse" data-testid="coord-calendar-table">
               <thead>
                 <tr className="bg-muted/50">
                   <th className="p-3 border text-left font-medium text-xs uppercase tracking-wider w-24">Heure</th>
@@ -87,7 +87,7 @@ export default function DefenseCalendar({
           </div>
         </Card>
       ) : (
-        <div className="h-[500px] border-2 border-dashed rounded-3xl flex flex-col items-center justify-center text-muted-foreground gap-4 bg-muted/5">
+        <div className="h-[500px] border-2 border-dashed rounded-3xl flex flex-col items-center justify-center text-muted-foreground gap-4 bg-muted/5" data-testid="coord-calendar-no-room">
           <div className="p-4 rounded-full bg-muted/20">
             <MapPin className="size-10 opacity-20" />
           </div>

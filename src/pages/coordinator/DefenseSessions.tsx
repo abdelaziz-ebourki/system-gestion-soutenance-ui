@@ -167,7 +167,7 @@ export default function CoordinatorDefenseSessions() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="coord-sessions-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Sessions de soutenance</h1>
@@ -175,7 +175,7 @@ export default function CoordinatorDefenseSessions() {
             Gérez le cycle de vie de vos sessions : création, activation, planification, clôture et archivage.
           </p>
         </div>
-        <Button onClick={openCreate}>
+        <Button onClick={openCreate} data-testid="coord-sessions-add-button">
           <Plus className="mr-2 size-4" />
           Nouvelle session
         </Button>
@@ -193,7 +193,7 @@ export default function CoordinatorDefenseSessions() {
             const nextStates = DEFENSE_SESSION_LIFECYCLE[session.status] ?? [];
 
             return (
-              <Card key={session.id} className="relative overflow-hidden">
+              <Card key={session.id} className="relative overflow-hidden" data-testid={`coord-sessions-card-${session.id}`}>
                 <div className="absolute right-0 top-0 h-1 w-full bg-primary" />
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -280,7 +280,7 @@ export default function CoordinatorDefenseSessions() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg" data-testid="coord-sessions-dialog">
           <DialogHeader>
             <DialogTitle>{editing ? "Modifier" : "Créer"} une session de soutenance</DialogTitle>
             <DialogDescription>
@@ -295,6 +295,7 @@ export default function CoordinatorDefenseSessions() {
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
+                  data-testid="coord-sessions-input-name"
                 />
               </Field>
               <Field>
@@ -310,7 +311,7 @@ export default function CoordinatorDefenseSessions() {
                     });
                   }}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger data-testid="coord-sessions-input-defense-type">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -331,6 +332,7 @@ export default function CoordinatorDefenseSessions() {
                     onChange={(e) => setForm({ ...form, defenseDuration: Number(e.target.value) })}
                     min={5}
                     max={180}
+                    data-testid="coord-sessions-input-duration"
                   />
                 </Field>
                 <Field>
@@ -340,6 +342,7 @@ export default function CoordinatorDefenseSessions() {
                     value={form.breakDuration}
                     onChange={(e) => setForm({ ...form, breakDuration: Number(e.target.value) })}
                     min={0}
+                    data-testid="coord-sessions-input-break"
                   />
                 </Field>
               </div>
@@ -352,6 +355,7 @@ export default function CoordinatorDefenseSessions() {
                     onChange={(e) => setForm({ ...form, maxGroupSize: Number(e.target.value) })}
                     min={1}
                     max={10}
+                    data-testid="coord-sessions-input-max-group"
                   />
                 </Field>
                 <Field>
@@ -360,6 +364,7 @@ export default function CoordinatorDefenseSessions() {
                     type="date"
                     value={form.submissionDeadline}
                     onChange={(e) => setForm({ ...form, submissionDeadline: e.target.value })}
+                    data-testid="coord-sessions-input-deadline"
                   />
                 </Field>
               </div>
@@ -378,7 +383,7 @@ export default function CoordinatorDefenseSessions() {
                     setForm({ ...form, juryRoleTemplateId: v ?? "", evaluationCoefficients: coeffs });
                   }}
                 >
-                  <SelectTrigger><SelectValue placeholder="Choisir un modèle" /></SelectTrigger>
+                  <SelectTrigger data-testid="coord-sessions-input-template"><SelectValue placeholder="Choisir un modèle" /></SelectTrigger>
                   <SelectContent>
                     {templates.map((t) => (
                       <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
@@ -410,6 +415,7 @@ export default function CoordinatorDefenseSessions() {
                     value={form.startDate}
                     onChange={(e) => setForm({ ...form, startDate: e.target.value })}
                     required
+                    data-testid="coord-sessions-input-start"
                   />
                 </Field>
                 <Field>
@@ -419,15 +425,16 @@ export default function CoordinatorDefenseSessions() {
                     value={form.endDate}
                     onChange={(e) => setForm({ ...form, endDate: e.target.value })}
                     required
+                    data-testid="coord-sessions-input-end"
                   />
                 </Field>
               </div>
             </FieldGroup>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} data-testid="coord-sessions-dialog-cancel">
                 Annuler
               </Button>
-              <Button type="submit" isLoading={createMutation.isPending || updateMutation.isPending}>
+              <Button type="submit" isLoading={createMutation.isPending || updateMutation.isPending} data-testid="coord-sessions-dialog-submit">
                 Enregistrer
               </Button>
             </DialogFooter>

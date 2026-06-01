@@ -114,7 +114,7 @@ export default function CoordinatorProjects() {
   ), [projects]);
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-20" data-testid="coord-projects-page">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -125,7 +125,7 @@ export default function CoordinatorProjects() {
             dossiers avant composition des jurys.
           </p>
         </div>
-        <Button onClick={() => setIsCreateOpen(true)}>
+        <Button onClick={() => setIsCreateOpen(true)} data-testid="coord-projects-add-button">
           <Plus className="mr-2 size-4" />
           Ajouter un projet
         </Button>
@@ -162,7 +162,7 @@ export default function CoordinatorProjects() {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card data-testid="coord-projects-groups-section">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="size-4" /> Groupes étudiants
@@ -199,7 +199,7 @@ export default function CoordinatorProjects() {
                           {g.projectTitle}
                         </div>
                       ) : (
-                        <Button size="sm" variant="outline" onClick={() => setAssignTarget(g)}>
+                        <Button size="sm" variant="outline" onClick={() => setAssignTarget(g)} data-testid={`coord-projects-assign-${g.id}`}>
                           <UserPlus className="mr-1 size-3" />
                           Assigner un projet
                         </Button>
