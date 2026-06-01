@@ -138,11 +138,12 @@ export function ProjectDialog({
               : "Ajoutez un sujet et son encadrant."}
           </DialogDescription>
         </DialogHeader>
-        <form
-          id={formId}
-          className="grid gap-4"
-          onSubmit={handleSubmit}
-        >
+         <form
+           id={formId}
+           className="grid gap-4"
+           onSubmit={handleSubmit}
+           data-testid="coord-project-dialog-form"
+         >
           <div className="grid gap-2">
             <Label htmlFor={`${formId}-title`}>Titre</Label>
             <Input
