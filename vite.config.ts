@@ -39,7 +39,7 @@ export default defineConfig({
     css: false,
     coverage: {
       provider: "v8",
-      enabled: true,
+      enabled: false,
       include: ["src/**/*.{ts,tsx}"],
       exclude: [
         "src/components/ui/**",
