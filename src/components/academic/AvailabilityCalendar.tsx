@@ -19,7 +19,7 @@ interface Session {
   room: string;
 }
 
-interface AvailabilityCalendarProps {
+export interface AvailabilityCalendarProps {
   initialMonth?: number; // 0-11
   initialYear?: number;
   // Map of YYYY-MM-DD to array of unavailable slot labels
