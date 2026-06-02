@@ -7,6 +7,7 @@ import {
 import { RoomSearchSelect } from "@/components/coordinator/RoomSearchSelect";
 import DroppableCalendarCell from "@/components/coordinator/DroppableCalendarCell";
 import type { Jury, Room } from "@/types";
+import { useMemo } from "react";
 
 interface DefenseCalendarProps {
   days: Date[];
@@ -29,6 +30,26 @@ export default function DefenseCalendar({
   rooms,
   onRoomChange,
 }: DefenseCalendarProps) {
+  // Precompute lookup maps to avoid expensive .find() calls in render loop
+  const scheduleLookup = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const [juryId, jurySlot] of Object.entries(schedule)) {
+      if (jurySlot.roomId === selectedRoomId) {
+        const key = `${jurySlot.date}|${jurySlot.time}|${selectedRoomId}`;
+        map.set(key, juryId);
+      }
+    }
+    return map;
+  }, [schedule, selectedRoomId]);
+
+  const juryLookup = useMemo(() => {
+    const map = new Map<string, Jury>();
+    for (const jury of juries) {
+      map.set(jury.id, jury);
+    }
+    return map;
+  }, [juries]);
+
   return (
     <div className="space-y-4" data-testid="coord-calendar">
       <div className="flex items-center gap-4 bg-muted/50 p-4 rounded-xl border">
@@ -52,7 +73,7 @@ export default function DefenseCalendar({
               <thead>
                 <tr className="bg-muted/50">
                   <th className="p-3 border text-left font-medium text-xs uppercase tracking-wider w-24">Heure</th>
-                  {days.map((day) => (
+                  {days?.map((day) => (
                     <th key={day.toISOString()} className="p-3 border text-center font-medium min-w-[200px]">
                       <div className="text-xs uppercase text-muted-foreground">{format(day, "EEEE", { locale: fr })}</div>
                       <div className="text-sm">{format(day, "dd MMM", { locale: fr })}</div>
@@ -61,15 +82,14 @@ export default function DefenseCalendar({
                 </tr>
               </thead>
               <tbody>
-                {timeSlots.map((slot) => (
+                {timeSlots?.map((slot) => (
                   <tr key={slot}>
                     <td className="p-3 border font-mono text-sm font-medium bg-muted/20 text-center">{slot}</td>
-                    {days.map((day) => {
+                    {days?.map((day) => {
                       const dateStr = format(day, "yyyy-MM-dd");
-                      const scheduledJuryId = Object.keys(schedule).find(
-                        (id) => schedule[id].date === dateStr && schedule[id].time === slot && schedule[id].roomId === selectedRoomId
-                      );
-                      const jury: Jury | null = scheduledJuryId ? juries.find(j => j.id === scheduledJuryId) ?? null : null;
+                      const key = `${dateStr}|${slot}|${selectedRoomId}`;
+                      const scheduledJuryId = scheduleLookup.get(key);
+                      const jury = scheduledJuryId ? juryLookup.get(scheduledJuryId) ?? null : null;
 
                       return (
                         <DroppableCalendarCell

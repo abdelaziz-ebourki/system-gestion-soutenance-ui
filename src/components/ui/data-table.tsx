@@ -200,8 +200,8 @@ function DataTableProvider<TData, TValue>({
     [filterColumns],
   );
 
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const table = useReactTable({
+   // eslint-disable-next-line react-hooks/incompatible-library
+   const table = useReactTable({
     data,
     columns: mergedColumns,
     getRowId,

@@ -41,13 +41,13 @@ export default function DraggableJurySlot({ jury, isOverlay }: DraggableJurySlot
           </div>
         </div>
       </div>
-      <div className="mt-2 flex flex-wrap gap-1">
-        {jury.members.map((m) => (
-          <Badge key={m.teacherId} variant="outline" className="text-[10px]" data-testid={`coord-jury-slot-member-${jury.id}-${m.teacherId}`}>
-            {m.teacherName}
-          </Badge>
-        ))}
-      </div>
+       <div className="mt-2 flex flex-wrap gap-1">
+         {jury.members?.map((m) => (
+           <Badge key={m.teacherId} variant="outline" className="text-[10px]" data-testid={`coord-jury-slot-member-${jury.id}-${m.teacherId}`}>
+             {m.teacherName}
+           </Badge>
+         ))}
+       </div>
     </div>
   );
 }

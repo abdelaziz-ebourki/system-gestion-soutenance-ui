@@ -106,13 +106,13 @@ export default function StudentDashboard() {
               </div>
               <div className="rounded-lg border p-4">
                 <p className="text-sm text-muted-foreground">Horaire</p>
-                <p className="mt-2 font-medium">
-                  {isLoading
-                    ? <Skeleton className="h-5 w-48" />
-                    : defense?.date
-                      ? `${defense.date} · ${defense.startTime} - ${defense.endTime}`
-                      : "En attente de planification"}
-                </p>
+                 <div className="mt-2 font-medium">
+                   {isLoading
+                     ? <Skeleton className="h-5 w-48" />
+                     : defense?.date
+                       ? `${defense.date} · ${defense.startTime} - ${defense.endTime}`
+                       : "En attente de planification"}
+                 </div>
               </div>
             </div>
             {defense?.status === "scheduled" ? (

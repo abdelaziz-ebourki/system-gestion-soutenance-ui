@@ -75,7 +75,7 @@ export function EmailConfigForm() {
             <Field>
               <FieldLabel>Hôte SMTP</FieldLabel>
               <Input
-                value={config.host}
+                value={config.host ?? ''}
                 onChange={(e) => setConfig({ ...config, host: e.target.value })}
                 placeholder="smtp.example.com"
                 required
@@ -85,7 +85,7 @@ export function EmailConfigForm() {
               <FieldLabel>Port</FieldLabel>
               <Input
                 type="number"
-                value={config.port}
+                value={config.port ?? 587}
                 onChange={(e) => setConfig({ ...config, port: Number(e.target.value) })}
                 required
               />
@@ -95,24 +95,24 @@ export function EmailConfigForm() {
             <Field>
               <FieldLabel>Nom d'utilisateur</FieldLabel>
               <Input
-                value={config.username}
+                value={config.username ?? ''}
                 onChange={(e) => setConfig({ ...config, username: e.target.value })}
                 placeholder="noreply@example.com"
               />
             </Field>
-            <Field>
-              <FieldLabel>Mot de passe</FieldLabel>
-              <PasswordInput
-                value={config.password}
-                onChange={(e) => setConfig({ ...config, password: e.target.value })}
-              />
-            </Field>
+             <Field>
+               <FieldLabel>Mot de passe</FieldLabel>
+               <PasswordInput
+                 value={config.password ?? ''}
+                 onChange={(e) => setConfig({ ...config, password: e.target.value })}
+               />
+             </Field>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Field>
               <FieldLabel>Nom de l'expéditeur</FieldLabel>
               <Input
-                value={config.senderName}
+                value={config.senderName ?? ''}
                 onChange={(e) => setConfig({ ...config, senderName: e.target.value })}
                 placeholder="Université"
                 required
@@ -122,29 +122,29 @@ export function EmailConfigForm() {
               <FieldLabel>Email de l'expéditeur</FieldLabel>
               <Input
                 type="email"
-                value={config.senderEmail}
+                value={config.senderEmail ?? ''}
                 onChange={(e) => setConfig({ ...config, senderEmail: e.target.value })}
                 placeholder="noreply@example.com"
                 required
               />
             </Field>
           </div>
-          <Field>
-            <FieldLabel>Chiffrement</FieldLabel>
-            <Select
-              value={config.encryption}
-              onValueChange={(v: "tls" | "ssl" | "none") => setConfig({ ...config, encryption: v })}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ENCRYPTION_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
+            <Field>
+              <FieldLabel>Chiffrement</FieldLabel>
+              <Select
+                value={config.encryption ?? 'tls'}
+                onValueChange={(v: "tls" | "ssl" | "none") => setConfig({ ...config, encryption: v })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ENCRYPTION_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
           <Button type="submit" className="mt-2" isLoading={updateMut.isPending} loadingText="Sauvegarde en cours...">
             Sauvegarder
           </Button>

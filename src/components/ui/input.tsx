@@ -1,12 +1,15 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { useFieldId } from "@/components/ui/field"
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input"> & { error?: string }>(
-  ({ className, type, error, ...props }, ref) => {
+  ({ className, type, error, id, ...props }, ref) => {
+    const fieldId = useFieldId()
     return (
       <input
         ref={ref}
+        id={id ?? fieldId}
         type={type}
         data-slot="input"
         data-invalid={!!error}

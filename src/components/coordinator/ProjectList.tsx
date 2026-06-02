@@ -93,7 +93,7 @@ export function ProjectList({
     </div>
   );
 
-  if (projects.length > 30) {
+  if (projects && projects.length > 30) {
     return (
       <Virtuoso
         data={projects}
@@ -103,18 +103,18 @@ export function ProjectList({
     );
   }
 
-  return (
-    <div className="space-y-2">
-      {projects.map((project) => (
-        <DraggableProjectCard
-          key={project.id}
-          project={project}
-          assigned={assignedProjectIds.has(project.id)}
-          mode={mode}
-          isSelected={selectedProjectId === project.id}
-          onSelect={onSelect}
-        />
-      ))}
-    </div>
-  );
+   return (
+     <div className="space-y-2">
+       {projects?.map((project) => (
+         <DraggableProjectCard
+           key={project.id}
+           project={project}
+           assigned={assignedProjectIds.has(project.id)}
+           mode={mode}
+           isSelected={selectedProjectId === project.id}
+           onSelect={onSelect}
+         />
+       ))}
+     </div>
+   );
 }

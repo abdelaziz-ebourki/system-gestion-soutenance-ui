@@ -10,7 +10,7 @@ import { STORAGE_KEYS } from "@/lib/constants";
 import type { UserRole } from "@/types";
 
 interface User {
-  id: string;
+  id: string | number;
   firstName: string;
   lastName: string;
   email: string;
@@ -23,7 +23,7 @@ function isValidUser(data: unknown): data is User {
   if (!data || typeof data !== "object") return false;
   const obj = data as Record<string, unknown>;
   return (
-    typeof obj.id === "string" &&
+    (typeof obj.id === "string" || typeof obj.id === "number") &&
     typeof obj.firstName === "string" &&
     typeof obj.lastName === "string" &&
     typeof obj.email === "string" &&

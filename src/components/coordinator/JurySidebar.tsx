@@ -39,16 +39,16 @@ export default function JurySidebar({
           />
         </div>
       </CardHeader>
-      <CardContent className="flex-1 overflow-y-auto space-y-3 pt-0" data-testid="coord-designer-jury-list">
-        {juries.map((jury) => (
-          <DraggableJurySlot key={jury.id} jury={jury} />
-        ))}
-        {juries.length === 0 && (
-          <div className="text-center py-10 text-muted-foreground italic text-sm">
-            Aucun jury en attente
-          </div>
-        )}
-      </CardContent>
+       <CardContent className="flex-1 overflow-y-auto space-y-3 pt-0" data-testid="coord-designer-jury-list">
+         {juries?.map((jury) => (
+           <DraggableJurySlot key={jury.id} jury={jury} />
+         ))}
+         {juries?.length === 0 && (
+           <div className="text-center py-10 text-muted-foreground italic text-sm">
+             Aucun jury en attente
+           </div>
+         )}
+       </CardContent>
     </Card>
   );
 }

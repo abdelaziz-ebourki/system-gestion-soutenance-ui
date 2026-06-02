@@ -88,11 +88,11 @@ export default function StudentGroup() {
           <CardContent>
             <div className="rounded-lg border p-5">
               <p className="text-sm text-muted-foreground">Titre</p>
-              <p className="mt-2 text-xl font-semibold">
+              <div className="mt-2 text-xl font-semibold">
                 {isLoading
                   ? <Skeleton className="h-6 w-64" />
                   : group?.projectTitle || "Projet non affecté"}
-              </p>
+              </div>
               <div className="mt-4">
                 <Badge variant="secondary">
                   {group?.supervisorName || "Encadrant en attente"}

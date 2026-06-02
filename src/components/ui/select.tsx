@@ -2,6 +2,7 @@ import * as React from "react"
 import { Select as SelectPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
+import { useFieldId } from "@/components/ui/field"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
 function Select({
@@ -36,9 +37,11 @@ const SelectTrigger = React.forwardRef<
     fullWidth?: boolean
   }
 >(({ className, size = "default", fullWidth, children, ...props }, ref) => {
+  const fieldId = useFieldId()
   return (
     <SelectPrimitive.Trigger
       ref={ref}
+      id={fieldId}
       data-slot="select-trigger"
       data-size={size}
       className={cn(

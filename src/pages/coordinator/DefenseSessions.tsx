@@ -187,9 +187,9 @@ export default function CoordinatorDefenseSessions() {
           variant="card"
           description="Aucune session de soutenance pour le moment."
         />
-      ) : (
-        <div className="grid gap-6 md:grid-cols-2">
-          {sessions.map((session) => {
+       ) : (
+         <div className="grid gap-6 md:grid-cols-2">
+           {sessions?.map((session) => {
             const StatusIcon = statusIcons[session.status] || ShieldCheck;
             const nextStates = DEFENSE_SESSION_LIFECYCLE[session.status] ?? [];
 

@@ -1,10 +1,16 @@
 
-import { useMemo } from "react"
+import { createContext, useContext, useId, useMemo, type ComponentProps } from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
+
+const FieldContext = createContext<string | undefined>(undefined)
+
+function useFieldId() {
+  return useContext(FieldContext)
+}
 
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
@@ -73,14 +79,17 @@ function Field({
   orientation = "vertical",
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
+  const fieldId = useId()
   return (
-    <div
-      role="group"
-      data-slot="field"
-      data-orientation={orientation}
-      className={cn(fieldVariants({ orientation }), className)}
-      {...props}
-    />
+    <FieldContext.Provider value={fieldId}>
+      <div
+        role="group"
+        data-slot="field"
+        data-orientation={orientation}
+        className={cn(fieldVariants({ orientation }), className)}
+        {...props}
+      />
+    </FieldContext.Provider>
   )
 }
 
@@ -99,10 +108,13 @@ function FieldContent({ className, ...props }: React.ComponentProps<"div">) {
 
 function FieldLabel({
   className,
+  htmlFor,
   ...props
-}: React.ComponentProps<typeof Label>) {
+}: ComponentProps<typeof Label>) {
+  const fieldId = useFieldId()
   return (
     <Label
+      htmlFor={htmlFor ?? fieldId}
       data-slot="field-label"
       className={cn(
         "group/field-label peer/field-label flex w-fit gap-2 leading-snug group-data-[disabled=true]/field:opacity-50 has-data-checked:bg-input/30 has-[>[data-slot=field]]:rounded-2xl has-[>[data-slot=field]]:border *:data-[slot=field]:p-4",
@@ -234,4 +246,5 @@ export {
   FieldSet,
   FieldContent,
   FieldTitle,
+  useFieldId,
 }

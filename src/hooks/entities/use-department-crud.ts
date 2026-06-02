@@ -53,7 +53,7 @@ export function useDepartmentCrud() {
     try {
       if (selected) {
         await update.mutateAsync({ id: selected.id, data: form.formData });
-        toast.success("Département modifié avec succès");
+        toast.success("Département mis à jour avec succès");
       } else {
         await create.mutateAsync(form.formData);
         toast.success("Département ajouté avec succès");
@@ -70,7 +70,7 @@ export function useDepartmentCrud() {
     if (!selected) return;
     try {
       await del.mutateAsync(selected.id);
-      toast.success("Département supprimé");
+      toast.success("Département supprimé avec succès");
       setIsDeleteDialogOpen(false);
       setSelected(null);
     } catch (error) {
