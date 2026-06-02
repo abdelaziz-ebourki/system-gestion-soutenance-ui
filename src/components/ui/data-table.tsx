@@ -200,6 +200,7 @@ function DataTableProvider<TData, TValue>({
     [filterColumns],
   );
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns: mergedColumns,
@@ -241,7 +242,7 @@ function DataTableProvider<TData, TValue>({
   React.useEffect(() => {
     if (!onSelectedRowsChange) return;
     onSelectedRowsChange(table.getSelectedRowModel().rows.map((r) => r.original));
-  }, [rowSelection, onSelectedRowsChange]);
+  }, [rowSelection, onSelectedRowsChange, table]);
 
   if (loading) return <Skeleton className="h-64 w-full" />;
   if (error) return <div className="rounded-md border border-destructive/50 p-6 text-center text-sm text-destructive">{error}</div>;

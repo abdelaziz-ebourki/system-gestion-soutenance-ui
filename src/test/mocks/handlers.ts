@@ -111,46 +111,67 @@ export const handlers = [
   ),
 
   // Audit logs
-  http.get("*/api/admin/audit-logs", () =>
-    HttpResponse.json({
-      items: [
-        {
-          id: "1",
-          action: "LOGIN",
-          entity: "user",
-          entityId: "1",
-          adminEmail: "admin@univh2c.ma",
-          details: "Connexion admin",
-          timestamp: new Date().toISOString(),
-        },
-        {
-          id: "2",
-          action: "CREATE",
-          entity: "room",
-          entityId: "2",
-          adminEmail: "admin@univh2c.ma",
-          details: "Création salle S101",
-          timestamp: new Date().toISOString(),
-        },
-      ],
-      total: 2,
-      pageCount: 1,
-    }),
-  ),
+  http.get("*/api/admin/audit-logs", ({ request }) => {
+    const url = new URL(request.url);
+    const page = Number(url.searchParams.get("page") ?? "0");
+    const limit = Number(url.searchParams.get("limit") ?? "10");
+    const allItems = [
+      {
+        id: "1",
+        action: "LOGIN",
+        entity: "user",
+        entityId: "1",
+        adminEmail: "admin@univh2c.ma",
+        details: "Connexion admin",
+        timestamp: new Date().toISOString(),
+      },
+      {
+        id: "2",
+        action: "CREATE",
+        entity: "room",
+        entityId: "2",
+        adminEmail: "admin@univh2c.ma",
+        details: "Création salle S101",
+        timestamp: new Date().toISOString(),
+      },
+    ];
+    const start = page * limit;
+    const items = allItems.slice(start, start + limit);
+    return HttpResponse.json({
+      items,
+      total: allItems.length,
+      pageCount: Math.ceil(allItems.length / limit),
+    });
+  }),
 
   // Users
-  http.get("*/api/admin/users", () =>
-    HttpResponse.json({
-      items: [
-        { id: "1", lastName: "Admin", firstName: "User", email: "admin@univh2c.ma", role: "admin", isActive: true },
-        { id: "2", lastName: "Coord", firstName: "User", email: "coord@univh2c.ma", role: "coordinator", isActive: true },
-        { id: "3", lastName: "Teacher", firstName: "User", email: "teacher@univh2c.ma", role: "teacher", isActive: true },
-        { id: "4", lastName: "Student", firstName: "User", email: "student@univh2c.ma", role: "student", isActive: true },
-      ],
-      total: 4,
-      pageCount: 1,
-    }),
-  ),
+  http.get("*/api/admin/users", ({ request }) => {
+    const url = new URL(request.url);
+    const page = Number(url.searchParams.get("page") ?? "0");
+    const limit = Number(url.searchParams.get("limit") ?? "10");
+    const search = url.searchParams.get("search")?.toLowerCase() ?? "";
+    const allItems = [
+      { id: "1", lastName: "Admin", firstName: "User", email: "admin@univh2c.ma", role: "admin", isActive: true },
+      { id: "2", lastName: "Coord", firstName: "User", email: "coord@univh2c.ma", role: "coordinator", isActive: true },
+      { id: "3", lastName: "Teacher", firstName: "User", email: "teacher@univh2c.ma", role: "teacher", isActive: true },
+      { id: "4", lastName: "Student", firstName: "User", email: "student@univh2c.ma", role: "student", isActive: true },
+    ];
+    const filtered = search
+      ? allItems.filter(
+          (u) =>
+            u.lastName.toLowerCase().includes(search) ||
+            u.firstName.toLowerCase().includes(search) ||
+            u.email.toLowerCase().includes(search),
+        )
+      : allItems;
+    const start = page * limit;
+    const items = filtered.slice(start, start + limit);
+    return HttpResponse.json({
+      items,
+      total: filtered.length,
+      pageCount: Math.ceil(filtered.length / limit),
+    });
+  }),
 
   // Students
   http.get("*/api/admin/students", () =>
