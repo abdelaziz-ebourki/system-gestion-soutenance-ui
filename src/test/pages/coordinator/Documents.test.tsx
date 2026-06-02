@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import Documents from "@/pages/coordinator/Documents";
@@ -8,6 +8,14 @@ import Documents from "@/pages/coordinator/Documents";
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
+
+beforeEach(() => {
+  vi.stubGlobal("open", vi.fn());
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 function renderDocuments() {
   const queryClient = new QueryClient({
@@ -64,5 +72,37 @@ describe("Documents (Coordinator)", () => {
     const dateBtn = await screen.findByText("Choisir une date");
     await user.click(dateBtn);
     expect(screen.getByTestId("coord-documents-date-dialog")).toBeInTheDocument();
+  });
+
+  it("opens evaluation sheet URL when grade button is clicked", async () => {
+    const user = userEvent.setup();
+    renderDocuments();
+    const gradeBtn = (await screen.findAllByText("Application CI/CD"))[0];
+    await user.click(gradeBtn);
+    await waitFor(() => {
+      expect(window.open).toHaveBeenCalledWith(expect.stringContaining("/print/evaluation-sheet?projectId="), "_blank");
+    });
+  });
+
+  it("opens schedule URL when generate planning is clicked", async () => {
+    const user = userEvent.setup();
+    renderDocuments();
+    const scheduleBtn = await screen.findByText("Générer le planning");
+    await user.click(scheduleBtn);
+    await waitFor(() => {
+      expect(window.open).toHaveBeenCalledWith(expect.stringContaining("/print/schedule?sessionId="), "_blank");
+    });
+  });
+
+  it("opens attendance list URL when date is selected and generate is clicked", async () => {
+    const user = userEvent.setup();
+    renderDocuments();
+    const dateBtn = await screen.findByText("Choisir une date");
+    await user.click(dateBtn);
+    expect(screen.getByTestId("coord-documents-date-dialog")).toBeInTheDocument();
+    await user.click(screen.getByTestId("coord-documents-date-generate"));
+    await waitFor(() => {
+      expect(window.open).toHaveBeenCalledWith(expect.stringContaining("/print/attendance-list?date="), "_blank");
+    });
   });
 });

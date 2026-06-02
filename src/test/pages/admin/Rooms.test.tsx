@@ -59,4 +59,35 @@ describe("Rooms", () => {
 
     expect(screen.queryByText("Aucun département configuré")).not.toBeInTheDocument();
   });
+
+  it("opens create dialog and creates a room", async () => {
+    const user = userEvent.setup();
+    renderRooms();
+    await screen.findByText("Salle 101");
+    await user.click(screen.getByRole("button", { name: /nouvelle salle/i }));
+    expect(await screen.findByText(/Ajouter une Salle/i)).toBeInTheDocument();
+    await user.type(screen.getByPlaceholderText(/ex: Salle 101/i), "Salle 103");
+    await user.click(screen.getByRole("button", { name: /enregistrer/i }));
+  });
+
+  it("opens single delete dialog via CrudActions", async () => {
+    const user = userEvent.setup();
+    renderRooms();
+    await screen.findByText("Salle 101");
+    const triggers = await screen.findAllByTestId("crud-actions-trigger");
+    await user.click(triggers[0]);
+    await user.click(screen.getByRole("menuitem", { name: /supprimer/i }));
+    expect(await screen.findByText(/Cette action est irréversible/i)).toBeInTheDocument();
+  });
+
+  it("shows batch delete dialog", async () => {
+    const user = userEvent.setup();
+    renderRooms();
+    await screen.findByText("Salle 101");
+    const checkboxes = await screen.findAllByRole("checkbox");
+    await user.click(checkboxes[1]);
+    const deleteBtn = screen.getByRole("button", { name: /supprimer/i });
+    await user.click(deleteBtn);
+    expect(await screen.findByText(/Confirmation/i)).toBeInTheDocument();
+  });
 });

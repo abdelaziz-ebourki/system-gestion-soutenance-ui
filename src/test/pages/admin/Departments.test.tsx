@@ -61,4 +61,23 @@ describe("Departments", () => {
     await user.click(deleteButton);
     expect(screen.getByText(/Confirmation/)).toBeInTheDocument();
   });
+
+  it("opens create dialog and submits", async () => {
+    const user = userEvent.setup();
+    renderDepartments();
+    await user.click(screen.getByRole("button", { name: /nouveau département/i }));
+    expect(await screen.findByText(/Ajouter Département/i)).toBeInTheDocument();
+    await user.type(screen.getByPlaceholderText(/ex: Informatique/i), "Physique");
+    await user.type(screen.getByPlaceholderText("ex: INFO"), "PHY");
+    await user.click(screen.getByRole("button", { name: /enregistrer/i }));
+  });
+
+  it("opens single delete dialog via CrudActions", async () => {
+    const user = userEvent.setup();
+    renderDepartments();
+    const triggers = await screen.findAllByTestId("crud-actions-trigger");
+    await user.click(triggers[0]);
+    await user.click(screen.getByRole("menuitem", { name: /supprimer/i }));
+    expect(await screen.findByText(/Cette action est irréversible/i)).toBeInTheDocument();
+  });
 });

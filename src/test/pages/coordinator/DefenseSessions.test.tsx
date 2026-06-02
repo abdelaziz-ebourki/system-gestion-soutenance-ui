@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -15,6 +15,7 @@ vi.mock("sonner", () => ({
 const mockSessions = [
   { id: "s1", name: "Session PFE 2025", defenseType: "pfe", status: "draft", maxGroupSize: 3, defenseDuration: 30, breakDuration: 15, submissionDeadline: "2025-06-01", startDate: "2025-06-15", endDate: "2025-06-30", evaluationCoefficients: {}, juryRoleTemplateId: "" },
   { id: "s2", name: "Session Mémoires", defenseType: "memoire", status: "active", maxGroupSize: 2, defenseDuration: 20, breakDuration: 10, submissionDeadline: "2025-05-15", startDate: "2025-06-01", endDate: "2025-06-14", evaluationCoefficients: {}, juryRoleTemplateId: "" },
+  { id: "s3", name: "Archived Session", defenseType: "these", status: "archived", maxGroupSize: 1, defenseDuration: 45, breakDuration: 20, submissionDeadline: "2025-04-01", startDate: "2025-04-15", endDate: "2025-04-30", evaluationCoefficients: {}, juryRoleTemplateId: "" },
 ];
 
 const mockTemplates = [
@@ -146,6 +147,121 @@ describe("DefenseSessions (Coordinator)", () => {
     renderSessions();
     const transitionButtons = await screen.findAllByText(/Planifiée|Programmée/);
     expect(transitionButtons.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("opens edit dialog with pre-filled form", async () => {
+    const user = userEvent.setup();
+    const queries = await import("@/hooks/use-queries");
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    const triggers = await screen.findAllByTestId("crud-actions-trigger");
+    await user.click(triggers[0]);
+    await user.click(screen.getByRole("menuitem", { name: /modifier/i }));
+    expect(screen.getByTestId("coord-sessions-dialog")).toBeInTheDocument();
+    const nameInput = screen.getByTestId("coord-sessions-input-name") as HTMLInputElement;
+    expect(nameInput.value).toBe("Session PFE 2025");
+  });
+
+  it("creates a session via dialog submit", async () => {
+    const user = userEvent.setup();
+    const queries = await import("@/hooks/use-queries");
+    const createMutate = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue({ isPending: false, mutateAsync: createMutate } as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    const addBtn = await screen.findByTestId("coord-sessions-add-button");
+    await user.click(addBtn);
+    fireEvent.change(screen.getByTestId("coord-sessions-input-name"), { target: { value: "Nouvelle Session" } });
+    fireEvent.change(screen.getByTestId("coord-sessions-input-start"), { target: { value: "2025-07-01" } });
+    fireEvent.change(screen.getByTestId("coord-sessions-input-end"), { target: { value: "2025-07-15" } });
+    fireEvent.submit(screen.getByTestId("coord-sessions-dialog").querySelector("form")!);
+    await waitFor(() => {
+      expect(createMutate).toHaveBeenCalled();
+    });
+  });
+
+  it("shows date validation error when endDate precedes startDate", async () => {
+    const user = userEvent.setup();
+    const toast = await import("sonner");
+    const queries = await import("@/hooks/use-queries");
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    const createMutate = vi.fn();
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue({ isPending: false, mutateAsync: createMutate } as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    const addBtn = await screen.findByTestId("coord-sessions-add-button");
+    await user.click(addBtn);
+    fireEvent.change(screen.getByTestId("coord-sessions-input-start"), { target: { value: "2025-06-30" } });
+    fireEvent.change(screen.getByTestId("coord-sessions-input-end"), { target: { value: "2025-06-15" } });
+    fireEvent.submit(screen.getByTestId("coord-sessions-dialog").querySelector("form")!);
+    await waitFor(() => {
+      expect(toast.toast.error).toHaveBeenCalledWith("La date de début doit être antérieure à la date de fin");
+    });
+    expect(createMutate).not.toHaveBeenCalled();
+  });
+
+  it("deletes a session via CrudActions", async () => {
+    const user = userEvent.setup();
+    const queries = await import("@/hooks/use-queries");
+    const deleteMutate = vi.fn();
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue({ isPending: false, mutateAsync: deleteMutate } as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    const triggers = await screen.findAllByTestId("crud-actions-trigger");
+    await user.click(triggers[0]);
+    await user.click(screen.getByRole("menuitem", { name: /supprimer/i }));
+    expect(await screen.findByTestId("delete-alert")).toBeInTheDocument();
+    await user.click(screen.getByTestId("delete-alert-confirm"));
+    await waitFor(() => {
+      expect(deleteMutate).toHaveBeenCalledWith("s1");
+    });
+  });
+
+  it("calls transition mutation when transition button is clicked", async () => {
+    const user = userEvent.setup();
+    const queries = await import("@/hooks/use-queries");
+    const transitionMutate = vi.fn();
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue({ isPending: false, mutateAsync: transitionMutate } as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    const planifieeBtn = await screen.findByText("Planifiée");
+    await user.click(planifieeBtn);
+    await waitFor(() => {
+      expect(transitionMutate).toHaveBeenCalledWith({ id: "s2", toStatus: "scheduled" });
+    });
+  });
+
+  it("shows archived text for archived sessions", async () => {
+    const queries = await import("@/hooks/use-queries");
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    expect(await screen.findByText(/Session archivée/i)).toBeInTheDocument();
+    expect(screen.getByText("Archivée")).toBeInTheDocument();
   });
 
   it("renders session details in info boxes", async () => {

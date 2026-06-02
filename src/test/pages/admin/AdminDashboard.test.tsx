@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
@@ -71,5 +72,22 @@ describe("AdminDashboard", () => {
     renderDashboard();
     expect(await screen.findByText(/3 Sessions Actives/)).toBeInTheDocument();
     expect(await screen.findByText(/8 Soutenances/)).toBeInTheDocument();
+  });
+
+  it("shows batch bar when users are selected", async () => {
+    const user = userEvent.setup();
+    renderDashboard();
+    const checkboxes = await screen.findAllByRole("checkbox");
+    await user.click(checkboxes[1]);
+    expect(screen.getByText(/utilisateur\(s\) sélectionné\(s\)/i)).toBeInTheDocument();
+  });
+
+  it("opens batch role change dialog", async () => {
+    const user = userEvent.setup();
+    renderDashboard();
+    const checkboxes = await screen.findAllByRole("checkbox");
+    await user.click(checkboxes[1]);
+    await user.click(screen.getAllByRole("button", { name: /changer le rôle/i })[0]);
+    expect(await screen.findByText(/Choisir un rôle/i)).toBeInTheDocument();
   });
 });
