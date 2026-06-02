@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from "vitest";
 import { api } from "@/lib/api-core";
 import { STORAGE_KEYS } from "@/lib/constants";
 
@@ -17,7 +17,7 @@ describe("API Wrapper CSRF & Cookies", () => {
   it("should add X-XSRF-TOKEN header for mutating requests when cookie is present", async () => {
     document.cookie = "XSRF-TOKEN=test-token";
     
-    const mockFetch = fetch as vi.MockedFunction<typeof fetch>;
+    const mockFetch = fetch as Mock;
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
@@ -27,17 +27,22 @@ describe("API Wrapper CSRF & Cookies", () => {
 
     await api("/test", { method: "POST", body: JSON.stringify({ data: "test" }) });
 
+    expect(mockFetch).toHaveBeenCalled();
     const fetchCall = mockFetch.mock.calls[0];
-    const headers = fetchCall[1]?.headers as Record<string, string>;
+    const options = fetchCall?.[1];
+    const headers = options?.headers as Record<string, string> | undefined;
 
-    expect(headers["X-XSRF-TOKEN"]).toBe("test-token");
-    expect(fetchCall[1]?.credentials).toBe("include");
+    expect(headers).toBeDefined();
+    if (headers) {
+      expect(headers["X-XSRF-TOKEN"]).toBe("test-token");
+    }
+    expect(options?.credentials).toBe("include");
   });
 
   it("should NOT add X-XSRF-TOKEN header for GET requests", async () => {
     document.cookie = "XSRF-TOKEN=test-token";
     
-    const mockFetch = fetch as vi.MockedFunction<typeof fetch>;
+    const mockFetch = fetch as Mock;
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
@@ -47,17 +52,22 @@ describe("API Wrapper CSRF & Cookies", () => {
 
     await api("/test", { method: "GET" });
 
+    expect(mockFetch).toHaveBeenCalled();
     const fetchCall = mockFetch.mock.calls[0];
-    const headers = fetchCall[1]?.headers as Record<string, string>;
+    const options = fetchCall?.[1];
+    const headers = options?.headers as Record<string, string> | undefined;
 
-    expect(headers["X-XSRF-TOKEN"]).toBeUndefined();
-    expect(fetchCall[1]?.credentials).toBe("include");
+    expect(headers).toBeDefined();
+    if (headers) {
+      expect(headers["X-XSRF-TOKEN"]).toBeUndefined();
+    }
+    expect(options?.credentials).toBe("include");
   });
 
   it("should still include Authorization header if token exists", async () => {
     localStorage.setItem(STORAGE_KEYS.TOKEN, "mock-jwt");
     
-    const mockFetch = fetch as vi.MockedFunction<typeof fetch>;
+    const mockFetch = fetch as Mock;
     mockFetch.mockResolvedValue({
       ok: true,
       status: 200,
@@ -67,9 +77,14 @@ describe("API Wrapper CSRF & Cookies", () => {
 
     await api("/test", { method: "GET" });
 
+    expect(mockFetch).toHaveBeenCalled();
     const fetchCall = mockFetch.mock.calls[0];
-    const headers = fetchCall[1]?.headers as Record<string, string>;
+    const options = fetchCall?.[1];
+    const headers = options?.headers as Record<string, string> | undefined;
 
-    expect(headers["Authorization"]).toBe("Bearer mock-jwt");
+    expect(headers).toBeDefined();
+    if (headers) {
+      expect(headers["Authorization"]).toBe("Bearer mock-jwt");
+    }
   });
 });
