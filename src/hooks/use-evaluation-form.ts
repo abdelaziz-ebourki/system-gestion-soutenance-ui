@@ -1,4 +1,4 @@
-import { useState, type SyntheticEvent } from "react";
+import { useState } from "react";
 import { useSubmitTeacherEvaluation } from "@/hooks/use-queries";
 import { validate, evaluationSchema } from "@/lib/validations";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ export function useEvaluationForm() {
     setIsDialogOpen(true);
   };
 
-  const handleSubmit = async (e: SyntheticEvent) => {
+  const handleSubmit = async (e: { preventDefault(): void }) => {
     e.preventDefault();
     const errors = validate(evaluationSchema, formData);
     if (errors) {
