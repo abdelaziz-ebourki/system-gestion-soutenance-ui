@@ -85,7 +85,7 @@ export const handlers = [
         type: "info",
         title: "Notification test",
         message: "Ceci est une notification de test",
-        timestamp: Date.now(),
+        timestamp: new Date().toISOString(),
         read: false,
       },
     ]),

@@ -11,7 +11,7 @@ const ROLE_LABELS: Record<string, string> = {
 export default function Profile() {
   const { user } = useAuth();
 
-  if (!user) return <Skeleton className="h-48 rounded-xl" />;
+  if (!user) return <Skeleton className="h-48 rounded-xl" data-testid="profile-skeleton" />;
 
   return (
     <div className="space-y-6">
