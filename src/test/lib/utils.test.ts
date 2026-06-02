@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toast } from "sonner";
 import { cn, getFullName, toastError } from "@/lib/utils";
+import { ApiError } from "@/lib/api-error";
 
 vi.mock("sonner", () => ({
   toast: { error: vi.fn() },
@@ -57,5 +58,35 @@ describe("toastError", () => {
   it("shows fallback message when given null", () => {
     toastError(null, "Null fallback");
     expect(toast.error).toHaveBeenCalledWith("Null fallback");
+  });
+
+  it("shows timeout message for ApiError.isTimeout", () => {
+    const err = new ApiError({ status: null, message: "timeout", isTimeout: true });
+    toastError(err, "Fallback");
+    expect(toast.error).toHaveBeenCalledWith("La requête a expiré. Veuillez réessayer.");
+  });
+
+  it("shows network error message for ApiError.isNetworkError", () => {
+    const err = new ApiError({ status: null, message: "network fail", isNetworkError: true });
+    toastError(err, "Fallback");
+    expect(toast.error).toHaveBeenCalledWith("Impossible de contacter le serveur. Vérifiez votre connexion.");
+  });
+
+  it("shows mapped message for known ApiError status", () => {
+    const err = new ApiError({ status: 400, message: "bad request" });
+    toastError(err, "Fallback");
+    expect(toast.error).toHaveBeenCalledWith("La requête est invalide.");
+  });
+
+  it("shows field errors for 422 ApiError", () => {
+    const err = new ApiError({ status: 422, message: "validation failed", fieldErrors: { name: "Name required", email: "Email invalid", age: "Too young" } });
+    toastError(err, "Fallback");
+    expect(toast.error).toHaveBeenCalledWith("Name required\nEmail invalid\nToo young");
+  });
+
+  it("shows error.message for unknown ApiError status", () => {
+    const err = new ApiError({ status: 418, message: "I'm a teapot" });
+    toastError(err, "Fallback");
+    expect(toast.error).toHaveBeenCalledWith("I'm a teapot");
   });
 });
