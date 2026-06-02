@@ -26,6 +26,67 @@ export interface ConflictContext {
   juries: Record<string, { id: string; projectId: string; teacherIds: string[] }>;
   unavailability: Record<string, { date: string; slots: string[]; teacherId: string }[]>;
   defenseSession?: { startDate: string; endDate: string; breakDuration: number };
+  allTimeSlots?: string[];
+}
+
+function getSmartSuggestions(
+  projectId: string,
+  date: string,
+  roomId: string,
+  time: string,
+  context: ConflictContext,
+  issueType: ConflictIssue["type"],
+): string | undefined {
+  const canFit = (altRoomId: string, altTime: string) => {
+    const altSlot = `${date}|${altRoomId}|${altTime}`;
+    if (context.schedule[altSlot]) return false;
+
+    const room = context.rooms[altRoomId];
+    const project = context.projects[projectId];
+    if (room && project && project.studentIds.length > room.capacity) return false;
+
+    const projectJury = context.juries && Object.values(context.juries).find((j) => j.projectId === projectId);
+    const teacherIds = projectJury?.teacherIds ?? [];
+    if (teacherIds.length > 0 && context.unavailability) {
+      const allUnavailability = Object.values(context.unavailability).flat();
+      for (const tid of teacherIds) {
+        if (allUnavailability.find((u) => u.teacherId === tid && u.date === date && u.slots.includes(altTime))) return false;
+      }
+    }
+    return true;
+  };
+
+  if (issueType === "slot_occupied" || issueType === "room_capacity") {
+    const betterRooms = Object.values(context.rooms)
+      .filter((r) => r.id !== roomId && canFit(r.id, time))
+      .map((r) => r.name);
+
+    if (betterRooms.length > 0) {
+      return `Suggestion intelligente : Essayez les salles libres : ${betterRooms.join(", ")}.`;
+    }
+
+    if (context.allTimeSlots) {
+      const betterTimes = context.allTimeSlots
+        .filter((t) => t !== time && canFit(roomId, t))
+        .slice(0, 3);
+      if (betterTimes.length > 0) {
+        return `Suggestion intelligente : Créneaux libres dans cette salle : ${betterTimes.join(", ")}.`;
+      }
+    }
+  }
+
+  if (issueType === "teacher_double_booked" || issueType === "teacher_unavailable") {
+    if (context.allTimeSlots) {
+      const freeTimes = context.allTimeSlots
+        .filter((t) => t !== time && canFit(roomId, t))
+        .slice(0, 3);
+      if (freeTimes.length > 0) {
+        return `Suggestion intelligente : Le jury est disponible à : ${freeTimes.join(", ")}.`;
+      }
+    }
+  }
+
+  return undefined;
 }
 
 export function validateSlotAssignment(
@@ -40,7 +101,6 @@ export function validateSlotAssignment(
     return { isValid: false, issues: [{ type: "slot_occupied", severity: "error", message: "Format de créneau invalide.", slot }] };
   }
 
-  // Check 1: Project already scheduled
   const isAlreadyScheduled = Object.values(context.schedule).some((p) => p.id === projectId);
   if (isAlreadyScheduled) {
     issues.push({
@@ -51,18 +111,16 @@ export function validateSlotAssignment(
     });
   }
 
-  // Check 2: Slot already occupied
   if (context.schedule[slot]) {
     issues.push({
       type: "slot_occupied",
       severity: "error",
       message: "Ce créneau est déjà occupé.",
       slot,
-      suggestedResolution: "Choisissez un autre créneau horaire ou une autre salle.",
+      suggestedResolution: getSmartSuggestions(projectId, date, roomId, time, context, "slot_occupied") || "Choisissez un autre créneau horaire ou une autre salle.",
     });
   }
 
-  // Check 3: Room capacity
   const room = context.rooms[roomId];
   const project = context.projects[projectId];
   if (room && project) {
@@ -73,12 +131,11 @@ export function validateSlotAssignment(
         severity: "error",
         message: `La salle "${room.name}" a une capacité de ${room.capacity} mais le projet a ${studentCount} étudiants.`,
         slot,
-        suggestedResolution: `Utilisez une salle avec capacité ≥ ${studentCount} ou divisez le groupe.`,
+        suggestedResolution: getSmartSuggestions(projectId, date, roomId, time, context, "room_capacity") || `Utilisez une salle avec capacité ≥ ${studentCount} ou divisez le groupe.`,
       });
     }
   }
 
-  // Check 4: Defense session date boundaries
   if (context.defenseSession) {
     if (date < context.defenseSession.startDate || date > context.defenseSession.endDate) {
       issues.push({
@@ -90,7 +147,6 @@ export function validateSlotAssignment(
     }
   }
 
-  // Check 5: Teacher double-booking
   const projectJury = context.juries && Object.values(context.juries).find((j) => j.projectId === projectId);
   const teacherIds = projectJury?.teacherIds ?? [];
 
@@ -108,14 +164,13 @@ export function validateSlotAssignment(
             severity: "error",
             message: `${teacher?.name ?? "Un enseignant"} est déjà affecté à "${existing.title}" le ${existing.date}.`,
             slot,
-            suggestedResolution: "Remplacez le membre du jury en conflit ou modifiez l'autre créneau.",
+            suggestedResolution: getSmartSuggestions(projectId, date, roomId, time, context, "teacher_double_booked") || "Remplacez le membre du jury en conflit ou modifiez l'autre créneau.",
           });
         }
       }
     }
   }
 
-  // Check 6: Supervisor time conflict
   if (project?.supervisorId) {
     const supervisorId = project.supervisorId;
     for (const [, existing] of Object.entries(context.schedule)) {
@@ -133,7 +188,6 @@ export function validateSlotAssignment(
     }
   }
 
-  // Check 7: Student double-booking
   if (project?.studentIds?.length) {
     for (const [, existing] of Object.entries(context.schedule)) {
       if (existing.date !== date) continue;
@@ -151,7 +205,6 @@ export function validateSlotAssignment(
     }
   }
 
-  // Check 8: Break interval violation
   if (context.defenseSession && roomId) {
     const existingSlotsInRoom = Object.values(context.schedule)
       .filter((s) => s.date === date && s.roomId === roomId && s.time !== time)
@@ -161,7 +214,6 @@ export function validateSlotAssignment(
     const [th, tm] = time.split(":").map(Number);
     const thisMinutes = th * 60 + tm;
 
-    // Check gap with nearest preceding slot
     const precedingSlots = existingSlotsInRoom.filter((t) => t < time);
     if (precedingSlots.length > 0) {
       const nearestTime = precedingSlots[precedingSlots.length - 1];
@@ -181,7 +233,6 @@ export function validateSlotAssignment(
     }
   }
 
-  // Check 9: Teacher unavailability
   if (teacherIds.length > 0 && context.unavailability) {
     const allUnavailability = Object.values(context.unavailability).flat();
     for (const teacherId of teacherIds) {
@@ -195,7 +246,7 @@ export function validateSlotAssignment(
           severity: "error",
           message: `${teacher?.name ?? "Un enseignant"} est indisponible le ${date} à ${time}.`,
           slot,
-          suggestedResolution: "Choisissez un créneau où tous les membres du jury sont disponibles.",
+          suggestedResolution: getSmartSuggestions(projectId, date, roomId, time, context, "teacher_unavailable") || "Choisissez un créneau où tous les membres du jury sont disponibles.",
         });
       }
     }

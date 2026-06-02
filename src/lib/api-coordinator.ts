@@ -235,3 +235,25 @@ export const getProcesVerbal = (projectId: string) =>
     method: "POST",
     body: JSON.stringify({ projectId }),
   });
+
+// --- Student documents review (Coordinator) ---
+export interface CoordinatorStudentDocument {
+  id: string;
+  name: string;
+  type: string;
+  deadline: string;
+  status: "submitted" | "missing" | "validated" | "rejected";
+  submittedAt?: string;
+  studentId?: string;
+  studentName?: string;
+  projectId?: string;
+}
+
+export const getStudentDocumentsForReview = () =>
+  api<CoordinatorStudentDocument[]>("/coordinator/student-documents");
+
+export const updateStudentDocumentStatus = (id: string, status: "validated" | "rejected") =>
+  api<CoordinatorStudentDocument>(`/coordinator/student-documents/${id}/status`, {
+    method: "POST",
+    body: JSON.stringify({ status }),
+  });

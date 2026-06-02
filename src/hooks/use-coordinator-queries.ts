@@ -230,3 +230,16 @@ export function useProcesVerbal(projectId: string | null) {
     staleTime: 60_000,
   });
 }
+
+// --- Student documents review hooks ---
+export function useCoordinatorStudentDocuments() {
+  return useQuery({ queryKey: ["coordinator", "student-documents"], queryFn: () => api.getStudentDocumentsForReview() });
+}
+
+export function useUpdateStudentDocumentStatus() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "validated" | "rejected" }) => api.updateStudentDocumentStatus(id, status),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["coordinator", "student-documents"] }),
+  });
+}

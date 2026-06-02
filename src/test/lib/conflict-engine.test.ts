@@ -260,10 +260,30 @@ describe("Conflict Engine", () => {
       expect(result.isValid).toBe(true);
     });
 
-    it("should skip break violation check if roomId is missing", () => {
-      // slot = "date||time" -> date="date", roomId="", time="time"
-      const result = validateSlotAssignment("proj1", "2026-06-01||09:00", mockContext);
-      expect(result.issues.some(i => i.type === "break_violation")).toBe(false);
+    it("should provide smart suggestions for occupied slots", () => {
+      const context: ConflictContext = {
+        ...mockContext,
+        schedule: { "2026-06-01|room1|11:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "11:00", roomId: "room1" } },
+        allTimeSlots: ["09:00", "10:00", "11:00"],
+      };
+      // 11:00 is occupied in room1. room2 at 11:00 should be free.
+      const result = validateSlotAssignment("proj1", "2026-06-01|room1|11:00", context);
+      expect(result.issues.some(i => i.type === "slot_occupied")).toBe(true);
+      const issue = result.issues.find(i => i.type === "slot_occupied");
+      expect(issue?.suggestedResolution).toContain("Essayez les salles libres : Salle B");
+    });
+
+    it("should provide smart suggestions for room capacity", () => {
+      const context: ConflictContext = {
+        ...mockContext,
+        allTimeSlots: ["09:00", "10:00", "11:00"],
+      };
+      // 11:00 is a safe time (t1 is available).
+      // proj3 has 6 students, room2 has capacity 2. room1 has capacity 10.
+      const result = validateSlotAssignment("proj3", "2026-06-01|room2|11:00", context);
+      expect(result.issues.some(i => i.type === "room_capacity")).toBe(true);
+      const issue = result.issues.find(i => i.type === "room_capacity");
+      expect(issue?.suggestedResolution).toContain("Essayez les salles libres : Salle A");
     });
   });
 
