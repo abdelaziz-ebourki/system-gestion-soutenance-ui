@@ -34,6 +34,7 @@ describe("StudentDocuments", () => {
     expect(screen.getByText("Déposé")).toBeInTheDocument();
     expect(screen.getByText("Validé")).toBeInTheDocument();
     expect(screen.getByText("Manquant")).toBeInTheDocument();
+    expect(screen.getByText("Refusé")).toBeInTheDocument();
   });
 
   it("renders stats cards", async () => {

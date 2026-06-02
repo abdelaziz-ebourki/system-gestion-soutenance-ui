@@ -842,6 +842,7 @@ export const handlers = [
       { id: "d1", name: "Rapport PFE", type: "report", deadline: "2026-06-01", status: "submitted", submittedAt: "2026-05-28T10:00:00Z" },
       { id: "d2", name: "Fiche de présentation", type: "presentation", deadline: "2026-06-05", status: "missing" },
       { id: "d3", name: "Déclaration sur l'honneur", type: "declaration", deadline: "2026-06-01", status: "validated", submittedAt: "2026-05-25T14:00:00Z" },
+      { id: "d4", name: "Attestation de stage", type: "internship", deadline: "2026-06-01", status: "rejected", submittedAt: "2026-05-20T09:00:00Z" },
     ]),
   ),
 

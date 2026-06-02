@@ -38,12 +38,14 @@ const statusLabel: Record<StudentDocument["status"], string> = {
   submitted: "Déposé",
   validated: "Validé",
   missing: "Manquant",
+  rejected: "Refusé",
 };
 
 const statusClass: Record<StudentDocument["status"], string> = {
   submitted: "bg-secondary text-secondary-foreground",
   validated: "bg-primary text-primary-foreground",
   missing: "bg-destructive/10 text-destructive",
+  rejected: "bg-destructive/10 text-destructive line-through",
 };
 
 const formatDate = (dateStr: string | null | undefined) => {

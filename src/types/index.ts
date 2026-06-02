@@ -128,7 +128,7 @@ export interface StudentDocument {
   name: string;
   type: string;
   deadline: string;
-  status: "submitted" | "missing" | "validated";
+  status: "submitted" | "missing" | "validated" | "rejected";
   submittedAt?: string;
 }
 
