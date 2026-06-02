@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -7,6 +7,62 @@ import Jurys from "@/pages/coordinator/Jurys";
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
+}));
+
+vi.mock("@/components/academic/CreateJuryDialog", () => ({
+  CreateJuryDialog: ({ open }: { open: boolean }) => open ? <div data-testid="coord-jury-create-dialog" /> : null,
+}));
+
+vi.mock("@/components/admin/DeleteAlert", () => ({
+  DeleteAlert: ({ isOpen, onDelete, isPending }: { isOpen: boolean; onDelete: () => void; isPending: boolean }) =>
+    isOpen ? (
+      <div data-testid="delete-alert">
+        <p>Confirmation</p>
+        <button data-testid="delete-alert-confirm" onClick={onDelete} disabled={isPending}>
+          Confirmer
+        </button>
+      </div>
+    ) : null,
+}));
+
+const mockJuries = [
+  {
+    id: "j1",
+    projectId: "p1",
+    projectTitle: "Application CI/CD",
+    studentNames: ["Ahmed Benali", "Fatima Amrani"],
+    members: [
+      { teacherId: "t1", teacherName: "Dr. Alami", role: "Président" },
+      { teacherId: "t2", teacherName: "Pr. Bennani", role: "Examinateur" },
+    ],
+  },
+  {
+    id: "j2",
+    projectId: "p2",
+    projectTitle: "IA pour la santé",
+    studentNames: ["Mohammed"],
+    members: [
+      { teacherId: "t3", teacherName: "Dr. Chafik", role: "Président" },
+    ],
+  },
+];
+
+const mockProjects = [
+  { id: "p1", title: "Application CI/CD" },
+  { id: "p2", title: "IA pour la santé" },
+  { id: "p3", title: "Site e-commerce" },
+];
+
+const { mockUseJuries, mockUseProjects, mockUseDeleteJury } = vi.hoisted(() => ({
+  mockUseJuries: vi.fn(() => ({ data: mockJuries, isLoading: false })),
+  mockUseProjects: vi.fn(() => ({ data: mockProjects, isLoading: false })),
+  mockUseDeleteJury: vi.fn(() => ({ isPending: false, mutateAsync: vi.fn() })),
+}));
+
+vi.mock("@/hooks/use-queries", () => ({
+  useJuries: mockUseJuries,
+  useProjects: mockUseProjects,
+  useDeleteJury: mockUseDeleteJury,
 }));
 
 function renderJurys() {
@@ -24,7 +80,12 @@ function renderJurys() {
 
 describe("Jurys (Coordinator)", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockUseJuries.mockReset();
+    mockUseProjects.mockReset();
+    mockUseDeleteJury.mockReset();
+    mockUseJuries.mockReturnValue({ data: mockJuries, isLoading: false });
+    mockUseProjects.mockReturnValue({ data: mockProjects, isLoading: false });
+    mockUseDeleteJury.mockReturnValue({ isPending: false, mutateAsync: vi.fn() });
   });
 
   it("renders the page title", () => {
@@ -50,12 +111,56 @@ describe("Jurys (Coordinator)", () => {
     expect(screen.getByText("Nouveau Jury")).toBeInTheDocument();
   });
 
+  it("shows projects without jury count in stat card", async () => {
+    renderJurys();
+    expect(await screen.findByText("1")).toBeInTheDocument();
+  });
+
+  it("renders loading skeleton when data is loading", async () => {
+    mockUseJuries.mockReturnValue({ data: [], isLoading: true });
+    mockUseProjects.mockReturnValue({ data: [], isLoading: true });
+    renderJurys();
+    expect(screen.getByTestId("coord-juries-page")).toBeInTheDocument();
+    const skeleton = document.querySelector('[data-slot="skeleton"]');
+    expect(skeleton).toBeInTheDocument();
+  });
+
+  it("shows empty state when no juries exist", async () => {
+    mockUseJuries.mockReturnValue({ data: [], isLoading: false });
+    mockUseProjects.mockReturnValue({ data: [], isLoading: false });
+    renderJurys();
+    expect(await screen.findByText("Total Jurys")).toBeInTheDocument();
+    const zeros = screen.getAllByText("0");
+    expect(zeros.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("opens create dialog when add button is clicked", async () => {
+    const user = userEvent.setup();
+    renderJurys();
+    const addBtn = await screen.findByTestId("coord-juries-add-button");
+    await user.click(addBtn);
+    expect(await screen.findByTestId("coord-jury-create-dialog")).toBeInTheDocument();
+  });
+
   it("shows delete confirmation when delete is clicked", async () => {
     const user = userEvent.setup();
     renderJurys();
-    const deleteBtn = await screen.findByText("Supprimer");
-    await user.click(deleteBtn);
+    const deleteBtns = await screen.findAllByText("Supprimer");
+    await user.click(deleteBtns[0]);
     expect(await screen.findByTestId("delete-alert")).toBeInTheDocument();
     expect(screen.getByText("Confirmation")).toBeInTheDocument();
+  });
+
+  it("calls delete mutation when delete is confirmed", async () => {
+    const user = userEvent.setup();
+    const deleteMutate = vi.fn();
+    mockUseDeleteJury.mockReturnValue({ isPending: false, mutateAsync: deleteMutate });
+    renderJurys();
+    const deleteBtns = await screen.findAllByText("Supprimer");
+    await user.click(deleteBtns[0]);
+    await user.click(screen.getByTestId("delete-alert-confirm"));
+    await waitFor(() => {
+      expect(deleteMutate).toHaveBeenCalledWith("j1");
+    });
   });
 });

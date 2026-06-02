@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -175,5 +175,51 @@ describe("ProjectsGroups (Coordinator)", () => {
     const addBtn = await screen.findByTestId("coord-projects-add-button");
     await user.click(addBtn);
     expect(screen.getByTestId("mock-project-dialog")).toBeInTheDocument();
+  });
+
+  it("shows loading skeleton when projects are loading", async () => {
+    const queries = await import("@/hooks/use-queries");
+    vi.mocked(queries.useProjects).mockReturnValue({ data: [], isLoading: true } as unknown as UseQueryResult<Project[], Error>);
+    vi.mocked(queries.useUpdateProject).mockReturnValue({ isPending: false, mutateAsync: vi.fn() } as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
+    vi.mocked(queries.useDeleteProject).mockReturnValue({ isPending: false, mutateAsync: vi.fn() } as unknown as UseMutationResult<void, Error, string, unknown>);
+    vi.mocked(queries.useStudentGroups).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
+    renderProjects();
+    expect(screen.getByTestId("coord-projects-page")).toBeInTheDocument();
+    const skeleton = document.querySelector('[data-slot="skeleton"]');
+    expect(skeleton).toBeInTheDocument();
+  });
+
+  it("shows empty project portfolio", async () => {
+    const queries = await import("@/hooks/use-queries");
+    vi.mocked(queries.useProjects).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Project[], Error>);
+    vi.mocked(queries.useUpdateProject).mockReturnValue({ isPending: false, mutateAsync: vi.fn() } as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
+    vi.mocked(queries.useDeleteProject).mockReturnValue({ isPending: false, mutateAsync: vi.fn() } as unknown as UseMutationResult<void, Error, string, unknown>);
+    vi.mocked(queries.useStudentGroups).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
+    renderProjects();
+    expect(await screen.findByTestId("coord-projects-page")).toBeInTheDocument();
+    const zeros = screen.getAllByText("0");
+    expect(zeros.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("calls delete mutation when CrudActions delete is confirmed", async () => {
+    const user = userEvent.setup();
+    const queries = await import("@/hooks/use-queries");
+    const data = createMockQueryData();
+    const deleteMutate = vi.fn();
+    vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
+    vi.mocked(queries.useUpdateProject).mockReturnValue(data.updateProject as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
+    vi.mocked(queries.useDeleteProject).mockReturnValue({ isPending: false, mutateAsync: deleteMutate } as unknown as UseMutationResult<void, Error, string, unknown>);
+    vi.mocked(queries.useStudentGroups).mockReturnValue(data.studentGroups as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
+    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
+    vi.mocked(queries.useStudents).mockReturnValue({ data: { items: [], total: 0, pageCount: 0 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
+    renderProjects();
+    const triggers = await screen.findAllByTestId("crud-actions-trigger");
+    await user.click(triggers[0]);
+    await user.click(screen.getByRole("menuitem", { name: /supprimer/i }));
+    expect(await screen.findByTestId("delete-alert")).toBeInTheDocument();
+    await user.click(screen.getByTestId("delete-alert-confirm"));
+    await waitFor(() => {
+      expect(deleteMutate).toHaveBeenCalledWith("p1");
+    });
   });
 });
