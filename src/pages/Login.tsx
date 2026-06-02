@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Link, useNavigate } from "react-router-dom";
-import { authenticate } from "@/lib/api";
+import { login as loginApi } from "@/lib/api-auth";
 import { useAuth } from "@/contexts/auth-context";
 import { validate, loginSchema } from "@/lib/validations";
 
@@ -36,7 +36,7 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const data = await authenticate({ email, password });
+      const data = await loginApi({ email, password });
 
       toast.success(`Bienvenue, ${data.user.firstName} ${data.user.lastName}`);
 

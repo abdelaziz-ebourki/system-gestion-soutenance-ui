@@ -2,7 +2,7 @@ import { http, HttpResponse } from "msw";
 
 export const handlers = [
   // ── Auth ──
-  http.post("*/api/login", async ({ request }) => {
+  http.post("*/api/auth/login", async ({ request }) => {
     const body = (await request.json()) as { email?: string; password?: string };
     if (body.email === "admin@univh2c.ma" && body.password === "1234") {
       return HttpResponse.json({
@@ -29,17 +29,6 @@ export const handlers = [
         },
         expiresAt: Date.now() + 7200000,
       });
-    }
-    return HttpResponse.json(
-      { message: "Identifiants invalides" },
-      { status: 401 },
-    );
-  }),
-
-  http.post("*/api/auth/login", async ({ request }) => {
-    const body = (await request.json()) as { email?: string; password?: string };
-    if (body.email === "admin@univh2c.ma" && body.password === "1234") {
-      return HttpResponse.json({ token: "mock-jwt-token" });
     }
     return HttpResponse.json(
       { message: "Identifiants invalides" },

@@ -124,7 +124,7 @@ export function validateSlotAssignment(
       if (existingProject?.supervisorId === supervisorId) {
         issues.push({
           type: "supervisor_conflict",
-          severity: "warning",
+          severity: "error",
           message: `L'encadrant est également encadrant de "${existing.title}" le même jour.`,
           slot,
           suggestedResolution: "Planifiez les deux passages le même jour avec suffisamment d'écart ou répartissez sur des jours différents.",
@@ -133,7 +133,25 @@ export function validateSlotAssignment(
     }
   }
 
-  // Check 7: Break interval violation
+  // Check 7: Student double-booking
+  if (project?.studentIds?.length) {
+    for (const [, existing] of Object.entries(context.schedule)) {
+      if (existing.date !== date) continue;
+      const existingProject = context.projects[existing.id];
+      const overlapping = project.studentIds.filter((sid) => existingProject?.studentIds.includes(sid));
+      if (overlapping.length > 0) {
+        issues.push({
+          type: "student_double_booked",
+          severity: "error",
+          message: `L'étudiant "${overlapping[0]}" est déjà dans "${existing.title}" le ${existing.date}.`,
+          slot,
+          suggestedResolution: "Réaffectez les étudiants pour éviter les chevauchements.",
+        });
+      }
+    }
+  }
+
+  // Check 8: Break interval violation
   if (context.defenseSession && roomId) {
     const existingSlotsInRoom = Object.values(context.schedule)
       .filter((s) => s.date === date && s.roomId === roomId && s.time !== time)
@@ -163,7 +181,7 @@ export function validateSlotAssignment(
     }
   }
 
-  // Check 8: Teacher unavailability
+  // Check 9: Teacher unavailability
   if (teacherIds.length > 0 && context.unavailability) {
     const allUnavailability = Object.values(context.unavailability).flat();
     for (const teacherId of teacherIds) {

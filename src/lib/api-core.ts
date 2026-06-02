@@ -1,6 +1,5 @@
 import { ApiError } from "@/lib/api-error";
 import type {
-  User,
   Student,
   Teacher,
   Coordinator,
@@ -125,22 +124,6 @@ export async function api<T>(
     });
   }
 }
-
-export interface AuthResponse {
-  user: User;
-  token: string;
-  expiresAt: number;
-}
-
-export const authenticate = (credentials: {
-  email: string;
-  password?: string;
-}) =>
-  api<AuthResponse>("/login", {
-    method: "POST",
-    body: JSON.stringify(credentials),
-    requiresAuth: false,
-  });
 
 export interface PaginatedResponse<T> {
   items: T[];

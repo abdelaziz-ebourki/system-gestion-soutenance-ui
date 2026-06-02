@@ -1,9 +1,20 @@
 import { api } from "./api";
+import type { User } from "@/types";
 
-export const login = (email: string, password: string) =>
-  api<{ token: string }>("/auth/login", {
+export interface AuthResponse {
+  user: User;
+  token: string;
+  expiresAt: number;
+}
+
+export const login = (credentials: {
+  email: string;
+  password?: string;
+}) =>
+  api<AuthResponse>("/auth/login", {
     method: "POST",
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify(credentials),
+    requiresAuth: false,
   });
 
 export const forgotPassword = (email: string) =>
