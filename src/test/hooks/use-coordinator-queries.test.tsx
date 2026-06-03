@@ -51,6 +51,11 @@ function createWrapper() {
 describe("useCoordinatorQueries", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(api.getEvaluationSheet).mockResolvedValue({} as never);
+    vi.mocked(api.getAttendanceList).mockResolvedValue({} as never);
+    vi.mocked(api.getJuryConvocations).mockResolvedValue({} as never);
+    vi.mocked(api.getDefenseScheduleDoc).mockResolvedValue({} as never);
+    vi.mocked(api.getProcesVerbal).mockResolvedValue({} as never);
   });
 
   describe("Project mutations", () => {

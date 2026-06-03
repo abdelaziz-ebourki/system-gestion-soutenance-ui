@@ -1,4 +1,9 @@
 import "@testing-library/jest-dom/vitest";
+
+declare global {
+  var IS_REACT_ACT_ENVIRONMENT: boolean;
+}
+globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 import { cleanup } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { server, clearResponseDelay } from "./mocks/server";

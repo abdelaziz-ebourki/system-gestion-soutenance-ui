@@ -39,14 +39,30 @@ describe("DroppableCalendarCell", () => {
   });
 
   it("renders cell with jury correctly", () => {
-    render(<DroppableCalendarCell id="cell-1" jury={mockJury} onRemove={vi.fn()} />);
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <DroppableCalendarCell id="cell-1" jury={mockJury} onRemove={vi.fn()} />
+          </tr>
+        </tbody>
+      </table>
+    );
     expect(screen.getByText("Project 1")).toBeInTheDocument();
     expect(screen.getByTestId("coord-cell-remove-cell-1")).toBeInTheDocument();
   });
 
   it("triggers onRemove when remove button is clicked", () => {
     const onRemove = vi.fn();
-    render(<DroppableCalendarCell id="cell-1" jury={mockJury} onRemove={onRemove} />);
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <DroppableCalendarCell id="cell-1" jury={mockJury} onRemove={onRemove} />
+          </tr>
+        </tbody>
+      </table>
+    );
     
     fireEvent.click(screen.getByTestId("coord-cell-remove-cell-1"));
     expect(onRemove).toHaveBeenCalled();
@@ -58,7 +74,15 @@ describe("DroppableCalendarCell", () => {
       isOver: true,
     } as unknown as UseDroppableReturn);
 
-    render(<DroppableCalendarCell id="cell-1" jury={null} onRemove={vi.fn()} />);
+    render(
+      <table>
+        <tbody>
+          <tr>
+            <DroppableCalendarCell id="cell-1" jury={null} onRemove={vi.fn()} />
+          </tr>
+        </tbody>
+      </table>
+    );
     const cell = screen.getByTestId("coord-cell-cell-1");
     expect(cell.className).toContain("bg-primary/10");
     expect(cell.className).toContain("ring-primary");
