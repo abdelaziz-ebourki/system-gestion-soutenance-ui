@@ -1,0 +1,173 @@
+import { renderHook, act } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
+import type { DragEndEvent } from "@dnd-kit/core";
+import type { DefenseSession, DefenseSessionStatus, Jury, Room } from "@/types";
+import type { UnavailabilityEntry } from "@/lib/api-coordinator";
+import type { SlotAssignment, ConflictIssue } from "@/lib/conflict-engine";
+import { useDefenseSchedule } from "@/hooks/use-defense-schedule";
+import * as queries from "@/hooks/use-queries";
+import * as conflictEngine from "@/lib/conflict-engine";
+import { toast } from "sonner";
+import type { ReactNode } from "react";
+
+vi.mock("sonner", () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
+}));
+
+vi.mock("@/hooks/use-queries", () => ({
+  useJuries: vi.fn(),
+  useRooms: vi.fn(),
+  useSaveDefenseSchedule: vi.fn(),
+  useCoordinatorDefenseSessions: vi.fn(),
+  useCoordinatorUnavailability: vi.fn(),
+  useTransitionDefenseSession: vi.fn(),
+}));
+
+vi.mock("@/lib/conflict-engine", () => ({
+  validateSlotAssignment: vi.fn(),
+}));
+
+function createWrapper() {
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return <QueryClientProvider client={qc}>{children}</QueryClientProvider>;
+  };
+}
+
+const mockSessions = [
+  {
+    id: "s1",
+    startDate: "2026-06-01T08:00:00",
+    endDate: "2026-06-15T18:00:00",
+    startTime: "08:00",
+    endTime: "12:00",
+    defenseDuration: 60,
+    status: "draft",
+  },
+];
+
+const mockJuries = [
+  { id: "j1", projectTitle: "AI in Health", studentNames: ["Alice", "Bob"], projectId: "p1", members: [{ teacherId: "t1", teacherName: "T1", roleName: "President" }] },
+  { id: "j2", projectTitle: "Blockchain Logistics", studentNames: ["Charlie", "David"], projectId: "p2", members: [{ teacherId: "t2", teacherName: "T2", roleName: "Member" }] },
+];
+
+const mockRooms = [
+  { id: "r1", name: "Salle A", capacity: 30 },
+  { id: "r2", name: "Salle B", capacity: 20 },
+];
+
+const mockUnavailabilities: UnavailabilityEntry[] = [];
+
+const mockSaveMutate = vi.fn().mockResolvedValue({});
+const mockTransitionMutate = vi.fn().mockResolvedValue({});
+
+describe("useDefenseSchedule", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuries).mockReturnValue({ data: mockJuries, isLoading: false } as unknown as UseQueryResult<Jury[], Error>);
+    vi.mocked(queries.useRooms).mockReturnValue({ data: mockRooms, isLoading: false } as unknown as UseQueryResult<Room[], Error>);
+    vi.mocked(queries.useCoordinatorUnavailability).mockReturnValue({ data: mockUnavailabilities, isLoading: false } as unknown as UseQueryResult<UnavailabilityEntry[], Error>);
+    vi.mocked(queries.useSaveDefenseSchedule).mockReturnValue({ mutateAsync: mockSaveMutate } as unknown as UseMutationResult<void, Error, Record<string, SlotAssignment>>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue({ mutateAsync: mockTransitionMutate } as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }>);
+    vi.mocked(conflictEngine.validateSlotAssignment).mockReturnValue({ isValid: true, issues: [] });
+  });
+
+  it("initializes with the first session selected", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    expect(result.current.selectedSessionId).toBe("s1");
+    expect(result.current.currentSession).toEqual(mockSessions[0]);
+  });
+
+  it("computes correct days window (14 days)", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    expect(result.current.days).toHaveLength(14);
+    expect(result.current.days[0].toISOString()).toContain("2026-06-01");
+  });
+
+  it("computes correct time slots based on duration", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    // 08:00 to 12:00 with 60min duration = 4 slots
+    expect(result.current.timeSlots).toEqual(["08:00", "09:00", "10:00", "11:00"]);
+  });
+
+  it("filters juries based on search query", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.setSearchQuery("Health"));
+    expect(result.current.filteredJuries).toHaveLength(1);
+    expect(result.current.filteredJuries[0].id).toBe("j1");
+
+    act(() => result.current.setSearchQuery("Blockchain"));
+    expect(result.current.filteredJuries).toHaveLength(1);
+    expect(result.current.filteredJuries[0].id).toBe("j2");
+  });
+
+  it("handles successful drag end assignment", async () => {
+    vi.mocked(conflictEngine.validateSlotAssignment).mockReturnValue({ isValid: true, issues: [] });
+
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.setSelectedRoomId("r1"));
+
+    act(() => {
+      result.current.handleDragEnd({
+        active: { id: "j1" },
+        over: { id: "2026-06-01|08:00" },
+      } as unknown as DragEndEvent);
+    });
+
+    expect(result.current.schedule["j1"]).toEqual({ roomId: "r1", date: "2026-06-01", time: "08:00" });
+    expect(toast.success).toHaveBeenCalledWith("Positionné avec succès");
+  });
+
+  it("handles conflict during drag end assignment", async () => {
+    vi.mocked(conflictEngine.validateSlotAssignment).mockReturnValue({
+      isValid: false,
+      issues: [{ type: "slot_occupied", severity: "error", message: "Slot already occupied", slot: "2026-06-01|08:00" }],
+    } as { isValid: boolean; issues: ConflictIssue[] });
+
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.setSelectedRoomId("r1"));
+
+    act(() => {
+      result.current.handleDragEnd({
+        active: { id: "j1" },
+        over: { id: "2026-06-01|08:00" },
+      } as unknown as DragEndEvent);
+    });
+
+    expect(result.current.schedule["j1"]).toBeUndefined();
+    expect(toast.error).toHaveBeenCalledWith("Slot already occupied");
+  });
+
+  it("auto-generates a basic schedule", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.handleAutoGenerate());
+    
+    expect(Object.keys(result.current.schedule)).toHaveLength(2);
+    expect(toast.success).toHaveBeenCalledWith(expect.stringContaining("Planning généré"));
+  });
+
+  it("saves the schedule via API", async () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.setSelectedRoomId("r1"));
+    act(() => {
+      result.current.handleDragEnd({
+        active: { id: "j1" },
+        over: { id: "2026-06-01|08:00" },
+      } as unknown as DragEndEvent);
+    });
+
+    expect(Object.keys(result.current.schedule)).toHaveLength(1);
+
+    await act(async () => {
+      await result.current.handleSave();
+    });
+
+    expect(mockSaveMutate).toHaveBeenCalled();
+    expect(toast.success).toHaveBeenCalledWith("Planning enregistré avec succès");
+  });
+});
