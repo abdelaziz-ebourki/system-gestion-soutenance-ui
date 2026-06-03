@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FileText, Users, Calendar, ClipboardList, ScrollText } from "lucide-react";
-import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades } from "@/hooks/use-queries";
+import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades, useCoordinatorStudentDocuments, useUpdateStudentDocumentStatus } from "@/hooks/use-queries";
+import type { CoordinatorStudentDocument } from "@/lib/api-coordinator";
 import {
   Button,
   Card,
@@ -19,7 +20,7 @@ import {
   EmptyState,
   Badge,
 } from "@/components/ui";
-import { useCoordinatorStudentDocuments, useUpdateStudentDocumentStatus } from "@/hooks/use-queries";
+
 import { toast } from "sonner";
 
 const DOC_TYPES: {
@@ -280,7 +281,7 @@ export default function Documents() {
                 {[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 rounded" />)}
               </div>
             ) : (studentDocsQuery.data && studentDocsQuery.data.length > 0) ? (
-              studentDocsQuery.data.map((d) => (
+              studentDocsQuery.data.map((d: CoordinatorStudentDocument) => (
                 <div key={d.id} className="flex items-center justify-between p-2 border rounded">
                   <div>
                     <div className="font-medium">{d.name} <span className="text-sm text-muted-foreground">— {d.studentName}</span></div>

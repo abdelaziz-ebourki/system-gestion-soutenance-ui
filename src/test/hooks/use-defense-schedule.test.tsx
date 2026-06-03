@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import type { DragEndEvent } from "@dnd-kit/core";
-import type { DefenseSession, DefenseSessionStatus, Jury, Room } from "@/types";
+import type { DefenseSession, DefenseSessionStatus, Jury, Room, Project, Teacher } from "@/types";
 import type { UnavailabilityEntry } from "@/lib/api-coordinator";
 import type { SlotAssignment, ConflictIssue } from "@/lib/conflict-engine";
 import { useDefenseSchedule } from "@/hooks/use-defense-schedule";
@@ -19,6 +19,8 @@ vi.mock("sonner", () => ({
 vi.mock("@/hooks/use-queries", () => ({
   useJuries: vi.fn(),
   useRooms: vi.fn(),
+  useProjects: vi.fn(),
+  useTeachersList: vi.fn(),
   useSaveDefenseSchedule: vi.fn(),
   useCoordinatorDefenseSessions: vi.fn(),
   useCoordinatorUnavailability: vi.fn(),
@@ -71,6 +73,8 @@ describe("useDefenseSchedule", () => {
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuries).mockReturnValue({ data: mockJuries, isLoading: false } as unknown as UseQueryResult<Jury[], Error>);
     vi.mocked(queries.useRooms).mockReturnValue({ data: mockRooms, isLoading: false } as unknown as UseQueryResult<Room[], Error>);
+    vi.mocked(queries.useProjects).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Project[], Error>);
+    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
     vi.mocked(queries.useCoordinatorUnavailability).mockReturnValue({ data: mockUnavailabilities, isLoading: false } as unknown as UseQueryResult<UnavailabilityEntry[], Error>);
     vi.mocked(queries.useSaveDefenseSchedule).mockReturnValue({ mutateAsync: mockSaveMutate } as unknown as UseMutationResult<void, Error, Record<string, SlotAssignment>>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue({ mutateAsync: mockTransitionMutate } as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }>);

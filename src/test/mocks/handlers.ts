@@ -872,7 +872,7 @@ export const handlers = [
   ),
 
   http.post("*/api/coordinator/student-documents/:id/status", async ({ params, request }) => {
-    const body = await request.json();
+    const body = (await request.json()) as { status: string };
     const id = params.id as string;
     return HttpResponse.json({ id, status: body.status }, { status: 200 });
   }),
