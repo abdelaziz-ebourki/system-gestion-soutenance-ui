@@ -862,6 +862,21 @@ export const handlers = [
     );
   }),
 
+  // ── Coordinator: Student documents review (mock) ──
+  http.get("*/api/coordinator/student-documents", () =>
+    HttpResponse.json([
+      { id: "d1", name: "Rapport PFE", type: "report", deadline: "2026-06-01", status: "submitted", submittedAt: "2026-05-28T10:00:00Z", studentId: "s1", studentName: "Alice" },
+      { id: "d2", name: "Fiche de présentation", type: "presentation", deadline: "2026-06-05", status: "submitted", studentId: "s2", studentName: "Bob" },
+      { id: "d3", name: "Déclaration sur l'honneur", type: "declaration", deadline: "2026-06-01", status: "validated", submittedAt: "2026-05-25T14:00:00Z", studentId: "s3", studentName: "Charlie" },
+    ]),
+  ),
+
+  http.post("*/api/coordinator/student-documents/:id/status", async ({ params, request }) => {
+    const body = await request.json();
+    const id = params.id as string;
+    return HttpResponse.json({ id, status: body.status }, { status: 200 });
+  }),
+
   // ── Student: Convocation ──
   http.get("*/api/student/convocation", () =>
     HttpResponse.json(new Blob(["mock-pdf-content"], { type: "application/pdf" })),

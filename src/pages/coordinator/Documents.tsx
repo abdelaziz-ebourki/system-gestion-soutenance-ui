@@ -17,7 +17,9 @@ import {
   Input,
   Skeleton,
   EmptyState,
+  Badge,
 } from "@/components/ui";
+import { useCoordinatorStudentDocuments, useUpdateStudentDocumentStatus } from "@/hooks/use-queries";
 import { toast } from "sonner";
 
 const DOC_TYPES: {
@@ -77,6 +79,24 @@ const DOC_TYPES: {
 ];
 
 export default function Documents() {
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const studentDocsQuery = useCoordinatorStudentDocuments();
+  const updateStatusMutation = useUpdateStudentDocumentStatus();
+
+  const statusLabelMap: Record<string, string> = {
+    submitted: "Déposé",
+    validated: "Validé",
+    missing: "Manquant",
+    rejected: "Refusé",
+  };
+
+  const statusClassMap: Record<string, string> = {
+    submitted: "bg-secondary text-secondary-foreground",
+    validated: "bg-primary text-primary-foreground",
+    missing: "bg-destructive/10 text-destructive",
+    rejected: "bg-destructive/10 text-destructive line-through",
+  };
+
   const [isDateDialogOpen, setIsDateDialogOpen] = useState(false);
   const [dateInput, setDateInput] = useState(() => new Date().toISOString().split("T")[0]);
 
@@ -143,6 +163,18 @@ export default function Documents() {
           Générez les documents PDF pour les soutenances via l'impression navigateur.
         </p>
       </div>
+
+      <Card className="p-4">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Revue des documents étudiants</CardTitle>
+            <div>
+              <Button onClick={() => setIsReviewOpen(true)} data-testid="coord-open-review-dialog">Ouvrir la revue</Button>
+            </div>
+          </div>
+          <CardDescription>Validez ou refusez les documents déposés par les étudiants.</CardDescription>
+        </CardHeader>
+      </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {DOC_TYPES.map((doc) => (
@@ -232,6 +264,55 @@ export default function Documents() {
             }} data-testid="coord-documents-date-generate">
               Générer
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
+        <DialogContent className="lg:max-w-2xl" data-testid="coord-documents-review-dialog">
+          <DialogHeader>
+            <DialogTitle>Revue des documents étudiants</DialogTitle>
+            <DialogDescription>Liste des documents déposés par les étudiants. Approuvez ou refusez chaque fichier.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 mt-4">
+            {studentDocsQuery.isLoading ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 rounded" />)}
+              </div>
+            ) : (studentDocsQuery.data && studentDocsQuery.data.length > 0) ? (
+              studentDocsQuery.data.map((d) => (
+                <div key={d.id} className="flex items-center justify-between p-2 border rounded">
+                  <div>
+                    <div className="font-medium">{d.name} <span className="text-sm text-muted-foreground">— {d.studentName}</span></div>
+                    <div className="text-sm text-muted-foreground">Déposé: {d.submittedAt ?? "-"} • Échéance: {d.deadline}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={statusClassMap[d.status]}>{statusLabelMap[d.status]}</Badge>
+                    <Button size="sm" variant="outline" onClick={async () => {
+                      try {
+                        await updateStatusMutation.mutateAsync({ id: d.id, status: "validated" });
+                        toast.success("Document validé");
+                      } catch {
+                        toast.error("Erreur lors de la validation");
+                      }
+                    }} data-testid={`coord-doc-approve-${d.id}`}>Valider</Button>
+                    <Button size="sm" variant="destructive" onClick={async () => {
+                      try {
+                        await updateStatusMutation.mutateAsync({ id: d.id, status: "rejected" });
+                        toast.success("Document refusé");
+                      } catch {
+                        toast.error("Erreur lors du refus");
+                      }
+                    }} data-testid={`coord-doc-reject-${d.id}`}>Refuser</Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <EmptyState variant="dashed" description="Aucun document à réviser." />
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsReviewOpen(false)}>Fermer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

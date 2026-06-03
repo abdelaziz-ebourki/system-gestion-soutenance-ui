@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from "react";
 import {
   useJuries,
   useRooms,
+  useProjects,
+  useTeachersList,
   useSaveDefenseSchedule,
   useCoordinatorDefenseSessions,
   useCoordinatorUnavailability,
@@ -10,7 +12,7 @@ import {
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { ConflictContext } from "@/lib/conflict-engine";
 import type { UnavailabilityEntry } from "@/lib/api-coordinator";
-import type { Jury, Room, DefenseSession } from "@/types";
+import type { Jury, Room, DefenseSession, Project, Teacher } from "@/types";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
 import { format, addDays } from "date-fns";
@@ -20,13 +22,16 @@ function buildConflictContext(
   schedule: Record<string, { roomId: string; date: string; time: string }>,
   juries: Jury[],
   rooms: Room[],
+  projects: Project[],
+  teachers: Teacher[],
   unavailabilities: UnavailabilityEntry[],
   currentSession: DefenseSession | undefined,
+  allTimeSlots: string[],
 ): ConflictContext {
   return {
     schedule: Object.fromEntries(
       Object.entries(schedule).map(([id, s]) => [
-        id,
+        `${s.date}|${s.roomId}|${s.time}`,
         {
           id,
           title: juries.find((j) => j.id === id)?.projectTitle ?? "",
@@ -40,8 +45,12 @@ function buildConflictContext(
       rooms.map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }]),
     ),
     groups: {},
-    projects: {},
-    teachers: {},
+    projects: Object.fromEntries(
+      projects.map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }]),
+    ),
+    teachers: Object.fromEntries(
+      teachers.map((t) => [t.id, { id: t.id, name: `${t.firstName} ${t.lastName}` }]),
+    ),
     juries: Object.fromEntries(
       juries.map((j) => [
         j.id,
@@ -56,6 +65,7 @@ function buildConflictContext(
     defenseSession: currentSession
       ? { startDate: currentSession.startDate, endDate: currentSession.endDate, breakDuration: currentSession.breakDuration }
       : undefined,
+    allTimeSlots,
   };
 }
 
@@ -70,6 +80,8 @@ export function useDefenseSchedule() {
   const { data: sessions, isLoading: sessionsLoading } = useCoordinatorDefenseSessions();
   const { data: juries = [], isLoading: juriesLoading } = useJuries();
   const { data: rooms = [], isLoading: roomsLoading } = useRooms();
+  const { data: projects = [], isLoading: projectsLoading } = useProjects();
+  const { data: teachers = [], isLoading: teachersLoading } = useTeachersList();
   const { data: unavailabilities = [], isLoading: unavailLoading } = useCoordinatorUnavailability();
   const saveSchedule = useSaveDefenseSchedule();
   const transitionSession = useTransitionDefenseSession();
@@ -133,12 +145,17 @@ export function useDefenseSchedule() {
       if (!jury) return;
 
       const slotKey = `${date}|${selectedRoomId}|${time}`;
-      const context = buildConflictContext(schedule, juries, rooms, unavailabilities, currentSession);
+      const context = buildConflictContext(schedule, juries, rooms, projects, teachers, unavailabilities, currentSession, timeSlots);
       
       const result = validateSlotAssignment(jury.projectId, slotKey, context);
 
       if (!result.isValid) {
-        toast.error(result.issues[0]?.message ?? "Conflit détecté");
+        const error = result.issues.find(i => i.severity === "error") || result.issues[0];
+        if (error.suggestedResolution) {
+          toast.error(`${error.message} ${error.suggestedResolution}`, { duration: 5000 });
+        } else {
+          toast.error(error.message);
+        }
         return;
       }
 
@@ -220,7 +237,7 @@ export function useDefenseSchedule() {
     sessions,
     juries,
     rooms,
-    allLoading: sessionsLoading || juriesLoading || roomsLoading || unavailLoading,
+    allLoading: sessionsLoading || juriesLoading || roomsLoading || unavailLoading || projectsLoading || teachersLoading,
     selectedSessionId,
     setSelectedSessionId,
     currentSession,

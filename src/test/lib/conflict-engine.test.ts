@@ -177,6 +177,114 @@ describe("Conflict Engine", () => {
       expect(result.isValid).toBe(true);
       expect(result.issues).toHaveLength(0);
     });
+
+    it("should handle missing optional context data gracefully", () => {
+      const minimalContext: ConflictContext = {
+        schedule: {},
+        rooms: {},
+        groups: {},
+        projects: { "p1": { id: "p1", studentIds: [], supervisorId: "s1" } },
+        teachers: {},
+        juries: {},
+        unavailability: {},
+      };
+      const result = validateSlotAssignment("p1", "2026-06-01|r1|09:00", minimalContext);
+      expect(result.isValid).toBe(true);
+    });
+
+    it("should handle missing breakDuration in defenseSession", () => {
+      const context: ConflictContext = {
+        ...mockContext,
+        defenseSession: { startDate: "2026-06-01", endDate: "2026-06-14", breakDuration: 0 },
+        schedule: { "2026-06-01|room1|09:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "09:00", roomId: "room1" } },
+      };
+      const result = validateSlotAssignment("proj1", "2026-06-01|room1|09:01", context);
+      // No violation expected if breakDuration is 0 (default)
+      expect(result.issues.some(i => i.type === "break_violation")).toBe(false);
+    });
+
+    it("should handle missing juries context", () => {
+      const context = { ...mockContext, juries: {} };
+      const result = validateSlotAssignment("proj1", "2026-06-01|room1|09:00", context);
+      expect(result.isValid).toBe(true);
+    });
+
+    it("should handle missing teacher names in unavailability message", () => {
+      const context = {
+        ...mockContext,
+        teachers: {}, // No names
+      };
+      const result = validateSlotAssignment("proj1", "2026-06-01|room1|09:00", context);
+      expect(result.issues.find(i => i.type === "teacher_unavailable")?.message).toContain("Un enseignant");
+    });
+
+    it("should handle missing teacher names in double booking message", () => {
+      const context = {
+        ...mockContext,
+        teachers: {}, 
+        schedule: { "2026-06-01|room1|11:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "11:00", roomId: "room1" } },
+      };
+      const result = validateSlotAssignment("proj1", "2026-06-01|room2|09:00", context);
+      expect(result.issues.find(i => i.type === "teacher_double_booked")?.message).toContain("Un enseignant");
+    });
+
+    it("should handle existing projects without supervisors in supervisor conflict check", () => {
+      const context = {
+        ...mockContext,
+        projects: {
+          ...mockContext.projects,
+          projNoSup: { id: "projNoSup", studentIds: ["s99"], supervisorId: "" },
+        },
+        schedule: { "2026-06-01|room1|09:00": { id: "projNoSup", title: "No Sup", date: "2026-06-01", time: "09:00", roomId: "room1" } },
+      };
+      const result = validateSlotAssignment("proj1", "2026-06-01|room2|11:00", context);
+      expect(result.issues.some(i => i.type === "supervisor_conflict")).toBe(false);
+    });
+
+    it("should handle existing projects with no jury in double-booking check", () => {
+       const context = {
+        ...mockContext,
+        juries: {
+          "proj1": { id: "proj1", projectId: "proj1", teacherIds: ["t1"] },
+          // proj2 has no jury entry
+        },
+        schedule: { "2026-06-01|room1|09:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "09:00", roomId: "room1" } },
+      };
+      const result = validateSlotAssignment("proj1", "2026-06-01|room2|11:00", context);
+      expect(result.issues.some(i => i.type === "teacher_double_booked")).toBe(false);
+    });
+
+    it("should handle missing unavailability context", () => {
+      const context = { ...mockContext, unavailability: {} };
+      const result = validateSlotAssignment("proj1", "2026-06-01|room1|09:00", context);
+      expect(result.isValid).toBe(true);
+    });
+
+    it("should provide smart suggestions for occupied slots", () => {
+      const context: ConflictContext = {
+        ...mockContext,
+        schedule: { "2026-06-01|room1|11:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "11:00", roomId: "room1" } },
+        allTimeSlots: ["09:00", "10:00", "11:00"],
+      };
+      // 11:00 is occupied in room1. room2 at 11:00 should be free.
+      const result = validateSlotAssignment("proj1", "2026-06-01|room1|11:00", context);
+      expect(result.issues.some(i => i.type === "slot_occupied")).toBe(true);
+      const issue = result.issues.find(i => i.type === "slot_occupied");
+      expect(issue?.suggestedResolution).toContain("Essayez les salles libres : Salle B");
+    });
+
+    it("should provide smart suggestions for room capacity", () => {
+      const context: ConflictContext = {
+        ...mockContext,
+        allTimeSlots: ["09:00", "10:00", "11:00"],
+      };
+      // 11:00 is a safe time (t1 is available).
+      // proj3 has 6 students, room2 has capacity 2. room1 has capacity 10.
+      const result = validateSlotAssignment("proj3", "2026-06-01|room2|11:00", context);
+      expect(result.issues.some(i => i.type === "room_capacity")).toBe(true);
+      const issue = result.issues.find(i => i.type === "room_capacity");
+      expect(issue?.suggestedResolution).toContain("Essayez les salles libres : Salle A");
+    });
   });
 
   describe("getAllConflicts", () => {

@@ -12,7 +12,7 @@ const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const CSRF_COOKIE_NAME = "XSRF-TOKEN";
 const CSRF_HEADER_NAME = "X-XSRF-TOKEN";
 
-const MUTATING_METHODS = new Set(["POST", "PUT", "DELETE", "PATCH"]);
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS", "TRACE"]);
 
 export const DEFAULT_TIMEOUT = 15_000;
 
@@ -41,7 +41,7 @@ export async function api<T>(
   };
 
   const method = (customConfig.method || "GET").toUpperCase();
-  if (MUTATING_METHODS.has(method)) {
+  if (!SAFE_METHODS.has(method)) {
     const csrfToken = getCsrfToken();
     if (csrfToken) {
       headers[CSRF_HEADER_NAME] = csrfToken;
@@ -55,10 +55,11 @@ export async function api<T>(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  const config = {
+  const config: RequestInit = {
     ...customConfig,
     method,
     headers,
+    credentials: customConfig.credentials || "include",
     signal: controller.signal,
   };
 
