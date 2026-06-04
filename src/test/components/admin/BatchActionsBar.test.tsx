@@ -1,8 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
+
+vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 function renderBatch(overrideProps = {}) {
   const queryClient = new QueryClient({
@@ -15,7 +17,7 @@ function renderBatch(overrideProps = {}) {
     fieldOptionsMap: {
       major: [{ value: "m1", label: "Génie Info" }, { value: "m2", label: "Génie Civil" }],
     },
-    onUpdateField: vi.fn(),
+    onUpdateField: vi.fn().mockResolvedValue(undefined),
     onDeleteSelected: vi.fn(),
     isPending: false,
     onClearSelection: vi.fn(),
@@ -28,6 +30,7 @@ function renderBatch(overrideProps = {}) {
 }
 
 describe("BatchActionsBar", () => {
+  beforeEach(() => vi.clearAllMocks());
   it("does not render when selectedCount is 0", () => {
     const { container } = renderBatch({ selectedCount: 0 });
     expect(container.firstChild).toBeNull();
@@ -52,5 +55,66 @@ describe("BatchActionsBar", () => {
     await user.click(screen.getByRole("button", { name: /supprimer/i }));
     await user.click(screen.getByRole("button", { name: /supprimer/i }));
     expect(onDeleteSelected).toHaveBeenCalled();
+  });
+
+  it("calls onClearSelection after delete", async () => {
+    const onClearSelection = vi.fn();
+    const user = userEvent.setup();
+    renderBatch({ selectedCount: 2, onClearSelection });
+    await user.click(screen.getByRole("button", { name: /supprimer/i }));
+    await user.click(screen.getByRole("button", { name: /supprimer/i }));
+    await waitFor(() => expect(onClearSelection).toHaveBeenCalled());
+  });
+
+  it("opens update dialog when non-delete action is clicked", async () => {
+    const user = userEvent.setup();
+    renderBatch({ selectedCount: 3 });
+    await user.click(screen.getByRole("button", { name: /modifier la filière/i }));
+    expect(screen.getByText(/Choisir\.\.\./)).toBeInTheDocument();
+  });
+
+  it("calls onUpdateField when field update is submitted", async () => {
+    const onUpdateField = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
+    renderBatch({ selectedCount: 3, onUpdateField });
+    await user.click(screen.getByRole("button", { name: /modifier la filière/i }));
+    await user.click(screen.getByRole("combobox"));
+    await user.click(screen.getByRole("option", { name: /génie info/i }));
+    await user.click(screen.getByRole("button", { name: /enregistrer/i }));
+    await waitFor(() => expect(onUpdateField).toHaveBeenCalledWith("major", "m1"));
+  });
+
+  it("shows success toast after field update", async () => {
+    const { toast } = await import("sonner");
+    const user = userEvent.setup();
+    renderBatch({ selectedCount: 3 });
+    await user.click(screen.getByRole("button", { name: /modifier la filière/i }));
+    await user.click(screen.getByRole("combobox"));
+    await user.click(screen.getByRole("option", { name: /génie info/i }));
+    await user.click(screen.getByRole("button", { name: /enregistrer/i }));
+    await waitFor(() => expect(toast.success).toHaveBeenCalled());
+  });
+
+  it("calls onClearSelection after successful update", async () => {
+    const onClearSelection = vi.fn();
+    const user = userEvent.setup();
+    renderBatch({ selectedCount: 3, onClearSelection });
+    await user.click(screen.getByRole("button", { name: /modifier la filière/i }));
+    await user.click(screen.getByRole("combobox"));
+    await user.click(screen.getByRole("option", { name: /génie info/i }));
+    await user.click(screen.getByRole("button", { name: /enregistrer/i }));
+    await waitFor(() => expect(onClearSelection).toHaveBeenCalled());
+  });
+
+  it("shows error toast when update fails", async () => {
+    const onUpdateField = vi.fn().mockRejectedValue(new Error("fail"));
+    const { toast } = await import("sonner");
+    const user = userEvent.setup();
+    renderBatch({ selectedCount: 3, onUpdateField });
+    await user.click(screen.getByRole("button", { name: /modifier la filière/i }));
+    await user.click(screen.getByRole("combobox"));
+    await user.click(screen.getByRole("option", { name: /génie info/i }));
+    await user.click(screen.getByRole("button", { name: /enregistrer/i }));
+    await waitFor(() => expect(toast.error).toHaveBeenCalled());
   });
 });

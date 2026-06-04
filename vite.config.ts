@@ -49,6 +49,7 @@ export default defineConfig({
         "src/lib/constants.ts",
         "src/config/**",
         "src/test/**",
+        "src/components/print/**",
         "**/*.d.ts",
       ],
       thresholds: {
