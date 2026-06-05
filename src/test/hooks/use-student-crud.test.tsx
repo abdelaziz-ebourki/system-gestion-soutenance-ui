@@ -99,6 +99,22 @@ describe("useStudentCrud", () => {
     expect(toast.success).toHaveBeenCalledWith("Étudiant créé avec succès");
   });
 
+  it("handleSubmit with valid data updates an existing student", async () => {
+    const { result } = renderHook(() => useStudentCrud(), { wrapper: createWrapper() });
+    act(() => result.current.openEdit(mockStudent));
+    act(() => result.current.setFormData({
+      ...result.current.formData,
+      lastName: "Updated",
+    }));
+    const fakeEvent = { preventDefault: vi.fn() };
+    await act(async () => {
+      await result.current.handleSubmit(fakeEvent);
+    });
+    expect(result.current.isDialogOpen).toBe(false);
+    expect(result.current.selected).toBeNull();
+    expect(toast.success).toHaveBeenCalledWith("Étudiant modifié avec succès");
+  });
+
   it("handleDelete calls delete mutation", async () => {
     const { result } = renderHook(() => useStudentCrud(), { wrapper: createWrapper() });
     act(() => result.current.openDelete(mockStudent));
@@ -108,4 +124,21 @@ describe("useStudentCrud", () => {
     expect(result.current.isDeleteDialogOpen).toBe(false);
     expect(result.current.selected).toBeNull();
   });
+
+  it("handleClose closes create/edit dialog", () => {
+    const { result } = renderHook(() => useStudentCrud(), { wrapper: createWrapper() });
+    act(() => result.current.openCreate());
+    expect(result.current.isDialogOpen).toBe(true);
+    act(() => result.current.handleClose());
+    expect(result.current.isDialogOpen).toBe(false);
+  });
+
+  it("handleCloseDelete closes delete dialog", () => {
+    const { result } = renderHook(() => useStudentCrud(), { wrapper: createWrapper() });
+    act(() => result.current.openDelete(mockStudent));
+    expect(result.current.isDeleteDialogOpen).toBe(true);
+    act(() => result.current.handleCloseDelete());
+    expect(result.current.isDeleteDialogOpen).toBe(false);
+  });
 });
+

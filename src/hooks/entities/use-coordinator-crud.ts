@@ -83,6 +83,9 @@ export function useCoordinatorCrud() {
 
   const deleteMutation = (id: string) => del.mutateAsync(id);
 
+  const handleClose = () => setIsDialogOpen(false);
+  const handleCloseDelete = () => setIsDeleteDialogOpen(false);
+
   return {
     ...form,
     selected,
@@ -95,6 +98,8 @@ export function useCoordinatorCrud() {
     openDelete,
     handleSubmit,
     handleDelete,
+    handleClose,
+    handleCloseDelete,
     updateMutation,
     deleteMutation,
     isCreatePending: create.isPending,

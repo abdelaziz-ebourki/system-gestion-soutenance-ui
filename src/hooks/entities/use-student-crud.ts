@@ -89,6 +89,9 @@ export function useStudentCrud() {
 
   const deleteMutation = (id: string) => del.mutateAsync(id);
 
+  const handleClose = () => setIsDialogOpen(false);
+  const handleCloseDelete = () => setIsDeleteDialogOpen(false);
+
   return {
     ...form,
     selected,
@@ -101,6 +104,8 @@ export function useStudentCrud() {
     openDelete,
     handleSubmit,
     handleDelete,
+    handleClose,
+    handleCloseDelete,
     updateMutation,
     deleteMutation,
     isCreatePending: create.isPending,

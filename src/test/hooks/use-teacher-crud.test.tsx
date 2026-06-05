@@ -117,4 +117,20 @@ describe("useTeacherCrud", () => {
     expect(result.current.isDeleteDialogOpen).toBe(false);
     expect(result.current.selected).toBeNull();
   });
+
+  it("handleClose closes create/edit dialog", () => {
+    const { result } = renderHook(() => useTeacherCrud(), { wrapper: createWrapper() });
+    act(() => result.current.openCreate());
+    expect(result.current.isDialogOpen).toBe(true);
+    act(() => result.current.handleClose());
+    expect(result.current.isDialogOpen).toBe(false);
+  });
+
+  it("handleCloseDelete closes delete dialog", () => {
+    const { result } = renderHook(() => useTeacherCrud(), { wrapper: createWrapper() });
+    act(() => result.current.openDelete(mockTeacher));
+    expect(result.current.isDeleteDialogOpen).toBe(true);
+    act(() => result.current.handleCloseDelete());
+    expect(result.current.isDeleteDialogOpen).toBe(false);
+  });
 });

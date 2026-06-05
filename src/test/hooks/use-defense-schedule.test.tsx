@@ -99,7 +99,27 @@ describe("useDefenseSchedule", () => {
     expect(result.current.timeSlots).toEqual(["08:00", "09:00", "10:00", "11:00"]);
   });
 
+  it("computes time slots correctly with different durations", () => {
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({
+      data: [{
+        id: "s2",
+        startDate: "2026-06-01T08:00:00",
+        endDate: "2026-06-15T18:00:00",
+        startTime: "08:00",
+        endTime: "12:00",
+        defenseDuration: 45,
+        status: "draft",
+      }],
+      isLoading: false,
+    } as unknown as UseQueryResult<DefenseSession[], Error>);
+
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    // 08:00, 08:45, 09:30, 10:15, 11:00, 11:45
+    expect(result.current.timeSlots).toEqual(["08:00", "08:45", "09:30", "10:15", "11:00", "11:45"]);
+  });
+
   it("filters juries based on search query", () => {
+
     const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
     act(() => result.current.setSearchQuery("Health"));
     expect(result.current.filteredJuries).toHaveLength(1);
@@ -130,7 +150,13 @@ describe("useDefenseSchedule", () => {
   it("handles conflict during drag end assignment", async () => {
     vi.mocked(conflictEngine.validateSlotAssignment).mockReturnValue({
       isValid: false,
-      issues: [{ type: "slot_occupied", severity: "error", message: "Slot already occupied", slot: "2026-06-01|08:00" }],
+      issues: [{ 
+        type: "slot_occupied", 
+        severity: "error", 
+        message: "Slot already occupied", 
+        slot: "2026-06-01|08:00",
+        suggestedResolution: "Try room R2"
+      }],
     } as { isValid: boolean; issues: ConflictIssue[] });
 
     const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
@@ -144,10 +170,38 @@ describe("useDefenseSchedule", () => {
     });
 
     expect(result.current.schedule["j1"]).toBeUndefined();
-    expect(toast.error).toHaveBeenCalledWith("Slot already occupied");
+    expect(toast.error).toHaveBeenCalledWith(
+      expect.stringContaining("Slot already occupied Try room R2"),
+      expect.any(Object)
+    );
+  });
+
+  it("handles conflict without suggested resolution", async () => {
+    vi.mocked(conflictEngine.validateSlotAssignment).mockReturnValue({
+      isValid: false,
+      issues: [{ 
+        type: "slot_occupied", 
+        severity: "error", 
+        message: "Critical Error", 
+        slot: "2026-06-01|08:00",
+      }],
+    } as { isValid: boolean; issues: ConflictIssue[] });
+
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.setSelectedRoomId("r1"));
+
+    act(() => {
+      result.current.handleDragEnd({
+        active: { id: "j1" },
+        over: { id: "2026-06-01|08:00" },
+      } as unknown as DragEndEvent);
+    });
+
+    expect(toast.error).toHaveBeenCalledWith("Critical Error");
   });
 
   it("auto-generates a basic schedule", () => {
+
     const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
     act(() => result.current.handleAutoGenerate());
     
@@ -173,5 +227,35 @@ describe("useDefenseSchedule", () => {
 
     expect(mockSaveMutate).toHaveBeenCalled();
     expect(toast.success).toHaveBeenCalledWith("Planning enregistré avec succès");
+  });
+
+  it("removes a jury from the schedule", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.setSelectedRoomId("r1"));
+    act(() => {
+      result.current.handleDragEnd({
+        active: { id: "j1" },
+        over: { id: "2026-06-01|08:00" },
+      } as unknown as DragEndEvent);
+    });
+    
+    expect(result.current.schedule["j1"]).toBeDefined();
+    
+    act(() => {
+      result.current.handleRemove("j1");
+    });
+    
+    expect(result.current.schedule["j1"]).toBeUndefined();
+  });
+
+  it("handles publish session transition", async () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    
+    await act(async () => {
+      await result.current.handlePublish();
+    });
+    
+    expect(mockTransitionMutate).toHaveBeenCalledWith({ id: "s1", toStatus: "active" });
+    expect(toast.success).toHaveBeenCalledWith("Session publiée avec succès");
   });
 });

@@ -2,40 +2,51 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
 import { CrudActions } from "@/components/admin/CrudActions";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter } from "react-router-dom";
+
+function renderWithProviders(ui: React.ReactElement) {
+  const qc = new QueryClient({
+    defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={qc}>
+      <BrowserRouter>
+        {ui}
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+}
 
 describe("CrudActions", () => {
-  const entity = { id: "1", name: "Test" };
+  const mockEntity = { id: "1", name: "Test Entity" };
+  const onEdit = vi.fn();
+  const onDelete = vi.fn();
 
-  it("renders dropdown trigger", () => {
-    render(
-      <CrudActions entity={entity} onEdit={vi.fn()} onDelete={vi.fn()} />,
-    );
-    expect(screen.getByRole("button", { name: /ouvrir le menu/i })).toBeInTheDocument();
+  it("renders the trigger button", () => {
+    renderWithProviders(<CrudActions entity={mockEntity} onEdit={onEdit} onDelete={onDelete} />);
+    expect(screen.getByTestId("crud-actions-trigger")).toBeInTheDocument();
   });
 
-  it("opens menu and fires edit callback", async () => {
-    const onEdit = vi.fn();
+  it("opens the menu and calls onEdit", async () => {
     const user = userEvent.setup();
-    render(
-      <CrudActions entity={entity} onEdit={onEdit} onDelete={vi.fn()} />,
-    );
-    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
-    const editItem = screen.getByText("Modifier");
-    expect(editItem).toBeInTheDocument();
+    renderWithProviders(<CrudActions entity={mockEntity} onEdit={onEdit} onDelete={onDelete} />);
+    await user.click(screen.getByTestId("crud-actions-trigger"));
+    
+    const editItem = await screen.findByTestId("crud-actions-edit");
     await user.click(editItem);
-    expect(onEdit).toHaveBeenCalledWith(entity);
+    
+    expect(onEdit).toHaveBeenCalledWith(mockEntity);
   });
 
-  it("opens menu and fires delete callback", async () => {
-    const onDelete = vi.fn();
+  it("opens the menu and calls onDelete", async () => {
     const user = userEvent.setup();
-    render(
-      <CrudActions entity={entity} onEdit={vi.fn()} onDelete={onDelete} />,
-    );
-    await user.click(screen.getByRole("button", { name: /ouvrir le menu/i }));
-    const deleteItem = screen.getByText("Supprimer");
-    expect(deleteItem).toBeInTheDocument();
+    renderWithProviders(<CrudActions entity={mockEntity} onEdit={onEdit} onDelete={onDelete} />);
+    await user.click(screen.getByTestId("crud-actions-trigger"));
+    
+    const deleteItem = await screen.findByTestId("crud-actions-delete");
     await user.click(deleteItem);
-    expect(onDelete).toHaveBeenCalledWith(entity);
+    
+    expect(onDelete).toHaveBeenCalledWith(mockEntity);
   });
 });

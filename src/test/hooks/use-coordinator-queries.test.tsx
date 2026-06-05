@@ -58,7 +58,30 @@ describe("useCoordinatorQueries", () => {
     vi.mocked(api.getProcesVerbal).mockResolvedValue({} as never);
   });
 
+  describe("Coordinator data queries", () => {
+    it("useCoordinatorStats fetches stats", async () => {
+      const mockStats = { totalProjects: 10, totalGroups: 5, totalJuries: 5, scheduledDefenses: 2 };
+      vi.mocked(api.getCoordinatorStats).mockResolvedValue(mockStats as never);
+      
+      const { result } = renderHook(() => queries.useCoordinatorStats(), { wrapper: createWrapper() });
+      
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(result.current.data).toEqual(mockStats);
+    });
+
+    it("useCoordinatorUnavailability fetches unavailabilities", async () => {
+      const mockUnavail = [{ teacherId: "t1", date: "2026-06-01", slots: ["08:00"] }];
+      vi.mocked(api.getCoordinatorUnavailability).mockResolvedValue(mockUnavail as never);
+      
+      const { result } = renderHook(() => queries.useCoordinatorUnavailability(), { wrapper: createWrapper() });
+      
+      await waitFor(() => expect(result.current.isSuccess).toBe(true));
+      expect(result.current.data).toEqual(mockUnavail);
+    });
+  });
+
   describe("Project mutations", () => {
+
     it("useCreateProject invalidates projects query on success", async () => {
       const { result } = renderHook(() => queries.useCreateProject(), { wrapper: createWrapper() });
       vi.mocked(api.createProject).mockResolvedValue({} as never);
@@ -70,7 +93,23 @@ describe("useCoordinatorQueries", () => {
       expect(api.createProject).toHaveBeenCalled();
     });
 
+    it("useCreateProject handles API errors", async () => {
+      const { result } = renderHook(() => queries.useCreateProject(), { wrapper: createWrapper() });
+      vi.mocked(api.createProject).mockRejectedValue(new Error("API Error"));
+      
+      await act(async () => {
+        try {
+          await result.current.mutateAsync({ title: "Fail", supervisorId: "s1" });
+        } catch {
+          // Expected error
+        }
+      });
+      
+      await waitFor(() => expect(result.current.isError).toBe(true));
+    });
+
     it("useUpdateProject calls API with correct params", async () => {
+
       const { result } = renderHook(() => queries.useUpdateProject(), { wrapper: createWrapper() });
       vi.mocked(api.updateProject).mockResolvedValue({} as never);
       
@@ -82,7 +121,32 @@ describe("useCoordinatorQueries", () => {
     });
   });
 
+  describe("Group mutations", () => {
+    it("useCreateGroup calls API", async () => {
+      const { result } = renderHook(() => queries.useCreateGroup(), { wrapper: createWrapper() });
+      vi.mocked(api.createGroup).mockResolvedValue({} as never);
+      
+      await act(async () => {
+        await result.current.mutateAsync({ projectId: "p1", studentIds: ["s1"], sessionId: "ds1" });
+      });
+      
+      expect(api.createGroup).toHaveBeenCalled();
+    });
+
+    it("useDeleteGroup calls API", async () => {
+      const { result } = renderHook(() => queries.useDeleteGroup(), { wrapper: createWrapper() });
+      vi.mocked(api.deleteGroup).mockResolvedValue({} as never);
+      
+      await act(async () => {
+        await result.current.mutateAsync("g1");
+      });
+      
+      expect(api.deleteGroup).toHaveBeenCalledWith("g1");
+    });
+  });
+
   describe("Jury mutations", () => {
+
     it("useDeleteJury calls API and invalidates cache", async () => {
       const { result } = renderHook(() => queries.useDeleteJury(), { wrapper: createWrapper() });
       vi.mocked(api.deleteJury).mockResolvedValue({} as never);
