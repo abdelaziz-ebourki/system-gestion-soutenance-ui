@@ -64,12 +64,15 @@ export function ProjectDialog({
   const form = useEntityForm(projectSchema, defaultForm);
 
   const isEdit = !!project;
+  const formRef = React.useRef(form);
+  formRef.current = form; // eslint-disable-line react-hooks/refs
 
   React.useEffect(() => {
     if (open) {
+      const f = formRef.current;
       if (project) {
-        form.resetForm();
-        form.setFormData({
+        f.resetForm();
+        f.setFormData({
           title: project.title,
           description: project.description || "",
           supervisorId: project.supervisorId,
@@ -77,10 +80,10 @@ export function ProjectDialog({
           defenseType: project.defenseType,
         });
       } else {
-        form.resetForm();
+        f.resetForm();
       }
     }
-  }, [open, form, project]);
+  }, [open, project, formRef]);
 
   const handleSubmit = async (event: React.SyntheticEvent) => {
     event.preventDefault();

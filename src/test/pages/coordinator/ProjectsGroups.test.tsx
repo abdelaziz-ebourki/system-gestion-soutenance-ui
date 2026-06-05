@@ -4,57 +4,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import CoordinatorProjects from "@/pages/coordinator/ProjectsGroups";
-import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
-import type { Project, Student, Teacher } from "@/types";
-import type { StudentGroupAssignment, UpdateProjectPayload } from "@/lib/api-coordinator";
-import type { PaginatedResponse } from "@/lib/api-core";
+import { server } from "@/test/mocks/server";
+import { http, HttpResponse } from "msw";
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
-
-vi.mock("@/components/academic/ProjectDialog", () => ({
-  ProjectDialog: ({ open }: { open: boolean }) => open ? <div data-testid="mock-project-dialog" /> : null,
-}));
-
-vi.mock("@/components/academic/AssignProjectDialog", () => ({
-  AssignProjectDialog: ({ open }: { open: boolean }) => open ? <div data-testid="mock-assign-dialog" /> : null,
-}));
-
-function createMockQueryData() {
-  return {
-    projects: {
-      data: [
-        { id: "p1", title: "Application CI/CD", description: "CI/CD pipeline", studentIds: ["s1", "s2"], studentNames: ["Ali", "Fatima"], supervisorId: "t1", supervisorName: "Dr. Alami", status: "approved" as const },
-        { id: "p2", title: "IA pour la santé", description: "ML diagnostics", studentIds: ["s3"], studentNames: ["Mohammed"], supervisorId: "t2", supervisorName: "Pr. Bennani", status: "pending" as const },
-      ],
-      isLoading: false,
-    },
-    studentGroups: {
-      data: [
-        { id: "g1", groupName: "Groupe A", memberNames: ["Ali", "Fatima"], projectId: "p1", projectTitle: "Application CI/CD" },
-        { id: "g2", groupName: "Groupe B", memberNames: ["Mohammed"], projectId: null, projectTitle: null },
-      ],
-      isLoading: false,
-    },
-    updateProject: { isPending: false, mutateAsync: vi.fn() },
-    deleteProject: { isPending: false, mutateAsync: vi.fn() },
-  };
-}
-
-vi.mock("@/hooks/use-queries", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/hooks/use-queries")>();
-  return {
-    ...actual,
-    useProjects: vi.fn(() => ({ data: [], isLoading: false })),
-    useUpdateProject: vi.fn(() => ({ isPending: false, mutateAsync: vi.fn() })),
-    useDeleteProject: vi.fn(() => ({ isPending: false, mutateAsync: vi.fn() })),
-    useStudentGroups: vi.fn(() => ({ data: [], isLoading: false })),
-    useTeachersList: vi.fn(() => ({ data: [], isLoading: false })),
-    useCreateProject: vi.fn(() => ({ isPending: false, mutateAsync: vi.fn() })),
-    useStudents: vi.fn(() => ({ data: { items: [] }, isLoading: false })),
-  };
-});
 
 function renderProjects() {
   const queryClient = new QueryClient({
@@ -75,28 +30,12 @@ describe("ProjectsGroups (Coordinator)", () => {
   });
 
   it("renders the page title and header", async () => {
-    const queries = await import("@/hooks/use-queries");
-    const data = createMockQueryData();
-    vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useUpdateProject).mockReturnValue(data.updateProject as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
-    vi.mocked(queries.useDeleteProject).mockReturnValue(data.deleteProject as unknown as UseMutationResult<void, Error, string, unknown>);
-    vi.mocked(queries.useStudentGroups).mockReturnValue(data.studentGroups as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
-    vi.mocked(queries.useStudents).mockReturnValue({ data: { items: [], total: 0, pageCount: 0 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
     renderProjects();
     expect(await screen.findByText("Projets & Groupes")).toBeInTheDocument();
     expect(screen.getByTestId("coord-projects-page")).toBeInTheDocument();
   });
 
   it("renders stats cards", async () => {
-    const queries = await import("@/hooks/use-queries");
-    const data = createMockQueryData();
-    vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useUpdateProject).mockReturnValue(data.updateProject as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
-    vi.mocked(queries.useDeleteProject).mockReturnValue(data.deleteProject as unknown as UseMutationResult<void, Error, string, unknown>);
-    vi.mocked(queries.useStudentGroups).mockReturnValue(data.studentGroups as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
-    vi.mocked(queries.useStudents).mockReturnValue({ data: { items: [], total: 0, pageCount: 0 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
     renderProjects();
     expect(await screen.findByText("2")).toBeInTheDocument();
     expect(screen.getByText("Portefeuille")).toBeInTheDocument();
@@ -104,85 +43,39 @@ describe("ProjectsGroups (Coordinator)", () => {
   });
 
   it("renders the add project button", async () => {
-    const queries = await import("@/hooks/use-queries");
-    const data = createMockQueryData();
-    vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useUpdateProject).mockReturnValue(data.updateProject as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
-    vi.mocked(queries.useDeleteProject).mockReturnValue(data.deleteProject as unknown as UseMutationResult<void, Error, string, unknown>);
-    vi.mocked(queries.useStudentGroups).mockReturnValue(data.studentGroups as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
-    vi.mocked(queries.useStudents).mockReturnValue({ data: { items: [], total: 0, pageCount: 0 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
     renderProjects();
     expect(await screen.findByTestId("coord-projects-add-button")).toBeInTheDocument();
   });
 
   it("renders project table with data", async () => {
-    const queries = await import("@/hooks/use-queries");
-    const data = createMockQueryData();
-    vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useUpdateProject).mockReturnValue(data.updateProject as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
-    vi.mocked(queries.useDeleteProject).mockReturnValue(data.deleteProject as unknown as UseMutationResult<void, Error, string, unknown>);
-    vi.mocked(queries.useStudentGroups).mockReturnValue(data.studentGroups as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
-    vi.mocked(queries.useStudents).mockReturnValue({ data: { items: [], total: 0, pageCount: 0 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
     renderProjects();
-    const projectTitles = await screen.findAllByText(/Application CI\/CD|IA pour la santé/);
+    const projectTitles = await screen.findAllByText(/Application CI\/CD|Analyse des données/);
     expect(projectTitles.length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Valide")).toBeInTheDocument();
     expect(screen.getByText("En attente")).toBeInTheDocument();
   });
 
   it("renders student groups section with assigned and unassigned groups", async () => {
-    const queries = await import("@/hooks/use-queries");
-    const data = createMockQueryData();
-    vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useUpdateProject).mockReturnValue(data.updateProject as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
-    vi.mocked(queries.useDeleteProject).mockReturnValue(data.deleteProject as unknown as UseMutationResult<void, Error, string, unknown>);
-    vi.mocked(queries.useStudentGroups).mockReturnValue(data.studentGroups as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
-    vi.mocked(queries.useStudents).mockReturnValue({ data: { items: [], total: 0, pageCount: 0 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
     renderProjects();
     expect(await screen.findByText("Groupes étudiants")).toBeInTheDocument();
-    expect(screen.getByText("Groupe A")).toBeInTheDocument();
-    expect(screen.getByText("Groupe B")).toBeInTheDocument();
+    expect(await screen.findByText("Groupe Alpha")).toBeInTheDocument();
+    expect(screen.getByText("Groupe Beta")).toBeInTheDocument();
     expect(screen.getByTestId("coord-projects-groups-section")).toBeInTheDocument();
   });
 
   it("renders assign button for unassigned groups", async () => {
-    const queries = await import("@/hooks/use-queries");
-    const data = createMockQueryData();
-    vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useUpdateProject).mockReturnValue(data.updateProject as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
-    vi.mocked(queries.useDeleteProject).mockReturnValue(data.deleteProject as unknown as UseMutationResult<void, Error, string, unknown>);
-    vi.mocked(queries.useStudentGroups).mockReturnValue(data.studentGroups as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
-    vi.mocked(queries.useStudents).mockReturnValue({ data: { items: [], total: 0, pageCount: 0 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
     renderProjects();
-    expect(await screen.findByTestId("coord-projects-assign-g2")).toBeInTheDocument();
-  });
-
-  it("shows project dialog when add button is clicked", async () => {
-    const user = userEvent.setup();
-    const queries = await import("@/hooks/use-queries");
-    const data = createMockQueryData();
-    vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useUpdateProject).mockReturnValue(data.updateProject as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
-    vi.mocked(queries.useDeleteProject).mockReturnValue(data.deleteProject as unknown as UseMutationResult<void, Error, string, unknown>);
-    vi.mocked(queries.useStudentGroups).mockReturnValue(data.studentGroups as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
-    vi.mocked(queries.useStudents).mockReturnValue({ data: { items: [], total: 0, pageCount: 0 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
-    renderProjects();
-    const addBtn = await screen.findByTestId("coord-projects-add-button");
-    await user.click(addBtn);
-    expect(screen.getByTestId("mock-project-dialog")).toBeInTheDocument();
+    expect(await screen.findByText("Groupe Beta")).toBeInTheDocument();
+    expect(screen.getByTestId("coord-projects-assign-sg2")).toBeInTheDocument();
   });
 
   it("shows loading skeleton when projects are loading", async () => {
-    const queries = await import("@/hooks/use-queries");
-    vi.mocked(queries.useProjects).mockReturnValue({ data: [], isLoading: true } as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useUpdateProject).mockReturnValue({ isPending: false, mutateAsync: vi.fn() } as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
-    vi.mocked(queries.useDeleteProject).mockReturnValue({ isPending: false, mutateAsync: vi.fn() } as unknown as UseMutationResult<void, Error, string, unknown>);
-    vi.mocked(queries.useStudentGroups).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
+    server.use(
+      http.get("*/api/coordinator/projects", async () => {
+        await new Promise(() => {});
+        return HttpResponse.json([]);
+      }),
+    );
     renderProjects();
     expect(screen.getByTestId("coord-projects-page")).toBeInTheDocument();
     const skeleton = document.querySelector('[data-slot="skeleton"]');
@@ -190,11 +83,9 @@ describe("ProjectsGroups (Coordinator)", () => {
   });
 
   it("shows empty project portfolio", async () => {
-    const queries = await import("@/hooks/use-queries");
-    vi.mocked(queries.useProjects).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useUpdateProject).mockReturnValue({ isPending: false, mutateAsync: vi.fn() } as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
-    vi.mocked(queries.useDeleteProject).mockReturnValue({ isPending: false, mutateAsync: vi.fn() } as unknown as UseMutationResult<void, Error, string, unknown>);
-    vi.mocked(queries.useStudentGroups).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
+    server.use(
+      http.get("*/api/coordinator/projects", () => HttpResponse.json([])),
+    );
     renderProjects();
     expect(await screen.findByTestId("coord-projects-page")).toBeInTheDocument();
     const zeros = screen.getAllByText("0");
@@ -203,15 +94,6 @@ describe("ProjectsGroups (Coordinator)", () => {
 
   it("calls delete mutation when CrudActions delete is confirmed", async () => {
     const user = userEvent.setup();
-    const queries = await import("@/hooks/use-queries");
-    const data = createMockQueryData();
-    const deleteMutate = vi.fn();
-    vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useUpdateProject).mockReturnValue(data.updateProject as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
-    vi.mocked(queries.useDeleteProject).mockReturnValue({ isPending: false, mutateAsync: deleteMutate } as unknown as UseMutationResult<void, Error, string, unknown>);
-    vi.mocked(queries.useStudentGroups).mockReturnValue(data.studentGroups as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
-    vi.mocked(queries.useStudents).mockReturnValue({ data: { items: [], total: 0, pageCount: 0 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
     renderProjects();
     const triggers = await screen.findAllByTestId("crud-actions-trigger");
     await user.click(triggers[0]);
@@ -219,7 +101,66 @@ describe("ProjectsGroups (Coordinator)", () => {
     expect(await screen.findByTestId("delete-alert")).toBeInTheDocument();
     await user.click(screen.getByTestId("delete-alert-confirm"));
     await waitFor(() => {
-      expect(deleteMutate).toHaveBeenCalledWith("p1");
+      expect(screen.queryByTestId("delete-alert")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows error toast when delete fails", async () => {
+    server.use(
+      http.delete("*/api/coordinator/projects/:id", () => HttpResponse.json({ message: "Erreur serveur" }, { status: 500 })),
+    );
+    const user = userEvent.setup();
+    const toast = await import("sonner");
+    renderProjects();
+    const triggers = await screen.findAllByTestId("crud-actions-trigger");
+    await user.click(triggers[0]);
+    await user.click(screen.getByRole("menuitem", { name: /supprimer/i }));
+    await user.click(screen.getByTestId("delete-alert-confirm"));
+    await waitFor(() => {
+      expect(toast.toast.error).toHaveBeenCalledWith("Erreur serveur. Veuillez réessayer plus tard.");
+    });
+  });
+
+  it("opens ProjectDialog on add button click", async () => {
+    const user = userEvent.setup();
+    renderProjects();
+    const addBtn = await screen.findByTestId("coord-projects-add-button");
+    await user.click(addBtn);
+    expect(await screen.findByTestId("coord-project-dialog")).toBeInTheDocument();
+    expect(screen.getByTestId("coord-project-dialog-form")).toBeInTheDocument();
+    expect(screen.getByText("Nouveau projet")).toBeInTheDocument();
+  });
+
+  it("closes ProjectDialog via cancel", async () => {
+    const user = userEvent.setup();
+    renderProjects();
+    const addBtn = await screen.findByTestId("coord-projects-add-button");
+    await user.click(addBtn);
+    expect(await screen.findByTestId("coord-project-dialog")).toBeInTheDocument();
+    await user.click(screen.getByTestId("coord-project-dialog-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("coord-project-dialog")).not.toBeInTheDocument();
+    });
+  });
+
+  it("opens AssignProjectDialog on assign button click", async () => {
+    const user = userEvent.setup();
+    renderProjects();
+    const assignBtn = await screen.findByTestId("coord-projects-assign-sg2");
+    await user.click(assignBtn);
+    expect(await screen.findByTestId("coord-assign-project-dialog")).toBeInTheDocument();
+    expect(screen.getByTestId("coord-assign-project-dialog")).toHaveTextContent("Assigner un projet");
+  });
+
+  it("closes AssignProjectDialog via cancel", async () => {
+    const user = userEvent.setup();
+    renderProjects();
+    const assignBtn = await screen.findByTestId("coord-projects-assign-sg2");
+    await user.click(assignBtn);
+    expect(await screen.findByTestId("coord-assign-project-dialog")).toBeInTheDocument();
+    await user.click(screen.getByTestId("coord-assign-project-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("coord-assign-project-dialog")).not.toBeInTheDocument();
     });
   });
 });

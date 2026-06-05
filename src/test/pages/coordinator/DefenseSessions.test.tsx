@@ -276,4 +276,99 @@ describe("DefenseSessions (Coordinator)", () => {
     expect(await screen.findByText((content) => content.includes("30 min par passage"))).toBeInTheDocument();
     expect(screen.getByText("3 étudiants")).toBeInTheDocument();
   });
+
+  it("selects jury template and shows evaluation coefficients", async () => {
+    const user = userEvent.setup({ pointerEventsCheck: 0 });
+    const queries = await import("@/hooks/use-queries");
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    const addBtn = await screen.findByTestId("coord-sessions-add-button");
+    await user.click(addBtn);
+    expect(screen.getByText("Sélectionnez un modèle de jury")).toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("coord-sessions-input-template"));
+    const option = await screen.findByRole("option", { name: /standard/i });
+    fireEvent.click(option);
+    expect(await screen.findByText("Président: 40%")).toBeInTheDocument();
+    expect(screen.getByText("Examinateur: 60%")).toBeInTheDocument();
+  });
+
+  it("closes dialog via cancel button", async () => {
+    const user = userEvent.setup();
+    const queries = await import("@/hooks/use-queries");
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    const addBtn = await screen.findByTestId("coord-sessions-add-button");
+    await user.click(addBtn);
+    expect(screen.getByTestId("coord-sessions-dialog")).toBeInTheDocument();
+    await user.click(screen.getByTestId("coord-sessions-dialog-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("coord-sessions-dialog")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows loading state on submit button during creation", async () => {
+    const queries = await import("@/hooks/use-queries");
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue({ isPending: true, mutateAsync: vi.fn() } as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    const addBtn = await screen.findByTestId("coord-sessions-add-button");
+    await userEvent.setup().click(addBtn);
+    const submitBtn = screen.getByTestId("coord-sessions-dialog-submit");
+    expect(submitBtn).toHaveAttribute("disabled");
+  });
+
+  it("closes delete alert via cancel", async () => {
+    const user = userEvent.setup();
+    const queries = await import("@/hooks/use-queries");
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    const triggers = await screen.findAllByTestId("crud-actions-trigger");
+    await user.click(triggers[0]);
+    await user.click(screen.getByRole("menuitem", { name: /supprimer/i }));
+    expect(await screen.findByTestId("delete-alert")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /annuler/i }));
+    await waitFor(() => {
+      expect(screen.queryByTestId("delete-alert")).not.toBeInTheDocument();
+    });
+  });
+
+  it("shows error toast when delete fails", async () => {
+    const user = userEvent.setup();
+    const toast = await import("sonner");
+    const queries = await import("@/hooks/use-queries");
+    const deleteMutate = vi.fn().mockRejectedValue(new Error("fail"));
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
+    vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
+    vi.mocked(queries.useCreateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, CreateDefenseSessionPayload, unknown>);
+    vi.mocked(queries.useUpdateDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; data: CreateDefenseSessionPayload }, unknown>);
+    vi.mocked(queries.useDeleteDefenseSession).mockReturnValue({ isPending: false, mutateAsync: deleteMutate } as unknown as UseMutationResult<void, Error, string, unknown>);
+    renderSessions();
+    const triggers = await screen.findAllByTestId("crud-actions-trigger");
+    await user.click(triggers[0]);
+    await user.click(screen.getByRole("menuitem", { name: /supprimer/i }));
+    await user.click(screen.getByTestId("delete-alert-confirm"));
+    await waitFor(() => {
+      expect(toast.toast.error).toHaveBeenCalledWith("fail");
+    });
+  });
 });
