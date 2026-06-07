@@ -5,7 +5,7 @@ import {
 } from "@/hooks/use-queries";
 import type { EmailConfig } from "@/lib/api";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Button,
   Card,
@@ -53,7 +53,7 @@ export function EmailConfigForm() {
       await updateMut.mutateAsync(config);
       toast.success("Configuration email mise à jour");
     } catch (error) {
-      toastError(error, "Erreur lors de la mise à jour");
+      toast.error(getErrorMessage(error, "Erreur lors de la mise à jour"));
     }
   };
 

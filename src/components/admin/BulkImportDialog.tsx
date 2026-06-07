@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { Upload, FileUp, AlertCircle } from "lucide-react";
 import {
   Alert,
@@ -158,7 +158,7 @@ export function BulkImportDialog({
       setData([]);
       onSuccess?.();
     } catch (error) {
-      toastError(error, "Échec de l'importation.");
+      toast.error(getErrorMessage(error, "Échec de l'importation."));
     } finally {
       setIsSubmitting(false);
     }

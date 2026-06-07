@@ -6,7 +6,7 @@ import { validate, projectSchema } from "@/lib/validations";
 import type { DefenseType, Project } from "@/types";
 import { DEFENSE_TYPE_OPTIONS } from "@/lib/constants";
 import { toast } from "sonner";
-import { getFullName, toastError } from "@/lib/utils";
+import { getFullName, getErrorMessage } from "@/lib/utils";
 import {
   Button,
   Dialog,
@@ -124,7 +124,7 @@ export function ProjectDialog({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      toastError(error, isEdit ? "Erreur lors de la mise à jour du projet" : "Erreur lors de la creation du projet");
+      toast.error(getErrorMessage(error, isEdit ? "Erreur lors de la mise à jour du projet" : "Erreur lors de la creation du projet"));
     }
   };
 

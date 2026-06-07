@@ -5,7 +5,7 @@ import { Ban, CalendarClock, Save } from "lucide-react";
 import { useTeacherSchedule, useTeacherUnavailability, useSaveTeacherUnavailability } from "@/hooks/use-queries";
 import type { TeacherUnavailability } from "@/types";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import AvailabilityCalendar from "@/components/academic/AvailabilityCalendar";
 import {
   Button,
@@ -64,7 +64,7 @@ export default function TeacherUnavailability() {
       await saveMutation.mutateAsync(unavailability);
       toast.success("Indisponibilités enregistrées");
     } catch (error) {
-      toastError(error, "Erreur lors de l'enregistrement");
+      toast.error(getErrorMessage(error, "Erreur lors de l'enregistrement"));
     }
   };
 

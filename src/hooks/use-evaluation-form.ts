@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSubmitTeacherEvaluation } from "@/hooks/use-queries";
 import { validate, evaluationSchema } from "@/lib/validations";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import type { TeacherEvaluation } from "@/types";
 
 export function useEvaluationForm() {
@@ -35,7 +35,7 @@ export function useEvaluationForm() {
       setSelected(null);
       setFormData({ score: 0, comment: "" });
     } catch (error) {
-      toastError(error, "Erreur lors de l'enregistrement");
+      toast.error(getErrorMessage(error, "Erreur lors de l'enregistrement"));
     }
   };
 

@@ -12,7 +12,7 @@ import { fr } from "date-fns/locale";
 import { useStudentDocuments, useUploadStudentDocument } from "@/hooks/use-queries";
 import type { StudentDocument } from "@/types";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -100,7 +100,7 @@ export default function StudentDocuments() {
       toast.success("Document envoyé avec succès");
       setFiles((prev) => ({ ...prev, [document.id]: null }));
     } catch (error) {
-      toastError(error, "Erreur lors de l'envoi du document");
+      toast.error(getErrorMessage(error, "Erreur lors de l'envoi du document"));
     } finally {
       setUploadingId(null);
     }
