@@ -4,6 +4,7 @@ import { Ban, CalendarClock, Save } from "lucide-react";
 
 import { useTeacherSchedule, useTeacherUnavailability, useSaveTeacherUnavailability } from "@/hooks/use-queries";
 import type { TeacherUnavailability } from "@/types";
+import { unavailabilitySchema, validate } from "@/lib/validations";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import AvailabilityCalendar from "@/components/academic/AvailabilityCalendar";
@@ -60,6 +61,11 @@ export default function TeacherUnavailability() {
   };
 
   const handleSave = async () => {
+    const errors = validate(unavailabilitySchema, unavailability);
+    if (errors) {
+      toast.error("Données d'indisponibilité invalides");
+      return;
+    }
     try {
       await saveMutation.mutateAsync(unavailability);
       toast.success("Indisponibilités enregistrées");

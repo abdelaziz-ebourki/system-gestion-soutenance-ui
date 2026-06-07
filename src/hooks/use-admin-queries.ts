@@ -180,7 +180,8 @@ export function useCreateUser() {
   return useMutation({
     mutationFn: (data: api.UserCreateParams) => api.createUser(data),
     onSuccess: (user) => {
-      qc.invalidateQueries({ queryKey: ["users", user.role], refetchType: "active" });
+      const roleKey = user.role === "student" ? "students" : user.role === "teacher" ? "teachers" : "coordinators";
+      qc.invalidateQueries({ queryKey: ["users", roleKey], refetchType: "active" });
       qc.invalidateQueries({ queryKey: ["users"], refetchType: "active" });
     },
   });
@@ -192,7 +193,8 @@ export function useUpdateUser() {
     mutationFn: ({ id, data }: { id: string; data: Partial<api.UserCreateParams> }) =>
       api.updateUser(id, data),
     onSuccess: (user) => {
-      qc.invalidateQueries({ queryKey: ["users", user.role], refetchType: "active" });
+      const roleKey = user.role === "student" ? "students" : user.role === "teacher" ? "teachers" : "coordinators";
+      qc.invalidateQueries({ queryKey: ["users", roleKey], refetchType: "active" });
       qc.invalidateQueries({ queryKey: ["users"], refetchType: "active" });
     },
   });

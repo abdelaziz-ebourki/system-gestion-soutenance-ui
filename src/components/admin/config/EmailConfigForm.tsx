@@ -4,6 +4,7 @@ import {
   useEmailConfig, useUpdateEmailConfig,
 } from "@/hooks/use-queries";
 import type { EmailConfig } from "@/lib/api";
+import { emailConfigSchema, validate } from "@/lib/validations";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import {
@@ -47,8 +48,16 @@ export function EmailConfigForm() {
     if (initial) setConfig(initial);
   }, [initial]);
 
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string> | null>(null);
+
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
+    const errors = validate(emailConfigSchema, config);
+    if (errors) {
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors(null);
     try {
       await updateMut.mutateAsync(config);
       toast.success("Configuration email mise à jour");
@@ -80,6 +89,7 @@ export function EmailConfigForm() {
                 placeholder="smtp.example.com"
                 required
               />
+              {fieldErrors?.host && <p className="text-sm text-destructive">{fieldErrors.host}</p>}
             </Field>
             <Field>
               <FieldLabel>Port</FieldLabel>
@@ -89,6 +99,7 @@ export function EmailConfigForm() {
                 onChange={(e) => setConfig({ ...config, port: Number(e.target.value) })}
                 required
               />
+              {fieldErrors?.port && <p className="text-sm text-destructive">{fieldErrors.port}</p>}
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -117,6 +128,7 @@ export function EmailConfigForm() {
                 placeholder="Université"
                 required
               />
+              {fieldErrors?.senderName && <p className="text-sm text-destructive">{fieldErrors.senderName}</p>}
             </Field>
             <Field>
               <FieldLabel>Email de l'expéditeur</FieldLabel>
@@ -127,6 +139,7 @@ export function EmailConfigForm() {
                 placeholder="noreply@example.com"
                 required
               />
+              {fieldErrors?.senderEmail && <p className="text-sm text-destructive">{fieldErrors.senderEmail}</p>}
             </Field>
           </div>
             <Field>
