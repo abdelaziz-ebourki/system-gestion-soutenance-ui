@@ -3,7 +3,7 @@ import { useCreateDepartment, useUpdateDepartment, useDeleteDepartment } from "@
 import { departmentSchema } from "@/lib/validations";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import type { Department } from "@/types";
 
 type DepartmentForm = {
@@ -62,7 +62,7 @@ export function useDepartmentCrud() {
       form.resetForm();
       setSelected(null);
     } catch (error) {
-      toastError(error, selected ? "Erreur lors de la modification" : "Erreur lors de la création");
+      toast.error(getErrorMessage(error, selected ? "Erreur lors de la modification" : "Erreur lors de la création"));
     }
   };
 
@@ -74,7 +74,7 @@ export function useDepartmentCrud() {
       setIsDeleteDialogOpen(false);
       setSelected(null);
     } catch (error) {
-      toastError(error, "Erreur lors de la suppression");
+      toast.error(getErrorMessage(error, "Erreur lors de la suppression"));
     }
   };
 

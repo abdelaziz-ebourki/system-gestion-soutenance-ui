@@ -24,7 +24,7 @@ export function useCreateRoom() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Omit<Room, "id">) => api.createRoom(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["rooms"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["rooms"], refetchType: "active" }),
   });
 }
 
@@ -33,7 +33,7 @@ export function useUpdateRoom() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Omit<Room, "id"> }) =>
       api.updateRoom(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["rooms"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["rooms"], refetchType: "active" }),
   });
 }
 
@@ -41,7 +41,7 @@ export function useDeleteRoom() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.deleteRoom(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["rooms"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["rooms"], refetchType: "active" }),
   });
 }
 
@@ -53,7 +53,7 @@ export function useCreateDepartment() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Omit<Department, "id">) => api.createDepartment(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["departments"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["departments"], refetchType: "active" }),
   });
 }
 
@@ -62,7 +62,7 @@ export function useUpdateDepartment() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Omit<Department, "id"> }) =>
       api.updateDepartment(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["departments"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["departments"], refetchType: "active" }),
   });
 }
 
@@ -70,7 +70,7 @@ export function useDeleteDepartment() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.deleteDepartment(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["departments"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["departments"], refetchType: "active" }),
   });
 }
 
@@ -82,7 +82,7 @@ export function useCreateMajor() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Omit<Major, "id">) => api.createMajor(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"], refetchType: "active" }),
   });
 }
 
@@ -91,7 +91,7 @@ export function useUpdateMajor() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Omit<Major, "id"> }) =>
       api.updateMajor(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"], refetchType: "active" }),
   });
 }
 
@@ -99,7 +99,7 @@ export function useDeleteMajor() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.deleteMajor(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"], refetchType: "active" }),
   });
 }
 
@@ -111,7 +111,7 @@ export function useCreateLevel() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: Omit<Level, "id">) => api.createLevel(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["levels"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["levels"], refetchType: "active" }),
   });
 }
 
@@ -120,7 +120,7 @@ export function useUpdateLevel() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Omit<Level, "id"> }) =>
       api.updateLevel(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["levels"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["levels"], refetchType: "active" }),
   });
 }
 
@@ -128,7 +128,7 @@ export function useDeleteLevel() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.deleteLevel(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["levels"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["levels"], refetchType: "active" }),
   });
 }
 
@@ -179,7 +179,10 @@ export function useCreateUser() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: api.UserCreateParams) => api.createUser(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+    onSuccess: (user) => {
+      qc.invalidateQueries({ queryKey: ["users", user.role], refetchType: "active" });
+      qc.invalidateQueries({ queryKey: ["users"], refetchType: "active" });
+    },
   });
 }
 
@@ -188,7 +191,10 @@ export function useUpdateUser() {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<api.UserCreateParams> }) =>
       api.updateUser(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+    onSuccess: (user) => {
+      qc.invalidateQueries({ queryKey: ["users", user.role], refetchType: "active" });
+      qc.invalidateQueries({ queryKey: ["users"], refetchType: "active" });
+    },
   });
 }
 
@@ -196,7 +202,7 @@ export function useDeleteUser() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api.deleteUser(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["users"], refetchType: "active" }),
   });
 }
 
@@ -220,6 +226,6 @@ export function useUpdateEmailConfig() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: EmailConfig) => api.updateEmailConfig(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "email"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "email"], refetchType: "active" }),
   });
 }

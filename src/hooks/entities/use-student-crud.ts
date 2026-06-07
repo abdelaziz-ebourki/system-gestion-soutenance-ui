@@ -3,7 +3,7 @@ import { useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/use-queries
 import { studentSchema } from "@/lib/validations";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import type { Student } from "@/types";
 
 export type StudentFormData = {
@@ -68,7 +68,7 @@ export function useStudentCrud() {
       form.resetForm();
       setSelected(null);
     } catch (error) {
-      toastError(error, selected ? "Erreur lors de la modification" : "Erreur lors de la création");
+      toast.error(getErrorMessage(error, selected ? "Erreur lors de la modification" : "Erreur lors de la création"));
     }
   };
 
@@ -80,7 +80,7 @@ export function useStudentCrud() {
       setIsDeleteDialogOpen(false);
       setSelected(null);
     } catch (error) {
-      toastError(error, "Erreur lors de la suppression");
+      toast.error(getErrorMessage(error, "Erreur lors de la suppression"));
     }
   };
 

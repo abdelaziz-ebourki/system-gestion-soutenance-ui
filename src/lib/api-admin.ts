@@ -1,5 +1,6 @@
 import { api, type PaginatedResponse, type UserCreateParams, type RoomImportData, type GeneralSettings, type EmailConfig } from "./api-core";
 import type { DashboardStats, JuryRoleTemplate } from "@/types";
+import { MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import type { AuditLog } from "@/types/audit-log";
 import type {
   User, Student, Teacher, Coordinator,
@@ -38,7 +39,7 @@ export const getTeachers = (page = 0, limit = 10, search?: string) => {
   return api<PaginatedResponse<Teacher>>(`/admin/teachers?${params}`);
 };
 
-export const getTeachersList = (limit = 5000) =>
+export const getTeachersList = (limit = MAX_TEACHER_FETCH_LIMIT) =>
   api<PaginatedResponse<Teacher>>(`/admin/teachers?limit=${limit}`).then(
     (res) => res.items,
   );
