@@ -36,7 +36,8 @@ describe("Validation utilities", () => {
   describe("Coordinator schemas", () => {
     it("defenseSessionSchema validates dates", () => {
       const valid = {
-        name: "Session 2026",
+        name: "Session PFE",
+        defenseType: "pfe" as const,
         status: "draft" as const,
         maxGroupSize: 5,
         defenseDuration: 60,
@@ -45,6 +46,7 @@ describe("Validation utilities", () => {
         juryRoleTemplateId: "t1",
         startDate: "2026-06-10",
         endDate: "2026-06-20",
+        evaluationCoefficients: {},
       };
       expect(validate(defenseSessionSchema, valid)).toBeNull();
 

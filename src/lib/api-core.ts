@@ -5,7 +5,6 @@ import type {
   Coordinator,
   AppNotification,
 } from "@/types";
-import { STORAGE_KEYS } from "@/lib/constants";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
@@ -31,12 +30,9 @@ export async function api<T>(
   endpoint: string,
   options: ApiOptions = {},
 ): Promise<T> {
-  const { requiresAuth = true, responseType = "json", timeout = DEFAULT_TIMEOUT, ...customConfig } = options;
+  const { responseType = "json", timeout = DEFAULT_TIMEOUT, ...customConfig } = options;
 
   const headers: Record<string, string> = {
-    ...(requiresAuth
-      ? { Authorization: `Bearer ${localStorage.getItem(STORAGE_KEYS.TOKEN)}` }
-      : {}),
     ...customConfig.headers as Record<string, string> | undefined,
   };
 
@@ -68,6 +64,9 @@ export async function api<T>(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
+      if (response.status === 401 && !endpoint.startsWith("/auth/")) {
+        window.dispatchEvent(new CustomEvent("auth:expired"));
+      }
       let data: Record<string, unknown>;
       try {
         data = await (responseType === "blob"

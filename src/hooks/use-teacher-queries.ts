@@ -34,7 +34,7 @@ export function useSubmitTeacherEvaluation() {
       data: Pick<TeacherEvaluation, "score" | "comment">;
     }) => api.submitTeacherEvaluation(id, data),
     onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["teacher", "evaluations"] }),
+      qc.invalidateQueries({ queryKey: ["teacher", "evaluations"], refetchType: "active" }),
   });
 }
 
@@ -51,6 +51,6 @@ export function useSaveTeacherUnavailability() {
     mutationFn: (data: TeacherUnavailability) =>
       api.saveTeacherUnavailability(data),
     onSuccess: () =>
-      qc.invalidateQueries({ queryKey: ["teacher", "unavailability"] }),
+      qc.invalidateQueries({ queryKey: ["teacher", "unavailability"], refetchType: "active" }),
   });
 }

@@ -6,7 +6,7 @@ import {
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, jurySchema } from "@/lib/validations";
 import { toast } from "sonner";
-import { getFullName, toastError } from "@/lib/utils";
+import { getFullName, getErrorMessage } from "@/lib/utils";
 import type { Jury } from "@/types";
 import {
   Button,
@@ -135,7 +135,7 @@ export function CreateJuryDialog({
       onSuccess();
       onOpenChange(false);
     } catch (error) {
-      toastError(error, `Erreur lors de la ${isEdit ? "modification" : "création"} du jury`);
+      toast.error(getErrorMessage(error, `Erreur lors de la ${isEdit ? "modification" : "création"} du jury`));
     }
   };
 

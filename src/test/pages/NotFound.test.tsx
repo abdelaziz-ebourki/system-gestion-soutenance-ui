@@ -26,7 +26,6 @@ describe("NotFound", () => {
     const user = userEvent.setup();
     renderWithProviders(<NotFound />, {
       initialAuthState: {
-        token: "mock-token",
         user: {
           id: "1",
           email: "admin@univh2c.ma",
@@ -45,7 +44,6 @@ describe("NotFound", () => {
     const user = userEvent.setup();
     renderWithProviders(<NotFound />, {
       initialAuthState: {
-        token: "mock-token",
         user: {
           id: "4",
           email: "student@univh2c.ma",

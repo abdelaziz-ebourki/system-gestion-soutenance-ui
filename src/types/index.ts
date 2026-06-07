@@ -136,6 +136,8 @@ export type DefenseType = "pfe" | "memoire" | "these";
 
 export type DefenseSessionStatus = "draft" | "active" | "scheduled" | "completed" | "archived";
 
+export type SlotKey = string & { __brand: 'SlotKey' };
+
 export interface AppNotification {
   id: string;
   type: "info" | "warning" | "success" | "error";

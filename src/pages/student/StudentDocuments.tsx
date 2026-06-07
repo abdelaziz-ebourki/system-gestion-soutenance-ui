@@ -12,7 +12,8 @@ import { fr } from "date-fns/locale";
 import { useStudentDocuments, useUploadStudentDocument } from "@/hooks/use-queries";
 import type { StudentDocument } from "@/types";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
+import { GRACE_PERIOD_DAYS, MS_PER_DAY } from "@/lib/constants";
 import {
   Badge,
   Button,
@@ -81,12 +82,11 @@ export default function StudentDocuments() {
 
     const now = new Date();
     const deadline = new Date(document.deadline);
-    const GRACE_PERIOD_DAYS = 2;
     const graceDeadline = new Date(deadline);
     graceDeadline.setDate(graceDeadline.getDate() + GRACE_PERIOD_DAYS);
 
     if (now > graceDeadline) {
-      toast.error(`Date limite dépassée depuis ${Math.ceil((now.getTime() - deadline.getTime()) / (1000 * 60 * 60 * 24))} jours. Dépôt bloqué.`);
+      toast.error(`Date limite dépassée depuis ${Math.ceil((now.getTime() - deadline.getTime()) / MS_PER_DAY)} jours. Dépôt bloqué.`);
       return;
     }
 
@@ -100,7 +100,7 @@ export default function StudentDocuments() {
       toast.success("Document envoyé avec succès");
       setFiles((prev) => ({ ...prev, [document.id]: null }));
     } catch (error) {
-      toastError(error, "Erreur lors de l'envoi du document");
+      toast.error(getErrorMessage(error, "Erreur lors de l'envoi du document"));
     } finally {
       setUploadingId(null);
     }

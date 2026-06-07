@@ -1,5 +1,6 @@
 import { api, type PaginatedResponse, type UserCreateParams, type RoomImportData, type GeneralSettings, type EmailConfig } from "./api-core";
 import type { DashboardStats, JuryRoleTemplate } from "@/types";
+import { MAX_TEACHER_FETCH_LIMIT, AUDIT_LOG_PAGE_SIZE, DEFAULT_API_LIMIT } from "@/lib/constants";
 import type { AuditLog } from "@/types/audit-log";
 import type {
   User, Student, Teacher, Coordinator,
@@ -8,7 +9,7 @@ import type {
 
 export const getAdminStats = () => api<DashboardStats>("/admin/stats");
 
-export const getAuditLogs = (page = 0, limit = 20) =>
+export const getAuditLogs = (page = 0, limit = AUDIT_LOG_PAGE_SIZE) =>
   api<PaginatedResponse<AuditLog>>(`/admin/audit-logs?page=${page}&limit=${limit}`);
 
 export const getUsers = (params: {
@@ -26,24 +27,24 @@ export const getUsers = (params: {
   return api<PaginatedResponse<User>>(`/admin/users?${query.toString()}`);
 };
 
-export const getStudents = (page = 0, limit = 10, search?: string) => {
+export const getStudents = (page = 0, limit = DEFAULT_API_LIMIT, search?: string) => {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (search) params.append("search", search);
   return api<PaginatedResponse<Student>>(`/admin/students?${params}`);
 };
 
-export const getTeachers = (page = 0, limit = 10, search?: string) => {
+export const getTeachers = (page = 0, limit = DEFAULT_API_LIMIT, search?: string) => {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (search) params.append("search", search);
   return api<PaginatedResponse<Teacher>>(`/admin/teachers?${params}`);
 };
 
-export const getTeachersList = (limit = 5000) =>
+export const getTeachersList = (limit = MAX_TEACHER_FETCH_LIMIT) =>
   api<PaginatedResponse<Teacher>>(`/admin/teachers?limit=${limit}`).then(
     (res) => res.items,
   );
 
-export const getCoordinators = (page = 0, limit = 10, search?: string) => {
+export const getCoordinators = (page = 0, limit = DEFAULT_API_LIMIT, search?: string) => {
   const params = new URLSearchParams({ page: String(page), limit: String(limit) });
   if (search) params.append("search", search);
   return api<PaginatedResponse<Coordinator>>(`/admin/coordinators?${params}`);

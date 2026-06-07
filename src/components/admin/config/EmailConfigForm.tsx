@@ -4,8 +4,10 @@ import {
   useEmailConfig, useUpdateEmailConfig,
 } from "@/hooks/use-queries";
 import type { EmailConfig } from "@/lib/api";
+import { emailConfigSchema, validate } from "@/lib/validations";
+import { DEFAULT_SMTP_PORT } from "@/lib/constants";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Button,
   Card,
@@ -35,7 +37,7 @@ export function EmailConfigForm() {
   const updateMut = useUpdateEmailConfig();
   const [config, setConfig] = useState<EmailConfig>({
     host: "",
-    port: 587,
+    port: DEFAULT_SMTP_PORT,
     username: "",
     password: "",
     senderName: "",
@@ -47,13 +49,21 @@ export function EmailConfigForm() {
     if (initial) setConfig(initial);
   }, [initial]);
 
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string> | null>(null);
+
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
+    const errors = validate(emailConfigSchema, config);
+    if (errors) {
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors(null);
     try {
       await updateMut.mutateAsync(config);
       toast.success("Configuration email mise à jour");
     } catch (error) {
-      toastError(error, "Erreur lors de la mise à jour");
+      toast.error(getErrorMessage(error, "Erreur lors de la mise à jour"));
     }
   };
 
@@ -80,15 +90,17 @@ export function EmailConfigForm() {
                 placeholder="smtp.example.com"
                 required
               />
+              {fieldErrors?.host && <p className="text-sm text-destructive">{fieldErrors.host}</p>}
             </Field>
             <Field>
               <FieldLabel>Port</FieldLabel>
               <Input
                 type="number"
-                value={config.port ?? 587}
+                value={config.port ?? DEFAULT_SMTP_PORT}
                 onChange={(e) => setConfig({ ...config, port: Number(e.target.value) })}
                 required
               />
+              {fieldErrors?.port && <p className="text-sm text-destructive">{fieldErrors.port}</p>}
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -117,6 +129,7 @@ export function EmailConfigForm() {
                 placeholder="Université"
                 required
               />
+              {fieldErrors?.senderName && <p className="text-sm text-destructive">{fieldErrors.senderName}</p>}
             </Field>
             <Field>
               <FieldLabel>Email de l'expéditeur</FieldLabel>
@@ -127,6 +140,7 @@ export function EmailConfigForm() {
                 placeholder="noreply@example.com"
                 required
               />
+              {fieldErrors?.senderEmail && <p className="text-sm text-destructive">{fieldErrors.senderEmail}</p>}
             </Field>
           </div>
             <Field>

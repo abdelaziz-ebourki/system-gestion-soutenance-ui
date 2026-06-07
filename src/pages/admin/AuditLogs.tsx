@@ -3,9 +3,10 @@ import type { AuditLog } from "@/types/audit-log";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { useState } from "react";
+import { AUDIT_LOG_PAGE_SIZE } from "@/lib/constants";
 
 export default function AuditLogs() {
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 20 });
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: AUDIT_LOG_PAGE_SIZE });
   const { data, isLoading } = useAuditLogs(pagination.pageIndex, pagination.pageSize);
 
   const columns: ColumnDef<AuditLog>[] = [

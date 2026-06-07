@@ -3,7 +3,7 @@ import { useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/use-queries
 import { coordinatorSchema } from "@/lib/validations";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import type { Coordinator } from "@/types";
 
 type CoordinatorFormData = {
@@ -62,7 +62,7 @@ export function useCoordinatorCrud() {
       form.resetForm();
       setSelected(null);
     } catch (error) {
-      toastError(error, selected ? "Erreur lors de la modification" : "Erreur lors de la création");
+      toast.error(getErrorMessage(error, selected ? "Erreur lors de la modification" : "Erreur lors de la création"));
     }
   };
 
@@ -74,7 +74,7 @@ export function useCoordinatorCrud() {
       setIsDeleteDialogOpen(false);
       setSelected(null);
     } catch (error) {
-      toastError(error, "Erreur lors de la suppression");
+      toast.error(getErrorMessage(error, "Erreur lors de la suppression"));
     }
   };
 

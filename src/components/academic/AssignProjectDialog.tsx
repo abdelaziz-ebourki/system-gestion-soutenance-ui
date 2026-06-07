@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useProjects, useStudentGroups, useAssignProjectToGroup } from "@/hooks/use-queries";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Button,
   Dialog,
@@ -63,7 +63,7 @@ export function AssignProjectDialog({
       setSelectedProjectId("");
       onOpenChange(false);
     } catch (error) {
-      toastError(error, "Erreur lors de l'assignation");
+      toast.error(getErrorMessage(error, "Erreur lors de l'assignation"));
     }
   };
 

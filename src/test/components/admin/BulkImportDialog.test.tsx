@@ -1,6 +1,6 @@
-import { render, screen, act } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeAll, afterAll, afterEach, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import * as XLSX from "xlsx";
@@ -13,6 +13,68 @@ vi.mock("@/lib/api", () => ({
   bulkCreateUsers: vi.fn().mockResolvedValue(undefined),
   bulkCreateRooms: vi.fn().mockResolvedValue(undefined),
 }));
+
+const fileDataMap = new Map<string, ArrayBuffer>();
+
+beforeAll(() => {
+  const RealFile = globalThis.File;
+
+  vi.stubGlobal(
+    "File",
+    vi.fn(function MockFile(
+      bits: BlobPart[],
+      name: string,
+      options?: FilePropertyBag,
+    ) {
+      for (const bit of bits) {
+        if (bit instanceof ArrayBuffer) {
+          fileDataMap.set(name, bit);
+        }
+      }
+      return new RealFile(bits, name, options);
+    }) as unknown as typeof File,
+  );
+
+  vi.stubGlobal(
+    "FileReader",
+    vi.fn().mockImplementation(function () {
+      let _onload: ((ev: ProgressEvent<FileReader>) => void) | null = null;
+      return {
+        get onload() {
+          return _onload;
+        },
+        set onload(fn) {
+          _onload = fn;
+        },
+        result: null as ArrayBuffer | string | null,
+        readAsArrayBuffer(file: File) {
+          const data = fileDataMap.get(file.name);
+          if (data) {
+            this.result = data;
+            const event = new ProgressEvent("load");
+            Object.defineProperty(event, "target", {
+              value: { result: data },
+              configurable: true,
+            });
+            _onload?.call(
+              this as unknown as FileReader,
+              event as ProgressEvent<FileReader>,
+            );
+          }
+        },
+        addEventListener() {},
+        removeEventListener() {},
+        dispatchEvent() {
+          return false;
+        },
+      };
+    }),
+  );
+});
+
+afterAll(() => {
+  vi.unstubAllGlobals();
+});
 
 function renderBulk(props = {}) {
   const queryClient = new QueryClient({
@@ -35,6 +97,7 @@ function createMockFile(data: Record<string, string>[]): File {
 
 describe("BulkImportDialog", () => {
   beforeEach(() => vi.clearAllMocks());
+  afterEach(() => fileDataMap.clear());
 
   it("renders trigger button", () => {
     renderBulk();
@@ -59,9 +122,7 @@ describe("BulkImportDialog", () => {
     expect(fileInput).toBeInTheDocument();
 
     const badFile = createMockFile([{ name: "Test" }]);
-    await act(async () => {
-      await user.upload(fileInput, badFile);
-    });
+    await user.upload(fileInput, badFile);
 
     await vi.waitFor(() => {
       expect(toast.error).toHaveBeenCalled();
@@ -79,9 +140,7 @@ describe("BulkImportDialog", () => {
       { prénom: "Jean", nom: "Dupont", email: "jean@test.com", cne: "CNE001", major: "Génie Info", niveau: "L3" },
     ]);
 
-    await act(async () => {
-      await user.upload(fileInput, validData);
-    });
+    await user.upload(fileInput, validData);
 
     expect(await screen.findByText(/1 enregistrements trouvés/i)).toBeInTheDocument();
   });
@@ -97,9 +156,7 @@ describe("BulkImportDialog", () => {
     const validData = createMockFile([
       { prénom: "Jean", nom: "Dupont", email: "jean@test.com", cne: "CNE001", major: "Génie Info", niveau: "L3" },
     ]);
-    await act(async () => {
-      await user.upload(fileInput, validData);
-    });
+    await user.upload(fileInput, validData);
     await screen.findByText(/1 enregistrements trouvés/i);
     await user.click(screen.getByRole("button", { name: /importer/i }));
     await vi.waitFor(() => {
@@ -118,9 +175,7 @@ describe("BulkImportDialog", () => {
     const validData = createMockFile([
       { prénom: "Jean", nom: "Dupont", email: "jean@test.com", cne: "CNE001", major: "Génie Info", niveau: "L3" },
     ]);
-    await act(async () => {
-      await user.upload(fileInput, validData);
-    });
+    await user.upload(fileInput, validData);
     await screen.findByText(/1 enregistrements trouvés/i);
     await user.click(screen.getByRole("button", { name: /importer/i }));
     await vi.waitFor(() => expect(onSuccess).toHaveBeenCalled());
@@ -138,9 +193,7 @@ describe("BulkImportDialog", () => {
     const validData = createMockFile([
       { prénom: "Jean", nom: "Dupont", email: "jean@test.com", cne: "CNE001", major: "Génie Info", niveau: "L3" },
     ]);
-    await act(async () => {
-      await user.upload(fileInput, validData);
-    });
+    await user.upload(fileInput, validData);
     await screen.findByText(/1 enregistrements trouvés/i);
     await user.click(screen.getByRole("button", { name: /importer/i }));
     await vi.waitFor(() => expect(toast.error).toHaveBeenCalled());

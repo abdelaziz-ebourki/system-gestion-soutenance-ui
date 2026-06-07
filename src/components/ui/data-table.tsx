@@ -13,6 +13,7 @@ import {
   type Table as TanStackTable,
   type Row,
 } from "@tanstack/react-table";
+import { DEFAULT_API_LIMIT, PAGE_SIZE_OPTIONS } from "@/lib/constants";
 
 import {
   Table,
@@ -139,14 +140,14 @@ function DataTableProvider<TData, TValue>({
   filterPlaceholder = "Rechercher...",
   filters,
   manualPagination = false,
-  pageSize = 10,
+  pageSize = DEFAULT_API_LIMIT,
   pageCount,
   pagination,
   onPaginationChange,
   onFiltering,
   onRowClick,
   getRowId,
-  pageSizeOptions = [10, 20, 50],
+  pageSizeOptions = PAGE_SIZE_OPTIONS,
   columnVisibility,
   enableRowSelection,
   onSelectedRowsChange,

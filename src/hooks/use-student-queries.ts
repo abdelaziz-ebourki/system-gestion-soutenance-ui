@@ -26,7 +26,7 @@ export function useCreateStudentGroup() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: () => api.createStudentGroup(),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "group"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "group"], refetchType: "active" }),
   });
 }
 
@@ -34,7 +34,7 @@ export function useJoinStudentGroup() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (groupId: string) => api.joinStudentGroup(groupId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "group"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "group"], refetchType: "active" }),
   });
 }
 
@@ -50,6 +50,6 @@ export function useUploadStudentDocument() {
   return useMutation({
     mutationFn: ({ documentId, file }: { documentId: string; file: File }) =>
       api.uploadStudentDocument(documentId, file),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "documents"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "documents"], refetchType: "active" }),
   });
 }
