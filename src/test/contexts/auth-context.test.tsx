@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach } from "vitest";
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
@@ -67,9 +67,11 @@ describe("AuthProvider", () => {
 
   it("clears expired session and sets wasExpired", async () => {
     renderWithAuth();
-    
-    window.dispatchEvent(new CustomEvent("auth:expired"));
-    
+
+    await act(async () => {
+      window.dispatchEvent(new CustomEvent("auth:expired"));
+    });
+
     expect(await screen.findByTestId("was-expired")).toHaveTextContent("true");
     expect(localStorage.getItem(STORAGE_KEYS.USER)).toBeNull();
   });

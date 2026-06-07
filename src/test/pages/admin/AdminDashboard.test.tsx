@@ -12,6 +12,7 @@ vi.mock("recharts", async (importOriginal) => {
   const actual = await importOriginal<typeof import("recharts")>();
   return {
     ...actual,
+    ResponsiveContainer: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
     BarChart: ({ children }: { children: React.ReactNode }) => <div data-testid="mock-barchart">{children}</div>,
     Bar: () => <div data-testid="mock-bar" />,
     XAxis: () => <div data-testid="mock-xaxis" />,

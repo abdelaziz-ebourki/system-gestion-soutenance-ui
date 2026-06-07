@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/contexts/auth-context";
@@ -71,7 +71,10 @@ describe("ProtectedRoute", () => {
     );
 
     renderWithAuth();
-    window.dispatchEvent(new CustomEvent("auth:expired"));
+
+    await act(async () => {
+      window.dispatchEvent(new CustomEvent("auth:expired"));
+    });
 
     expect(await screen.findByTestId("login-page")).toBeInTheDocument();
     expect(toast.error).toHaveBeenCalledWith(
