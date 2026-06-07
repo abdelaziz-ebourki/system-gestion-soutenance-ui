@@ -1,6 +1,7 @@
 import { createSlotKey, parseSlotKey } from "@/lib/utils";
 import type { Jury, Room, Project, Teacher } from "@/types";
 import type { UnavailabilityEntry } from "@/lib/api-coordinator";
+import { MAX_SUGGESTIONS } from "@/lib/constants";
 
 export interface ConflictIssue {
   type: "room_capacity" | "teacher_double_booked" | "student_double_booked" | "supervisor_conflict" | "break_violation" | "out_of_bounds" | "slot_occupied" | "project_already_scheduled" | "teacher_unavailable";
@@ -123,7 +124,7 @@ function getSmartSuggestions(
     if (context.allTimeSlots) {
       const betterTimes = context.allTimeSlots
         .filter((t) => t !== time && canFit(roomId, t))
-        .slice(0, 3);
+        .slice(0, MAX_SUGGESTIONS);
       if (betterTimes.length > 0) {
         return `Suggestion intelligente : Créneaux libres dans cette salle : ${betterTimes.join(", ")}.`;
       }
@@ -134,7 +135,7 @@ function getSmartSuggestions(
     if (context.allTimeSlots) {
       const freeTimes = context.allTimeSlots
         .filter((t) => t !== time && canFit(roomId, t))
-        .slice(0, 3);
+        .slice(0, MAX_SUGGESTIONS);
       if (freeTimes.length > 0) {
         return `Suggestion intelligente : Le jury est disponible à : ${freeTimes.join(", ")}.`;
       }

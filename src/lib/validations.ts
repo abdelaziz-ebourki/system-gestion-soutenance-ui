@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MIN_PASSWORD_LENGTH, MAX_SCORE } from "@/lib/constants";
 
 type Errors<T> = Partial<Record<keyof T, string>>;
 
@@ -26,7 +27,7 @@ export const verifyAccountSchema = z
   .object({
     password: z
       .string()
-      .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+      .min(MIN_PASSWORD_LENGTH, "Le mot de passe doit contenir au moins 8 caractères"),
     confirmPassword: z.string().min(1, "Confirmez le mot de passe"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -42,7 +43,7 @@ export const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+      .min(MIN_PASSWORD_LENGTH, "Le mot de passe doit contenir au moins 8 caractères"),
     confirmPassword: z.string().min(1, "Confirmez le mot de passe"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -167,8 +168,8 @@ export const documentConfigSchema = z.object({
 export const evaluationSchema = z.object({
   score: z.coerce
     .number()
-    .min(0, "La note doit être entre 0 et 20")
-    .max(20, "La note doit être entre 0 et 20"),
+    .min(0, `La note doit être entre 0 et ${MAX_SCORE}`)
+    .max(MAX_SCORE, `La note doit être entre 0 et ${MAX_SCORE}`),
   comment: z.string().optional(),
 });
 

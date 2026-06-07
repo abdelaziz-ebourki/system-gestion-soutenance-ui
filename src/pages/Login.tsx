@@ -174,7 +174,7 @@ export default function Login() {
       </div>
 
       <footer className="md:absolute pt-10 bottom-8 text-sm text-muted-foreground flex gap-6">
-        <span>© 2026 Copyright</span>
+        <span>&copy; {new Date().getFullYear()} Copyright</span>
         <span className="hover:text-primary cursor-pointer transition-colors">
           Assistance
         </span>

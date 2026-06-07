@@ -5,6 +5,7 @@ import {
 } from "@/hooks/use-queries";
 import type { EmailConfig } from "@/lib/api";
 import { emailConfigSchema, validate } from "@/lib/validations";
+import { DEFAULT_SMTP_PORT } from "@/lib/constants";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import {
@@ -36,7 +37,7 @@ export function EmailConfigForm() {
   const updateMut = useUpdateEmailConfig();
   const [config, setConfig] = useState<EmailConfig>({
     host: "",
-    port: 587,
+    port: DEFAULT_SMTP_PORT,
     username: "",
     password: "",
     senderName: "",
@@ -95,7 +96,7 @@ export function EmailConfigForm() {
               <FieldLabel>Port</FieldLabel>
               <Input
                 type="number"
-                value={config.port ?? 587}
+                value={config.port ?? DEFAULT_SMTP_PORT}
                 onChange={(e) => setConfig({ ...config, port: Number(e.target.value) })}
                 required
               />

@@ -12,6 +12,7 @@ import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { format } from "date-fns";
 
 import { useAdminStats, useUsers, useAuditLogs, useUpdateUser, useDeleteUser } from "@/hooks/use-queries";
+import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import type { User } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import { DataTable } from "@/components/ui/data-table";
@@ -32,19 +33,17 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
-const FILTER_LIMIT = 5000;
-
 export default function AdminDashboard() {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: DEFAULT_API_LIMIT,
   });
   const [isFiltering, setIsFiltering] = React.useState(false);
 
   const { data: stats } = useAdminStats();
   const { data: usersData, isLoading: isLoading } = useUsers({
     page: isFiltering ? 0 : pagination.pageIndex,
-    limit: isFiltering ? FILTER_LIMIT : pagination.pageSize,
+    limit: isFiltering ? MAX_TEACHER_FETCH_LIMIT : pagination.pageSize,
   });
   const { data: logs, isLoading: isLogsLoading } = useAuditLogs();
   const updateUser = useUpdateUser();

@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { ApiError } from "@/lib/api-error"
 import type { SlotKey } from "@/types";
+import { MAX_SUGGESTIONS } from "@/lib/constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -45,7 +46,7 @@ export function getErrorMessage(error: unknown, fallbackMessage: string): string
     } else if (error.status && API_ERROR_MESSAGES[error.status]) {
       if (error.status === 422 && error.fieldErrors) {
         const fieldList = Object.entries(error.fieldErrors)
-          .slice(0, 3)
+          .slice(0, MAX_SUGGESTIONS)
           .map(([, msg]) => msg);
         return fieldList.join("\n");
       } else {

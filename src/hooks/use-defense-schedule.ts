@@ -11,8 +11,8 @@ import {
 } from "@/hooks/use-queries";
 import { toast } from "sonner";
 import { getErrorMessage, createSlotKey, parseSlotKey } from "@/lib/utils";
-import { format, addDays } from "date-fns";
-import { CALENDAR_WINDOW_DAYS } from "@/lib/constants";
+import { format, addDays, differenceInDays } from "date-fns";
+import { MS_PER_MINUTE, TOAST_DURATION_MS } from "@/lib/constants";
 import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
 import { useScheduleDraft } from "@/hooks/defense/use-schedule-draft";
 import { useScheduleAutoGenerator } from "@/hooks/defense/use-schedule-auto-generator";
@@ -48,7 +48,9 @@ export function useDefenseSchedule() {
   const days = useMemo(() => {
     if (!currentSession) return [];
     const start = new Date(currentSession.startDate);
-    return Array.from({ length: CALENDAR_WINDOW_DAYS }).map((_, i) => addDays(start, i));
+    const end = new Date(currentSession.endDate);
+    const diffDays = Math.max(1, differenceInDays(end, start) + 1);
+    return Array.from({ length: diffDays }).map((_, i) => addDays(start, i));
   }, [currentSession]);
 
   const timeSlots = useMemo(() => {
@@ -59,7 +61,7 @@ export function useDefenseSchedule() {
 
     while (current < end) {
       slots.push(format(current, "HH:mm"));
-      current = new Date(current.getTime() + currentSession.defenseDuration * 60000);
+      current = new Date(current.getTime() + currentSession.defenseDuration * MS_PER_MINUTE);
     }
     return slots;
   }, [currentSession]);
@@ -113,7 +115,7 @@ export function useDefenseSchedule() {
       if (!result.isValid) {
         const error = result.issues.find(i => i.severity === "error") || result.issues[0];
         if (error.suggestedResolution) {
-          toast.error(`${error.message} ${error.suggestedResolution}`, { duration: 5000 });
+          toast.error(`${error.message} ${error.suggestedResolution}`, { duration: TOAST_DURATION_MS });
         } else {
           toast.error(error.message);
         }

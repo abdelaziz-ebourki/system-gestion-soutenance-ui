@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
+import { DOC_STALE_TIME } from "@/lib/constants";
 import type { Group, DefenseSessionStatus } from "@/types";
 import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload, CreateDefenseSessionPayload } from "@/lib/api-coordinator";
 import type { SlotAssignment } from "@/lib/conflict-engine";
@@ -194,7 +195,7 @@ export function useEvaluationSheet(projectId: string | null) {
     queryKey: ["coordinator", "documents", "evaluation-sheet", projectId],
     queryFn: () => api.getEvaluationSheet(projectId!),
     enabled: !!projectId,
-    staleTime: 60_000,
+    staleTime: DOC_STALE_TIME,
   });
 }
 
@@ -203,7 +204,7 @@ export function useAttendanceList(defenseSessionId: string | null) {
     queryKey: ["coordinator", "documents", "attendance-list", defenseSessionId],
     queryFn: () => api.getAttendanceList(defenseSessionId!),
     enabled: !!defenseSessionId,
-    staleTime: 60_000,
+    staleTime: DOC_STALE_TIME,
   });
 }
 
@@ -212,7 +213,7 @@ export function useJuryConvocations(projectId: string | null) {
     queryKey: ["coordinator", "documents", "jury-convocations", projectId],
     queryFn: () => api.getJuryConvocations(projectId!),
     enabled: !!projectId,
-    staleTime: 60_000,
+    staleTime: DOC_STALE_TIME,
   });
 }
 
@@ -221,7 +222,7 @@ export function useDefenseScheduleDoc(defenseSessionId: string | null) {
     queryKey: ["coordinator", "documents", "schedule", defenseSessionId],
     queryFn: () => api.getDefenseScheduleDoc(defenseSessionId!),
     enabled: !!defenseSessionId,
-    staleTime: 60_000,
+    staleTime: DOC_STALE_TIME,
   });
 }
 
@@ -230,7 +231,7 @@ export function useProcesVerbal(projectId: string | null) {
     queryKey: ["coordinator", "documents", "proces-verbal", projectId],
     queryFn: () => api.getProcesVerbal(projectId!),
     enabled: !!projectId,
-    staleTime: 60_000,
+    staleTime: DOC_STALE_TIME,
   });
 }
 

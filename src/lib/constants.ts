@@ -54,6 +54,21 @@ export const DEFENSE_SESSION_STATUS_BADGE: Record<string, "default" | "secondary
   archived: "secondary",
 };
 
-export const CALENDAR_WINDOW_DAYS = 14;
 export const DEFAULT_API_LIMIT = 10;
 export const MAX_TEACHER_FETCH_LIMIT = 5000;
+export const AUDIT_LOG_PAGE_SIZE = 20;
+export const DEFAULT_RETRY = 1;
+export const DEFAULT_STALE_TIME = 30_000;
+export const CONFIG_STALE_TIME = 5 * 60_000;
+export const DOC_STALE_TIME = 60_000;
+export const NOTIFICATION_POLL_INTERVAL = 30_000;
+export const MS_PER_MINUTE = 60_000;
+export const MS_PER_DAY = 86_400_000;
+export const GRACE_PERIOD_DAYS = 2;
+export const TOAST_DURATION_MS = 5000;
+export const MAX_SCORE = 20;
+export const MIN_PASSWORD_LENGTH = 8;
+export const DEFAULT_SMTP_PORT = 587;
+export const MAX_SUGGESTIONS = 3;
+export const MAX_STUDENT_FETCH_LIMIT = 5000;
+export const PAGE_SIZE_OPTIONS = [10, 20, 50];

@@ -88,9 +88,10 @@ describe("useDefenseSchedule", () => {
     expect(result.current.currentSession).toEqual(mockSessions[0]);
   });
 
-  it("computes correct days window (14 days)", () => {
+  it("computes days window from session start to end (inclusive)", () => {
     const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
-    expect(result.current.days).toHaveLength(14);
+    // June 1 to June 15 inclusive = 15 days (was previously a fixed 14-day constant)
+    expect(result.current.days).toHaveLength(15);
     expect(result.current.days[0].toISOString()).toContain("2026-06-01");
   });
 

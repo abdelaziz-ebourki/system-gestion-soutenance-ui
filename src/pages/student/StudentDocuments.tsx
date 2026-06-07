@@ -13,6 +13,7 @@ import { useStudentDocuments, useUploadStudentDocument } from "@/hooks/use-queri
 import type { StudentDocument } from "@/types";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
+import { GRACE_PERIOD_DAYS, MS_PER_DAY } from "@/lib/constants";
 import {
   Badge,
   Button,
@@ -81,12 +82,11 @@ export default function StudentDocuments() {
 
     const now = new Date();
     const deadline = new Date(document.deadline);
-    const GRACE_PERIOD_DAYS = 2;
     const graceDeadline = new Date(deadline);
     graceDeadline.setDate(graceDeadline.getDate() + GRACE_PERIOD_DAYS);
 
     if (now > graceDeadline) {
-      toast.error(`Date limite dépassée depuis ${Math.ceil((now.getTime() - deadline.getTime()) / (1000 * 60 * 60 * 24))} jours. Dépôt bloqué.`);
+      toast.error(`Date limite dépassée depuis ${Math.ceil((now.getTime() - deadline.getTime()) / MS_PER_DAY)} jours. Dépôt bloqué.`);
       return;
     }
 

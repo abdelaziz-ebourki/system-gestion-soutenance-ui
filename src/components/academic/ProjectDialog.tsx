@@ -4,7 +4,7 @@ import { useTeachersList, useStudents, useCreateProject, useUpdateProject } from
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, projectSchema } from "@/lib/validations";
 import type { DefenseType, Project } from "@/types";
-import { DEFENSE_TYPE_OPTIONS } from "@/lib/constants";
+import { DEFENSE_TYPE_OPTIONS, MAX_STUDENT_FETCH_LIMIT } from "@/lib/constants";
 import { toast } from "sonner";
 import { getFullName, getErrorMessage } from "@/lib/utils";
 import {
@@ -52,7 +52,7 @@ export function ProjectDialog({
   const createProjectMutation = useCreateProject();
   const updateProjectMutation = useUpdateProject();
   const teachers = teachersQuery.data ?? [];
-  const studentsQuery = useStudents({ limit: 5000 });
+  const studentsQuery = useStudents({ limit: MAX_STUDENT_FETCH_LIMIT });
   const studentOptions = React.useMemo(() => 
     (studentsQuery.data?.items ?? []).map((s) => ({
       value: s.id,

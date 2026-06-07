@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
+import { CONFIG_STALE_TIME, AUDIT_LOG_PAGE_SIZE, DEFAULT_API_LIMIT } from "@/lib/constants";
 import type {
   Room, Department, Major, Level,
 } from "@/types";
@@ -9,7 +10,7 @@ export function useAdminStats() {
   return useQuery({ queryKey: ["admin", "stats"], queryFn: api.getAdminStats });
 }
 
-export function useAuditLogs(page = 0, limit = 20) {
+export function useAuditLogs(page = 0, limit = AUDIT_LOG_PAGE_SIZE) {
   return useQuery({
     queryKey: ["admin", "audit-logs", page, limit],
     queryFn: () => api.getAuditLogs(page, limit),
@@ -17,7 +18,7 @@ export function useAuditLogs(page = 0, limit = 20) {
 }
 
 export function useRooms() {
-  return useQuery({ queryKey: ["rooms"], queryFn: api.getRooms, staleTime: 5 * 60_000 });
+  return useQuery({ queryKey: ["rooms"], queryFn: api.getRooms, staleTime: CONFIG_STALE_TIME });
 }
 
 export function useCreateRoom() {
@@ -46,7 +47,7 @@ export function useDeleteRoom() {
 }
 
 export function useDepartments() {
-  return useQuery({ queryKey: ["departments"], queryFn: api.getDepartments, staleTime: 5 * 60_000 });
+  return useQuery({ queryKey: ["departments"], queryFn: api.getDepartments, staleTime: CONFIG_STALE_TIME });
 }
 
 export function useCreateDepartment() {
@@ -75,7 +76,7 @@ export function useDeleteDepartment() {
 }
 
 export function useMajors() {
-  return useQuery({ queryKey: ["majors"], queryFn: api.getMajors, staleTime: 5 * 60_000 });
+  return useQuery({ queryKey: ["majors"], queryFn: api.getMajors, staleTime: CONFIG_STALE_TIME });
 }
 
 export function useCreateMajor() {
@@ -104,7 +105,7 @@ export function useDeleteMajor() {
 }
 
 export function useLevels() {
-  return useQuery({ queryKey: ["levels"], queryFn: api.getLevels, staleTime: 5 * 60_000 });
+  return useQuery({ queryKey: ["levels"], queryFn: api.getLevels, staleTime: CONFIG_STALE_TIME });
 }
 
 export function useCreateLevel() {
@@ -133,7 +134,7 @@ export function useDeleteLevel() {
 }
 
 export function useJuryRoleTemplates() {
-  return useQuery({ queryKey: ["jury-role-templates"], queryFn: api.getJuryRoleTemplates, staleTime: 5 * 60_000 });
+  return useQuery({ queryKey: ["jury-role-templates"], queryFn: api.getJuryRoleTemplates, staleTime: CONFIG_STALE_TIME });
 }
 
 export function useUsers(params: { role?: string; page?: number; limit?: number; search?: string }) {
@@ -144,7 +145,7 @@ export function useUsers(params: { role?: string; page?: number; limit?: number;
 }
 
 export function useStudents(params?: { page?: number; limit?: number; search?: string }) {
-  const { page = 0, limit = 10, search } = params ?? {};
+  const { page = 0, limit = DEFAULT_API_LIMIT, search } = params ?? {};
   return useQuery({
     queryKey: ["users", "students", page, limit, search],
     queryFn: () => api.getStudents(page, limit, search),
@@ -152,7 +153,7 @@ export function useStudents(params?: { page?: number; limit?: number; search?: s
 }
 
 export function useTeachers(params?: { page?: number; limit?: number; search?: string }) {
-  const { page = 0, limit = 10, search } = params ?? {};
+  const { page = 0, limit = DEFAULT_API_LIMIT, search } = params ?? {};
   return useQuery({
     queryKey: ["users", "teachers", page, limit, search],
     queryFn: () => api.getTeachers(page, limit, search),
@@ -160,7 +161,7 @@ export function useTeachers(params?: { page?: number; limit?: number; search?: s
 }
 
 export function useCoordinators(params?: { page?: number; limit?: number; search?: string }) {
-  const { page = 0, limit = 10, search } = params ?? {};
+  const { page = 0, limit = DEFAULT_API_LIMIT, search } = params ?? {};
   return useQuery({
     queryKey: ["users", "coordinators", page, limit, search],
     queryFn: () => api.getCoordinators(page, limit, search),
@@ -171,7 +172,7 @@ export function useTeachersList() {
   return useQuery({
     queryKey: ["users", "teachers", "list"],
     queryFn: () => api.getTeachersList(),
-    staleTime: 5 * 60_000,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -212,7 +213,7 @@ export function useGeneralSettings() {
   return useQuery({
     queryKey: ["admin", "config", "general"],
     queryFn: api.getGeneralSettings,
-    staleTime: 5 * 60_000,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 
@@ -220,7 +221,7 @@ export function useEmailConfig() {
   return useQuery({
     queryKey: ["admin", "config", "email"],
     queryFn: api.getEmailConfig,
-    staleTime: 5 * 60_000,
+    staleTime: CONFIG_STALE_TIME,
   });
 }
 

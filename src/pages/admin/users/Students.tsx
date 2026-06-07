@@ -5,6 +5,7 @@ import { Plus, GraduationCap } from "lucide-react";
 import {
   useStudents, useMajors, useLevels,
 } from "@/hooks/use-queries";
+import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import { type Student } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -32,19 +33,17 @@ import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { useMemo, useState } from "react";
 
-const FILTER_LIMIT = 5000;
-
 export default function Students() {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: DEFAULT_API_LIMIT,
   });
   const [isFiltering, setIsFiltering] = useState(false);
   const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
 
   const { data: studentsData, isLoading, refetch } = useStudents({
     page: isFiltering ? 0 : pagination.pageIndex,
-    limit: isFiltering ? FILTER_LIMIT : pagination.pageSize,
+    limit: isFiltering ? MAX_TEACHER_FETCH_LIMIT : pagination.pageSize,
   });
   const { data: majors = [] } = useMajors();
   const { data: levels = [] } = useLevels();
