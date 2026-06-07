@@ -29,6 +29,7 @@ vi.mock("@/hooks/use-queries", () => ({
 
 vi.mock("@/lib/conflict-engine", () => ({
   validateSlotAssignment: vi.fn(),
+  buildConflictContext: vi.fn(),
 }));
 
 function createWrapper() {
@@ -139,7 +140,7 @@ describe("useDefenseSchedule", () => {
     act(() => {
       result.current.handleDragEnd({
         active: { id: "j1" },
-        over: { id: "2026-06-01|08:00" },
+        over: { id: "2026-06-01|r1|08:00" },
       } as unknown as DragEndEvent);
     });
 
@@ -165,7 +166,7 @@ describe("useDefenseSchedule", () => {
     act(() => {
       result.current.handleDragEnd({
         active: { id: "j1" },
-        over: { id: "2026-06-01|08:00" },
+        over: { id: "2026-06-01|r1|08:00" },
       } as unknown as DragEndEvent);
     });
 
@@ -193,7 +194,7 @@ describe("useDefenseSchedule", () => {
     act(() => {
       result.current.handleDragEnd({
         active: { id: "j1" },
-        over: { id: "2026-06-01|08:00" },
+        over: { id: "2026-06-01|r1|08:00" },
       } as unknown as DragEndEvent);
     });
 
@@ -215,7 +216,7 @@ describe("useDefenseSchedule", () => {
     act(() => {
       result.current.handleDragEnd({
         active: { id: "j1" },
-        over: { id: "2026-06-01|08:00" },
+        over: { id: "2026-06-01|r1|08:00" },
       } as unknown as DragEndEvent);
     });
 
@@ -235,7 +236,7 @@ describe("useDefenseSchedule", () => {
     act(() => {
       result.current.handleDragEnd({
         active: { id: "j1" },
-        over: { id: "2026-06-01|08:00" },
+        over: { id: "2026-06-01|r1|08:00" },
       } as unknown as DragEndEvent);
     });
     

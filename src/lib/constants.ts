@@ -53,3 +53,7 @@ export const DEFENSE_SESSION_STATUS_BADGE: Record<string, "default" | "secondary
   completed: "secondary",
   archived: "secondary",
 };
+
+export const CALENDAR_WINDOW_DAYS = 14;
+export const DEFAULT_API_LIMIT = 10;
+export const MAX_TEACHER_FETCH_LIMIT = 5000;
