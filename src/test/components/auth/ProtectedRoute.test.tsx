@@ -12,16 +12,16 @@ vi.mock("sonner", () => ({
 
 function renderWithAuth(initialEntries: string[] = ["/admin"]) {
   return render(
-    <AuthProvider>
-      <MemoryRouter initialEntries={initialEntries}>
+    <MemoryRouter initialEntries={initialEntries}>
+      <AuthProvider>
         <Routes>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin" element={<div data-testid="admin-content">Admin</div>} />
           </Route>
           <Route path="/login" element={<div data-testid="login-page">Login</div>} />
         </Routes>
-      </MemoryRouter>
-    </AuthProvider>,
+      </AuthProvider>
+    </MemoryRouter>,
   );
 }
 
@@ -32,7 +32,6 @@ describe("ProtectedRoute", () => {
   });
 
   it("renders child route when authenticated with correct role", async () => {
-    localStorage.setItem(STORAGE_KEYS.TOKEN, "valid-token");
     localStorage.setItem(
       STORAGE_KEYS.USER,
       JSON.stringify({
@@ -44,7 +43,6 @@ describe("ProtectedRoute", () => {
         isActive: true,
       }),
     );
-    localStorage.setItem(STORAGE_KEYS.EXPIRES_AT, String(Date.now() + 3600000));
 
     renderWithAuth();
 
@@ -60,7 +58,6 @@ describe("ProtectedRoute", () => {
   });
 
   it("shows expired session toast when wasExpired is true", async () => {
-    localStorage.setItem(STORAGE_KEYS.TOKEN, "expired-token");
     localStorage.setItem(
       STORAGE_KEYS.USER,
       JSON.stringify({
@@ -72,9 +69,9 @@ describe("ProtectedRoute", () => {
         isActive: true,
       }),
     );
-    localStorage.setItem(STORAGE_KEYS.EXPIRES_AT, String(Date.now() - 3600000));
 
     renderWithAuth();
+    window.dispatchEvent(new CustomEvent("auth:expired"));
 
     expect(await screen.findByTestId("login-page")).toBeInTheDocument();
     expect(toast.error).toHaveBeenCalledWith(
@@ -83,7 +80,6 @@ describe("ProtectedRoute", () => {
   });
 
   it("redirects to login when role is not allowed", async () => {
-    localStorage.setItem(STORAGE_KEYS.TOKEN, "valid-token");
     localStorage.setItem(
       STORAGE_KEYS.USER,
       JSON.stringify({
@@ -95,7 +91,6 @@ describe("ProtectedRoute", () => {
         isActive: true,
       }),
     );
-    localStorage.setItem(STORAGE_KEYS.EXPIRES_AT, String(Date.now() + 3600000));
 
     renderWithAuth();
 

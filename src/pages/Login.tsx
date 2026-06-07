@@ -13,7 +13,7 @@ import {
   PasswordInput,
 } from "@/components/ui";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Link, useNavigate } from "react-router-dom";
 import { login as loginApi } from "@/lib/api-auth";
@@ -40,7 +40,7 @@ export default function Login() {
 
       toast.success(`Bienvenue, ${data.user.firstName} ${data.user.lastName}`);
 
-      login(data.token, data.user, data.expiresAt);
+      login(data.user);
 
       const roleRoutes: Record<string, string> = {
         admin: "/admin",
@@ -51,7 +51,7 @@ export default function Login() {
 
       navigate(roleRoutes[data.user.role] || "/login");
     } catch (error) {
-      toastError(error, "Erreur de connexion");
+      toast.error(getErrorMessage(error, "Erreur de connexion"));
     } finally {
       setIsLoading(false);
     }
