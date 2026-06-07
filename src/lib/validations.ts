@@ -55,6 +55,7 @@ export const resetPasswordSchema = z
 export const defenseSessionSchema = z
   .object({
     name: z.string().min(1, "Le nom est requis"),
+    defenseType: z.enum(["pfe", "memoire", "these"]).default("pfe"),
     status: z.enum(["draft", "active", "scheduled", "completed", "archived"]),
     maxGroupSize: z.coerce.number().min(1, "Doit être au moins 1").max(10, "Ne peut pas dépasser 10"),
     defenseDuration: z.coerce.number().min(5, "Doit être au moins 5 min").max(180, "Ne peut pas dépasser 180 min"),
@@ -63,6 +64,7 @@ export const defenseSessionSchema = z
     juryRoleTemplateId: z.string().min(1, "Le template de jury est requis"),
     startDate: z.string().min(1, "La date de début est requise"),
     endDate: z.string().min(1, "La date de fin est requise"),
+    evaluationCoefficients: z.record(z.string(), z.number()).default({}),
   })
   .refine((data) => !data.startDate || !data.endDate || data.startDate <= data.endDate, {
     message: "La date de fin doit être postérieure à la date de début",

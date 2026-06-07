@@ -21,7 +21,7 @@ describe("Configuration", () => {
 
   it("renders the configuration page with sections", async () => {
     renderWithProviders(<Configuration />, {
-      initialAuthState: { token: "mock", user: adminUser },
+      initialAuthState: { user: adminUser },
     });
     expect(await screen.findByTestId("admin-configuration-page")).toBeInTheDocument();
     expect(screen.getByText("Filières")).toBeInTheDocument();
@@ -31,7 +31,7 @@ describe("Configuration", () => {
 
   it("renders major and level entities", async () => {
     renderWithProviders(<Configuration />, {
-      initialAuthState: { token: "mock", user: adminUser },
+      initialAuthState: { user: adminUser },
     });
     expect(await screen.findByText("Génie Informatique")).toBeInTheDocument();
     expect(screen.getByText("L3")).toBeInTheDocument();
@@ -39,7 +39,7 @@ describe("Configuration", () => {
 
   it("renders email config form fields", async () => {
     renderWithProviders(<Configuration />, {
-      initialAuthState: { token: "mock", user: adminUser },
+      initialAuthState: { user: adminUser },
     });
     expect(await screen.findByDisplayValue("smtp.example.com")).toBeInTheDocument();
     expect(screen.getByDisplayValue("587")).toBeInTheDocument();

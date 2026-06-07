@@ -9,7 +9,6 @@ describe("Infrastructure Validation", () => {
     renderWithProviders(<App />, {
       initialEntries: [ROUTES.ADMIN.DASHBOARD],
       initialAuthState: {
-        token: undefined,
         user: undefined,
       },
     });
@@ -23,7 +22,6 @@ describe("Infrastructure Validation", () => {
     renderWithProviders(<App />, {
       initialEntries: [ROUTES.ADMIN.DASHBOARD],
       initialAuthState: {
-        token: "mock-admin-token",
         user: {
           id: "1",
           firstName: "Admin",
@@ -32,7 +30,6 @@ describe("Infrastructure Validation", () => {
           role: "admin",
           isActive: true,
         },
-        expiresAt: Date.now() + 7200000,
       },
     });
 
@@ -44,7 +41,6 @@ describe("Infrastructure Validation", () => {
     renderWithProviders(<App />, {
       initialEntries: [ROUTES.ADMIN.DASHBOARD],
       initialAuthState: {
-        token: "mock-student-token",
         user: {
           id: "2",
           firstName: "Student",
@@ -53,7 +49,6 @@ describe("Infrastructure Validation", () => {
           role: "student",
           isActive: true,
         },
-        expiresAt: Date.now() + 7200000,
       },
     });
 

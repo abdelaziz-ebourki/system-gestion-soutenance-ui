@@ -150,9 +150,14 @@ export function validateSlotAssignment(
   context: ConflictContext,
 ): { isValid: boolean; issues: ConflictIssue[] } {
   const issues: ConflictIssue[] = [];
-  const { date, roomId, time } = parseSlotKey(slot);
 
-  if (!date || !roomId || !time) {
+  let date: string, roomId: string, time: string;
+  try {
+    const parsed = parseSlotKey(slot);
+    date = parsed.date;
+    roomId = parsed.room;
+    time = parsed.time;
+  } catch {
     return { isValid: false, issues: [{ type: "slot_occupied", severity: "error", message: "Format de créneau invalide.", slot }] };
   }
 

@@ -839,10 +839,10 @@ export const handlers = [
   // ── Student: Documents ──
   http.get("*/api/student/documents", () =>
     HttpResponse.json([
-      { id: "d1", name: "Rapport PFE", type: "report", deadline: "2026-06-01", status: "submitted", submittedAt: "2026-05-28T10:00:00Z" },
-      { id: "d2", name: "Fiche de présentation", type: "presentation", deadline: "2026-06-05", status: "missing" },
-      { id: "d3", name: "Déclaration sur l'honneur", type: "declaration", deadline: "2026-06-01", status: "validated", submittedAt: "2026-05-25T14:00:00Z" },
-      { id: "d4", name: "Attestation de stage", type: "internship", deadline: "2026-06-01", status: "rejected", submittedAt: "2026-05-20T09:00:00Z" },
+      { id: "d1", name: "Rapport PFE", type: "report", deadline: "2027-06-01", status: "submitted", submittedAt: "2027-05-28T10:00:00Z" },
+      { id: "d2", name: "Fiche de présentation", type: "presentation", deadline: "2027-06-05", status: "missing" },
+      { id: "d3", name: "Déclaration sur l'honneur", type: "declaration", deadline: "2027-06-01", status: "validated", submittedAt: "2027-05-25T14:00:00Z" },
+      { id: "d4", name: "Attestation de stage", type: "internship", deadline: "2027-06-01", status: "rejected", submittedAt: "2027-05-20T09:00:00Z" },
     ]),
   ),
 
@@ -854,7 +854,7 @@ export const handlers = [
         id: ":documentId",
         name: file?.name ?? "uploaded-file",
         type: "upload",
-        deadline: "2026-06-01",
+        deadline: "2027-06-01",
         status: "submitted",
         submittedAt: new Date().toISOString(),
       },
@@ -865,9 +865,9 @@ export const handlers = [
   // ── Coordinator: Student documents review (mock) ──
   http.get("*/api/coordinator/student-documents", () =>
     HttpResponse.json([
-      { id: "d1", name: "Rapport PFE", type: "report", deadline: "2026-06-01", status: "submitted", submittedAt: "2026-05-28T10:00:00Z", studentId: "s1", studentName: "Alice" },
-      { id: "d2", name: "Fiche de présentation", type: "presentation", deadline: "2026-06-05", status: "submitted", studentId: "s2", studentName: "Bob" },
-      { id: "d3", name: "Déclaration sur l'honneur", type: "declaration", deadline: "2026-06-01", status: "validated", submittedAt: "2026-05-25T14:00:00Z", studentId: "s3", studentName: "Charlie" },
+      { id: "d1", name: "Rapport PFE", type: "report", deadline: "2027-06-01", status: "submitted", submittedAt: "2027-05-28T10:00:00Z", studentId: "s1", studentName: "Alice" },
+      { id: "d2", name: "Fiche de présentation", type: "presentation", deadline: "2027-06-05", status: "submitted", studentId: "s2", studentName: "Bob" },
+      { id: "d3", name: "Déclaration sur l'honneur", type: "declaration", deadline: "2027-06-01", status: "validated", submittedAt: "2027-05-25T14:00:00Z", studentId: "s3", studentName: "Charlie" },
     ]),
   ),
 
