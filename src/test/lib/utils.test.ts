@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toast } from "sonner";
-import { cn, getFullName, toastError } from "@/lib/utils";
+import { cn, getFullName, toastError, formatDate, formatTime } from "@/lib/utils";
 import { ApiError } from "@/lib/api-error";
 
 vi.mock("sonner", () => ({
@@ -37,6 +37,44 @@ describe("getFullName", () => {
 
   it("trims leading/trailing spaces", () => {
     expect(getFullName({ firstName: "  John", lastName: "Doe  " })).toBe("John Doe");
+  });
+});
+
+describe("formatDate", () => {
+  it("formats ISO string correctly", () => {
+    expect(formatDate("2026-06-01")).toBe("01 juin 2026");
+  });
+
+  it("handles Date objects", () => {
+    const date = new Date(2026, 5, 1); // June 1st (month is 0-indexed)
+    expect(formatDate(date)).toBe("01 juin 2026");
+  });
+
+  it("returns empty string for null/undefined", () => {
+    expect(formatDate(null)).toBe("");
+    expect(formatDate(undefined)).toBe("");
+  });
+
+  it("uses custom pattern", () => {
+    expect(formatDate("2026-06-01", "yyyy/MM/dd")).toBe("2026/06/01");
+  });
+
+  it("falls back to string representation on error", () => {
+    expect(formatDate("invalid-date")).toBe("invalid-date");
+  });
+});
+
+describe("formatTime", () => {
+  it("formats HH:mm correctly", () => {
+    expect(formatTime("09:30")).toBe("09:30");
+  });
+
+  it("trims HH:mm:ss to HH:mm", () => {
+    expect(formatTime("09:30:45")).toBe("09:30");
+  });
+
+  it("returns empty string for empty input", () => {
+    expect(formatTime("")).toBe("");
   });
 });
 

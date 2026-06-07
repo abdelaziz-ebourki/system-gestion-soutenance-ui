@@ -2,6 +2,8 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { toast } from "sonner"
 import { ApiError } from "@/lib/api-error"
+import { format, parseISO } from "date-fns"
+import { fr } from "date-fns/locale"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -9,6 +11,22 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getFullName(person: { firstName: string; lastName: string }): string {
   return `${person.firstName} ${person.lastName}`.trim()
+}
+
+export function formatDate(date: string | Date | null | undefined, pattern = "dd MMM yyyy"): string {
+  if (!date) return "";
+  try {
+    const d = typeof date === "string" ? parseISO(date) : date;
+    return format(d, pattern, { locale: fr });
+  } catch {
+    return String(date);
+  }
+}
+
+export function formatTime(time: string): string {
+  if (!time) return "";
+  // Handles HH:mm or HH:mm:ss
+  return time.split(":").slice(0, 2).join(":");
 }
 
 const API_ERROR_MESSAGES: Record<number, string> = {

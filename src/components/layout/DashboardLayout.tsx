@@ -15,40 +15,14 @@ import {
   Separator,
 } from "@/components/ui";
 import { Outlet, useLocation, Link } from "react-router-dom";
-import { VALID_DASHBOARD_ROUTES } from "@/config/routes";
-
-const SEGMENT_LABELS: Record<string, string> = {
-  admin: "Admin",
-  "audit-logs": "Audit Log",
-  config: "Configuration",
-  conflicts: "Conflits",
-  coordinator: "Coordinateur",
-  "defense-sessions": "Sessions de soutenance",
-  departments: "Départements",
-  documents: "Documents",
-  evaluations: "Évaluations",
-  group: "Groupe",
-  juries: "Jurys",
-  notifications: "Notifications",
-  profile: "Profil",
-  projects: "Projets & Groupes",
-  rooms: "Salles",
-  schedule: "Planification",
-  student: "Étudiant",
-  students: "Étudiants",
-  teacher: "Enseignant",
-  teachers: "Enseignants",
-  coordinators: "Coordinateurs",
-  unavailability: "Indisponibilités",
-  users: "Utilisateurs",
-};
+import { VALID_DASHBOARD_ROUTES, BREADCRUMB_LABELS } from "@/config/routes";
 
 export default function DashboardLayout() {
   const location = useLocation();
   const segments = location.pathname.split("/").filter(Boolean);
   const breadcrumbs = segments.map((segment, index) => {
-    const label = SEGMENT_LABELS[segment] || segment;
     const path = "/" + segments.slice(0, index + 1).join("/");
+    const label = BREADCRUMB_LABELS[path] || segment;
     const isLast = index === segments.length - 1;
     const isLinkable = VALID_DASHBOARD_ROUTES.has(path as (typeof VALID_DASHBOARD_ROUTES) extends Set<infer T> ? T : never);
     return { label, path, isLast, isLinkable };

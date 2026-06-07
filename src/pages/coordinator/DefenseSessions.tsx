@@ -12,7 +12,7 @@ import {
   useUpdateDefenseSession,
   useDeleteDefenseSession,
   useJuryRoleTemplates,
-} from "@/hooks/use-queries";
+} from "@/hooks/queries";
 import {
   Badge,
   Button,
@@ -67,7 +67,7 @@ const defaultForm = {
   evaluationCoefficients: {} as Record<string, number>,
 };
 
-const formatDate = (dateStr: string) => {
+const formatSessionDate = (dateStr: string) => {
   try {
     return format(parseISO(dateStr), "dd MMM yyyy", { locale: fr });
   } catch {
@@ -230,20 +230,20 @@ export default function CoordinatorDefenseSessions() {
                     </div>
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground">Dépôt avant</p>
-                      <p className="font-medium">{formatDate(session.submissionDeadline)}</p>
+                      <p className="font-medium">{formatSessionDate(session.submissionDeadline)}</p>
                     </div>
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground">Début</p>
                       <p className="font-medium">
                         <Calendar className="mr-1 inline size-3" />
-                        {formatDate(session.startDate)}
+                        {formatSessionDate(session.startDate)}
                       </p>
                     </div>
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground">Fin</p>
                       <p className="font-medium">
                         <Calendar className="mr-1 inline size-3" />
-                        {formatDate(session.endDate)}
+                        {formatSessionDate(session.endDate)}
                       </p>
                     </div>
                   </div>
@@ -462,3 +462,4 @@ export default function CoordinatorDefenseSessions() {
     </div>
   );
 }
+

@@ -29,7 +29,7 @@ export interface ConflictContext {
   allTimeSlots?: string[];
 }
 
-function getSmartSuggestions(
+export function getSmartSuggestions(
   projectId: string,
   date: string,
   roomId: string,

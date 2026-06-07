@@ -45,7 +45,7 @@ function createMockQueryData() {
   };
 }
 
-vi.mock("@/hooks/use-queries", () => ({
+vi.mock("@/hooks/queries", () => ({
   useProjects: vi.fn(),
   useRooms: vi.fn(),
   useJuries: vi.fn(),
@@ -76,7 +76,7 @@ describe("ConflictDashboard (Coordinator)", () => {
   it("renders loading skeleton", async () => {
     const { getAllConflicts } = await import("@/lib/conflict-engine");
     vi.mocked(getAllConflicts).mockReturnValue([]);
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     const data = createMockQueryData();
     vi.mocked(queries.useProjects).mockReturnValue({ ...data.projects, isLoading: true } as unknown as UseQueryResult<Project[], Error>);
     vi.mocked(queries.useRooms).mockReturnValue(data.rooms as unknown as UseQueryResult<Room[], Error>);
@@ -95,7 +95,7 @@ describe("ConflictDashboard (Coordinator)", () => {
       { type: "teacher_double_booked", severity: "error", message: "Conflit enseignant", suggestedResolution: "Déplacer", slot: "s1" },
       { type: "room_capacity", severity: "warning", message: "Capacité insuffisante", suggestedResolution: "Changer de salle", slot: "s1" },
     ]);
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     const data = createMockQueryData();
     vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
     vi.mocked(queries.useRooms).mockReturnValue(data.rooms as unknown as UseQueryResult<Room[], Error>);
@@ -116,7 +116,7 @@ describe("ConflictDashboard (Coordinator)", () => {
   it("renders empty state when no conflicts", async () => {
     const { getAllConflicts } = await import("@/lib/conflict-engine");
     vi.mocked(getAllConflicts).mockReturnValue([]);
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     const data = createMockQueryData();
     vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
     vi.mocked(queries.useRooms).mockReturnValue(data.rooms as unknown as UseQueryResult<Room[], Error>);
@@ -135,7 +135,7 @@ describe("ConflictDashboard (Coordinator)", () => {
       { type: "teacher_double_booked", severity: "error", message: "Enseignant Dr. Alami doublonné", suggestedResolution: "Déplacer un passage", slot: "s1" },
       { type: "room_capacity", severity: "warning", message: "Salle A01 trop petite", suggestedResolution: "Utiliser la salle B02", slot: "s1" },
     ]);
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     const data = createMockQueryData();
     vi.mocked(queries.useProjects).mockReturnValue(data.projects as unknown as UseQueryResult<Project[], Error>);
     vi.mocked(queries.useRooms).mockReturnValue(data.rooms as unknown as UseQueryResult<Room[], Error>);
@@ -153,3 +153,4 @@ describe("ConflictDashboard (Coordinator)", () => {
     expect(screen.getByText(/Suggestion : Utiliser la salle B02/)).toBeInTheDocument();
   });
 });
+

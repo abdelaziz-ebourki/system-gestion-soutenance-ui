@@ -2,7 +2,7 @@ import * as React from "react";
 
 import {
   useTeachersList, useProjects, useCreateJury, useUpdateJury, useJuryRoleTemplates,
-} from "@/hooks/use-queries";
+} from "@/hooks/queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, jurySchema } from "@/lib/validations";
 import { toast } from "sonner";
@@ -273,3 +273,4 @@ export function CreateJuryDialog({
     </Dialog>
   );
 }
+

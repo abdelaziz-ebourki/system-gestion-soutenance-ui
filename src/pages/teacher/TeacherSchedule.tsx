@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { CalendarDays, MapPin, ShieldCheck, Timer } from "lucide-react";
 
-import { useTeacherSchedule } from "@/hooks/use-queries";
+import { useTeacherSchedule } from "@/hooks/queries";
 import type { TeacherDefense } from "@/types";
 import { DEFENSE_ROLE_LABELS } from "@/lib/constants";
 
@@ -151,3 +151,4 @@ export default function TeacherSchedule() {
     </div>
   );
 }
+

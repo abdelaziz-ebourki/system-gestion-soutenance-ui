@@ -11,7 +11,7 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { format } from "date-fns";
 
-import { useAdminStats, useUsers, useAuditLogs, useUpdateUser, useDeleteUser } from "@/hooks/use-queries";
+import { useAdminStats, useUsers, useAuditLogs, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import type { User } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import { DataTable } from "@/components/ui/data-table";
@@ -321,3 +321,4 @@ export default function AdminDashboard() {
     </div>
   );
 }
+

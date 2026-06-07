@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import AvailabilityCalendar from "@/components/academic/AvailabilityCalendar";
+import AvailabilityCalendar from "@/components/coordinator/AvailabilityCalendar";
 
 const mockUnavailableSlots = {
   "2025-06-16": ["08:30 - 10:00", "10:15 - 11:45"],
@@ -106,3 +106,4 @@ describe("AvailabilityCalendar", () => {
   });
 
 });
+

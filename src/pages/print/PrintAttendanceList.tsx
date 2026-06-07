@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { useAttendanceList } from "@/hooks/use-queries";
+import { useAttendanceList } from "@/hooks/queries";
 import type { GeneralSettings } from "@/lib/api-core";
 import PrintLayout from "@/components/print/PrintLayout";
 import AttendanceList from "@/components/print/AttendanceList";
@@ -40,3 +40,4 @@ export default function PrintAttendanceList() {
     </div>
   );
 }
+

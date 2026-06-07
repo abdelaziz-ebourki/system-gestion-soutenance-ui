@@ -6,8 +6,8 @@ import TeacherDashboard from "@/pages/teacher/TeacherDashboard";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { TeacherStats, TeacherDefense, TeacherEvaluation } from "@/types";
 
-vi.mock("@/hooks/use-queries", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/hooks/use-queries")>();
+vi.mock("@/hooks/queries", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks/queries")>();
   return {
     ...actual,
     useTeacherStats: vi.fn(),
@@ -90,7 +90,7 @@ describe("TeacherDashboard", () => {
   });
 
   it("renders loading state", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherStats).mockReturnValue({ data: null, isLoading: true } as unknown as UseQueryResult<TeacherStats, Error>);
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: [], isLoading: true } as unknown as UseQueryResult<TeacherDefense[], Error>);
     vi.mocked(queries.useTeacherEvaluations).mockReturnValue({ data: [], isLoading: true } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
@@ -99,7 +99,7 @@ describe("TeacherDashboard", () => {
   });
 
   it("renders hero section and stat cards", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherStats).mockReturnValue({ data: mockStats, isLoading: false } as unknown as UseQueryResult<TeacherStats, Error>);
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
     vi.mocked(queries.useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
@@ -112,7 +112,7 @@ describe("TeacherDashboard", () => {
   });
 
   it("renders upcoming defenses list", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherStats).mockReturnValue({ data: mockStats, isLoading: false } as unknown as UseQueryResult<TeacherStats, Error>);
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
     vi.mocked(queries.useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
@@ -124,7 +124,7 @@ describe("TeacherDashboard", () => {
   });
 
   it("renders pending evaluations list", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherStats).mockReturnValue({ data: mockStats, isLoading: false } as unknown as UseQueryResult<TeacherStats, Error>);
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
     vi.mocked(queries.useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
@@ -134,7 +134,7 @@ describe("TeacherDashboard", () => {
   });
 
   it("shows empty states when no data", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherStats).mockReturnValue({ data: { ...mockStats, upcomingDefenses: 0, pendingEvaluations: 0 }, isLoading: false } as unknown as UseQueryResult<TeacherStats, Error>);
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
     vi.mocked(queries.useTeacherEvaluations).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
@@ -143,3 +143,4 @@ describe("TeacherDashboard", () => {
     expect(screen.getByText("Aucune évaluation en attente.")).toBeInTheDocument();
   });
 });
+

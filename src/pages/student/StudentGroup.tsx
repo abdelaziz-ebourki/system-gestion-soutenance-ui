@@ -4,7 +4,7 @@ import {
   useStudentGroup,
   useCreateStudentGroup,
   useJoinStudentGroup,
-} from "@/hooks/use-queries";
+} from "@/hooks/queries";
 import { toast } from "sonner";
 import { toastError } from "@/lib/utils";
 import {
@@ -201,3 +201,4 @@ export default function StudentGroup() {
     </div>
   );
 }
+

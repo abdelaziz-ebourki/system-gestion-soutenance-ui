@@ -3,7 +3,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
-import { useJuries, useProjects, useDeleteJury } from "@/hooks/use-queries";
+import { useJuries, useProjects, useDeleteJury } from "@/hooks/queries";
 import type { Jury } from "@/types";
 import { toastError } from "@/lib/utils";
 import {
@@ -15,7 +15,7 @@ import {
   CardTitle,
   DataTable,
 } from "@/components/ui";
-import { CreateJuryDialog } from "@/components/academic/CreateJuryDialog";
+import { CreateJuryDialog } from "@/components/coordinator/CreateJuryDialog";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
 export default function Jurys() {
@@ -164,3 +164,4 @@ export default function Jurys() {
     </div>
   );
 }
+

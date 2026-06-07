@@ -4,7 +4,7 @@ import { Plus, GraduationCap } from "lucide-react";
 
 import {
   useStudents, useMajors, useLevels,
-} from "@/hooks/use-queries";
+} from "@/hooks/queries";
 import { type Student } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -227,3 +227,4 @@ export default function Students() {
     </div>
   );
 }
+

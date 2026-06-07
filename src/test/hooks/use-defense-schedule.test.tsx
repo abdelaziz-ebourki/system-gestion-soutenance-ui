@@ -7,7 +7,7 @@ import type { DefenseSession, DefenseSessionStatus, Jury, Room, Project, Teacher
 import type { UnavailabilityEntry } from "@/lib/api-coordinator";
 import type { SlotAssignment, ConflictIssue } from "@/lib/conflict-engine";
 import { useDefenseSchedule } from "@/hooks/use-defense-schedule";
-import * as queries from "@/hooks/use-queries";
+import * as queries from "@/hooks/queries";
 import * as conflictEngine from "@/lib/conflict-engine";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
@@ -16,7 +16,7 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock("@/hooks/use-queries", () => ({
+vi.mock("@/hooks/queries", () => ({
   useJuries: vi.fn(),
   useRooms: vi.fn(),
   useProjects: vi.fn(),
@@ -259,3 +259,4 @@ describe("useDefenseSchedule", () => {
     expect(toast.success).toHaveBeenCalledWith("Session publiée avec succès");
   });
 });
+

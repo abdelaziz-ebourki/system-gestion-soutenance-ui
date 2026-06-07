@@ -8,7 +8,7 @@ import {
   useCoordinatorDefenseSessions,
   useCoordinatorUnavailability,
   useTransitionDefenseSession,
-} from "@/hooks/use-queries";
+} from "@/hooks/queries";
 import { validateSlotAssignment } from "@/lib/conflict-engine";
 import type { ConflictContext } from "@/lib/conflict-engine";
 import type { UnavailabilityEntry } from "@/lib/api-coordinator";
@@ -262,3 +262,4 @@ export function useDefenseSchedule() {
     transitionSession,
   };
 }
+

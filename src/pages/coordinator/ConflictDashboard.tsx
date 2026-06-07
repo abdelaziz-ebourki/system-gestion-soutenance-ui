@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Clock, Users, DoorOpen, UserX } from "lucide-react";
 
-import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useDefenseSchedule, useCoordinatorUnavailability } from "@/hooks/use-queries";
+import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useDefenseSchedule, useCoordinatorUnavailability } from "@/hooks/queries";
 import { getAllConflicts } from "@/lib/conflict-engine";
 import type { ConflictIssue } from "@/lib/conflict-engine";
 import {
@@ -207,3 +207,4 @@ export default function ConflictDashboard() {
     </div>
   );
 }
+

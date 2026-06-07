@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useTeachersList, useStudents, useCreateProject, useUpdateProject } from "@/hooks/use-queries";
+import { useTeachersList, useStudents, useCreateProject, useUpdateProject } from "@/hooks/queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, projectSchema } from "@/lib/validations";
 import type { DefenseType, Project } from "@/types";
@@ -254,3 +254,4 @@ export function ProjectDialog({
     </Dialog>
   );
 }
+

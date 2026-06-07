@@ -6,7 +6,7 @@ import { Plus, BuildingIcon } from "lucide-react";
 
 import { Link } from "react-router-dom";
 
-import { useRooms, useDepartments } from "@/hooks/use-queries";
+import { useRooms, useDepartments } from "@/hooks/queries";
 import type { Room } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -180,3 +180,4 @@ export default function Rooms() {
     </div>
   );
 }
+

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FileText, Users, Calendar, ClipboardList, ScrollText } from "lucide-react";
-import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades, useCoordinatorStudentDocuments, useUpdateStudentDocumentStatus } from "@/hooks/use-queries";
+import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades, useCoordinatorStudentDocuments, useUpdateStudentDocumentStatus } from "@/hooks/queries";
 import type { CoordinatorStudentDocument } from "@/lib/api-coordinator";
 import {
   Button,
@@ -320,3 +320,4 @@ export default function Documents() {
     </div>
   );
 }
+

@@ -2,7 +2,7 @@ import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
 import { Plus, Users } from "lucide-react";
 
-import { useTeachers, useDepartments } from "@/hooks/use-queries";
+import { useTeachers, useDepartments } from "@/hooks/queries";
 import type { Teacher } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -189,3 +189,4 @@ export default function Teachers() {
     </div>
   );
 }
+

@@ -6,8 +6,8 @@ import TeacherSchedule from "@/pages/teacher/TeacherSchedule";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { TeacherDefense } from "@/types";
 
-vi.mock("@/hooks/use-queries", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/hooks/use-queries")>();
+vi.mock("@/hooks/queries", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks/queries")>();
   return {
     ...actual,
     useTeacherSchedule: vi.fn(),
@@ -72,7 +72,7 @@ describe("TeacherSchedule", () => {
   });
 
   it("renders loading state", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: null, isLoading: true } as unknown as UseQueryResult<TeacherDefense[], Error>);
     renderSchedule();
     expect(screen.getByTestId("teacher-schedule-header")).toBeInTheDocument();
@@ -80,7 +80,7 @@ describe("TeacherSchedule", () => {
   });
 
   it("renders header and description", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
     renderSchedule();
     expect(screen.getByTestId("teacher-schedule-header")).toHaveTextContent("Mon planning");
@@ -88,7 +88,7 @@ describe("TeacherSchedule", () => {
   });
 
   it("calculates and renders stats correctly", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
     renderSchedule();
     
@@ -101,7 +101,7 @@ describe("TeacherSchedule", () => {
   });
 
   it("renders the data table with items", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
     renderSchedule();
     
@@ -113,7 +113,7 @@ describe("TeacherSchedule", () => {
   });
 
   it("renders upcoming defense cards", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
     renderSchedule();
     
@@ -127,7 +127,7 @@ describe("TeacherSchedule", () => {
   });
 
   it("shows empty state when no scheduled defenses", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     const onlyCompleted: TeacherDefense[] = [
       { ...mockSchedule[2], id: "d3" }
     ];
@@ -138,3 +138,4 @@ describe("TeacherSchedule", () => {
     expect(screen.queryByTestId("teacher-schedule-card-d1")).not.toBeInTheDocument();
   });
 });
+
