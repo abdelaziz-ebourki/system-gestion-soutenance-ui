@@ -91,7 +91,9 @@ describe("AdminDashboard", () => {
     const checkboxes = await screen.findAllByRole("checkbox");
     await user.click(checkboxes[1]);
     await user.click(screen.getAllByRole("button", { name: /changer le rôle/i })[0]);
-    expect(await screen.findByText(/Choisir un rôle/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText("Choisir...")).toBeInTheDocument();
+    });
   });
 
   it("deletes selected users via batch delete button", async () => {
@@ -143,10 +145,10 @@ describe("AdminDashboard", () => {
     const checkboxes = await screen.findAllByRole("checkbox");
     await user.click(checkboxes[1]);
     await user.click(screen.getAllByRole("button", { name: /changer le rôle/i })[0]);
-    expect(await screen.findByText(/Choisir un rôle/i)).toBeInTheDocument();
+    expect(screen.getByText("Choisir...")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /annuler/i }));
     await waitFor(() => {
-      expect(screen.queryByText(/Choisir un rôle/i)).not.toBeInTheDocument();
+      expect(screen.queryByText("Choisir...")).not.toBeInTheDocument();
     });
   });
 
@@ -156,7 +158,7 @@ describe("AdminDashboard", () => {
     const checkboxes = await screen.findAllByRole("checkbox");
     await user.click(checkboxes[1]);
     await user.click(screen.getAllByRole("button", { name: /changer le rôle/i })[0]);
-    expect(await screen.findByText(/Choisir un rôle/i)).toBeInTheDocument();
+    expect(screen.getByText("Choisir...")).toBeInTheDocument();
     await user.click(screen.getAllByRole("button", { name: /enregistrer/i }).at(-1)!);
     expect(toast.success).not.toHaveBeenCalled();
   });
