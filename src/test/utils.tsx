@@ -3,7 +3,6 @@ import { render, type RenderOptions } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import { AuthProvider } from "@/contexts/auth-context";
-import { STORAGE_KEYS } from "@/lib/constants";
 import type { User } from "@/types";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -25,8 +24,6 @@ interface WrapperOptions {
   initialEntries?: string[];
   initialAuthState?: {
     user?: User;
-    token?: string;
-    expiresAt?: number;
   };
 }
 
@@ -35,16 +32,8 @@ function createWrapper(options: WrapperOptions = {}) {
   const { initialEntries = ["/"], initialAuthState } = options;
 
   if (initialAuthState) {
-    if (initialAuthState.token) {
-      localStorage.setItem(STORAGE_KEYS.TOKEN, initialAuthState.token);
-    }
     if (initialAuthState.user) {
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(initialAuthState.user));
-    }
-    if (initialAuthState.expiresAt) {
-      localStorage.setItem(STORAGE_KEYS.EXPIRES_AT, initialAuthState.expiresAt.toString());
-    } else if (initialAuthState.token || initialAuthState.user) {
-      localStorage.setItem(STORAGE_KEYS.EXPIRES_AT, (Date.now() + 7200000).toString());
+      localStorage.setItem("user", JSON.stringify(initialAuthState.user));
     }
   } else {
     localStorage.clear();
@@ -53,13 +42,13 @@ function createWrapper(options: WrapperOptions = {}) {
   return function Wrapper({ children }: { children: React.ReactNode }) {
     return (
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <TooltipProvider>
-            <MemoryRouter initialEntries={initialEntries}>
+        <MemoryRouter initialEntries={initialEntries}>
+          <AuthProvider>
+            <TooltipProvider>
               {children}
-            </MemoryRouter>
-          </TooltipProvider>
-        </AuthProvider>
+            </TooltipProvider>
+          </AuthProvider>
+        </MemoryRouter>
       </QueryClientProvider>
     );
   };
