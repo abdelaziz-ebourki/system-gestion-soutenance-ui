@@ -4,7 +4,7 @@ import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
 import { adjacencyGraphs } from "@zxcvbn-ts/language-common";
 import { translations } from "@zxcvbn-ts/language-en";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Button,
   Card,
@@ -64,7 +64,7 @@ export default function VerifyAccount() {
       );
       navigate("/login");
     } catch (error) {
-      toastError(error, "Erreur lors de l'activation du compte. Lien peut-être expiré.");
+      toast.error(getErrorMessage(error, "Erreur lors de l'activation du compte. Lien peut-être expiré."));
     } finally {
       setIsSubmitting(false);
     }

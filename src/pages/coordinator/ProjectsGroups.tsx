@@ -13,7 +13,7 @@ import { useProjects, useUpdateProject, useDeleteProject, useStudentGroups } fro
 import type { Project } from "@/types";
 import type { StudentGroupAssignment } from "@/lib/api-coordinator";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -248,7 +248,7 @@ export default function CoordinatorProjects() {
             toast.success("Projet supprimé");
             setDeleteTarget(null);
           } catch (error) {
-            toastError(error, "Erreur lors de la suppression");
+             toast.error(getErrorMessage(error, "Erreur lors de la suppression"));
           }
         }}
         isPending={deleteProjectMutation.isPending}

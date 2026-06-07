@@ -8,13 +8,14 @@ import { Toaster } from "./components/ui/sonner";
 import { ThemeProvider } from "./components/theme-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/auth-context";
+import { DEFAULT_RETRY, DEFAULT_STALE_TIME } from "@/lib/constants";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: DEFAULT_RETRY,
       refetchOnWindowFocus: false,
-      staleTime: 30_000,
+      staleTime: DEFAULT_STALE_TIME,
     },
   },
 });

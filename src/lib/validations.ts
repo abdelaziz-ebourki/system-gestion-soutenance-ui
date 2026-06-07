@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MIN_PASSWORD_LENGTH, MAX_SCORE } from "@/lib/constants";
 
 type Errors<T> = Partial<Record<keyof T, string>>;
 
@@ -26,7 +27,7 @@ export const verifyAccountSchema = z
   .object({
     password: z
       .string()
-      .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+      .min(MIN_PASSWORD_LENGTH, "Le mot de passe doit contenir au moins 8 caractères"),
     confirmPassword: z.string().min(1, "Confirmez le mot de passe"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -42,7 +43,7 @@ export const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(8, "Le mot de passe doit contenir au moins 8 caractères"),
+      .min(MIN_PASSWORD_LENGTH, "Le mot de passe doit contenir au moins 8 caractères"),
     confirmPassword: z.string().min(1, "Confirmez le mot de passe"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -55,6 +56,7 @@ export const resetPasswordSchema = z
 export const defenseSessionSchema = z
   .object({
     name: z.string().min(1, "Le nom est requis"),
+    defenseType: z.enum(["pfe", "memoire", "these"]).default("pfe"),
     status: z.enum(["draft", "active", "scheduled", "completed", "archived"]),
     maxGroupSize: z.coerce.number().min(1, "Doit être au moins 1").max(10, "Ne peut pas dépasser 10"),
     defenseDuration: z.coerce.number().min(5, "Doit être au moins 5 min").max(180, "Ne peut pas dépasser 180 min"),
@@ -63,6 +65,7 @@ export const defenseSessionSchema = z
     juryRoleTemplateId: z.string().min(1, "Le template de jury est requis"),
     startDate: z.string().min(1, "La date de début est requise"),
     endDate: z.string().min(1, "La date de fin est requise"),
+    evaluationCoefficients: z.record(z.string(), z.number()).default({}),
   })
   .refine((data) => !data.startDate || !data.endDate || data.startDate <= data.endDate, {
     message: "La date de fin doit être postérieure à la date de début",
@@ -165,8 +168,8 @@ export const documentConfigSchema = z.object({
 export const evaluationSchema = z.object({
   score: z.coerce
     .number()
-    .min(0, "La note doit être entre 0 et 20")
-    .max(20, "La note doit être entre 0 et 20"),
+    .min(0, `La note doit être entre 0 et ${MAX_SCORE}`)
+    .max(MAX_SCORE, `La note doit être entre 0 et ${MAX_SCORE}`),
   comment: z.string().optional(),
 });
 
@@ -200,6 +203,18 @@ export const jurySchema = z.object({
       },
       { message: "Les membres du jury doivent être des personnes différentes" },
     ),
+});
+
+// --- Admin: Email Configuration ---
+
+export const emailConfigSchema = z.object({
+  host: z.string().min(1, "L'hôte SMTP est requis"),
+  port: z.coerce.number().min(1, "Le port est requis").max(65535, "Port invalide"),
+  username: z.string().optional(),
+  password: z.string().optional(),
+  senderName: z.string().min(1, "Le nom de l'expéditeur est requis"),
+  senderEmail: z.string().min(1, "L'email de l'expéditeur est requis").email("Email invalide"),
+  encryption: z.enum(["tls", "ssl", "none"]),
 });
 
 // --- Teacher: Unavailability ---

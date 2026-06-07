@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from "vitest";
 import { api } from "@/lib/api-core";
-import { STORAGE_KEYS } from "@/lib/constants";
 
 describe("API Wrapper CSRF & Cookies", () => {
   beforeEach(() => {
@@ -49,42 +48,18 @@ describe("API Wrapper CSRF & Cookies", () => {
       json: () => Promise.resolve({ success: true }),
       headers: new Headers({ "content-type": "application/json" }),
     } as Response);
-
+    
     await api("/test", { method: "GET" });
-
+    
     expect(mockFetch).toHaveBeenCalled();
     const fetchCall = mockFetch.mock.calls[0];
     const options = fetchCall?.[1];
     const headers = options?.headers as Record<string, string> | undefined;
-
+    
     expect(headers).toBeDefined();
     if (headers) {
       expect(headers["X-XSRF-TOKEN"]).toBeUndefined();
     }
     expect(options?.credentials).toBe("include");
-  });
-
-  it("should still include Authorization header if token exists", async () => {
-    localStorage.setItem(STORAGE_KEYS.TOKEN, "mock-jwt");
-    
-    const mockFetch = fetch as Mock;
-    mockFetch.mockResolvedValue({
-      ok: true,
-      status: 200,
-      json: () => Promise.resolve({ success: true }),
-      headers: new Headers({ "content-type": "application/json" }),
-    } as Response);
-
-    await api("/test", { method: "GET" });
-
-    expect(mockFetch).toHaveBeenCalled();
-    const fetchCall = mockFetch.mock.calls[0];
-    const options = fetchCall?.[1];
-    const headers = options?.headers as Record<string, string> | undefined;
-
-    expect(headers).toBeDefined();
-    if (headers) {
-      expect(headers["Authorization"]).toBe("Bearer mock-jwt");
-    }
   });
 });

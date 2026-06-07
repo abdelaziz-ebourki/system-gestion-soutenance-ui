@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { validate, configNameSchema } from "@/lib/validations";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Button,
   Dialog,
@@ -70,7 +70,7 @@ export function ConfigEntityManager({
       }
       setIsDialogOpen(false);
     } catch (error) {
-      toastError(error, "Une erreur est survenue");
+      toast.error(getErrorMessage(error, "Une erreur est survenue"));
     }
   };
 
@@ -81,7 +81,7 @@ export function ConfigEntityManager({
       toast.success("Supprimé avec succès");
       setIsDeleteDialogOpen(false);
     } catch (error) {
-      toastError(error, "Erreur lors de la suppression");
+      toast.error(getErrorMessage(error, "Erreur lors de la suppression"));
     }
   };
 

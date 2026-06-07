@@ -6,7 +6,7 @@ import {
   useJoinStudentGroup,
 } from "@/hooks/queries";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -31,7 +31,7 @@ export default function StudentGroup() {
       await createGroup.mutateAsync();
       toast.success("Votre groupe a été créé automatiquement");
     } catch (error) {
-      toastError(error, "Erreur lors de la création");
+      toast.error(getErrorMessage(error, "Erreur lors de la création"));
     }
   };
 
@@ -40,7 +40,7 @@ export default function StudentGroup() {
       await joinGroup.mutateAsync(groupId);
       toast.success("Vous avez rejoint le groupe sélectionné");
     } catch (error) {
-      toastError(error, "Erreur lors de la jonction");
+      toast.error(getErrorMessage(error, "Erreur lors de la jonction"));
     }
   };
 

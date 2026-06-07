@@ -12,7 +12,6 @@ describe("Profile", () => {
   it("renders user profile when authenticated", async () => {
     renderWithProviders(<Profile />, {
       initialAuthState: {
-        token: "mock-token",
         user: {
           id: "1",
           email: "admin@univh2c.ma",
@@ -32,7 +31,6 @@ describe("Profile", () => {
   it("resolves role label correctly", async () => {
     renderWithProviders(<Profile />, {
       initialAuthState: {
-        token: "mock-token",
         user: {
           id: "2",
           email: "teacher@univh2c.ma",
@@ -49,7 +47,6 @@ describe("Profile", () => {
   it("resolves coordinator role label", async () => {
     renderWithProviders(<Profile />, {
       initialAuthState: {
-        token: "mock-token",
         user: {
           id: "3",
           email: "coord@univh2c.ma",

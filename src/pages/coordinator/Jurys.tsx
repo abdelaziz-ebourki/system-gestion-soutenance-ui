@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 import { useJuries, useProjects, useDeleteJury } from "@/hooks/queries";
 import type { Jury } from "@/types";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Badge,
   Button,
@@ -156,7 +156,7 @@ export default function Jurys() {
             toast.success("Jury supprimé avec succès");
             setJuryToDelete(null);
           } catch (error) {
-            toastError(error, "Erreur lors de la suppression du jury");
+             toast.error(getErrorMessage(error, "Erreur lors de la suppression du jury"));
           }
         }}
         isPending={deleteJury.isPending}

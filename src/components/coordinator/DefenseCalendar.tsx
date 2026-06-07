@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { MapPin, CalendarDays } from "lucide-react";
+import { createSlotKey } from "@/lib/utils";
 import {
   Card,
 } from "@/components/ui";
@@ -35,7 +36,7 @@ export default function DefenseCalendar({
     const map = new Map<string, string>();
     for (const [juryId, jurySlot] of Object.entries(schedule)) {
       if (jurySlot.roomId === selectedRoomId) {
-        const key = `${jurySlot.date}|${jurySlot.time}|${selectedRoomId}`;
+        const key = createSlotKey(jurySlot.date, jurySlot.roomId, jurySlot.time);
         map.set(key, juryId);
       }
     }
@@ -85,21 +86,21 @@ export default function DefenseCalendar({
                 {timeSlots?.map((slot) => (
                   <tr key={slot}>
                     <td className="p-3 border font-mono text-sm font-medium bg-muted/20 text-center">{slot}</td>
-                    {days?.map((day) => {
-                      const dateStr = format(day, "yyyy-MM-dd");
-                      const key = `${dateStr}|${slot}|${selectedRoomId}`;
-                      const scheduledJuryId = scheduleLookup.get(key);
-                      const jury = scheduledJuryId ? juryLookup.get(scheduledJuryId) ?? null : null;
+                     {days?.map((day) => {
+                       const dateStr = format(day, "yyyy-MM-dd");
+                       const key = createSlotKey(dateStr, selectedRoomId!, slot);
+                       const scheduledJuryId = scheduleLookup.get(key);
+                       const jury = scheduledJuryId ? juryLookup.get(scheduledJuryId) ?? null : null;
 
-                      return (
-                        <DroppableCalendarCell
-                          key={`${dateStr}|${slot}`}
-                          id={`${dateStr}|${slot}`}
-                          jury={jury}
-                          onRemove={() => jury && onRemove(jury.id)}
-                        />
-                      );
-                    })}
+                       return (
+                         <DroppableCalendarCell
+                           key={`${dateStr}|${slot}`}
+                           id={`${dateStr}|${slot}`}
+                           jury={jury}
+                           onRemove={() => jury && onRemove(jury.id)}
+                         />
+                       );
+                     })}
                   </tr>
                 ))}
               </tbody>

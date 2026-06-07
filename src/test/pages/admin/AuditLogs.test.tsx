@@ -21,7 +21,7 @@ describe("AuditLogs", () => {
 
   it("renders the audit logs page with title", async () => {
     renderWithProviders(<AuditLogs />, {
-      initialAuthState: { token: "mock", user: adminUser },
+      initialAuthState: { user: adminUser },
     });
     expect(await screen.findByTestId("admin-audit-logs-page")).toBeInTheDocument();
     expect(screen.getByText("Journal d'audit")).toBeInTheDocument();
@@ -29,7 +29,7 @@ describe("AuditLogs", () => {
 
   it("renders audit log entries in the table", async () => {
     renderWithProviders(<AuditLogs />, {
-      initialAuthState: { token: "mock", user: adminUser },
+      initialAuthState: { user: adminUser },
     });
     expect(await screen.findByText("LOGIN")).toBeInTheDocument();
     expect(await screen.findByText("CREATE")).toBeInTheDocument();
@@ -38,7 +38,7 @@ describe("AuditLogs", () => {
 
   it("renders table columns", async () => {
     renderWithProviders(<AuditLogs />, {
-      initialAuthState: { token: "mock", user: adminUser },
+      initialAuthState: { user: adminUser },
     });
     expect(await screen.findByText("Action")).toBeInTheDocument();
     expect(screen.getByText("Entité")).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe("AuditLogs", () => {
       ),
     );
     renderWithProviders(<AuditLogs />, {
-      initialAuthState: { token: "mock", user: adminUser },
+      initialAuthState: { user: adminUser },
     });
     expect(await screen.findByTestId("admin-audit-logs-page")).toBeInTheDocument();
   });

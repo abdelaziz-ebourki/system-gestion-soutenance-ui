@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
+import { toast } from "sonner";
 import TeacherUnavailability from "@/pages/teacher/TeacherUnavailability";
 import { useTeacherSchedule, useTeacherUnavailability, useSaveTeacherUnavailability } from "@/hooks/queries";
 import type { TeacherUnavailability as UnavailabilityType, TeacherDefense } from "@/types";
@@ -25,13 +26,7 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("@/lib/utils", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/utils")>();
-  return {
-    ...actual,
-    toastError: vi.fn(),
-  };
-});
+
 
 vi.mock("@/components/coordinator/AvailabilityCalendar", () => ({
   default: ({ onToggleSlot }: AvailabilityCalendarProps) => (
@@ -180,14 +175,12 @@ describe("TeacherUnavailability", () => {
     } as unknown as UseMutationResult<UnavailabilityType, Error, UnavailabilityType, unknown>;
     vi.mocked(useSaveTeacherUnavailability).mockReturnValue(saveMutation);
     
-    const { toastError } = await import("@/lib/utils");
-    
     renderUnavailability();
     
     fireEvent.click(screen.getByTestId("teacher-unavailability-save"));
     
     await waitFor(() => {
-      expect(toastError).toHaveBeenCalled();
+      expect(toast.error).toHaveBeenCalled();
     });
   });
 });

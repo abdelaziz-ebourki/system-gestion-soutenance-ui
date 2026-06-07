@@ -9,65 +9,15 @@ import {
   useCoordinatorUnavailability,
   useTransitionDefenseSession,
 } from "@/hooks/queries";
-import { validateSlotAssignment } from "@/lib/conflict-engine";
-import type { ConflictContext } from "@/lib/conflict-engine";
-import type { UnavailabilityEntry } from "@/lib/api-coordinator";
-import type { Jury, Room, DefenseSession, Project, Teacher } from "@/types";
-import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
-import { format, addDays } from "date-fns";
-import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
 
-function buildConflictContext(
-  schedule: Record<string, { roomId: string; date: string; time: string }>,
-  juries: Jury[],
-  rooms: Room[],
-  projects: Project[],
-  teachers: Teacher[],
-  unavailabilities: UnavailabilityEntry[],
-  currentSession: DefenseSession | undefined,
-  allTimeSlots: string[],
-): ConflictContext {
-  return {
-    schedule: Object.fromEntries(
-      Object.entries(schedule).map(([id, s]) => [
-        `${s.date}|${s.roomId}|${s.time}`,
-        {
-          id,
-          title: juries.find((j) => j.id === id)?.projectTitle ?? "",
-          date: s.date,
-          time: s.time,
-          roomId: s.roomId,
-        },
-      ]),
-    ),
-    rooms: Object.fromEntries(
-      rooms.map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }]),
-    ),
-    groups: {},
-    projects: Object.fromEntries(
-      projects.map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }]),
-    ),
-    teachers: Object.fromEntries(
-      teachers.map((t) => [t.id, { id: t.id, name: `${t.firstName} ${t.lastName}` }]),
-    ),
-    juries: Object.fromEntries(
-      juries.map((j) => [
-        j.id,
-        { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) },
-      ]),
-    ),
-    unavailability: Object.fromEntries(
-      unavailabilities.map(
-        (u) => [u.teacherId, [{ date: u.date, slots: u.slots, teacherId: u.teacherId }]],
-      ),
-    ),
-    defenseSession: currentSession
-      ? { startDate: currentSession.startDate, endDate: currentSession.endDate, breakDuration: currentSession.breakDuration }
-      : undefined,
-    allTimeSlots,
-  };
-}
+import { toast } from "sonner";
+import { getErrorMessage, createSlotKey, parseSlotKey } from "@/lib/utils";
+import { format, addDays, differenceInDays } from "date-fns";
+import { MS_PER_MINUTE, TOAST_DURATION_MS } from "@/lib/constants";
+import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
+import { useScheduleDraft } from "@/hooks/defense/use-schedule-draft";
+import { useScheduleAutoGenerator } from "@/hooks/defense/use-schedule-auto-generator";
+import { useScheduleConflictValidator } from "@/hooks/defense/use-schedule-conflict-validator";
 
 export function useDefenseSchedule() {
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
@@ -75,7 +25,6 @@ export function useDefenseSchedule() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
-  const [schedule, setSchedule] = useState<Record<string, { roomId: string; date: string; time: string }>>({});
 
   const { data: sessions, isLoading: sessionsLoading } = useCoordinatorDefenseSessions();
   const { data: juries = [], isLoading: juriesLoading } = useJuries();
@@ -100,7 +49,9 @@ export function useDefenseSchedule() {
   const days = useMemo(() => {
     if (!currentSession) return [];
     const start = new Date(currentSession.startDate);
-    return Array.from({ length: 14 }).map((_, i) => addDays(start, i));
+    const end = new Date(currentSession.endDate);
+    const diffDays = Math.max(1, differenceInDays(end, start) + 1);
+    return Array.from({ length: diffDays }).map((_, i) => addDays(start, i));
   }, [currentSession]);
 
   const timeSlots = useMemo(() => {
@@ -111,10 +62,25 @@ export function useDefenseSchedule() {
 
     while (current < end) {
       slots.push(format(current, "HH:mm"));
-      current = new Date(current.getTime() + currentSession.defenseDuration * 60000);
+      current = new Date(current.getTime() + currentSession.defenseDuration * MS_PER_MINUTE);
     }
     return slots;
   }, [currentSession]);
+
+  const { schedule, setSchedule, updateSlot, removeSlot } = useScheduleDraft();
+
+  const { generateSchedule } = useScheduleAutoGenerator(rooms, days, timeSlots, juries);
+
+  const { validateSlot } = useScheduleConflictValidator({
+    schedule,
+    juries,
+    rooms,
+    projects,
+    teachers,
+    unavailabilities,
+    currentSession,
+    allTimeSlots: timeSlots,
+  });
 
   const filteredJuries = useMemo(
     () =>
@@ -139,40 +105,31 @@ export function useDefenseSchedule() {
 
     if (over && selectedRoomId) {
       const juryId = active.id as string;
-      const [date, time] = (over.id as string).split("|");
+      const { date, time } = parseSlotKey(over.id as string);
 
       const jury = juries.find((j) => j.id === juryId);
       if (!jury) return;
 
-      const slotKey = `${date}|${selectedRoomId}|${time}`;
-      const context = buildConflictContext(schedule, juries, rooms, projects, teachers, unavailabilities, currentSession, timeSlots);
-      
-      const result = validateSlotAssignment(jury.projectId, slotKey, context);
+      const slotKey = createSlotKey(date, selectedRoomId, time);
+      const result = validateSlot(jury.projectId, slotKey);
 
       if (!result.isValid) {
         const error = result.issues.find(i => i.severity === "error") || result.issues[0];
         if (error.suggestedResolution) {
-          toast.error(`${error.message} ${error.suggestedResolution}`, { duration: 5000 });
+          toast.error(`${error.message} ${error.suggestedResolution}`, { duration: TOAST_DURATION_MS });
         } else {
           toast.error(error.message);
         }
         return;
       }
 
-      setSchedule((prev) => ({
-        ...prev,
-        [juryId]: { roomId: selectedRoomId, date, time },
-      }));
+      updateSlot(juryId, { roomId: selectedRoomId, date, time });
       toast.success("Positionné avec succès");
     }
   };
 
   const handleRemove = (juryId: string) => {
-    setSchedule((prev) => {
-      const next = { ...prev };
-      delete next[juryId];
-      return next;
-    });
+    removeSlot(juryId);
   };
 
   const handleSave = async () => {
@@ -198,28 +155,14 @@ export function useDefenseSchedule() {
       );
       toast.success("Planning enregistré avec succès");
     } catch (error) {
-      toastError(error, "Erreur lors de l'enregistrement");
+      toast.error(getErrorMessage(error, "Erreur lors de l'enregistrement"));
     }
   };
 
   const handleAutoGenerate = () => {
-    setSchedule({});
-    const newSchedule: Record<string, { roomId: string; date: string; time: string }> = {};
-    let juryIndex = 0;
-    for (const room of rooms) {
-      for (const day of days) {
-        for (const time of timeSlots) {
-          if (juryIndex >= juries.length) break;
-          const jury = juries[juryIndex];
-          newSchedule[jury.id] = { roomId: room.id, date: format(day, "yyyy-MM-dd"), time };
-          juryIndex++;
-        }
-        if (juryIndex >= juries.length) break;
-      }
-      if (juryIndex >= juries.length) break;
-    }
+    const newSchedule = generateSchedule();
     setSchedule(newSchedule);
-    toast.success(`Planning généré pour ${juryIndex} jury(s)`);
+    toast.success(`Planning généré pour ${Object.keys(newSchedule).length} jury(s)`);
   };
 
   const handlePublish = async () => {
@@ -229,7 +172,7 @@ export function useDefenseSchedule() {
       toast.success("Session publiée avec succès");
       setIsPublishDialogOpen(false);
     } catch (error) {
-      toastError(error, "Erreur lors de la publication");
+      toast.error(getErrorMessage(error, "Erreur lors de la publication"));
     }
   };
 
@@ -262,4 +205,3 @@ export function useDefenseSchedule() {
     transitionSession,
   };
 }
-

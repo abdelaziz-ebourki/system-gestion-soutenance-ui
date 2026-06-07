@@ -4,7 +4,7 @@ import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
 import { adjacencyGraphs } from "@zxcvbn-ts/language-common";
 import { translations } from "@zxcvbn-ts/language-en";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Button,
   Card,
@@ -62,7 +62,7 @@ export default function ResetPassword() {
       toast.success("Mot de passe réinitialisé avec succès. Vous pouvez maintenant vous connecter.");
       navigate("/login");
     } catch (error) {
-      toastError(error, "Ce lien de réinitialisation est invalide ou a expiré.");
+      toast.error(getErrorMessage(error, "Ce lien de réinitialisation est invalide ou a expiré."));
     } finally {
       setIsSubmitting(false);
     }

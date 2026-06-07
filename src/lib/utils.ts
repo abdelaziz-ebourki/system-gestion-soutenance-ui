@@ -1,9 +1,10 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { toast } from "sonner"
 import { ApiError } from "@/lib/api-error"
 import { format, parseISO } from "date-fns"
 import { fr } from "date-fns/locale"
+import type { SlotKey } from "@/types";
+import { MAX_SUGGESTIONS } from "@/lib/constants";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -25,8 +26,19 @@ export function formatDate(date: string | Date | null | undefined, pattern = "dd
 
 export function formatTime(time: string): string {
   if (!time) return "";
-  // Handles HH:mm or HH:mm:ss
   return time.split(":").slice(0, 2).join(":");
+}
+
+export function createSlotKey(date: string, room: string, time: string): SlotKey {
+  return `${date}|${room}|${time}` as SlotKey;
+}
+
+export function parseSlotKey(key: string): { date: string; room: string; time: string } {
+  const [date, room, time] = key.split("|");
+  if (!date || !room || !time) {
+    throw new Error(`Invalid slot key format: ${key}. Expected 'date|room|time'`);
+  }
+  return { date, room, time };
 }
 
 const API_ERROR_MESSAGES: Record<number, string> = {
@@ -42,30 +54,27 @@ const API_ERROR_MESSAGES: Record<number, string> = {
   503: "Service temporairement indisponible.",
 };
 
-export function toastError(error: unknown, fallbackMessage: string) {
+export function getErrorMessage(error: unknown, fallbackMessage: string): string {
   if (error instanceof ApiError) {
     if (error.isTimeout) {
-      toast.error("La requête a expiré. Veuillez réessayer.");
+      return "La requête a expiré. Veuillez réessayer.";
     } else if (error.isNetworkError) {
-      toast.error("Impossible de contacter le serveur. Vérifiez votre connexion.");
+      return "Impossible de contacter le serveur. Vérifiez votre connexion.";
     } else if (error.status && API_ERROR_MESSAGES[error.status]) {
       if (error.status === 422 && error.fieldErrors) {
         const fieldList = Object.entries(error.fieldErrors)
-          .slice(0, 3)
+          .slice(0, MAX_SUGGESTIONS)
           .map(([, msg]) => msg);
-        toast.error(fieldList.join("\n"));
+        return fieldList.join("\n");
       } else {
-        toast.error(API_ERROR_MESSAGES[error.status]);
+        return API_ERROR_MESSAGES[error.status];
       }
     } else {
-      toast.error(error.message || fallbackMessage);
+      return error.message || fallbackMessage;
     }
-    return;
   }
 
-  const message =
-    error instanceof Error
-      ? error.message
-      : fallbackMessage
-  toast.error(message)
+  return error instanceof Error
+    ? error.message
+    : fallbackMessage;
 }

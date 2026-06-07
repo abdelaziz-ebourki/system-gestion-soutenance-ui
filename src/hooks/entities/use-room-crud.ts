@@ -3,7 +3,7 @@ import { useCreateRoom, useUpdateRoom, useDeleteRoom } from "@/hooks/queries";
 import { roomSchema } from "@/lib/validations";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import type { Room } from "@/types";
 
 type RoomForm = {
@@ -62,7 +62,7 @@ export function useRoomCrud() {
       form.resetForm();
       setSelected(null);
     } catch (error) {
-      toastError(error, selected ? "Erreur lors de la modification" : "Erreur lors de la création");
+      toast.error(getErrorMessage(error, selected ? "Erreur lors de la modification" : "Erreur lors de la création"));
     }
   };
 
@@ -74,7 +74,7 @@ export function useRoomCrud() {
       setIsDeleteDialogOpen(false);
       setSelected(null);
     } catch (error) {
-      toastError(error, "Erreur lors de la suppression");
+      toast.error(getErrorMessage(error, "Erreur lors de la suppression"));
     }
   };
 

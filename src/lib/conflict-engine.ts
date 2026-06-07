@@ -1,3 +1,8 @@
+import { createSlotKey, parseSlotKey } from "@/lib/utils";
+import type { Jury, Room, Project, Teacher } from "@/types";
+import type { UnavailabilityEntry } from "@/lib/api-coordinator";
+import { MAX_SUGGESTIONS } from "@/lib/constants";
+
 export interface ConflictIssue {
   type: "room_capacity" | "teacher_double_booked" | "student_double_booked" | "supervisor_conflict" | "break_violation" | "out_of_bounds" | "slot_occupied" | "project_already_scheduled" | "teacher_unavailable";
   severity: "error" | "warning";
@@ -29,6 +34,57 @@ export interface ConflictContext {
   allTimeSlots?: string[];
 }
 
+export function buildConflictContext(
+  schedule: Record<string, { roomId: string; date: string; time: string }>,
+  juries: Jury[],
+  rooms: Room[],
+  projects: Project[],
+  teachers: Teacher[],
+  unavailabilities: UnavailabilityEntry[],
+  currentSession: { startDate: string; endDate: string; breakDuration: number } | undefined,
+  allTimeSlots: string[],
+): ConflictContext {
+  return {
+    schedule: Object.fromEntries(
+      Object.entries(schedule).map(([id, s]) => [
+        createSlotKey(s.date, s.roomId, s.time),
+        {
+          id,
+          title: juries.find((j) => j.id === id)?.projectTitle ?? "",
+          date: s.date,
+          time: s.time,
+          roomId: s.roomId,
+        },
+      ]),
+    ),
+    rooms: Object.fromEntries(
+      rooms.map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }]),
+    ),
+    groups: {},
+    projects: Object.fromEntries(
+      projects.map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }]),
+    ),
+    teachers: Object.fromEntries(
+      teachers.map((t) => [t.id, { id: t.id, name: `${t.firstName} ${t.lastName}` }]),
+    ),
+    juries: Object.fromEntries(
+      juries.map((j) => [
+        j.id,
+        { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) },
+      ]),
+    ),
+    unavailability: Object.fromEntries(
+      unavailabilities.map(
+        (u) => [u.teacherId, [{ date: u.date, slots: u.slots, teacherId: u.teacherId }]],
+      ),
+    ),
+    defenseSession: currentSession
+      ? { startDate: currentSession.startDate, endDate: currentSession.endDate, breakDuration: currentSession.breakDuration }
+      : undefined,
+    allTimeSlots,
+  };
+}
+
 export function getSmartSuggestions(
   projectId: string,
   date: string,
@@ -38,7 +94,7 @@ export function getSmartSuggestions(
   issueType: ConflictIssue["type"],
 ): string | undefined {
   const canFit = (altRoomId: string, altTime: string) => {
-    const altSlot = `${date}|${altRoomId}|${altTime}`;
+    const altSlot = createSlotKey(date, altRoomId, altTime);
     if (context.schedule[altSlot]) return false;
 
     const room = context.rooms[altRoomId];
@@ -68,7 +124,7 @@ export function getSmartSuggestions(
     if (context.allTimeSlots) {
       const betterTimes = context.allTimeSlots
         .filter((t) => t !== time && canFit(roomId, t))
-        .slice(0, 3);
+        .slice(0, MAX_SUGGESTIONS);
       if (betterTimes.length > 0) {
         return `Suggestion intelligente : Créneaux libres dans cette salle : ${betterTimes.join(", ")}.`;
       }
@@ -79,7 +135,7 @@ export function getSmartSuggestions(
     if (context.allTimeSlots) {
       const freeTimes = context.allTimeSlots
         .filter((t) => t !== time && canFit(roomId, t))
-        .slice(0, 3);
+        .slice(0, MAX_SUGGESTIONS);
       if (freeTimes.length > 0) {
         return `Suggestion intelligente : Le jury est disponible à : ${freeTimes.join(", ")}.`;
       }
@@ -95,9 +151,14 @@ export function validateSlotAssignment(
   context: ConflictContext,
 ): { isValid: boolean; issues: ConflictIssue[] } {
   const issues: ConflictIssue[] = [];
-  const [date, roomId, time] = slot.split("|");
 
-  if (!date || !roomId || !time) {
+  let date: string, roomId: string, time: string;
+  try {
+    const parsed = parseSlotKey(slot);
+    date = parsed.date;
+    roomId = parsed.room;
+    time = parsed.time;
+  } catch {
     return { isValid: false, issues: [{ type: "slot_occupied", severity: "error", message: "Format de créneau invalide.", slot }] };
   }
 

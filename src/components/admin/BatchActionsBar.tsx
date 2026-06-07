@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Button,
   Dialog,
@@ -57,7 +57,7 @@ export function BatchActionsBar({
       setBatchValue("");
       onClearSelection?.();
     } catch (error) {
-      toastError(error, "Erreur lors de la mise à jour");
+      toast.error(getErrorMessage(error, "Erreur lors de la mise à jour"));
     }
   };
 
@@ -122,7 +122,7 @@ export function BatchActionsBar({
               setBatchDialog(null);
               onClearSelection?.();
             } catch (error) {
-              toastError(error, "Erreur lors de la suppression");
+               toast.error(getErrorMessage(error, "Erreur lors de la suppression"));
             }
           }}
           isPending={isPending}

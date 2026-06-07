@@ -1,6 +1,4 @@
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 
@@ -26,11 +24,11 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useDepartmentCrud } from "@/hooks/entities/use-department-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
+import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 
 export default function Departments() {
   const { data, isLoading } = useDepartments();
   const [selectedDepartments, setSelectedDepartments] = useState<Department[]>([]);
-  const [batchDialog, setBatchDialog] = useState<"delete" | null>(null);
   const { data: teachers = [] } = useTeachersList();
   const crud = useDepartmentCrud();
 
@@ -90,32 +88,17 @@ export default function Departments() {
           filterPlaceholder="Rechercher par nom..."
         />
 
-      {selectedDepartments.length > 0 && (
-        <div className="flex items-center justify-between fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4 shadow-lg">
-          <span className="text-sm font-medium">{selectedDepartments.length} département(s) sélectionné(s)</span>
-          <div className="flex gap-2">
-            <Button variant="destructive" size="sm" onClick={() => setBatchDialog("delete")}>Supprimer</Button>
-          </div>
-        </div>
-      )}
-
-      <DeleteAlert
-        isOpen={batchDialog === "delete"}
-        onOpenChange={(o) => { if (!o) setBatchDialog(null); }}
-        entityName={`${selectedDepartments.length} département(s)`}
-        onDelete={async () => {
-          try {
-            await Promise.all(selectedDepartments.map((d) => crud.deleteMutation(d.id)));
-            toast.success(`${selectedDepartments.length} département(s) supprimé(s)`);
-            setSelectedDepartments([]);
-            setBatchDialog(null);
-          } catch (error) {
-            toastError(error, "Erreur lors de la suppression");
-          }
+      <BatchActionsBar
+        selectedCount={selectedDepartments.length}
+        entityLabel="département(s)"
+        actions={[{ key: "delete", label: "Supprimer" }]}
+        onDeleteSelected={async () => {
+          await Promise.all(selectedDepartments.map((d) => crud.deleteMutation(d.id)));
         }}
         isPending={crud.isDeletePending}
+        onClearSelection={() => setSelectedDepartments([])}
       />
-
+      
       <Dialog open={crud.isDialogOpen} onOpenChange={crud.setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>

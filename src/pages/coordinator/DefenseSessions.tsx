@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import { ArrowRight, Calendar, ShieldCheck, Clock, FileText, CheckCircle2, Plus } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -13,6 +13,7 @@ import {
   useDeleteDefenseSession,
   useJuryRoleTemplates,
 } from "@/hooks/queries";
+import { useEntityForm } from "@/hooks/use-entity-form";
 import {
   Badge,
   Button,
@@ -44,6 +45,7 @@ import {
   DEFENSE_TYPE_OPTIONS,
   DEFENSE_TYPE_SHORT_LABELS,
 } from "@/lib/constants";
+import { defenseSessionSchema } from "@/lib/validations";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { CrudActions } from "@/components/admin/CrudActions";
 
@@ -92,21 +94,22 @@ export default function CoordinatorDefenseSessions() {
   const deleteMutation = useDeleteDefenseSession();
   const transitionMutation = useTransitionDefenseSession();
 
+  const form = useEntityForm(defenseSessionSchema, defaultForm);
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<DefenseSession | null>(null);
   const [editing, setEditing] = useState<DefenseSession | null>(null);
-  const [form, setForm] = useState(defaultForm);
   const [transitioningId, setTransitioningId] = useState<string | null>(null);
 
   const openCreate = () => {
+    form.resetForm();
     setEditing(null);
-    setForm(defaultForm);
     setDialogOpen(true);
   };
 
   const openEdit = (ds: DefenseSession) => {
     setEditing(ds);
-    setForm({
+    form.setFormData({
       name: ds.name,
       defenseType: ds.defenseType,
       status: ds.status,
@@ -124,21 +127,19 @@ export default function CoordinatorDefenseSessions() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.startDate && form.endDate && form.startDate > form.endDate) {
-      toast.error("La date de début doit être antérieure à la date de fin");
-      return;
-    }
+    if (!form.validateForm()) return;
     try {
       if (editing) {
-        await updateMutation.mutateAsync({ id: editing.id, data: form });
+        await updateMutation.mutateAsync({ id: editing.id, data: form.formData });
         toast.success("Session de soutenance modifiée");
       } else {
-        await createMutation.mutateAsync(form);
+        await createMutation.mutateAsync(form.formData);
         toast.success("Session de soutenance créée");
       }
       setDialogOpen(false);
+      form.resetForm();
     } catch (error) {
-      toastError(error, "Erreur lors de l'enregistrement");
+      toast.error(getErrorMessage(error, "Erreur lors de l'enregistrement"));
     }
   };
 
@@ -148,7 +149,7 @@ export default function CoordinatorDefenseSessions() {
       await transitionMutation.mutateAsync({ id, toStatus });
       toast.success(`Session passée en "${DEFENSE_SESSION_STATUS_LABELS[toStatus]}"`);
     } catch (error) {
-      toastError(error, "Transition impossible");
+      toast.error(getErrorMessage(error, "Transition impossible"));
     } finally {
       setTransitioningId(null);
     }
@@ -290,146 +291,157 @@ export default function CoordinatorDefenseSessions() {
           </DialogHeader>
           <form onSubmit={handleSubmit}>
             <FieldGroup className="space-y-4 py-4">
-              <Field>
-                <FieldLabel>Nom</FieldLabel>
-                <Input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
-                  data-testid="coord-sessions-input-name"
-                />
-              </Field>
-              <Field>
-                <FieldLabel>Type de soutenance</FieldLabel>
-                <Select
-                  value={form.defenseType}
-                  onValueChange={(v) => {
-                    const type = v as DefenseType;
-                    setForm({
-                      ...form,
-                      defenseType: type,
-                      defenseDuration: DEFAULT_DURATION_BY_TYPE[type],
-                    });
-                  }}
-                >
-                  <SelectTrigger data-testid="coord-sessions-input-defense-type">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {DEFENSE_TYPE_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-              <div className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel>Durée de passage (min)</FieldLabel>
-                  <Input
-                    type="number"
-                    value={form.defenseDuration}
-                    onChange={(e) => setForm({ ...form, defenseDuration: Number(e.target.value) })}
-                    min={5}
-                    max={180}
-                    data-testid="coord-sessions-input-duration"
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Pause (min)</FieldLabel>
-                  <Input
-                    type="number"
-                    value={form.breakDuration}
-                    onChange={(e) => setForm({ ...form, breakDuration: Number(e.target.value) })}
-                    min={0}
-                    data-testid="coord-sessions-input-break"
-                  />
-                </Field>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel>Max étudiants/groupe</FieldLabel>
-                  <Input
-                    type="number"
-                    value={form.maxGroupSize}
-                    onChange={(e) => setForm({ ...form, maxGroupSize: Number(e.target.value) })}
-                    min={1}
-                    max={10}
-                    data-testid="coord-sessions-input-max-group"
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Date limite dépôt</FieldLabel>
-                  <Input
-                    type="date"
-                    value={form.submissionDeadline}
-                    onChange={(e) => setForm({ ...form, submissionDeadline: e.target.value })}
-                    data-testid="coord-sessions-input-deadline"
-                  />
-                </Field>
-              </div>
-              <Field>
-                <FieldLabel>Modèle de jury</FieldLabel>
-                <Select
-                  value={form.juryRoleTemplateId}
-                  onValueChange={(v) => {
-                    const tpl = templates.find((t) => t.id === v);
-                    const coeffs: Record<string, number> = {};
-                    if (tpl) {
-                      for (const role of tpl.roles) {
-                        coeffs[role.name] = role.coefficient;
-                      }
-                    }
-                    setForm({ ...form, juryRoleTemplateId: v ?? "", evaluationCoefficients: coeffs });
-                  }}
-                >
-                  <SelectTrigger data-testid="coord-sessions-input-template"><SelectValue placeholder="Choisir un modèle" /></SelectTrigger>
-                  <SelectContent>
-                    {templates.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-              <Field>
-                <FieldLabel>Coefficients d'évaluation</FieldLabel>
-                <div className="rounded-lg border bg-muted/50 p-3 text-sm">
-                  {Object.keys(form.evaluationCoefficients).length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {Object.entries(form.evaluationCoefficients).map(([role, coeff]) => (
-                        <span key={role} className="inline-flex items-center gap-1 rounded-md bg-background px-2 py-1 text-xs font-medium">
-                          {role}: {coeff}%
-                        </span>
-                      ))}
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground">Sélectionnez un modèle de jury</span>
-                  )}
-                </div>
-              </Field>
-              <div className="grid grid-cols-2 gap-4">
-                <Field>
-                  <FieldLabel>Date début</FieldLabel>
-                  <Input
-                    type="date"
-                    value={form.startDate}
-                    onChange={(e) => setForm({ ...form, startDate: e.target.value })}
-                    required
-                    data-testid="coord-sessions-input-start"
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Date fin</FieldLabel>
-                  <Input
-                    type="date"
-                    value={form.endDate}
-                    onChange={(e) => setForm({ ...form, endDate: e.target.value })}
-                    required
-                    data-testid="coord-sessions-input-end"
-                  />
-                </Field>
-              </div>
+               <Field>
+                 <FieldLabel>Nom</FieldLabel>
+                 <Input
+                   value={form.formData.name}
+                   onChange={(e) => form.setFormData({ ...form.formData, name: e.target.value })}
+                   required
+                   error={form.fieldErrors?.name}
+                   data-testid="coord-sessions-input-name"
+                 />
+               </Field>
+               <Field>
+                 <FieldLabel>Type de soutenance</FieldLabel>
+                 <Select
+                   value={form.formData.defenseType}
+                   onValueChange={(v) => {
+                     const type = v as DefenseType;
+                     form.setFormData({
+                       ...form.formData,
+                       defenseType: type,
+                       defenseDuration: DEFAULT_DURATION_BY_TYPE[type],
+                     });
+                   }}
+                 >
+                   <SelectTrigger data-testid="coord-sessions-input-defense-type">
+                     <SelectValue />
+                   </SelectTrigger>
+                   <SelectContent>
+                     {DEFENSE_TYPE_OPTIONS.map((opt) => (
+                       <SelectItem key={opt.value} value={opt.value}>
+                         {opt.label}
+                       </SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+               </Field>
+               <div className="grid grid-cols-2 gap-4">
+                 <Field>
+                   <FieldLabel>Durée de passage (min)</FieldLabel>
+                   <Input
+                     type="number"
+                     value={form.formData.defenseDuration}
+                     onChange={(e) => form.setFormData({ ...form.formData, defenseDuration: Number(e.target.value) })}
+                     min={5}
+                     max={180}
+                     error={form.fieldErrors?.defenseDuration}
+                     data-testid="coord-sessions-input-duration"
+                   />
+                 </Field>
+                 <Field>
+                   <FieldLabel>Pause (min)</FieldLabel>
+                   <Input
+                     type="number"
+                     value={form.formData.breakDuration}
+                     onChange={(e) => form.setFormData({ ...form.formData, breakDuration: Number(e.target.value) })}
+                     min={0}
+                     error={form.fieldErrors?.breakDuration}
+                     data-testid="coord-sessions-input-break"
+                   />
+                 </Field>
+               </div>
+               <div className="grid grid-cols-2 gap-4">
+                 <Field>
+                   <FieldLabel>Max étudiants/groupe</FieldLabel>
+                   <Input
+                     type="number"
+                     value={form.formData.maxGroupSize}
+                     onChange={(e) => form.setFormData({ ...form.formData, maxGroupSize: Number(e.target.value) })}
+                     min={1}
+                     max={10}
+                     error={form.fieldErrors?.maxGroupSize}
+                     data-testid="coord-sessions-input-max-group"
+                   />
+                 </Field>
+                 <Field>
+                   <FieldLabel>Date limite dépôt</FieldLabel>
+                   <Input
+                     type="date"
+                     value={form.formData.submissionDeadline}
+                     onChange={(e) => form.setFormData({ ...form.formData, submissionDeadline: e.target.value })}
+                     required
+                     error={form.fieldErrors?.submissionDeadline}
+                     data-testid="coord-sessions-input-deadline"
+                   />
+                 </Field>
+               </div>
+               <Field>
+                 <FieldLabel>Modèle de jury</FieldLabel>
+                 <Select
+                   value={form.formData.juryRoleTemplateId}
+                   onValueChange={(v) => {
+                     const tpl = templates.find((t) => t.id === v);
+                     const coeffs: Record<string, number> = {};
+                     if (tpl) {
+                       for (const role of tpl.roles) {
+                         coeffs[role.name] = role.coefficient;
+                       }
+                     }
+                     form.setFormData({ ...form.formData, juryRoleTemplateId: v ?? "", evaluationCoefficients: coeffs });
+                   }}
+                 >
+                   <SelectTrigger data-testid="coord-sessions-input-template"><SelectValue placeholder="Choisir un modèle" /></SelectTrigger>
+                   <SelectContent>
+                     {templates.map((t) => (
+                       <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+                 {form.fieldErrors?.juryRoleTemplateId && (
+                   <p className="text-sm font-medium text-destructive">{form.fieldErrors.juryRoleTemplateId}</p>
+                 )}
+               </Field>
+               <Field>
+                 <FieldLabel>Coefficients d'évaluation</FieldLabel>
+                 <div className="rounded-lg border bg-muted/50 p-3 text-sm">
+                   {Object.keys(form.formData.evaluationCoefficients).length > 0 ? (
+                     <div className="flex flex-wrap gap-2">
+                       {Object.entries(form.formData.evaluationCoefficients).map(([role, coeff]) => (
+                         <span key={role} className="inline-flex items-center gap-1 rounded-md bg-background px-2 py-1 text-xs font-medium">
+                           {role}: {coeff}%
+                         </span>
+                       ))}
+                     </div>
+                   ) : (
+                     <span className="text-muted-foreground">Sélectionnez un modèle de jury</span>
+                   )}
+                 </div>
+               </Field>
+               <div className="grid grid-cols-2 gap-4">
+                 <Field>
+                   <FieldLabel>Date début</FieldLabel>
+                   <Input
+                     type="date"
+                     value={form.formData.startDate}
+                     onChange={(e) => form.setFormData({ ...form.formData, startDate: e.target.value })}
+                     required
+                     error={form.fieldErrors?.startDate}
+                     data-testid="coord-sessions-input-start"
+                   />
+                 </Field>
+                 <Field>
+                   <FieldLabel>Date fin</FieldLabel>
+                   <Input
+                     type="date"
+                     value={form.formData.endDate}
+                     onChange={(e) => form.setFormData({ ...form.formData, endDate: e.target.value })}
+                     required
+                     error={form.fieldErrors?.endDate}
+                     data-testid="coord-sessions-input-end"
+                   />
+                 </Field>
+               </div>
             </FieldGroup>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} data-testid="coord-sessions-dialog-cancel">
@@ -454,7 +466,7 @@ export default function CoordinatorDefenseSessions() {
             toast.success("Session de soutenance supprimée");
             setDeleteTarget(null);
           } catch (error) {
-            toastError(error, "Erreur lors de la suppression");
+             toast.error(getErrorMessage(error, "Erreur lors de la suppression"));
           }
         }}
         isPending={deleteMutation.isPending}
@@ -462,4 +474,3 @@ export default function CoordinatorDefenseSessions() {
     </div>
   );
 }
-

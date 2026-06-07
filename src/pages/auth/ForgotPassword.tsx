@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
-import { toastError } from "@/lib/utils";
+import { getErrorMessage } from "@/lib/utils";
 import {
   Button,
   Card,
@@ -33,7 +33,7 @@ export default function ForgotPassword() {
       setSent(true);
       toast.success("Si cet email existe, un lien de réinitialisation a été envoyé.");
     } catch (error) {
-      toastError(error, "Erreur lors de l'envoi du lien.");
+      toast.error(getErrorMessage(error, "Erreur lors de l'envoi du lien."));
     } finally {
       setIsSubmitting(false);
     }
