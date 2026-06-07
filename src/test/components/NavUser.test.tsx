@@ -18,7 +18,7 @@ vi.mock("next-themes", () => ({
   useTheme: () => ({ setTheme: mockSetTheme, theme: "light" }),
 }));
 
-vi.mock("@/hooks/use-queries", () => ({
+vi.mock("@/hooks/queries", () => ({
   useUnreadCount: mockUseUnreadCount,
 }));
 
@@ -166,3 +166,4 @@ describe("NavUser", () => {
     expect(screen.queryByText("9+")).not.toBeInTheDocument();
   });
 });
+

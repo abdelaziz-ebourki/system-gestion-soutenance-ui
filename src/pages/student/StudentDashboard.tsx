@@ -1,7 +1,7 @@
 
 import { CalendarDays, GraduationCap, Users, Printer, Download } from "lucide-react";
 
-import { useStudentStats, useStudentDefense } from "@/hooks/use-queries";
+import { useStudentStats, useStudentDefense } from "@/hooks/queries";
 import {
   Badge,
   Button,
@@ -180,3 +180,4 @@ export default function StudentDashboard() {
     </div>
   );
 }
+

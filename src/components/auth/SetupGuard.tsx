@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useGeneralSettings } from "@/hooks/use-queries";
+import { useGeneralSettings } from "@/hooks/queries";
 
 export default function SetupGuard() {
   const { data: settings, isLoading } = useGeneralSettings();
@@ -12,3 +12,4 @@ export default function SetupGuard() {
 
   return <Outlet />;
 }
+

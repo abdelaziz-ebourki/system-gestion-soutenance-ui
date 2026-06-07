@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -54,10 +54,10 @@ describe("Departments", () => {
   it("shows delete alert for batch deletion", async () => {
     const user = userEvent.setup();
     renderDepartments();
-    const checkboxes = await screen.findAllByRole("checkbox");
-    const firstRowCheckbox = checkboxes[1];
-    await user.click(firstRowCheckbox);
-    const deleteButton = screen.getByRole("button", { name: /supprimer/i });
+    const rowCheckboxes = await screen.findAllByRole("checkbox", { name: /select row/i });
+    await user.click(rowCheckboxes[0]);
+    await waitFor(() => expect(screen.getByTestId("batch-actions-bar")).toBeInTheDocument());
+    const deleteButton = await screen.findByRole("button", { name: /supprimer/i });
     await user.click(deleteButton);
     expect(screen.getByText(/Confirmation/)).toBeInTheDocument();
   });

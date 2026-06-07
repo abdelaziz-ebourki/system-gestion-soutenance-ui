@@ -85,7 +85,7 @@ export function buildConflictContext(
   };
 }
 
-function getSmartSuggestions(
+export function getSmartSuggestions(
   projectId: string,
   date: string,
   roomId: string,

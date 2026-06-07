@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 
-import { useProjects, useUpdateProject, useDeleteProject, useStudentGroups } from "@/hooks/use-queries";
+import { useProjects, useUpdateProject, useDeleteProject, useStudentGroups } from "@/hooks/queries";
 import type { Project } from "@/types";
 import type { StudentGroupAssignment } from "@/lib/api-coordinator";
 import { toast } from "sonner";
@@ -30,8 +30,8 @@ import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DataTable } from "@/components/ui/data-table";
-import { ProjectDialog } from "@/components/academic/ProjectDialog";
-import { AssignProjectDialog } from "@/components/academic/AssignProjectDialog";
+import { ProjectDialog } from "@/components/coordinator/ProjectDialog";
+import { AssignProjectDialog } from "@/components/coordinator/AssignProjectDialog";
 
 const statusLabel: Record<Project["status"], string> = {
   pending: "En attente",
@@ -274,3 +274,4 @@ export default function CoordinatorProjects() {
     </div>
   );
 }
+

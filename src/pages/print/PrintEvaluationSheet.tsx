@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { useEvaluationSheet } from "@/hooks/use-queries";
+import { useEvaluationSheet } from "@/hooks/queries";
 import PrintLayout from "@/components/print/PrintLayout";
 import EvaluationSheet from "@/components/print/EvaluationSheet";
 
@@ -20,3 +20,4 @@ export default function PrintEvaluationSheet() {
     </div>
   );
 }
+

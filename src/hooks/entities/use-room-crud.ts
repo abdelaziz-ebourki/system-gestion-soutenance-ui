@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCreateRoom, useUpdateRoom, useDeleteRoom } from "@/hooks/use-queries";
+import { useCreateRoom, useUpdateRoom, useDeleteRoom } from "@/hooks/queries";
 import { roomSchema } from "@/lib/validations";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { toast } from "sonner";
@@ -108,3 +108,4 @@ export function useRoomCrud() {
     isPending: create.isPending || update.isPending || del.isPending,
   };
 }
+

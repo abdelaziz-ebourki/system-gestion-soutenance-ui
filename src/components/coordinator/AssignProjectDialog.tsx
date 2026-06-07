@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useProjects, useStudentGroups, useAssignProjectToGroup } from "@/hooks/use-queries";
+import { useProjects, useStudentGroups, useAssignProjectToGroup } from "@/hooks/queries";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import {
@@ -119,3 +119,4 @@ export function AssignProjectDialog({
     </Dialog>
   );
 }
+

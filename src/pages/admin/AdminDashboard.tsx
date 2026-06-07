@@ -11,7 +11,7 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { format } from "date-fns";
 
-import { useAdminStats, useUsers, useAuditLogs, useUpdateUser, useDeleteUser } from "@/hooks/use-queries";
+import { useAdminStats, useUsers, useAuditLogs, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import type { User } from "@/types";
 import type { AuditLog } from "@/types/audit-log";

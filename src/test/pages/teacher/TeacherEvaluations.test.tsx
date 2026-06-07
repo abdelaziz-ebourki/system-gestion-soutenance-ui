@@ -3,13 +3,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import TeacherEvaluations from "@/pages/teacher/TeacherEvaluations";
-import { useTeacherEvaluations } from "@/hooks/use-queries";
+import { useTeacherEvaluations } from "@/hooks/queries";
 import { useEvaluationForm } from "@/hooks/use-evaluation-form";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { TeacherEvaluation } from "@/types";
 
-vi.mock("@/hooks/use-queries", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/hooks/use-queries")>();
+vi.mock("@/hooks/queries", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks/queries")>();
   return {
     ...actual,
     useTeacherEvaluations: vi.fn(),
@@ -169,3 +169,4 @@ describe("TeacherEvaluations", () => {
     expect(mockForm.handleSubmit).toHaveBeenCalled();
   });
 });
+

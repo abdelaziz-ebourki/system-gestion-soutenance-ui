@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSubmitTeacherEvaluation } from "@/hooks/use-queries";
+import { useSubmitTeacherEvaluation } from "@/hooks/queries";
 import { validate, evaluationSchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
@@ -51,3 +51,4 @@ export function useEvaluationForm() {
     isPending: submit.isPending,
   };
 }
+

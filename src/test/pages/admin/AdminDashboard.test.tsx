@@ -81,17 +81,19 @@ describe("AdminDashboard", () => {
   it("shows batch bar when users are selected", async () => {
     const user = userEvent.setup();
     renderDashboard();
-    const checkboxes = await screen.findAllByRole("checkbox");
-    await user.click(checkboxes[1]);
-    expect(screen.getByText(/utilisateur\(s\) sélectionné\(s\)/i)).toBeInTheDocument();
+    const rowCheckbox = (await screen.findAllByRole("checkbox", { name: /select row/i }))[0];
+    await user.click(rowCheckbox);
+    expect(await screen.findByText(/utilisateur\(s\) sélectionné\(s\)/i)).toBeInTheDocument();
   });
 
   it("opens batch role change dialog", async () => {
     const user = userEvent.setup();
     renderDashboard();
-    const checkboxes = await screen.findAllByRole("checkbox");
-    await user.click(checkboxes[1]);
-    await user.click(screen.getAllByRole("button", { name: /changer le rôle/i })[0]);
+    const rowCheckbox = (await screen.findAllByRole("checkbox", { name: /select row/i }))[0];
+    await user.click(rowCheckbox);
+    await waitFor(() => expect(screen.getByTestId("batch-actions-bar")).toBeInTheDocument());
+    const roleButtons = await screen.findAllByRole("button", { name: /changer le rôle/i });
+    await user.click(roleButtons[0]);
     await waitFor(() => {
       expect(screen.getByText("Choisir...")).toBeInTheDocument();
     });
@@ -100,9 +102,11 @@ describe("AdminDashboard", () => {
   it("deletes selected users via batch delete button", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderDashboard();
-    const checkboxes = await screen.findAllByRole("checkbox");
-    await user.click(checkboxes[1]);
-    await user.click(screen.getAllByRole("button", { name: /supprimer/i })[0]);
+    const rowCheckbox = (await screen.findAllByRole("checkbox", { name: /select row/i }))[0];
+    await user.click(rowCheckbox);
+    await waitFor(() => expect(screen.getByTestId("batch-actions-bar")).toBeInTheDocument());
+    const deleteButtons = await screen.findAllByRole("button", { name: /supprimer/i });
+    await user.click(deleteButtons[0]);
     expect(await screen.findByTestId("delete-alert")).toBeInTheDocument();
     await user.click(screen.getByTestId("delete-alert-confirm"));
     await waitFor(() => {
@@ -118,9 +122,11 @@ describe("AdminDashboard", () => {
     );
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderDashboard();
-    const checkboxes = await screen.findAllByRole("checkbox");
-    await user.click(checkboxes[1]);
-    await user.click(screen.getAllByRole("button", { name: /supprimer/i })[0]);
+    const rowCheckbox = (await screen.findAllByRole("checkbox", { name: /select row/i }))[0];
+    await user.click(rowCheckbox);
+    await waitFor(() => expect(screen.getByTestId("batch-actions-bar")).toBeInTheDocument());
+    const deleteButtons = await screen.findAllByRole("button", { name: /supprimer/i });
+    await user.click(deleteButtons[0]);
     await user.click(screen.getByTestId("delete-alert-confirm"));
     await waitFor(() => {
       expect(toast.error).toHaveBeenCalledWith("Erreur serveur. Veuillez réessayer plus tard.");
@@ -130,9 +136,11 @@ describe("AdminDashboard", () => {
   it("cancels delete alert without deleting", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderDashboard();
-    const checkboxes = await screen.findAllByRole("checkbox");
-    await user.click(checkboxes[1]);
-    await user.click(screen.getAllByRole("button", { name: /supprimer/i })[0]);
+    const rowCheckbox = (await screen.findAllByRole("checkbox", { name: /select row/i }))[0];
+    await user.click(rowCheckbox);
+    await waitFor(() => expect(screen.getByTestId("batch-actions-bar")).toBeInTheDocument());
+    const deleteButtons = await screen.findAllByRole("button", { name: /supprimer/i });
+    await user.click(deleteButtons[0]);
     expect(await screen.findByTestId("delete-alert")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /annuler/i }));
     await waitFor(() => {
@@ -143,9 +151,11 @@ describe("AdminDashboard", () => {
   it("closes role dialog via cancel button", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderDashboard();
-    const checkboxes = await screen.findAllByRole("checkbox");
-    await user.click(checkboxes[1]);
-    await user.click(screen.getAllByRole("button", { name: /changer le rôle/i })[0]);
+    const rowCheckbox = (await screen.findAllByRole("checkbox", { name: /select row/i }))[0];
+    await user.click(rowCheckbox);
+    await waitFor(() => expect(screen.getByTestId("batch-actions-bar")).toBeInTheDocument());
+    const roleButtons = await screen.findAllByRole("button", { name: /changer le rôle/i });
+    await user.click(roleButtons[0]);
     expect(screen.getByText("Choisir...")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /annuler/i }));
     await waitFor(() => {
@@ -156,9 +166,11 @@ describe("AdminDashboard", () => {
   it("does not save role when no value selected", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderDashboard();
-    const checkboxes = await screen.findAllByRole("checkbox");
-    await user.click(checkboxes[1]);
-    await user.click(screen.getAllByRole("button", { name: /changer le rôle/i })[0]);
+    const rowCheckbox = (await screen.findAllByRole("checkbox", { name: /select row/i }))[0];
+    await user.click(rowCheckbox);
+    await waitFor(() => expect(screen.getByTestId("batch-actions-bar")).toBeInTheDocument());
+    const roleButtons = await screen.findAllByRole("button", { name: /changer le rôle/i });
+    await user.click(roleButtons[0]);
     expect(screen.getByText("Choisir...")).toBeInTheDocument();
     await user.click(screen.getAllByRole("button", { name: /enregistrer/i }).at(-1)!);
     expect(toast.success).not.toHaveBeenCalled();
@@ -167,9 +179,11 @@ describe("AdminDashboard", () => {
   it("saves batch role change successfully", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderDashboard();
-    const checkboxes = await screen.findAllByRole("checkbox");
-    await user.click(checkboxes[1]);
-    await user.click(screen.getAllByRole("button", { name: /changer le rôle/i })[0]);
+    const rowCheckbox = (await screen.findAllByRole("checkbox", { name: /select row/i }))[0];
+    await user.click(rowCheckbox);
+    await waitFor(() => expect(screen.getByTestId("batch-actions-bar")).toBeInTheDocument());
+    const roleButtons = await screen.findAllByRole("button", { name: /changer le rôle/i });
+    await user.click(roleButtons[0]);
     await user.click(screen.getByRole("combobox"));
     const option = await screen.findByRole("option", { name: /coordinateur/i });
     await user.click(option);
@@ -187,9 +201,11 @@ describe("AdminDashboard", () => {
     );
     const user = userEvent.setup({ pointerEventsCheck: 0 });
     renderDashboard();
-    const checkboxes = await screen.findAllByRole("checkbox");
-    await user.click(checkboxes[1]);
-    await user.click(screen.getAllByRole("button", { name: /changer le rôle/i })[0]);
+    const rowCheckbox = (await screen.findAllByRole("checkbox", { name: /select row/i }))[0];
+    await user.click(rowCheckbox);
+    await waitFor(() => expect(screen.getByTestId("batch-actions-bar")).toBeInTheDocument());
+    const roleButtons = await screen.findAllByRole("button", { name: /changer le rôle/i });
+    await user.click(roleButtons[0]);
     await user.click(screen.getByRole("combobox"));
     const option = await screen.findByRole("option", { name: /coordinateur/i });
     await user.click(option);

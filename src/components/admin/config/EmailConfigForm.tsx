@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Mail } from "lucide-react";
 import {
   useEmailConfig, useUpdateEmailConfig,
-} from "@/hooks/use-queries";
+} from "@/hooks/queries";
 import type { EmailConfig } from "@/lib/api";
 import { emailConfigSchema, validate } from "@/lib/validations";
 import { DEFAULT_SMTP_PORT } from "@/lib/constants";
@@ -167,3 +167,4 @@ export function EmailConfigForm() {
     </Card>
   );
 }
+

@@ -1,7 +1,7 @@
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 
-import { useCoordinators } from "@/hooks/use-queries";
+import { useCoordinators } from "@/hooks/queries";
 import type { Coordinator } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -146,3 +146,4 @@ export default function Coordinators() {
     </div>
   );
 }
+

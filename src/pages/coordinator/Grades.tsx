@@ -1,6 +1,6 @@
 import { FileCheck2, Clock, AlertCircle } from "lucide-react";
 
-import { useProjectGrades } from "@/hooks/use-queries";
+import { useProjectGrades } from "@/hooks/queries";
 import {
   Badge,
   Card,
@@ -114,3 +114,4 @@ export default function Grades() {
     </div>
   );
 }
+

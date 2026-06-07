@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { ClipboardCheck, Clock3, FileCheck2, ShieldCheck } from "lucide-react";
 
-import { useTeacherStats, useTeacherSchedule, useTeacherEvaluations } from "@/hooks/use-queries";
+import { useTeacherStats, useTeacherSchedule, useTeacherEvaluations } from "@/hooks/queries";
 import { DEFENSE_ROLE_LABELS } from "@/lib/constants";
 
 import {
@@ -160,3 +160,4 @@ export default function TeacherDashboard() {
     </div>
   );
 }
+

@@ -22,7 +22,7 @@ export function NavMain({
 }: {
   items: {
     title: string;
-    url: string;
+    url?: string;
     icon?: React.ReactNode;
     isActive?: boolean;
     items?: {
@@ -40,11 +40,11 @@ export function NavMain({
           {items.map((item) => {
             const hasChildren = item.items && item.items.length > 0;
             const isItemActive =
-              location.pathname === item.url ||
+              (item.url && location.pathname === item.url) ||
               (hasChildren &&
                 item.items?.some((sub) => location.pathname === sub.url));
 
-            if (!hasChildren) {
+            if (!hasChildren && item.url) {
               return (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
@@ -83,9 +83,9 @@ export function NavMain({
                             asChild
                             isActive={location.pathname === subItem.url}
                           >
-<Link to={subItem.url} data-testid={`nav-${subItem.url.replace(/\//g, '-').replace(/^-/, '')}`}>
-                            <span>{subItem.title}</span>
-                          </Link>
+                            <Link to={subItem.url} data-testid={`nav-${subItem.url.replace(/\//g, '-').replace(/^-/, '')}`}>
+                              <span>{subItem.title}</span>
+                            </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       ))}

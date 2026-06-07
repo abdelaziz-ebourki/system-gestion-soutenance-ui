@@ -1,13 +1,13 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AssignProjectDialog } from "@/components/academic/AssignProjectDialog";
-import { useProjects, useStudentGroups, useAssignProjectToGroup } from "@/hooks/use-queries";
+import { AssignProjectDialog } from "@/components/coordinator/AssignProjectDialog";
+import { useProjects, useStudentGroups, useAssignProjectToGroup } from "@/hooks/queries";
 import { toast } from "sonner";
 import type { Project } from "@/types";
 import type { StudentGroupAssignment } from "@/lib/api-coordinator";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 
-vi.mock("@/hooks/use-queries", () => ({
+vi.mock("@/hooks/queries", () => ({
   useProjects: vi.fn(),
   useStudentGroups: vi.fn(),
   useAssignProjectToGroup: vi.fn(),
@@ -140,3 +140,4 @@ describe("AssignProjectDialog", () => {
     });
   });
 });
+

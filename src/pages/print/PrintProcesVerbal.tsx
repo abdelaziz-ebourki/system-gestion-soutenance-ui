@@ -1,5 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { useProcesVerbal } from "@/hooks/use-queries";
+import { useProcesVerbal } from "@/hooks/queries";
 import PrintLayout from "@/components/print/PrintLayout";
 import ProcesVerbal from "@/components/print/ProcesVerbal";
 
@@ -20,3 +20,4 @@ export default function PrintProcesVerbal() {
     </div>
   );
 }
+

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/use-queries";
+import { useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import { coordinatorSchema } from "@/lib/validations";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { toast } from "sonner";
@@ -108,3 +108,4 @@ export function useCoordinatorCrud() {
     isPending: create.isPending || update.isPending || del.isPending,
   };
 }
+

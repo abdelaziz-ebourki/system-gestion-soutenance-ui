@@ -1,4 +1,4 @@
-import { useAuditLogs } from "@/hooks/use-queries";
+import { useAuditLogs } from "@/hooks/queries";
 import type { AuditLog } from "@/types/audit-log";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
@@ -40,3 +40,4 @@ export default function AuditLogs() {
     </div>
   );
 }
+

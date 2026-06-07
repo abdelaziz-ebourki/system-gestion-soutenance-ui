@@ -4,7 +4,7 @@ import { Plus, GraduationCap } from "lucide-react";
 
 import {
   useStudents, useMajors, useLevels,
-} from "@/hooks/use-queries";
+} from "@/hooks/queries";
 import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import { type Student } from "@/types";
 import { DataTable } from "@/components/ui/data-table";

@@ -8,7 +8,8 @@ import {
   useCoordinatorDefenseSessions,
   useCoordinatorUnavailability,
   useTransitionDefenseSession,
-} from "@/hooks/use-queries";
+} from "@/hooks/queries";
+
 import { toast } from "sonner";
 import { getErrorMessage, createSlotKey, parseSlotKey } from "@/lib/utils";
 import { format, addDays, differenceInDays } from "date-fns";

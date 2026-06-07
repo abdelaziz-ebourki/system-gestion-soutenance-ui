@@ -40,6 +40,7 @@ import { RotateCcw, ArrowUpDown, ArrowUp, ArrowDown, Columns } from "lucide-reac
 interface DataTableContextValue {
   table: TanStackTable<unknown>;
   labels: Required<DataTableLabels>;
+  loading?: boolean;
   enableRowSelection?: boolean;
   onRowClick?: (row: unknown) => void;
   emptyMessage?: string;
@@ -245,12 +246,11 @@ function DataTableProvider<TData, TValue>({
     onSelectedRowsChange(table.getSelectedRowModel().rows.map((r) => r.original));
   }, [rowSelection, onSelectedRowsChange, table]);
 
-  if (loading) return <Skeleton className="h-64 w-full" />;
   if (error) return <div className="rounded-md border border-destructive/50 p-6 text-center text-sm text-destructive">{error}</div>;
 
   return (
     <DataTableCtx.Provider value={{
-      table, labels, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
+      table, labels, loading, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
       setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
     } as unknown as DataTableContextValue}>
       <div>{children}</div>
@@ -391,7 +391,24 @@ function DataTableHeader() {
 }
 
 function DataTableBody() {
-  const { table, labels, onRowClick, emptyMessage, mergedColumns } = useDataTable();
+  const { table, labels, onRowClick, emptyMessage, mergedColumns, loading } = useDataTable();
+
+  if (loading) {
+    return (
+      <TableBody>
+        {Array.from({ length: table.getState().pagination.pageSize || 10 }).map((_, i) => (
+          <TableRow key={`skeleton-${i}`}>
+            {mergedColumns.map((_, j) => (
+              <TableCell key={`skeleton-cell-${j}`}>
+                <Skeleton className="h-6 w-full" />
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    );
+  }
+
   return (
     <TableBody>
       {table.getRowModel().rows?.length ? (
@@ -421,14 +438,16 @@ function DataTableBody() {
 }
 
 function DataTablePagination() {
-  const { table, labels, enableRowSelection, pageSizeOptions } = useDataTable();
+  const { table, labels, enableRowSelection, pageSizeOptions, loading } = useDataTable();
   const totalPages = table.getPageCount();
+  const displayTotalPages = loading && totalPages === 0 ? 1 : totalPages;
+  const currentPage = table.getState().pagination.pageIndex + 1;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 py-4">
       <div className="flex items-center gap-4">
         <div className="text-sm text-muted-foreground">
-          {labels.pageXofY(table.getState().pagination.pageIndex + 1, totalPages)}
+          {labels.pageXofY(currentPage, displayTotalPages)}
         </div>
         {enableRowSelection && table.getFilteredSelectedRowModel().rows.length > 0 && (
           <div className="text-sm font-medium text-primary">
@@ -438,6 +457,7 @@ function DataTablePagination() {
         <Select
           value={String(table.getState().pagination.pageSize)}
           onValueChange={(v) => table.setPageSize(Number(v))}
+          disabled={loading}
         >
           <SelectTrigger className="h-8 w-28">
             <span className="flex-1 text-left">{table.getState().pagination.pageSize}{labels.itemsPerPage}</span>
@@ -450,26 +470,37 @@ function DataTablePagination() {
         </Select>
       </div>
       <div className="flex flex-wrap items-center gap-1">
-        <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={loading || !table.getCanPreviousPage()}
+        >
           {labels.previous}
         </Button>
-        {totalPages > 1 &&
-          getPageNumbers(table.getState().pagination.pageIndex + 1, totalPages).map((page, i) =>
+        {displayTotalPages > 1 &&
+          getPageNumbers(currentPage, displayTotalPages).map((page, i) =>
             page === "..." ? (
               <span key={`ellipsis-${i}`} className="px-1 text-muted-foreground">...</span>
             ) : (
               <Button
                 key={page}
-                variant={page === table.getState().pagination.pageIndex + 1 ? "default" : "outline"}
+                variant={page === currentPage ? "default" : "outline"}
                 size="sm"
                 className="min-w-9"
                 onClick={() => table.setPageIndex(page - 1)}
+                disabled={loading}
               >
                 {page}
               </Button>
             ),
           )}
-        <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={loading || !table.getCanNextPage()}
+        >
           {labels.next}
         </Button>
       </div>

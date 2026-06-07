@@ -1,5 +1,5 @@
 import { BellIcon } from "lucide-react";
-import { useUnreadCount } from "@/hooks/use-queries";
+import { useUnreadCount } from "@/hooks/queries";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -23,3 +23,4 @@ export function NotificationBadge() {
     </Button>
   );
 }
+

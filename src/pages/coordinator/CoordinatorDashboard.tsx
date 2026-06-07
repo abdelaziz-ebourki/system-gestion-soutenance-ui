@@ -10,7 +10,7 @@ import {
   Users,
 } from "lucide-react";
 
-import { useCoordinatorStats, useProjects, useJuries } from "@/hooks/use-queries";
+import { useCoordinatorStats, useProjects, useJuries } from "@/hooks/queries";
 
 import {
   Badge,
@@ -243,3 +243,4 @@ export default function CoordinatorDashboard() {
     </div>
   );
 }
+

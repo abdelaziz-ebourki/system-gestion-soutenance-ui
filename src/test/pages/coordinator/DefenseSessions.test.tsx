@@ -22,7 +22,7 @@ const mockTemplates = [
   { id: "t1", name: "Standard", roles: [{ name: "Président", coefficient: 40 }, { name: "Examinateur", coefficient: 60 }] },
 ];
 
-vi.mock("@/hooks/use-queries", () => ({
+vi.mock("@/hooks/queries", () => ({
   useCoordinatorDefenseSessions: vi.fn(),
   useTransitionDefenseSession: vi.fn(),
   useCreateDefenseSession: vi.fn(),
@@ -57,7 +57,7 @@ describe("DefenseSessions (Coordinator)", () => {
   });
 
   it("renders loading skeleton", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: [], isLoading: true } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -69,7 +69,7 @@ describe("DefenseSessions (Coordinator)", () => {
   });
 
   it("renders empty state when no sessions", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -81,7 +81,7 @@ describe("DefenseSessions (Coordinator)", () => {
   });
 
   it("renders session cards", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -96,7 +96,7 @@ describe("DefenseSessions (Coordinator)", () => {
   });
 
   it("renders new session button", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -109,7 +109,7 @@ describe("DefenseSessions (Coordinator)", () => {
 
   it("shows create dialog when add button is clicked", async () => {
     const user = userEvent.setup();
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -123,7 +123,7 @@ describe("DefenseSessions (Coordinator)", () => {
   });
 
   it("shows status badges for each session", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -137,7 +137,7 @@ describe("DefenseSessions (Coordinator)", () => {
   });
 
   it("renders transition buttons for active sessions", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -151,7 +151,7 @@ describe("DefenseSessions (Coordinator)", () => {
 
   it("opens edit dialog with pre-filled form", async () => {
     const user = userEvent.setup();
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -169,7 +169,7 @@ describe("DefenseSessions (Coordinator)", () => {
 
   it("creates a session via dialog submit", async () => {
     const user = userEvent.setup();
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     const createMutate = vi.fn().mockResolvedValue(undefined);
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
@@ -194,7 +194,7 @@ describe("DefenseSessions (Coordinator)", () => {
 
   it("shows date validation error when endDate precedes startDate", async () => {
     const user = userEvent.setup();
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -215,7 +215,7 @@ describe("DefenseSessions (Coordinator)", () => {
 
   it("deletes a session via CrudActions", async () => {
     const user = userEvent.setup();
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     const deleteMutate = vi.fn();
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
@@ -236,7 +236,7 @@ describe("DefenseSessions (Coordinator)", () => {
 
   it("calls transition mutation when transition button is clicked", async () => {
     const user = userEvent.setup();
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     const transitionMutate = vi.fn();
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
@@ -253,7 +253,7 @@ describe("DefenseSessions (Coordinator)", () => {
   });
 
   it("shows archived text for archived sessions", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -266,7 +266,7 @@ describe("DefenseSessions (Coordinator)", () => {
   });
 
   it("renders session details in info boxes", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -280,7 +280,7 @@ describe("DefenseSessions (Coordinator)", () => {
 
   it("selects jury template and shows evaluation coefficients", async () => {
     const user = userEvent.setup({ pointerEventsCheck: 0 });
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -300,7 +300,7 @@ describe("DefenseSessions (Coordinator)", () => {
 
   it("closes dialog via cancel button", async () => {
     const user = userEvent.setup();
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -318,7 +318,7 @@ describe("DefenseSessions (Coordinator)", () => {
   });
 
   it("shows loading state on submit button during creation", async () => {
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -334,7 +334,7 @@ describe("DefenseSessions (Coordinator)", () => {
 
   it("closes delete alert via cancel", async () => {
     const user = userEvent.setup();
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue(createMutateMock() as unknown as UseMutationResult<DefenseSession, Error, { id: string; toStatus: DefenseSessionStatus }, unknown>);
@@ -355,7 +355,7 @@ describe("DefenseSessions (Coordinator)", () => {
   it("shows error toast when delete fails", async () => {
     const user = userEvent.setup();
     const toast = await import("sonner");
-    const queries = await import("@/hooks/use-queries");
+    const queries = await import("@/hooks/queries");
     const deleteMutate = vi.fn().mockRejectedValue(new Error("fail"));
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
     vi.mocked(queries.useJuryRoleTemplates).mockReturnValue({ data: mockTemplates } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCreateDepartment, useUpdateDepartment, useDeleteDepartment } from "@/hooks/use-queries";
+import { useCreateDepartment, useUpdateDepartment, useDeleteDepartment } from "@/hooks/queries";
 import { departmentSchema } from "@/lib/validations";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { toast } from "sonner";
@@ -108,3 +108,4 @@ export function useDepartmentCrud() {
     isPending: create.isPending || update.isPending || del.isPending,
   };
 }
+

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateSlotAssignment, getAllConflicts, type ConflictContext } from "@/lib/conflict-engine";
+import { validateSlotAssignment, getAllConflicts, getSmartSuggestions, type ConflictContext } from "@/lib/conflict-engine";
 
 describe("Conflict Engine", () => {
   const mockContext: ConflictContext = {
@@ -35,6 +35,36 @@ describe("Conflict Engine", () => {
       breakDuration: 15,
     },
   };
+
+  describe("getSmartSuggestions", () => {
+    it("should suggest other rooms when slot is occupied", () => {
+      const context: ConflictContext = {
+        ...mockContext,
+        schedule: { "2026-06-01|room1|11:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "11:00", roomId: "room1" } },
+        allTimeSlots: ["09:00", "11:00"],
+      };
+      // 11:00 is occupied in room1, room2 is free at 11:00.
+      const suggestion = getSmartSuggestions("proj1", "2026-06-01", "room1", "11:00", context, "slot_occupied");
+      expect(suggestion).toContain("Salle B");
+    });
+
+    it("should suggest other times if no rooms are available", () => {
+        const context: ConflictContext = {
+            ...mockContext,
+            // Clear unavailability to ensure 09:00 is free for t1
+            unavailability: {},
+            schedule: { 
+                "2026-06-01|room1|11:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "11:00", roomId: "room1" },
+                "2026-06-01|room2|11:00": { id: "proj3", title: "P3", date: "2026-06-01", time: "11:00", roomId: "room2" } 
+            },
+            allTimeSlots: ["09:00", "11:00"],
+        };
+        // 11:00 is occupied in both rooms. Try 09:00.
+        const suggestion = getSmartSuggestions("proj1", "2026-06-01", "room1", "11:00", context, "slot_occupied");
+        expect(suggestion).toBeDefined();
+        expect(suggestion).toContain("09:00");
+    });
+  });
 
   describe("validateSlotAssignment", () => {
     it("should return error for invalid slot format", () => {
@@ -284,6 +314,47 @@ describe("Conflict Engine", () => {
       expect(result.issues.some(i => i.type === "room_capacity")).toBe(true);
       const issue = result.issues.find(i => i.type === "room_capacity");
       expect(issue?.suggestedResolution).toContain("Essayez les salles libres : Salle A");
+    });
+
+    it("should provide smart suggestions for teacher double booking", () => {
+        // proj1 has t1, t2.
+        // Scheduled proj2 (t2) at 09:00 in room1.
+        // Try proj1 (t1, t2) at 09:00 in room2.
+        const context: ConflictContext = {
+            ...mockContext,
+            schedule: { "2026-06-01|room1|09:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "09:00", roomId: "room1" } },
+            allTimeSlots: ["09:00", "11:00"],
+        };
+        const result = validateSlotAssignment("proj1", "2026-06-01|room2|09:00", context);
+        const issue = result.issues.find(i => i.type === "teacher_double_booked");
+        expect(issue?.suggestedResolution).toContain("Le jury est disponible à : 11:00");
+    });
+
+    it("should provide smart suggestions for teacher unavailability", () => {
+        // proj1 has t1. t1 unavailable at 09:00.
+        const context: ConflictContext = {
+            ...mockContext,
+            allTimeSlots: ["09:00", "11:00"],
+        };
+        const result = validateSlotAssignment("proj1", "2026-06-01|room1|09:00", context);
+        const issue = result.issues.find(i => i.type === "teacher_unavailable");
+        expect(issue?.suggestedResolution).toContain("Le jury est disponible à : 11:00");
+    });
+
+    it("should return warning severity for break violations", () => {
+        const context = {
+            ...mockContext,
+            juries: {}, // Clear juries to avoid teacher double booking
+            projects: {
+                ...mockContext.projects,
+                proj1: { ...mockContext.projects.proj1, supervisorId: "sup-diff" }, // Different supervisor
+            },
+            schedule: { "2026-06-01|room1|09:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "09:00", roomId: "room1" } },
+        };
+        const result = validateSlotAssignment("proj1", "2026-06-01|room1|09:10", context);
+        const breakIssue = result.issues.find(i => i.type === "break_violation");
+        expect(breakIssue?.severity).toBe("warning");
+        expect(result.isValid).toBe(true); // Warnings don't make it invalid
     });
   });
 
