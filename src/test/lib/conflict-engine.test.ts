@@ -26,9 +26,15 @@ describe("Conflict Engine", () => {
       "proj2": { id: "proj2", projectId: "proj2", teacherIds: ["t2", "t3"] }, // t2 is shared
       "proj3": { id: "proj3", projectId: "proj3", teacherIds: ["t1", "t3"] },
     },
+    juriesByProjectId: {
+      "proj1": { id: "proj1", projectId: "proj1", teacherIds: ["t1", "t2"] },
+      "proj2": { id: "proj2", projectId: "proj2", teacherIds: ["t2", "t3"] },
+      "proj3": { id: "proj3", projectId: "proj3", teacherIds: ["t1", "t3"] },
+    },
     unavailability: {
       "t1": [{ date: "2026-06-01", slots: ["09:00", "10:00"], teacherId: "t1" }],
     },
+    unavailabilitySet: new Set(["t1|2026-06-01|09:00", "t1|2026-06-01|10:00"]),
     defenseSession: {
       startDate: "2026-06-01",
       endDate: "2026-06-14",
@@ -51,8 +57,8 @@ describe("Conflict Engine", () => {
     it("should suggest other times if no rooms are available", () => {
         const context: ConflictContext = {
             ...mockContext,
-            // Clear unavailability to ensure 09:00 is free for t1
             unavailability: {},
+            unavailabilitySet: new Set(),
             schedule: { 
                 "2026-06-01|room1|11:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "11:00", roomId: "room1" },
                 "2026-06-01|room2|11:00": { id: "proj3", title: "P3", date: "2026-06-01", time: "11:00", roomId: "room2" } 
@@ -216,7 +222,9 @@ describe("Conflict Engine", () => {
         projects: { "p1": { id: "p1", studentIds: [], supervisorId: "s1" } },
         teachers: {},
         juries: {},
+        juriesByProjectId: {},
         unavailability: {},
+        unavailabilitySet: new Set(),
       };
       const result = validateSlotAssignment("p1", "2026-06-01|r1|09:00", minimalContext);
       expect(result.isValid).toBe(true);
@@ -234,7 +242,7 @@ describe("Conflict Engine", () => {
     });
 
     it("should handle missing juries context", () => {
-      const context = { ...mockContext, juries: {} };
+      const context = { ...mockContext, juries: {}, juriesByProjectId: {} };
       const result = validateSlotAssignment("proj1", "2026-06-01|room1|09:00", context);
       expect(result.isValid).toBe(true);
     });
@@ -276,7 +284,9 @@ describe("Conflict Engine", () => {
         ...mockContext,
         juries: {
           "proj1": { id: "proj1", projectId: "proj1", teacherIds: ["t1"] },
-          // proj2 has no jury entry
+        },
+        juriesByProjectId: {
+          "proj1": { id: "proj1", projectId: "proj1", teacherIds: ["t1"] },
         },
         schedule: { "2026-06-01|room1|09:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "09:00", roomId: "room1" } },
       };
@@ -285,7 +295,7 @@ describe("Conflict Engine", () => {
     });
 
     it("should handle missing unavailability context", () => {
-      const context = { ...mockContext, unavailability: {} };
+      const context = { ...mockContext, unavailability: {}, unavailabilitySet: new Set() };
       const result = validateSlotAssignment("proj1", "2026-06-01|room1|09:00", context);
       expect(result.isValid).toBe(true);
     });
@@ -344,10 +354,11 @@ describe("Conflict Engine", () => {
     it("should return warning severity for break violations", () => {
         const context = {
             ...mockContext,
-            juries: {}, // Clear juries to avoid teacher double booking
+            juries: {},
+            juriesByProjectId: {},
             projects: {
                 ...mockContext.projects,
-                proj1: { ...mockContext.projects.proj1, supervisorId: "sup-diff" }, // Different supervisor
+                proj1: { ...mockContext.projects.proj1, supervisorId: "sup-diff" },
             },
             schedule: { "2026-06-01|room1|09:00": { id: "proj2", title: "P2", date: "2026-06-01", time: "09:00", roomId: "room1" } },
         };
