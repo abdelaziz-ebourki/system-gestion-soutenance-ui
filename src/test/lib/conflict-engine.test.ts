@@ -295,7 +295,7 @@ describe("Conflict Engine", () => {
     });
 
     it("should handle missing unavailability context", () => {
-      const context = { ...mockContext, unavailability: {}, unavailabilitySet: new Set() };
+      const context = { ...mockContext, unavailability: {}, unavailabilitySet: new Set<string>() };
       const result = validateSlotAssignment("proj1", "2026-06-01|room1|09:00", context);
       expect(result.isValid).toBe(true);
     });
