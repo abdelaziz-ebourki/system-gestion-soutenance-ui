@@ -57,10 +57,10 @@ interface DataTableContextValue {
 
 const DataTableCtx = React.createContext<DataTableContextValue | null>(null);
 
-function useDataTable<TData>(): DataTableContextValue & { table: TanStackTable<TData>; onRowClick?: (row: TData) => void; mergedColumns: ColumnDef<TData, unknown>[] } {
-  const ctx = React.useContext(DataTableCtx);
+function useDataTable<TData>() {
+  const ctx = React.useContext(DataTableCtx) as DataTableContextValue & { table: TanStackTable<TData>; onRowClick?: (row: TData) => void; mergedColumns: ColumnDef<TData, unknown>[] } | null;
   if (!ctx) throw new Error("useDataTable must be used within DataTableProvider");
-  return ctx as unknown as DataTableContextValue & { table: TanStackTable<TData>; onRowClick?: (row: TData) => void; mergedColumns: ColumnDef<TData, unknown>[] };
+  return ctx;
 }
 
 interface DataTableFilter {
