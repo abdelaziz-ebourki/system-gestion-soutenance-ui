@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type { z } from "zod";
 import { validate } from "@/lib/validations";
 
@@ -24,12 +24,12 @@ export function useEntityForm<TForm>(
     return true;
   }, [schema, formData]);
 
-  return {
+  return useMemo(() => ({
     formData,
     setFormData,
     fieldErrors,
     setFieldErrors,
     resetForm,
     validateForm,
-  };
+  }), [formData, fieldErrors, resetForm, validateForm]);
 }
