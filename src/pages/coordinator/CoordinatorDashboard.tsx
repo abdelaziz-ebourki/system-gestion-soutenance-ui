@@ -144,11 +144,7 @@ export default function CoordinatorDashboard() {
                     Prêts
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
-                    {isLoading ? (
-                      <Skeleton className="h-8 w-16" />
-                    ) : (
-                      readyProjects.length
-                    )}
+                    {readyProjects.length}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Projets approuves
@@ -159,11 +155,7 @@ export default function CoordinatorDashboard() {
                     A completer
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
-                    {isLoading ? (
-                      <Skeleton className="h-8 w-16" />
-                    ) : (
-                      projectsWithoutJury.length
-                    )}
+                    {projectsWithoutJury.length}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Projets sans jury
