@@ -202,6 +202,18 @@ function DataTableProvider<TData, TValue>({
     [filterColumns],
   );
 
+  const globalFilterFn = React.useCallback(
+    (row: Row<TData>, _columnId: string, filterValue: string) => {
+      if (!searchCols) return true;
+      const query = String(filterValue).toLowerCase();
+      return searchCols.some((colId) => {
+        const val = row.getValue(colId);
+        return String(val ?? "").toLowerCase().includes(query);
+      });
+    },
+    [searchCols],
+  );
+
    // eslint-disable-next-line react-hooks/incompatible-library
    const table = useReactTable({
     data,
@@ -219,15 +231,7 @@ function DataTableProvider<TData, TValue>({
     onGlobalFilterChange: setGlobalFilter,
     enableRowSelection: !!enableRowSelection,
     onRowSelectionChange: setRowSelection,
-    globalFilterFn: searchCols
-      ? (row, _id, value) => {
-          const query = String(value).toLowerCase();
-          return searchCols.some((colId) => {
-            const val = row.getValue(colId);
-            return String(val ?? "").toLowerCase().includes(query);
-          });
-        }
-      : undefined,
+    globalFilterFn,
     state: { sorting, columnFilters, globalFilter: deferredGlobalFilter, pagination: pagination ?? internalPagination, rowSelection },
   });
 
