@@ -57,10 +57,10 @@ interface DataTableContextValue {
 
 const DataTableCtx = React.createContext<DataTableContextValue | null>(null);
 
-function useDataTable<TData>(): DataTableContextValue & { table: TanStackTable<TData>; onRowClick?: (row: TData) => void; mergedColumns: ColumnDef<TData, unknown>[] } {
-  const ctx = React.useContext(DataTableCtx);
+function useDataTable<TData>() {
+  const ctx = React.useContext(DataTableCtx) as DataTableContextValue & { table: TanStackTable<TData>; onRowClick?: (row: TData) => void; mergedColumns: ColumnDef<TData, unknown>[] } | null;
   if (!ctx) throw new Error("useDataTable must be used within DataTableProvider");
-  return ctx as unknown as DataTableContextValue & { table: TanStackTable<TData>; onRowClick?: (row: TData) => void; mergedColumns: ColumnDef<TData, unknown>[] };
+  return ctx;
 }
 
 interface DataTableFilter {
@@ -202,6 +202,18 @@ function DataTableProvider<TData, TValue>({
     [filterColumns],
   );
 
+  const globalFilterFn = React.useCallback(
+    (row: Row<TData>, _columnId: string, filterValue: string) => {
+      if (!searchCols) return true;
+      const query = String(filterValue).toLowerCase();
+      return searchCols.some((colId) => {
+        const val = row.getValue(colId);
+        return String(val ?? "").toLowerCase().includes(query);
+      });
+    },
+    [searchCols],
+  );
+
    // eslint-disable-next-line react-hooks/incompatible-library
    const table = useReactTable({
     data,
@@ -219,19 +231,19 @@ function DataTableProvider<TData, TValue>({
     onGlobalFilterChange: setGlobalFilter,
     enableRowSelection: !!enableRowSelection,
     onRowSelectionChange: setRowSelection,
-    globalFilterFn: searchCols
-      ? (row, _id, value) => {
-          const query = String(value).toLowerCase();
-          return searchCols.some((colId) => {
-            const val = row.getValue(colId);
-            return String(val ?? "").toLowerCase().includes(query);
-          });
-        }
-      : undefined,
+    globalFilterFn,
     state: { sorting, columnFilters, globalFilter: deferredGlobalFilter, pagination: pagination ?? internalPagination, rowSelection },
   });
 
   const hasActiveFilters = columnFilters.length > 0 || globalFilter.length > 0;
+
+  const ctxValue = React.useMemo(() => ({
+    table, labels, loading, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
+    setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
+  } as unknown as DataTableContextValue), [
+    table, labels, loading, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
+    setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
+  ]);
 
   const prevFiltering = React.useRef(hasActiveFilters);
   React.useEffect(() => {
@@ -241,18 +253,19 @@ function DataTableProvider<TData, TValue>({
     }
   }, [hasActiveFilters, onFiltering]);
 
+  const onSelectionChangeRef = React.useRef(onSelectedRowsChange);
   React.useEffect(() => {
-    if (!onSelectedRowsChange) return;
-    onSelectedRowsChange(table.getSelectedRowModel().rows.map((r) => r.original));
-  }, [rowSelection, onSelectedRowsChange, table]);
+    onSelectionChangeRef.current = onSelectedRowsChange;
+  });
+  React.useEffect(() => {
+    if (!onSelectionChangeRef.current) return;
+    onSelectionChangeRef.current(table.getSelectedRowModel().rows.map((r) => r.original));
+  }, [rowSelection, table]);
 
   if (error) return <div className="rounded-md border border-destructive/50 p-6 text-center text-sm text-destructive">{error}</div>;
 
   return (
-    <DataTableCtx.Provider value={{
-      table, labels, loading, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
-      setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
-    } as unknown as DataTableContextValue}>
+    <DataTableCtx.Provider value={ctxValue}>
       <div>{children}</div>
     </DataTableCtx.Provider>
   );

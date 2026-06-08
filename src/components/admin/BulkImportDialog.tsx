@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import { Upload, FileUp, AlertCircle } from "lucide-react";
+import { Upload, FileUp, AlertCircle, LoaderCircle } from "lucide-react";
 import {
   Alert,
   AlertDescription,
@@ -38,11 +38,12 @@ export function BulkImportDialog({
   const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<Record<string, string | number>[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isParsing, setIsParsing] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const parseFile = (selectedFile: File) => {
+  const parseFile = async (selectedFile: File) => {
     const isExcel =
       selectedFile.type ===
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
@@ -56,6 +57,9 @@ export function BulkImportDialog({
     }
 
     setFile(selectedFile);
+    setIsParsing(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
     const reader = new FileReader();
     reader.onload = (evt) => {
       const bstr = evt.target?.result;
@@ -68,6 +72,7 @@ export function BulkImportDialog({
         toast.error("Le fichier semble être vide.");
         setFile(null);
         setData([]);
+        setIsParsing(false);
         return;
       }
 
@@ -84,6 +89,7 @@ export function BulkImportDialog({
         toast.error(`Colonnes manquantes : ${missingHeaders.join(", ")}`);
         setFile(null);
         setData([]);
+        setIsParsing(false);
         return;
       }
 
@@ -113,6 +119,7 @@ export function BulkImportDialog({
       });
 
       setData(mappedData);
+      setIsParsing(false);
     };
     reader.readAsArrayBuffer(selectedFile);
   };
@@ -195,21 +202,25 @@ export function BulkImportDialog({
         <div className="grid gap-4">
           <div
             className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-              isDragging
-                ? "border-primary bg-primary/5"
-                : "border-border bg-muted hover:bg-accent"
+              isParsing
+                ? "border-muted-foreground/30 bg-muted"
+                : isDragging
+                  ? "border-primary bg-primary/5"
+                  : "border-border bg-muted hover:bg-accent"
             }`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
+            onDragOver={isParsing ? undefined : handleDragOver}
+            onDragLeave={isParsing ? undefined : handleDragLeave}
+            onDrop={isParsing ? undefined : handleDrop}
+            onClick={isParsing ? undefined : () => fileInputRef.current?.click()}
           >
             <div className="flex flex-col items-center justify-center pt-5 pb-6">
-              <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+              {isParsing ? (
+                <LoaderCircle className="w-8 h-8 mb-2 text-muted-foreground animate-spin" />
+              ) : (
+                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+              )}
               <p className="text-sm text-muted-foreground">
-                {file
-                  ? file.name
-                  : "Glissez-déposez ou cliquez pour télécharger le fichier"}
+                {isParsing ? "Analyse du fichier en cours..." : file ? file.name : "Glissez-déposez ou cliquez pour télécharger le fichier"}
               </p>
             </div>
             <input
@@ -217,6 +228,7 @@ export function BulkImportDialog({
               type="file"
               className="hidden"
               accept=".xlsx, .xls"
+              disabled={isParsing}
               onChange={(e) =>
                 e.target.files?.[0] && parseFile(e.target.files[0])
               }
