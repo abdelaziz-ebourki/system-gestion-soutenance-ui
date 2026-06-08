@@ -253,10 +253,14 @@ function DataTableProvider<TData, TValue>({
     }
   }, [hasActiveFilters, onFiltering]);
 
+  const onSelectionChangeRef = React.useRef(onSelectedRowsChange);
   React.useEffect(() => {
-    if (!onSelectedRowsChange) return;
-    onSelectedRowsChange(table.getSelectedRowModel().rows.map((r) => r.original));
-  }, [rowSelection, onSelectedRowsChange, table]);
+    onSelectionChangeRef.current = onSelectedRowsChange;
+  });
+  React.useEffect(() => {
+    if (!onSelectionChangeRef.current) return;
+    onSelectionChangeRef.current(table.getSelectedRowModel().rows.map((r) => r.original));
+  }, [rowSelection, table]);
 
   if (error) return <div className="rounded-md border border-destructive/50 p-6 text-center text-sm text-destructive">{error}</div>;
 
