@@ -33,6 +33,7 @@ export function useDepartmentCrud() {
   };
 
   const openEdit = (entity: Department) => {
+    form.resetForm();
     form.setFormData({
       name: entity.name,
       code: entity.code,

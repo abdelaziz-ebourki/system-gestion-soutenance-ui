@@ -34,6 +34,7 @@ export function useTeacherCrud() {
   };
 
   const openEdit = (entity: Teacher) => {
+    form.resetForm();
     form.setFormData({
       lastName: entity.lastName,
       firstName: entity.firstName,

@@ -71,6 +71,7 @@ export function BulkImportDialog({
       if (rawData.length === 0) {
         toast.error("Le fichier semble être vide.");
         setFile(null);
+        setData([]);
         setIsParsing(false);
         return;
       }

@@ -36,6 +36,7 @@ export function useStudentCrud() {
   };
 
   const openEdit = (entity: Student) => {
+    form.resetForm();
     form.setFormData({
       lastName: entity.lastName,
       firstName: entity.firstName,
