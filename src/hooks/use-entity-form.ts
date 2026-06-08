@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useRef } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import type { z } from "zod";
 import { validate } from "@/lib/validations";
 
@@ -10,7 +10,9 @@ export function useEntityForm<TForm>(
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof TForm, string>>>({});
 
   const formDataRef = useRef(formData);
-  formDataRef.current = formData;
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
 
   const resetForm = useCallback(() => {
     setFormData(defaultForm);
