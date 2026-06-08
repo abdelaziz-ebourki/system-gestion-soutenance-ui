@@ -479,22 +479,26 @@ function DataTablePagination() {
           {labels.previous}
         </Button>
         {displayTotalPages > 1 &&
-          getPageNumbers(currentPage, displayTotalPages).map((page, i) =>
-            page === "..." ? (
-              <span key={`ellipsis-${i}`} className="px-1 text-muted-foreground">...</span>
-            ) : (
-              <Button
-                key={page}
-                variant={page === currentPage ? "default" : "outline"}
-                size="sm"
-                className="min-w-9"
-                onClick={() => table.setPageIndex(page - 1)}
-                disabled={loading}
-              >
-                {page}
-              </Button>
-            ),
-          )}
+          (() => {
+            let ellipsisCount = 0;
+            return getPageNumbers(currentPage, displayTotalPages).map((page) => {
+              const key = page === "..." ? `ellipsis-${++ellipsisCount}` : `page-${page}`;
+              return page === "..." ? (
+                <span key={key} className="px-1 text-muted-foreground">...</span>
+              ) : (
+                <Button
+                  key={key}
+                  variant={page === currentPage ? "default" : "outline"}
+                  size="sm"
+                  className="min-w-9"
+                  onClick={() => table.setPageIndex(page - 1)}
+                  disabled={loading}
+                >
+                  {page}
+                </Button>
+              );
+            });
+          })()}
         <Button
           variant="outline"
           size="sm"

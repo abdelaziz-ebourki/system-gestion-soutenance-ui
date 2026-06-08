@@ -73,11 +73,10 @@ export function buildConflictContext(
         { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) },
       ]),
     ),
-    unavailability: Object.fromEntries(
-      unavailabilities.map(
-        (u) => [u.teacherId, [{ date: u.date, slots: u.slots, teacherId: u.teacherId }]],
-      ),
-    ),
+    unavailability: unavailabilities.reduce((acc, u) => {
+      (acc[u.teacherId] ??= []).push({ date: u.date, slots: u.slots, teacherId: u.teacherId });
+      return acc;
+    }, {} as Record<string, { date: string; slots: string[]; teacherId: string }[]>),
     defenseSession: currentSession
       ? { startDate: currentSession.startDate, endDate: currentSession.endDate, breakDuration: currentSession.breakDuration }
       : undefined,

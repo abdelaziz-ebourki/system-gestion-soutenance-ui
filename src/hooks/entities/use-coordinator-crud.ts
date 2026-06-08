@@ -33,6 +33,7 @@ export function useCoordinatorCrud() {
   };
 
   const openEdit = (entity: Coordinator) => {
+    form.resetForm();
     form.setFormData({
       lastName: entity.lastName,
       firstName: entity.firstName,
