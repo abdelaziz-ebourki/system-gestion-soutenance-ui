@@ -143,6 +143,13 @@ export const defenseSettingsSchema = z
         "La date de fin doit être postérieure à la date de début",
       path: ["groupCreationEndDate"],
     },
+  )
+  .refine(
+    (data) => data.startTime < data.endTime,
+    {
+      message: "L'heure de début doit être antérieure à l'heure de fin",
+      path: ["endTime"],
+    },
   );
 
 // --- Admin: General Settings ---
@@ -179,7 +186,7 @@ export const projectSchema = z.object({
   title: z.string().min(1, "Le titre est requis"),
   description: z.string().optional(),
   supervisorId: z.string().min(1, "L'encadrant est requis"),
-  studentIds: z.array(z.string()),
+  studentIds: z.array(z.string()).min(1, "Au moins un étudiant est requis"),
   defenseType: z.enum(["pfe", "memoire", "these"]).default("pfe"),
 });
 

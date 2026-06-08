@@ -33,6 +33,7 @@ export function useRoomCrud() {
   };
 
   const openEdit = (entity: Room) => {
+    form.resetForm();
     form.setFormData({
       name: entity.name,
       capacity: entity.capacity,

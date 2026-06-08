@@ -50,7 +50,7 @@ export function CreateJuryDialog({
   const createJuryMutation = useCreateJury();
   const updateJuryMutation = useUpdateJury();
 
-  const teachers = teachersQuery.data ?? [];
+  const teachers = React.useMemo(() => teachersQuery.data ?? [], [teachersQuery.data]);
   const projects = React.useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
   const templates = React.useMemo(() => templatesQuery.data ?? [], [templatesQuery.data]);
   const isLoadingOptions = teachersQuery.isLoading || projectsQuery.isLoading || templatesQuery.isLoading;
@@ -144,18 +144,27 @@ export function CreateJuryDialog({
     [projects],
   );
 
-  const getFilteredTeachers = (slotIndex: number) => {
-    const assignedIds = form.formData.members
-      .filter((_, i) => i !== slotIndex)
-      .map((m) => m.teacherId)
-      .filter(Boolean);
-    return teachers.filter((t) => !assignedIds.includes(t.id));
-  };
+  const filteredTeachersBySlot = React.useMemo(
+    () => {
+      const assignedIds = new Set(
+        form.formData.members.map((m) => m.teacherId).filter(Boolean),
+      );
+      return form.formData.members.map((m) =>
+        teachers.filter((t) => t.id === m.teacherId || !assignedIds.has(t.id)),
+      );
+    },
+    [teachers, form.formData.members],
+  );
 
-  const updateMember = (index: number, teacherId: string) => {
-    const members = [...form.formData.members];
-    members[index] = { ...members[index], teacherId };
-    form.setFormData({ ...form.formData, members });
+  const updateMember = (slotIndex: number, teacherId: string) => {
+    const updated = [...form.formData.members];
+    for (let i = 0; i < updated.length; i++) {
+      if (i !== slotIndex && updated[i].teacherId === teacherId) {
+        updated[i] = { ...updated[i], teacherId: "" };
+      }
+    }
+    updated[slotIndex] = { ...updated[slotIndex], teacherId };
+    form.setFormData({ ...form.formData, members: updated });
   };
 
   const isPending = isEdit ? updateJuryMutation.isPending : createJuryMutation.isPending;
@@ -231,7 +240,7 @@ export function CreateJuryDialog({
 
           {slotEntries.map((slot, idx) => {
             const value = form.formData.members[idx]?.teacherId ?? "";
-            const filtered = getFilteredTeachers(idx);
+            const filtered = filteredTeachersBySlot[idx] ?? [];
             return (
               <div key={`slot-${idx}`} className="grid gap-2" data-testid={`coord-jury-create-slot-${idx}`}>
                 <Label>{slot.label}</Label>
