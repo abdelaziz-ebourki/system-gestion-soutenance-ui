@@ -233,6 +233,14 @@ function DataTableProvider<TData, TValue>({
 
   const hasActiveFilters = columnFilters.length > 0 || globalFilter.length > 0;
 
+  const ctxValue = React.useMemo(() => ({
+    table, labels, loading, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
+    setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
+  } as unknown as DataTableContextValue), [
+    table, labels, loading, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
+    setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
+  ]);
+
   const prevFiltering = React.useRef(hasActiveFilters);
   React.useEffect(() => {
     if (prevFiltering.current !== hasActiveFilters) {
@@ -249,10 +257,7 @@ function DataTableProvider<TData, TValue>({
   if (error) return <div className="rounded-md border border-destructive/50 p-6 text-center text-sm text-destructive">{error}</div>;
 
   return (
-    <DataTableCtx.Provider value={{
-      table, labels, loading, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
-      setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
-    } as unknown as DataTableContextValue}>
+    <DataTableCtx.Provider value={ctxValue}>
       <div>{children}</div>
     </DataTableCtx.Provider>
   );
