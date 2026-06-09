@@ -18,7 +18,7 @@ export function useUnreadCount() {
 export function useMarkNotificationRead() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.markNotificationRead(id),
+    mutationFn: (id: number) => api.markNotificationRead(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }),
   });
 }

@@ -29,7 +29,7 @@ export default function TeacherUnavailability() {
   const scheduleQuery = useTeacherSchedule();
   const unavailabilityQuery = useTeacherUnavailability();
   const saveMutation = useSaveTeacherUnavailability();
-  const schedule = useMemo(() => scheduleQuery.data ?? [], [scheduleQuery.data]);
+  const schedule = useMemo(() => scheduleQuery.data?.slots ?? [], [scheduleQuery.data]);
   const isLoading = scheduleQuery.isLoading || unavailabilityQuery.isLoading;
   const [unavailability, setUnavailability] =
     React.useState<TeacherUnavailability>({
@@ -67,7 +67,10 @@ export default function TeacherUnavailability() {
       return;
     }
     try {
-      await saveMutation.mutateAsync(unavailability);
+      const slots = Object.entries(unavailability.slotsByDate).map(
+        ([date, slots]) => ({ date, slots }),
+      );
+      await saveMutation.mutateAsync({ slots });
       toast.success("Indisponibilités enregistrées");
     } catch (error) {
       toast.error(getErrorMessage(error, "Erreur lors de l'enregistrement"));
@@ -81,7 +84,7 @@ export default function TeacherUnavailability() {
 
   const sessions: CalendarSession[] = useMemo(() => schedule.map((defense) => ({
     dateKey: defense.date,
-    time: `${defense.startTime} - ${defense.endTime}`,
+    time: defense.time,
     student: defense.studentNames.join(", "),
     room: defense.roomName,
   })), [schedule]);

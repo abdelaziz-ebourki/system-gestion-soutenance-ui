@@ -61,8 +61,8 @@ const formatDate = (dateStr: string | null | undefined) => {
 export default function StudentDocuments() {
   const { data: documents = [], isLoading } = useStudentDocuments();
   const uploadMutation = useUploadStudentDocument();
-  const [files, setFiles] = useState<Record<string, File | null>>({});
-  const [uploadingId, setUploadingId] = useState<string | null>(null);
+  const [files, setFiles] = useState<Record<number, File | null>>({});
+  const [uploadingId, setUploadingId] = useState<number | null>(null);
 
   const validatedCount = useMemo(
     () => documents.filter((document) => document.status === "validated").length,

@@ -14,7 +14,7 @@ export function useEvaluationForm() {
 
   const openEdit = (evaluation: TeacherEvaluation) => {
     setSelected(evaluation);
-    setFormData({ score: evaluation.score ?? 0, comment: evaluation.comment ?? "" });
+    setFormData({ score: evaluation.finalGrade ?? 0, comment: evaluation.comment ?? "" });
     setFieldErrors({});
     setIsDialogOpen(true);
   };

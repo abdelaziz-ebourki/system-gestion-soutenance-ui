@@ -6,7 +6,6 @@ import {
   Building2,
   DoorOpen,
   CalendarCheck,
-  History,
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { format } from "date-fns";
@@ -104,6 +103,7 @@ export default function AdminDashboard() {
   const pageCount = usersData?.pageCount ?? 0;
   const auditLogs = logs?.items ?? [];
 
+
   const chartData = React.useMemo(() => [
     { name: "Étudiants", total: stats?.totalStudents || 0 },
     { name: "Enseignants", total: stats?.totalTeachers || 0 },
@@ -169,23 +169,10 @@ export default function AdminDashboard() {
                 </div>
                 <div className="ml-4">
                   <div className="text-sm font-medium">
-                    {stats?.activeSessions ?? (
+                    {stats?.totalDefenseSessions ?? (
                       <Skeleton className="inline-block h-4 w-12" />
                     )}{" "}
-                    Sessions Actives
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded bg-primary/10">
-                  <History className="size-5 text-primary" />
-                </div>
-                <div className="ml-4">
-                  <div className="text-sm font-medium">
-                    {stats?.upcomingDefenses ?? (
-                      <Skeleton className="inline-block h-4 w-12" />
-                    )}{" "}
-                    Soutenances
+                    Sessions de Défense
                   </div>
                 </div>
               </div>
@@ -226,11 +213,11 @@ export default function AdminDashboard() {
                  fieldOptionsMap={{
                    role: [{ value: "coordinator", label: "Coordinateur" }, { value: "teacher", label: "Enseignant" }, { value: "student", label: "Étudiant" }],
                  }}
-                 onUpdateField={async (field, value) => {
-                   if (field === "role") {
-                     await Promise.all(selectedUsers.map((u) => updateUser.mutateAsync({ id: u.id, data: { role: value as "coordinator" | "teacher" | "student" } })));
-                   }
-                 }}
+                  onUpdateField={async (field, value) => {
+                    if (field === "role") {
+                      await Promise.all(selectedUsers.map((u) => updateUser.mutateAsync({ id: u.id, data: { lastName: u.lastName, firstName: u.firstName, email: u.email, role: value } })));
+                    }
+                  }}
                  onDeleteSelected={async () => {
                    await Promise.all(selectedUsers.map((u) => deleteUser.mutateAsync(u.id)));
                  }}

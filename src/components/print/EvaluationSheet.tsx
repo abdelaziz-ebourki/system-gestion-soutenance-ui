@@ -1,7 +1,7 @@
-import type { ProjectGrade } from "@/lib/api-coordinator";
+import type { GradeWeightedAverageResponse } from "@/lib/api-coordinator";
 
 interface EvaluationSheetProps {
-  grade: ProjectGrade;
+  grade: GradeWeightedAverageResponse;
   studentNames: string[];
   juryRoleCoefficients: Record<string, number>;
 }

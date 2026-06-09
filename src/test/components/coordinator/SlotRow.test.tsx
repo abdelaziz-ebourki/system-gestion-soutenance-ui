@@ -12,29 +12,25 @@ vi.mock("@dnd-kit/core", () => ({
 
 const mockProjects: Project[] = [
   {
-    id: "p1",
+    id: 1,
     title: "Project 1",
+    description: "Description",
     studentNames: ["Student A", "Student B"],
-    supervisorId: "t1",
     supervisorName: "T1",
     defenseType: "pfe",
-    status: "approved",
-    studentIds: ["s1", "s2"],
+    groupId: 1,
   },
 ];
 
 const mockJuries: Jury[] = [
   {
-    id: "j1",
-    projectId: "p1",
+    id: 1,
+    projectId: 1,
     projectTitle: "Project 1",
-    studentNames: ["Student A", "Student B"],
     defenseType: "pfe",
-    templateId: "t1",
-    templateName: "Standard",
     members: [
-      { teacherId: "t1", roleName: "Président", teacherName: "Teacher 1" },
-      { teacherId: "t2", roleName: "Examinateur", teacherName: "Teacher 2" },
+      { teacherId: 1, roleName: "Président", teacherName: "Teacher 1" },
+      { teacherId: 1, roleName: "Examinateur", teacherName: "Teacher 2" },
     ],
   },
 ];
@@ -63,7 +59,7 @@ describe("SlotRow", () => {
   it("renders occupied slot correctly", () => {
     const props = createProps();
     const scheduled: ScheduledCard = {
-      id: "p1",
+      id: 1,
       title: "Project 1",
       roomName: "Room A",
       date: "2025-06-16",
@@ -83,7 +79,7 @@ describe("SlotRow", () => {
       <SlotRow 
         {...props} 
         mode="click" 
-        selectedProjectId="p1" 
+        selectedProjectId={1} 
       />
     );
     
@@ -108,7 +104,7 @@ describe("SlotRow", () => {
   it("triggers onRemove when remove button is clicked", () => {
     const props = createProps();
     const scheduled: ScheduledCard = {
-      id: "p1",
+      id: 1,
       title: "Project 1",
       roomName: "Room A",
       date: "2025-06-16",
@@ -126,7 +122,7 @@ describe("SlotRow", () => {
       <SlotRow 
         {...props} 
         mode="click" 
-        selectedProjectId="p1" 
+        selectedProjectId={1} 
       />
     );
     

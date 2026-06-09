@@ -58,7 +58,7 @@ export default function Teachers() {
       header: "Département",
       filterFn: "equalsString",
       cell: ({ row }) => {
-        const id = row.getValue("departmentId") as string;
+        const id = row.getValue("departmentId") as number;
         return departments.find((d) => d.id === id)?.name || id;
       },
     },
@@ -124,10 +124,10 @@ export default function Teachers() {
         entityLabel="enseignant(s)"
         actions={[{ key: "department", label: "Modifier le département" }, { key: "delete", label: "Supprimer" }]}
         fieldOptionsMap={{
-          department: departments.map((d) => ({ value: d.id, label: d.name })),
+          department: departments.map((d) => ({ value: String(d.id), label: d.name })),
         }}
         onUpdateField={async (_field, value) => {
-          await Promise.all(selectedTeachers.map((t) => crud.updateMutation(t.id, { departmentId: value, role: "teacher" })));
+          await Promise.all(selectedTeachers.map((t) => crud.updateMutation(t.id, { lastName: t.lastName, firstName: t.firstName, email: t.email, departmentId: Number(value), role: "TEACHER" })));
         }}
         onDeleteSelected={async () => {
           await Promise.all(selectedTeachers.map((t) => crud.deleteMutation(t.id)));
@@ -166,11 +166,11 @@ export default function Teachers() {
               </Field>
               <Field>
                 <FieldLabel>Département</FieldLabel>
-                <Select value={crud.formData.departmentId}
+                <Select value={crud.formData.departmentId ? String(crud.formData.departmentId) : ""}
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, departmentId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un département" /></SelectTrigger>
                   <SelectContent>
-                    {departments.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                    {departments.map((d) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.departmentId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.departmentId}</p>}

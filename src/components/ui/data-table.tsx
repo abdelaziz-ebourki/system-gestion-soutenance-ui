@@ -96,7 +96,7 @@ interface DataTableProps<TData, TValue> {
   onPaginationChange?: React.Dispatch<React.SetStateAction<PaginationState>>;
   onFiltering?: (active: boolean) => void;
   onRowClick?: (row: TData) => void;
-  getRowId?: (row: TData) => string;
+  getRowId?: (row: TData) => string | number;
   pageSizeOptions?: number[];
   columnVisibility?: boolean;
   enableRowSelection?: boolean;
@@ -218,7 +218,7 @@ function DataTableProvider<TData, TValue>({
    const table = useReactTable({
     data,
     columns: mergedColumns,
-    getRowId,
+     getRowId: getRowId ? (row) => String(getRowId(row)) : undefined,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: manualPagination ? undefined : getPaginationRowModel(),
     onSortingChange: setSorting,

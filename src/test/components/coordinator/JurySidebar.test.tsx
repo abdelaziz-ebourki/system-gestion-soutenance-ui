@@ -11,24 +11,18 @@ vi.mock("@/components/coordinator/DraggableJurySlot", () => ({
 
 const mockJuries: Jury[] = [
   {
-    id: "j1",
-    projectId: "p1",
+    id: 1,
+    projectId: 1,
     projectTitle: "Project 1",
-    studentNames: ["Student A"],
     members: [],
     defenseType: "pfe",
-    templateId: "t1",
-    templateName: "Standard",
   },
   {
-    id: "j2",
-    projectId: "p2",
+    id: 2,
+    projectId: 2,
     projectTitle: "Project 2",
-    studentNames: ["Student B"],
     members: [],
     defenseType: "pfe",
-    templateId: "t1",
-    templateName: "Standard",
   },
 ];
 
@@ -54,8 +48,8 @@ describe("JurySidebar", () => {
 
   it("renders list of juries", () => {
     render(<JurySidebar {...defaultProps} />);
-    expect(screen.getByTestId("mock-jury-slot-j1")).toBeInTheDocument();
-    expect(screen.getByTestId("mock-jury-slot-j2")).toBeInTheDocument();
+    expect(screen.getByTestId("mock-jury-slot-1")).toBeInTheDocument();
+    expect(screen.getByTestId("mock-jury-slot-2")).toBeInTheDocument();
     expect(screen.getByText("Project 1")).toBeInTheDocument();
     expect(screen.getByText("Project 2")).toBeInTheDocument();
   });
@@ -63,6 +57,6 @@ describe("JurySidebar", () => {
   it("renders empty state when no juries are provided", () => {
     render(<JurySidebar {...defaultProps} juries={[]} />);
     expect(screen.getByText("Aucun jury en attente")).toBeInTheDocument();
-    expect(screen.queryByTestId("mock-jury-slot-j1")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("mock-jury-slot-1")).not.toBeInTheDocument();
   });
 });

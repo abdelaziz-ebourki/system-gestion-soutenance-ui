@@ -47,7 +47,7 @@ const mockUser = {
   avatar: "https://example.com/avatar.jpg",
 };
 
-const authState = { token: "mock", user: { id: "1", email: mockUser.email, role: "admin", lastName: mockUser.lastName, firstName: mockUser.firstName } };
+const authState = { token: "mock", user: { id: 1, email: mockUser.email, role: "admin", lastName: mockUser.lastName, firstName: mockUser.firstName } };
 
 describe("NavUser", () => {
   beforeEach(() => {

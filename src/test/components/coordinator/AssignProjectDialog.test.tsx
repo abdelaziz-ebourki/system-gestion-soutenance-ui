@@ -1,15 +1,14 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AssignProjectDialog } from "@/components/coordinator/AssignProjectDialog";
-import { useProjects, useStudentGroups, useAssignProjectToGroup } from "@/hooks/queries";
+import { useProjects, useGroups, useAssignProjectToGroup } from "@/hooks/queries";
 import { toast } from "sonner";
-import type { Project } from "@/types";
-import type { StudentGroupAssignment } from "@/lib/api-coordinator";
+import type { Project, Group } from "@/types";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 
 vi.mock("@/hooks/queries", () => ({
   useProjects: vi.fn(),
-  useStudentGroups: vi.fn(),
+  useGroups: vi.fn(),
   useAssignProjectToGroup: vi.fn(),
 }));
 
@@ -20,7 +19,6 @@ vi.mock("sonner", () => ({
   },
 }));
 
-// Mock Select to be a simple select for easier testing
 vi.mock("@/components/ui", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/components/ui")>();
   return {
@@ -41,21 +39,21 @@ vi.mock("@/components/ui", async (importOriginal) => {
   };
 });
 
-const mockGroup: StudentGroupAssignment = {
-  id: "g1",
+const mockGroup: Group = {
+  id: 1,
   groupName: "Groupe 1",
-  memberNames: ["Student A", "Student B"],
+  projectId: 0,
   memberCount: 2,
-  projectId: null,
+  studentNames: ["Student A", "Student B"],
 };
 
 const mockProjects: Project[] = [
-  { id: "p1", title: "Project 1", studentIds: [], supervisorId: "t1", supervisorName: "T1", defenseType: "pfe", status: "approved" },
-  { id: "p2", title: "Project 2", studentIds: [], supervisorId: "t1", supervisorName: "T1", defenseType: "pfe", status: "approved" },
+  { id: 1, title: "Project 1", description: "", defenseType: "pfe", groupId: 2, supervisorName: "T1", studentNames: [] },
+  { id: 2, title: "Project 2", description: "", defenseType: "pfe", groupId: 0, supervisorName: "T1", studentNames: [] },
 ];
 
-const mockGroups: StudentGroupAssignment[] = [
-  { id: "g2", projectId: "p1", groupName: "Group 2", memberNames: [], memberCount: 0 },
+const mockGroups: Group[] = [
+  { id: 2, projectId: 1, groupName: "Group 2", memberCount: 0, studentNames: [] },
 ];
 
 describe("AssignProjectDialog", () => {
@@ -68,11 +66,11 @@ describe("AssignProjectDialog", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useProjects).mockReturnValue({ data: mockProjects, isLoading: false } as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(useStudentGroups).mockReturnValue({ data: mockGroups, isLoading: false } as unknown as UseQueryResult<StudentGroupAssignment[], Error>);
+    vi.mocked(useGroups).mockReturnValue({ data: mockGroups, isLoading: false } as unknown as UseQueryResult<Group[], Error>);
     vi.mocked(useAssignProjectToGroup).mockReturnValue({ 
       mutateAsync: vi.fn().mockResolvedValue({}), 
       isPending: false,
-    } as unknown as UseMutationResult<Project, Error, { projectId: string; groupId: string }, unknown>);
+    } as unknown as UseMutationResult<Group, Error, { projectId: number; groupId: number }, unknown>);
   });
 
   it("renders group information", () => {
@@ -84,7 +82,6 @@ describe("AssignProjectDialog", () => {
 
   it("renders only available projects", () => {
     render(<AssignProjectDialog {...defaultProps} />);
-    // p1 is assigned to g2, so only p2 should be available
     expect(screen.queryByText("Project 1")).not.toBeInTheDocument();
     expect(screen.getByText("Project 2")).toBeInTheDocument();
   });
@@ -97,20 +94,20 @@ describe("AssignProjectDialog", () => {
 
   it("successfully assigns a project", async () => {
     const assignMutation = { mutateAsync: vi.fn().mockResolvedValue({}), isPending: false };
-    vi.mocked(useAssignProjectToGroup).mockReturnValue(assignMutation as unknown as UseMutationResult<Project, Error, { projectId: string; groupId: string }, unknown>);
+    vi.mocked(useAssignProjectToGroup).mockReturnValue(assignMutation as unknown as UseMutationResult<Group, Error, { projectId: number; groupId: number }, unknown>);
 
     render(<AssignProjectDialog {...defaultProps} />);
     
     const select = screen.getByTestId("mock-assign-project-select");
-    fireEvent.change(select, { target: { value: "p2" } });
+    fireEvent.change(select, { target: { value: "2" } });
     
     const submitBtn = screen.getByTestId("coord-assign-project-submit");
     fireEvent.click(submitBtn);
     
     await waitFor(() => {
       expect(assignMutation.mutateAsync).toHaveBeenCalledWith({ 
-        projectId: "p2", 
-        groupId: "g1" 
+        projectId: 2, 
+        groupId: 1 
       });
       expect(toast.success).toHaveBeenCalledWith('Projet assigné au groupe "Groupe 1"');
       expect(defaultProps.onOpenChange).toHaveBeenCalledWith(false);
@@ -125,12 +122,12 @@ describe("AssignProjectDialog", () => {
 
   it("handles mutation error", async () => {
     const assignMutation = { mutateAsync: vi.fn().mockRejectedValue(new Error("API Error")), isPending: false };
-    vi.mocked(useAssignProjectToGroup).mockReturnValue(assignMutation as unknown as UseMutationResult<Project, Error, { projectId: string; groupId: string }, unknown>);
+    vi.mocked(useAssignProjectToGroup).mockReturnValue(assignMutation as unknown as UseMutationResult<Group, Error, { projectId: number; groupId: number }, unknown>);
 
     render(<AssignProjectDialog {...defaultProps} />);
     
     const select = screen.getByTestId("mock-assign-project-select");
-    fireEvent.change(select, { target: { value: "p2" } });
+    fireEvent.change(select, { target: { value: "2" } });
     
     const submitBtn = screen.getByTestId("coord-assign-project-submit");
     fireEvent.click(submitBtn);

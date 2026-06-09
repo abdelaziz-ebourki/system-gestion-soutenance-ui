@@ -6,7 +6,7 @@ import { server } from "@/test/mocks/server";
 import { http, HttpResponse } from "msw";
 
 const coordUser = {
-  id: "2",
+  id: 2,
   email: "coord@univh2c.ma",
   firstName: "Coord",
   lastName: "User",
@@ -32,7 +32,7 @@ describe("PrintJuryConvocation", () => {
       http.post("*/api/coordinator/documents/jury-convocations", () => new Promise(() => {})),
     );
     renderWithProviders(<PrintJuryConvocation />, {
-      initialEntries: ["/coordinator/print/convocation?projectId=p1&teacherId=Ahmed"],
+      initialEntries: ["/coordinator/print/convocation?projectId=1&teacherId=Ahmed"],
       initialAuthState: { user: coordUser },
     });
     expect(screen.getByTestId("print-jury-loading")).toBeInTheDocument();
@@ -40,7 +40,7 @@ describe("PrintJuryConvocation", () => {
 
   it("renders jury convocation on success", async () => {
     renderWithProviders(<PrintJuryConvocation />, {
-      initialEntries: ["/coordinator/print/convocation?projectId=p1&teacherId=Ahmed"],
+      initialEntries: ["/coordinator/print/convocation?projectId=1&teacherId=Ahmed"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-jury-root")).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe("PrintJuryConvocation", () => {
       ),
     );
     renderWithProviders(<PrintJuryConvocation />, {
-      initialEntries: ["/coordinator/print/convocation?projectId=p1&teacherId=Ahmed"],
+      initialEntries: ["/coordinator/print/convocation?projectId=1&teacherId=Ahmed"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-jury-error")).toBeInTheDocument();
@@ -61,7 +61,7 @@ describe("PrintJuryConvocation", () => {
 
   it("shows not found when convocation does not match teacher", async () => {
     renderWithProviders(<PrintJuryConvocation />, {
-      initialEntries: ["/coordinator/print/convocation?projectId=p1&teacherId=ZZZNonexistent"],
+      initialEntries: ["/coordinator/print/convocation?projectId=1&teacherId=ZZZNonexistent"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-jury-not-found")).toBeInTheDocument();

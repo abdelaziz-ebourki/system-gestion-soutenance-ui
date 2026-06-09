@@ -12,7 +12,7 @@ export default function AuditLogs() {
   const columns: ColumnDef<AuditLog>[] = [
     { accessorKey: "action", header: "Action" },
     { accessorKey: "entity", header: "Entité" },
-    { accessorKey: "adminEmail", header: "Utilisateur" },
+    { accessorKey: "performedByEmail", header: "Utilisateur" },
     { accessorKey: "timestamp", header: "Date" },
   ];
 

@@ -58,8 +58,8 @@ export function CreateJuryDialog({
 
   const form = useEntityForm(jurySchema, defaultForm);
 
-  const selectedProject = projects.find((p) => p.id === form.formData.projectId);
-  const selectedTemplate = templates.find((t) => t.id === form.formData.templateId);
+  const selectedProject = projects.find((p) => String(p.id) === form.formData.projectId);
+  const selectedTemplate = templates.find((t) => String(t.id) === form.formData.templateId);
 
   const slotEntries: { index: number; roleName: string; label: string }[] = React.useMemo(() => {
     if (!selectedTemplate) return [];
@@ -93,9 +93,9 @@ export function CreateJuryDialog({
       if (jury) {
         form.resetForm();
         form.setFormData({
-          projectId: jury.projectId,
-          templateId: jury.templateId,
-          members: jury.members.map((m) => ({ roleName: m.roleName, teacherId: m.teacherId })),
+          projectId: String(jury.projectId),
+          templateId: "",
+          members: jury.members.map((m) => ({ roleName: m.roleName, teacherId: String(m.teacherId) })),
         });
       } else {
         form.resetForm();
@@ -119,9 +119,8 @@ export function CreateJuryDialog({
 
     try {
       const payload = {
-        projectId: form.formData.projectId,
-        templateId: form.formData.templateId,
-        members: form.formData.members.map((m) => ({ roleName: m.roleName, teacherId: m.teacherId })),
+        projectId: Number(form.formData.projectId),
+        members: form.formData.members.map((m) => ({ roleName: m.roleName, teacherId: Number(m.teacherId) })),
       };
 
       if (isEdit && jury) {
@@ -140,7 +139,7 @@ export function CreateJuryDialog({
   };
 
   const filteredProjects = React.useMemo(
-    () => projects.filter((p) => p.status !== "rejected"),
+    () => projects,
     [projects],
   );
 
@@ -150,7 +149,7 @@ export function CreateJuryDialog({
         form.formData.members.map((m) => m.teacherId).filter(Boolean),
       );
       return form.formData.members.map((m) =>
-        teachers.filter((t) => t.id === m.teacherId || !assignedIds.has(t.id)),
+        teachers.filter((t) => String(t.id) === m.teacherId || !assignedIds.has(String(t.id))),
       );
     },
     [teachers, form.formData.members],
@@ -198,7 +197,7 @@ export function CreateJuryDialog({
               </SelectTrigger>
               <SelectContent>
                 {filteredProjects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
+                  <SelectItem key={project.id} value={String(project.id)}>
                     {project.title}
                   </SelectItem>
                 ))}
@@ -226,9 +225,9 @@ export function CreateJuryDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {availableTemplates.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.name}
-                    </SelectItem>
+                  <SelectItem key={t.id} value={String(t.id)}>
+                    {t.name}
+                  </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -254,7 +253,7 @@ export function CreateJuryDialog({
                   </SelectTrigger>
                   <SelectContent>
                     {filtered.map((teacher) => (
-                      <SelectItem key={teacher.id} value={teacher.id}>
+                      <SelectItem key={teacher.id} value={String(teacher.id)}>
                         {getFullName(teacher)}
                       </SelectItem>
                     ))}

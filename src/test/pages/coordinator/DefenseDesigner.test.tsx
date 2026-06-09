@@ -7,11 +7,11 @@ import DefenseDesigner from "@/pages/coordinator/DefenseDesigner";
 const mockSessions = [
   { id: "s1", name: "Session PFE 2025", defenseType: "pfe", status: "draft", maxGroupSize: 3, defenseDuration: 30, breakDuration: 15, submissionDeadline: "2025-06-01", startDate: "2025-06-15", endDate: "2025-06-30", evaluationCoefficients: {} },
 ];
-const mockJuries = [{ id: "j1", projectId: "p1", projectTitle: "Application CI/CD", members: [{ teacherId: "t1", teacherName: "Dr. Alami", role: "Président" }, { teacherId: "t2", teacherName: "Pr. Bennani", role: "Examinateur" }] }];
+const mockJuries = [{ id: 1, projectId: 1, projectTitle: "Application CI/CD", members: [{ teacherId: 1, teacherName: "Dr. Alami", role: "Président" }, { teacherId: 1, teacherName: "Pr. Bennani", role: "Examinateur" }] }];
 const mockRooms = [{ id: "r1", name: "Salle A01", capacity: 30 }];
 const mockDays = [new Date("2025-06-16")];
 const mockTimeSlots = ["09:00", "09:30"];
-const mockSchedule = { "j1": { date: "2025-06-16", time: "09:00", roomId: "r1" } };
+const mockSchedule = { "j1": { date: "2025-06-16", time: "09:00", roomId: 1 } };
 
 function createMockHook(overrides = {}): unknown {
   return {

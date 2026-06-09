@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useProjects, useStudentGroups, useAssignProjectToGroup } from "@/hooks/queries";
+import { useProjects, useGroups, useAssignProjectToGroup } from "@/hooks/queries";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import {
@@ -16,10 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui";
-import type { StudentGroupAssignment } from "@/lib/api-coordinator";
+import type { Group } from "@/types";
 
 interface AssignProjectDialogProps {
-  group: StudentGroupAssignment | null;
+  group: Group | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -30,7 +30,7 @@ export function AssignProjectDialog({
   onOpenChange,
 }: AssignProjectDialogProps) {
   const projectsQuery = useProjects();
-  const groupsQuery = useStudentGroups();
+  const groupsQuery = useGroups();
   const assignMutation = useAssignProjectToGroup();
   const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
   const groups = useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
@@ -44,7 +44,7 @@ export function AssignProjectDialog({
 
   const assignedProjectIds = useMemo(
     () => new Set(
-      groups.filter((g) => g.projectId).map((g) => g.projectId as string),
+      groups.filter((g) => g.projectId).map((g) => g.projectId),
     ),
     [groups],
   );
@@ -58,7 +58,7 @@ export function AssignProjectDialog({
     e.preventDefault();
     if (!selectedProjectId || !group) return;
     try {
-      await assignMutation.mutateAsync({ projectId: selectedProjectId, groupId: group.id });
+      await assignMutation.mutateAsync({ projectId: Number(selectedProjectId), groupId: group.id });
       toast.success(`Projet assigné au groupe "${group.groupName}"`);
       setSelectedProjectId("");
       onOpenChange(false);
@@ -74,9 +74,9 @@ export function AssignProjectDialog({
           <DialogTitle>Assigner un projet</DialogTitle>
           <DialogDescription>
             Groupe : <strong>{group?.groupName}</strong>
-            {group?.memberNames && (
+            {group?.studentNames && (
               <span className="block text-xs text-muted-foreground mt-1">
-                {group.memberNames.join(", ")}
+                {group.studentNames.join(", ")}
               </span>
             )}
           </DialogDescription>
@@ -98,7 +98,7 @@ export function AssignProjectDialog({
                 </SelectTrigger>
                 <SelectContent>
                   {availableProjects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
+                    <SelectItem key={p.id} value={String(p.id)}>
                       {p.title}
                     </SelectItem>
                   ))}

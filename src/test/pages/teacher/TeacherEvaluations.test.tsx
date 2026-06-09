@@ -22,22 +22,20 @@ vi.mock("@/hooks/use-evaluation-form", () => ({
 
 const mockEvaluations: TeacherEvaluation[] = [
   {
-    id: "e1",
-    defenseId: "d1",
+    id: 1,
+    projectId: 1,
     projectTitle: "Application CI/CD",
-    studentNames: ["Ali", "Fatima"],
-    role: "president",
+    finalGrade: 0,
+    comment: "",
     status: "pending",
   },
   {
-    id: "e2",
-    defenseId: "d2",
+    id: 2,
+    projectId: 2,
     projectTitle: "IA pour la santé",
-    studentNames: ["Mohammed"],
-    role: "examiner",
-    status: "submitted",
-    score: 15,
+    finalGrade: 15,
     comment: "Bon travail",
+    status: "submitted",
   },
 ];
 
@@ -99,20 +97,19 @@ describe("TeacherEvaluations", () => {
     vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
     renderEvaluations();
     
-    expect(screen.getByTestId("teacher-evaluations-pending-item-e1")).toBeInTheDocument();
+    expect(screen.getByTestId("teacher-evaluations-pending-item-1")).toBeInTheDocument();
     expect(screen.getByText("Application CI/CD")).toBeInTheDocument();
-    expect(screen.getByText("Ali, Fatima")).toBeInTheDocument();
     
-    const btn = screen.getByTestId("teacher-evaluations-pending-btn-e1");
+    const btn = screen.getByTestId("teacher-evaluations-pending-btn-1");
     fireEvent.click(btn);
-    expect(mockForm.openEdit).toHaveBeenCalledWith(expect.objectContaining({ id: "e1" }));
+    expect(mockForm.openEdit).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
   });
 
   it("renders submitted evaluations list", async () => {
     vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
     renderEvaluations();
     
-    expect(screen.getByTestId("teacher-evaluations-submitted-item-e2")).toBeInTheDocument();
+    expect(screen.getByTestId("teacher-evaluations-submitted-item-2")).toBeInTheDocument();
     expect(screen.getByText("IA pour la santé")).toBeInTheDocument();
     expect(screen.getByText("Note: 15/20")).toBeInTheDocument();
     expect(screen.getByText("Bon travail")).toBeInTheDocument();
@@ -141,7 +138,6 @@ describe("TeacherEvaluations", () => {
     expect(dialog).toBeInTheDocument();
     expect(screen.getByTestId("teacher-evaluations-dialog-title")).toHaveTextContent("Compléter une évaluation");
     expect(within(dialog).getByText("Application CI/CD")).toBeInTheDocument();
-    expect(within(dialog).getByText("Ali, Fatima")).toBeInTheDocument();
   });
 
   it("handles form input and submission", async () => {

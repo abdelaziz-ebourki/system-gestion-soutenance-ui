@@ -85,15 +85,15 @@ export default function DefenseDesigner() {
           <div className="flex items-center gap-2 mt-2">
             <span className="text-sm text-muted-foreground">Session:</span>
             <Select
-              value={selectedSessionId ?? undefined}
-              onValueChange={setSelectedSessionId}
+              value={selectedSessionId != null ? String(selectedSessionId) : undefined}
+              onValueChange={(v) => setSelectedSessionId(Number(v))}
             >
               <SelectTrigger className="w-72" data-testid="coord-designer-session-select">
                 <SelectValue placeholder="Sélectionner une session" />
               </SelectTrigger>
               <SelectContent>
                 {sessions.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
+                  <SelectItem key={s.id} value={String(s.id)}>
                     {s.name}
                   </SelectItem>
                 ))}

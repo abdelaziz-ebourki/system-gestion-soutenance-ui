@@ -4,108 +4,129 @@ import { mockJson, mockPaginated, mockCrud, mockEcho } from "./registry";
 // ── Mock data ──────────────────────────────────────────────────────────
 
 const NOTIFICATIONS = [
-  { id: "1", type: "info", title: "Notification test", message: "Ceci est une notification de test", timestamp: new Date().toISOString(), read: false },
+  { id: 1, type: "info", title: "Notification test", message: "Ceci est une notification de test", timestamp: new Date().toISOString(), read: false, actionLink: "", actor: "" },
 ];
 
 const ROOMS = [
-  { id: "r1", name: "Salle 101", capacity: 30, departmentId: "d1" },
-  { id: "r2", name: "Salle 102", capacity: 20, departmentId: "d2" },
+  { id: 1, name: "Salle 101", capacity: 30, departmentId: 1 },
+  { id: 2, name: "Salle 102", capacity: 20, departmentId: 2 },
 ];
 
 const DEPARTMENTS = [
-  { id: "d1", name: "Informatique", code: "INFO", headId: "t1" },
-  { id: "d2", name: "Mathématiques", code: "MATH", headId: "" },
+  { id: 1, name: "Informatique", code: "INFO", headId: 1 },
+  { id: 2, name: "Mathématiques", code: "MATH", headId: null },
 ];
 
 const MAJORS = [
-  { id: "m1", name: "Génie Informatique" },
-  { id: "m2", name: "Génie Civil" },
+  { id: 1, name: "Génie Informatique" },
+  { id: 2, name: "Génie Civil" },
 ];
 
 const LEVELS = [
-  { id: "l1", name: "L3" },
-  { id: "l2", name: "M1" },
+  { id: 1, name: "L3" },
+  { id: 2, name: "M1" },
 ];
 
 const STUDENTS = [
-  { id: "1", cne: "CNE001", lastName: "Dupont", firstName: "Jean", email: "jean.dupont@example.com", majorId: "m1", levelId: "l1", isActive: true, role: "student" },
-  { id: "2", cne: "CNE002", lastName: "Martin", firstName: "Sophie", email: "sophie.martin@example.com", majorId: "m2", levelId: "l2", isActive: false, role: "student" },
+  { id: 1, cne: "CNE001", lastName: "Dupont", firstName: "Jean", email: "jean.dupont@example.com", majorId: 1, levelId: 1, isActive: true, role: "student" },
+  { id: 2, cne: "CNE002", lastName: "Martin", firstName: "Sophie", email: "sophie.martin@example.com", majorId: 2, levelId: 2, isActive: false, role: "student" },
 ];
 
 const TEACHERS = [
-  { id: "t1", lastName: "Benali", firstName: "Ahmed", email: "ahmed.benali@example.com", departmentId: "d1", isActive: true, role: "teacher" },
-  { id: "t2", lastName: "Amrani", firstName: "Fatima", email: "fatima.amrani@example.com", departmentId: "d2", isActive: false, role: "teacher" },
+  { id: 1, lastName: "Benali", firstName: "Ahmed", email: "ahmed.benali@example.com", departmentId: 1, gradeId: 1, isActive: true, role: "teacher" },
+  { id: 2, lastName: "Amrani", firstName: "Fatima", email: "fatima.amrani@example.com", departmentId: 2, gradeId: 2, isActive: false, role: "teacher" },
 ];
 
 const COORDINATORS = [
-  { id: "c1", lastName: "Idrissi", firstName: "Hassan", email: "hassan.idrissi@example.com", isActive: true, role: "coordinator" },
-  { id: "c2", lastName: "El Fassi", firstName: "Nadia", email: "nadia.elfassi@example.com", isActive: false, role: "coordinator" },
+  { id: 1, lastName: "Idrissi", firstName: "Hassan", email: "hassan.idrissi@example.com", isActive: true, role: "coordinator" },
+  { id: 2, lastName: "El Fassi", firstName: "Nadia", email: "nadia.elfassi@example.com", isActive: false, role: "coordinator" },
 ];
 
-const USERS = [
-  { id: "1", lastName: "Admin", firstName: "User", email: "admin@univh2c.ma", role: "admin", isActive: true },
-  { id: "2", lastName: "Coord", firstName: "User", email: "coord@univh2c.ma", role: "coordinator", isActive: true },
-  { id: "3", lastName: "Teacher", firstName: "User", email: "teacher@univh2c.ma", role: "teacher", isActive: true },
-  { id: "4", lastName: "Student", firstName: "User", email: "student@univh2c.ma", role: "student", isActive: true },
-];
+const ALL_USERS = [...STUDENTS, ...TEACHERS, ...COORDINATORS];
 
 const AUDIT_LOGS = [
-  { id: "1", action: "LOGIN", entity: "user", entityId: "1", adminEmail: "admin@univh2c.ma", details: "Connexion admin", timestamp: new Date().toISOString() },
-  { id: "2", action: "CREATE", entity: "room", entityId: "2", adminEmail: "admin@univh2c.ma", details: "Création salle S101", timestamp: new Date().toISOString() },
+  { id: 1, action: "LOGIN", entity: "user", entityId: 1, performedByEmail: "admin@univh2c.ma", details: "Connexion admin", timestamp: new Date().toISOString() },
+  { id: 2, action: "CREATE", entity: "room", entityId: 2, performedByEmail: "admin@univh2c.ma", details: "Création salle S101", timestamp: new Date().toISOString() },
 ];
 
 const PROJECTS = [
-  { id: "p1", title: "Application CI/CD", description: "Pipeline d'intégration continue", studentIds: ["s1", "s2"], studentNames: ["Jean Dupont", "Sophie Martin"], supervisorId: "t1", supervisorName: "Ahmed Benali", defenseType: "pfe", status: "approved" },
-  { id: "p2", title: "Analyse des données", description: "Traitement et visualisation", studentIds: ["s3"], studentNames: ["Amine El Idrissi"], supervisorId: "t2", supervisorName: "Fatima Amrani", defenseType: "memoire", status: "pending" },
+  { id: 1, title: "Application CI/CD", description: "Pipeline d'intégration continue", groupId: 1, supervisorId: 1, supervisorName: "Ahmed Benali", studentNames: ["Jean Dupont", "Sophie Martin"], defenseType: "pfe" },
+  { id: 2, title: "Analyse des données", description: "Traitement et visualisation", groupId: 2, supervisorId: 2, supervisorName: "Fatima Amrani", studentNames: ["Amine El Idrissi"], defenseType: "memoire" },
 ];
 
 const JURIES = [
-  { id: "j1", projectId: "p1", projectTitle: "Application CI/CD", studentNames: ["Jean Dupont", "Sophie Martin"], defenseType: "pfe", templateId: "t1", templateName: "Standard PFE", members: [{ roleName: "President", teacherId: "t1", teacherName: "Ahmed Benali" }, { roleName: "Rapporteur", teacherId: "t2", teacherName: "Fatima Amrani" }] },
+  { id: 1, projectId: 1, projectTitle: "Application CI/CD", defenseType: "pfe", members: [{ roleName: "President", teacherId: 1, teacherName: "Ahmed Benali" }, { roleName: "Rapporteur", teacherId: 2, teacherName: "Fatima Amrani" }] },
 ];
 
 const DEFENSE_SESSIONS = [
-  { id: "ds1", name: "Session PFE 2026", defenseType: "pfe", status: "active", maxGroupSize: 3, defenseDuration: 60, breakDuration: 15, submissionDeadline: "2026-06-01", evaluationCoefficients: { President: 2, Rapporteur: 1.5, Examinateur: 1 }, juryRoleTemplateId: "t1", startDate: "2026-06-15", endDate: "2026-06-30", startTime: "08:00", endTime: "18:00" },
-  { id: "ds2", name: "Session Mémoire 2026", defenseType: "memoire", status: "draft", maxGroupSize: 2, defenseDuration: 45, breakDuration: 10, submissionDeadline: "2026-07-01", evaluationCoefficients: { President: 2, Rapporteur: 1.5 }, juryRoleTemplateId: "t1", startDate: "2026-07-10", endDate: "2026-07-25", startTime: "09:00", endTime: "17:00" },
+  { id: 1, name: "Session PFE 2026", defenseType: "pfe", status: "active", maxGroupSize: 3, defenseDuration: 60, breakDuration: 15, submissionDeadline: "2026-06-01", evaluationCoefficients: { President: 2, Rapporteur: 1.5, Examinateur: 1 }, juryRoleTemplateId: 1, startDate: "2026-06-15", endDate: "2026-06-30" },
+  { id: 2, name: "Session Mémoire 2026", defenseType: "memoire", status: "draft", maxGroupSize: 2, defenseDuration: 45, breakDuration: 10, submissionDeadline: "2026-07-01", evaluationCoefficients: { President: 2, Rapporteur: 1.5 }, juryRoleTemplateId: 1, startDate: "2026-07-10", endDate: "2026-07-25" },
 ];
 
 const TEACHER_SCHEDULE = [
-  { id: "td1", projectId: "p1", projectTitle: "Application CI/CD", studentNames: ["Jean Dupont", "Sophie Martin"], date: "2026-06-15", startTime: "08:00", endTime: "09:00", roomName: "Salle 101", role: "president", status: "scheduled" },
-  { id: "td2", projectId: "p2", projectTitle: "Analyse des données", studentNames: ["Amine El Idrissi"], date: "2026-06-16", startTime: "10:00", endTime: "11:00", roomName: "Salle 102", role: "reporter", status: "scheduled" },
+  { date: "2026-06-15", time: "08:00", roomName: "Salle 101", projectTitle: "Application CI/CD", studentNames: ["Jean Dupont", "Sophie Martin"] },
+  { date: "2026-06-16", time: "10:00", roomName: "Salle 102", projectTitle: "Analyse des données", studentNames: ["Amine El Idrissi"] },
 ];
 
 const TEACHER_EVALUATIONS = [
-  { id: "te1", defenseId: "td1", projectTitle: "Application CI/CD", studentNames: ["Jean Dupont", "Sophie Martin"], role: "president", status: "pending" },
-  { id: "te2", defenseId: "td2", projectTitle: "Analyse des données", studentNames: ["Amine El Idrissi"], role: "reporter", status: "submitted", score: 15, comment: "Bon travail", submittedAt: "2026-06-15T10:00:00Z" },
+  { id: 1, projectId: 1, projectTitle: "Application CI/CD", finalGrade: 0, comment: "", status: "pending" },
+  { id: 2, projectId: 2, projectTitle: "Analyse des données", finalGrade: 15, comment: "Bon travail", status: "submitted" },
 ];
 
 const STUDENT_DOCUMENTS = [
-  { id: "d1", name: "Rapport PFE", type: "report", deadline: "2027-06-01", status: "submitted", submittedAt: "2027-05-28T10:00:00Z" },
-  { id: "d2", name: "Fiche de présentation", type: "presentation", deadline: "2027-06-05", status: "missing" },
-  { id: "d3", name: "Déclaration sur l'honneur", type: "declaration", deadline: "2027-06-01", status: "validated", submittedAt: "2027-05-25T14:00:00Z" },
-  { id: "d4", name: "Attestation de stage", type: "internship", deadline: "2027-06-01", status: "rejected", submittedAt: "2027-05-20T09:00:00Z" },
-];
-
-const COORD_STUDENT_DOCS = [
-  { id: "d1", name: "Rapport PFE", type: "report", deadline: "2027-06-01", status: "submitted", submittedAt: "2027-05-28T10:00:00Z", studentId: "s1", studentName: "Alice" },
-  { id: "d2", name: "Fiche de présentation", type: "presentation", deadline: "2027-06-05", status: "submitted", studentId: "s2", studentName: "Bob" },
-  { id: "d3", name: "Déclaration sur l'honneur", type: "declaration", deadline: "2027-06-01", status: "validated", submittedAt: "2027-05-25T14:00:00Z", studentId: "s3", studentName: "Charlie" },
+  { id: 1, studentId: 1, name: "Rapport PFE", type: "report", deadline: "2027-06-01", status: "submitted", submittedAt: "2027-05-28T10:00:00Z", filePath: "/uploads/rapport.pdf" },
+  { id: 2, studentId: 1, name: "Fiche de présentation", type: "presentation", deadline: "2027-06-05", status: "missing", submittedAt: "", filePath: "" },
+  { id: 3, studentId: 1, name: "Déclaration sur l'honneur", type: "declaration", deadline: "2027-06-01", status: "validated", submittedAt: "2027-05-25T14:00:00Z", filePath: "/uploads/decl.pdf" },
+  { id: 4, studentId: 1, name: "Attestation de stage", type: "internship", deadline: "2027-06-01", status: "rejected", submittedAt: "2027-05-20T09:00:00Z", filePath: "/uploads/att.pdf" },
 ];
 
 const EMAIL_CONFIG = { host: "smtp.example.com", port: 587, username: "test@example.com", password: "secret", senderName: "Université", senderEmail: "noreply@example.com", encryption: "tls" };
 
-const GENERAL_SETTINGS = { setupCompleted: true, institutionName: "Université Hassan II" };
+const GENERAL_SETTINGS = { id: 1, setupCompleted: true, institutionName: "Université Hassan II", institutionLogoUrl: "", timezone: "Africa/Casablanca", dateFormat: "DD/MM/YYYY" };
+
+const GROUPS = [
+  { id: 1, groupName: "Groupe Alpha", projectId: 1, memberCount: 2, studentNames: ["Jean Dupont", "Sophie Martin"] },
+  { id: 2, groupName: "Groupe Beta", projectId: 0, memberCount: 1, studentNames: ["Sarah Benali"] },
+];
+
+const SCHEDULES = [
+  { id: 1, projectId: 1, projectTitle: "Application CI/CD", date: "2026-06-15", time: "08:00", roomId: 1, roomName: "Salle 101", studentNames: ["Jean Dupont", "Sophie Martin"], role: "President", status: "scheduled" },
+  { id: 2, projectId: 2, projectTitle: "Analyse des données", date: "2026-06-15", time: "09:00", roomId: 2, roomName: "Salle 102", studentNames: ["Amine El Idrissi"], role: "Rapporteur", status: "scheduled" },
+];
+
+const UNAVAILABILITY = [
+  { id: 1, teacherId: 1, date: "2026-06-10", slots: ["08:00-09:00", "09:00-10:00"] },
+];
+
+const GRADES = [
+  { projectId: 1, projectTitle: "Application CI/CD", defenseDate: "2026-06-15", status: "completed", finalScore: 16.5, evaluationCoefficients: { President: 2, Rapporteur: 1.5 }, individualScores: [{ roleName: "President", teacherName: "Ahmed Benali", score: 17 }, { roleName: "Rapporteur", teacherName: "Fatima Amrani", score: 16 }] },
+  { projectId: 2, projectTitle: "Analyse des données", defenseDate: null, status: "pending", finalScore: null, evaluationCoefficients: { President: 2, Rapporteur: 1.5 }, individualScores: [] },
+];
+
+const JURY_ROLE_TEMPLATES = [{ id: 1, name: "Standard PFE", defenseType: "pfe", roles: [{ name: "President", count: 1, coefficient: 2 }, { name: "Rapporteur", count: 1, coefficient: 1.5 }, { name: "Examinateur", count: 1, coefficient: 1 }] }];
 
 // ── Handlers ───────────────────────────────────────────────────────────
+
+function filterByRole(url: URL, data: typeof ALL_USERS) {
+  const role = url.searchParams.get("role");
+  const page = Number(url.searchParams.get("page") || 0);
+  const limit = Number(url.searchParams.get("limit") || 10);
+  let filtered = role ? data.filter((u) => u.role.toLowerCase() === role.toLowerCase()) : data;
+  const total = filtered.length;
+  const pageCount = Math.ceil(total / limit) || 1;
+  filtered = filtered.slice(page * limit, (page + 1) * limit);
+  return HttpResponse.json({ items: filtered, total, pageCount, currentPage: page, size: limit });
+}
 
 export const handlers = [
   // Auth
   http.post("*/api/auth/login", async ({ request }) => {
     const body = (await request.json()) as { email?: string; password?: string };
     if (body.email === "admin@univh2c.ma" && body.password === "1234") {
-      return HttpResponse.json({ token: "mock-jwt-token", user: { id: 1, email: "admin@univh2c.ma", role: "admin", lastName: "Admin", firstName: "User" }, expiresAt: Date.now() + 7200000 });
+      return HttpResponse.json({ token: "mock-jwt-token", user: { id: 1, email: "admin@univh2c.ma", role: "admin", lastName: "Admin", firstName: "User", isActive: true }, expiresAt: Date.now() + 7200000 });
     }
     if (body.email === "teacher@univh2c.ma" && body.password === "1234") {
-      return HttpResponse.json({ token: "mock-jwt-token", user: { id: 2, email: "teacher@univh2c.ma", role: "teacher", lastName: "Teacher", firstName: "User" }, expiresAt: Date.now() + 7200000 });
+      return HttpResponse.json({ token: "mock-jwt-token", user: { id: 3, email: "teacher@univh2c.ma", role: "teacher", lastName: "Teacher", firstName: "User", isActive: true }, expiresAt: Date.now() + 7200000 });
     }
     return HttpResponse.json({ message: "Identifiants invalides" }, { status: 401 });
   }),
@@ -137,20 +158,21 @@ export const handlers = [
 
   // Admin — simple GETs
   mockJson("get", "*/api/admin/config/general", GENERAL_SETTINGS),
-  mockJson("get", "*/api/admin/stats", { totalStudents: 100, totalTeachers: 20, totalDepartments: 5, totalRooms: 15, activeSessions: 3, upcomingDefenses: 8 }),
+  mockJson("get", "*/api/admin/config/settings", { id: 1, startTime: "08:00", endTime: "18:00", defenseDuration: 60, breakDuration: 15, groupCreationStartDate: "2026-01-01", groupCreationEndDate: "2026-06-01" }),
+  mockJson("get", "*/api/admin/config/documents", { id: 1, maxFileSizeMb: 10, allowedExtensions: "pdf,doc,docx", versionLimit: 5 }),
+  mockJson("get", "*/api/admin/stats", { totalStudents: 100, totalTeachers: 20, totalDepartments: 5, totalRooms: 15, totalDefenseSessions: 3 }),
   mockJson("get", "*/api/admin/departments", DEPARTMENTS),
-  mockJson("get", "*/api/admin/rooms", ROOMS),
+  mockJson("get", "*/api/admin/faculties", []),
+  ...mockPaginated("*/api/admin/rooms", ROOMS, 2),
   mockJson("get", "*/api/admin/config/majors", MAJORS),
   mockJson("get", "*/api/admin/config/levels", LEVELS),
+  mockJson("get", "*/api/admin/config/grades", []),
   mockJson("get", "*/api/admin/config/email", EMAIL_CONFIG),
-  mockJson("get", "*/api/admin/config/jury-role-templates", [{ id: "t1", name: "Standard PFE", defenseType: "pfe", roles: [{ name: "President", count: 1, coefficient: 2 }, { name: "Rapporteur", count: 1, coefficient: 1.5 }, { name: "Examinateur", count: 1, coefficient: 1 }] }]),
+  mockJson("get", "*/api/admin/config/jury-role-templates", JURY_ROLE_TEMPLATES),
   mockEcho("put", "*/api/admin/config/email"),
 
-  // Admin — paginated GETs
-  ...mockPaginated("*/api/admin/students", STUDENTS, 2),
-  ...mockPaginated("*/api/admin/teachers", TEACHERS, 2),
-  ...mockPaginated("*/api/admin/coordinators", COORDINATORS, 2),
-  ...mockPaginated("*/api/admin/users", USERS, 4),
+  // Admin — paginated GETs (role-filtered /admin/users)
+  http.get("*/api/admin/users", ({ request }) => filterByRole(new URL(request.url), ALL_USERS)),
   ...mockPaginated("*/api/admin/audit-logs", AUDIT_LOGS, 2),
 
   // Admin — CRUD
@@ -163,12 +185,12 @@ export const handlers = [
   // Admin — special endpoints
   http.post("*/api/admin/users/bulk", async ({ request }) => {
     const body = (await request.json()) as { users: Record<string, unknown>[]; role: string };
-    return HttpResponse.json(body.users.map((u, i) => ({ id: `bulk-${i}`, ...u, role: body.role, isActive: false })), { status: 201 });
+    return HttpResponse.json(body.users.map((u, i) => ({ id: 100 + i, ...u, role: body.role, isActive: false })), { status: 201 });
   }),
 
   http.post("*/api/admin/rooms/bulk", async ({ request }) => {
     const body = (await request.json()) as { rooms: Record<string, unknown>[] };
-    return HttpResponse.json(body.rooms.map((r, i) => ({ id: `bulk-room-${i}`, ...r })), { status: 201 });
+    return HttpResponse.json(body.rooms.map((r, i) => ({ id: 100 + i, ...r })), { status: 201 });
   }),
 
   // Coordinator — simple GETs
@@ -176,17 +198,10 @@ export const handlers = [
   mockJson("get", "*/api/coordinator/projects", PROJECTS),
   mockJson("get", "*/api/coordinator/juries", JURIES),
   mockJson("get", "*/api/coordinator/defense-sessions", DEFENSE_SESSIONS),
-  mockJson("get", "*/api/coordinator/grades", [
-    { projectId: "p1", projectTitle: "Application CI/CD", defenseDate: "2026-06-15", status: "completed", finalScore: 16.5, evaluationCoefficients: { President: 2, Rapporteur: 1.5 }, individualScores: [{ roleName: "President", teacherName: "Ahmed Benali", score: 17 }, { roleName: "Rapporteur", teacherName: "Fatima Amrani", score: 16 }] },
-    { projectId: "p2", projectTitle: "Analyse des données", defenseDate: null, status: "pending", finalScore: null, evaluationCoefficients: { President: 2, Rapporteur: 1.5 }, individualScores: [] },
-  ]),
-  mockJson("get", "*/api/coordinator/groups", [{ id: "g1", projectId: "p1", studentIds: ["s1", "s2"], sessionId: "ds1" }]),
-  mockJson("get", "*/api/coordinator/student-groups", [
-    { id: "sg1", groupName: "Groupe Alpha", memberNames: ["Jean Dupont", "Sophie Martin", "Amine El Idrissi"], memberCount: 3, projectId: "p1", projectTitle: "Application CI/CD" },
-    { id: "sg2", groupName: "Groupe Beta", memberNames: ["Sarah Benali"], memberCount: 1, projectId: null },
-  ]),
-  mockJson("get", "*/api/coordinator/schedule", { "2026-06-15_08:00": { id: "sl1", projectId: "p1", slot: "08:00", date: "2026-06-15", roomId: "r1" }, "2026-06-15_09:00": { id: "sl2", projectId: "p2", slot: "09:00", date: "2026-06-15", roomId: "r2" } }),
-  mockJson("get", "*/api/coordinator/unavailability", [{ id: "u1", teacherId: "t1", date: "2026-06-10", slots: ["08:00-09:00", "09:00-10:00"] }]),
+  mockJson("get", "*/api/coordinator/grades", GRADES),
+  mockJson("get", "*/api/coordinator/groups", GROUPS),
+  mockJson("get", "*/api/coordinator/schedules", SCHEDULES),
+  mockJson("get", "*/api/coordinator/unavailability", UNAVAILABILITY),
 
   // Coordinator — CRUD
   ...mockCrud("*/api/coordinator/projects"),
@@ -195,32 +210,39 @@ export const handlers = [
   ...mockCrud("*/api/coordinator/groups"),
 
   // Coordinator — special endpoints
-  http.post("*/api/coordinator/projects/:id/assign-group", async ({ request }) => {
-    const body = await request.json();
-    return HttpResponse.json({ id: ":id", ...(body as Record<string, unknown>) });
-  }),
-
   http.post("*/api/coordinator/defense-sessions/:id/transition", async ({ request }) => {
     const body = (await request.json()) as { toStatus?: string };
-    return HttpResponse.json({ id: ":id", status: body.toStatus ?? "active" });
+    return HttpResponse.json({ id: 1, status: body.toStatus ?? "active" });
   }),
 
-  http.post("*/api/coordinator/schedule", () =>
-    HttpResponse.json({ message: "Schedule saved" }),
-  ),
+  http.post("*/api/coordinator/schedules", async () => {
+    return HttpResponse.json(SCHEDULES);
+  }),
 
-  http.get("*/api/coordinator/student-documents", () =>
-    HttpResponse.json(COORD_STUDENT_DOCS),
-  ),
+  http.post("*/api/coordinator/schedules/generation", async () => {
+    return HttpResponse.json(SCHEDULES);
+  }),
 
-  http.post("*/api/coordinator/student-documents/:id/status", async ({ params, request }) => {
-    const body = (await request.json()) as { status: string };
-    return HttpResponse.json({ id: params.id, status: body.status });
+  http.patch("*/api/coordinator/schedules/publication", async () => {
+    return HttpResponse.json(undefined, { status: 204 });
+  }),
+
+  http.post("*/api/coordinator/groups/assign", async ({ request }) => {
+    const body = await request.json();
+    return HttpResponse.json({ id: 1, ...(body as Record<string, unknown>) });
+  }),
+
+  http.post("*/api/coordinator/defenses/:id/cancel", async () => {
+    return HttpResponse.json(undefined, { status: 204 });
+  }),
+
+  http.post("*/api/coordinator/conflicts/validate", async () => {
+    return HttpResponse.json([]);
   }),
 
   // Coordinator — documents
   http.post("*/api/coordinator/documents/evaluation-sheets", () =>
-    HttpResponse.json({ settings: { institutionName: "Université Hassan II", institutionLogoUrl: "", timezone: "Africa/Casablanca", dateFormat: "DD/MM/YYYY", setupCompleted: true }, grade: { projectId: "p1", projectTitle: "Application CI/CD", status: "completed", finalScore: 16.5, evaluationCoefficients: {}, individualScores: [] }, studentNames: ["Jean Dupont", "Sophie Martin"] }),
+    HttpResponse.json({ settings: { institutionName: "Université Hassan II", institutionLogoUrl: "", timezone: "Africa/Casablanca", dateFormat: "DD/MM/YYYY", setupCompleted: true }, projectId: 1, projectTitle: "Application CI/CD", date: "2026-06-15", evaluationCoefficients: { President: 0.3, Rapporteur: 0.3 }, studentNames: ["Jean Dupont", "Sophie Martin"], juryMembers: [{ roleName: "President", teacherName: "Ahmed Benali" }, { roleName: "Rapporteur", teacherName: "Fatima Amrani" }] }),
   ),
 
   http.post("*/api/coordinator/documents/attendance-lists", () =>
@@ -236,45 +258,57 @@ export const handlers = [
   ),
 
   http.post("*/api/coordinator/documents/proces-verbal", () =>
-    HttpResponse.json({ settings: { institutionName: "Université Hassan II", institutionLogoUrl: "", timezone: "Africa/Casablanca", dateFormat: "DD/MM/YYYY", setupCompleted: true }, grade: { projectId: "p1", projectTitle: "Application CI/CD", status: "completed", finalScore: 16.5, evaluationCoefficients: {}, individualScores: [] }, studentNames: ["Jean Dupont", "Sophie Martin"], supervisorName: "Ahmed Benali", juryMembers: [{ roleName: "President", teacherName: "Ahmed Benali" }, { roleName: "Rapporteur", teacherName: "Fatima Amrani" }] }),
+    HttpResponse.json({ settings: { institutionName: "Université Hassan II", institutionLogoUrl: "", timezone: "Africa/Casablanca", dateFormat: "DD/MM/YYYY", setupCompleted: true }, grade: { projectId: 1, projectTitle: "Application CI/CD", status: "completed", finalScore: 16.5, evaluationCoefficients: {}, individualScores: [] }, studentNames: ["Jean Dupont", "Sophie Martin"], supervisorName: "Ahmed Benali", juryMembers: [{ roleName: "President", teacherName: "Ahmed Benali" }, { roleName: "Rapporteur", teacherName: "Fatima Amrani" }] }),
   ),
 
   // Teacher
   mockJson("get", "*/api/teacher/stats", { upcomingDefenses: 5, pendingEvaluations: 3, declaredUnavailabilitySlots: 2, juryAssignments: 4 }),
-  mockJson("get", "*/api/teacher/schedule", TEACHER_SCHEDULE),
+  mockJson("get", "*/api/teacher/schedules", { slots: TEACHER_SCHEDULE }),
   mockJson("get", "*/api/teacher/evaluations", TEACHER_EVALUATIONS),
   mockJson("get", "*/api/teacher/unavailability", { slotsByDate: { "2026-06-10": ["08:00-09:00", "09:00-10:00"], "2026-06-11": ["14:00-15:00"] } }),
-  mockEcho("post", "*/api/teacher/unavailability"),
+  mockEcho("post", "*/api/teacher/unavailabilities"),
 
   http.post("*/api/teacher/evaluations/:id", async ({ request }) => {
     const body = await request.json();
-    return HttpResponse.json({ id: ":id", ...(body as Record<string, unknown>), status: "submitted", submittedAt: new Date().toISOString() });
+    return HttpResponse.json({ id: 1, ...(body as Record<string, unknown>), status: "submitted", submittedAt: new Date().toISOString() });
   }),
 
   // Student
   mockJson("get", "*/api/student/stats", { documentCount: 4, missingDocuments: 1, groupMembers: 3, defenseStatus: "scheduled" }),
-  mockJson("get", "*/api/student/defense", { projectTitle: "Application CI/CD", projectDescription: "Pipeline d'intégration continue", supervisorName: "Ahmed Benali", juryMembers: [{ name: "Ahmed Benali", role: "President" }, { name: "Fatima Amrani", role: "Rapporteur" }], date: "2026-06-15", startTime: "08:00", endTime: "09:00", roomName: "Salle 101", status: "scheduled", result: null }),
+  mockJson("get", "*/api/student/defenses", { projectTitle: "Application CI/CD", projectDescription: "Pipeline d'intégration continue", supervisorName: "Ahmed Benali", juryMembers: [{ teacherName: "Ahmed Benali", roleName: "President" }, { teacherName: "Fatima Amrani", roleName: "Rapporteur" }], date: "2026-06-15", startTime: "08:00", endTime: "09:00", roomName: "Salle 101", status: "scheduled", convocationUrl: "", result: null }),
   mockJson("get", "*/api/student/documents", STUDENT_DOCUMENTS),
 
-  http.get("*/api/student/convocation", () =>
+  http.get("*/api/student/convocations", () =>
     HttpResponse.json(new Blob(["mock-pdf-content"], { type: "application/pdf" })),
   ),
 
-  http.get("*/api/student/group", () =>
-    HttpResponse.json({ currentGroup: { id: "g1", groupName: "Groupe Alpha", projectTitle: "Application CI/CD", supervisorName: "Ahmed Benali", members: [{ id: "s1", fullName: "Jean Dupont", email: "jean.dupont@example.com", role: "leader" }, { id: "s2", fullName: "Sophie Martin", email: "sophie.martin@example.com", role: "member" }] }, availableGroups: [{ id: "g2", groupName: "Groupe Beta", memberCount: 2 }], groupCreationStartDate: "2026-01-01", groupCreationEndDate: "2026-06-01", isGroupCreationOpen: true }),
+  http.get("*/api/student/groups", () =>
+    HttpResponse.json({
+      currentGroup: {
+        id: 1,
+        groupName: "Groupe Alpha",
+        projectTitle: "Application CI/CD",
+        supervisorName: "Ahmed Benali",
+        members: [{ id: 1, fullName: "Jean Dupont", email: "jean.dupont@example.com", role: "leader" }, { id: 2, fullName: "Sophie Martin", email: "sophie.martin@example.com", role: "member" }],
+      },
+      availableGroups: [{ id: 2, groupName: "Groupe Beta", memberCount: 2 }],
+      groupCreationStartDate: "2026-01-01",
+      groupCreationEndDate: "2026-06-01",
+      isGroupCreationOpen: true,
+    }),
   ),
 
-  http.post("*/api/student/group", () =>
-    HttpResponse.json({ id: "new-group", groupName: "Nouveau Groupe", members: [] }, { status: 201 }),
+  http.post("*/api/student/groups", () =>
+    HttpResponse.json({ id: 1, groupName: "Nouveau Groupe", members: [] }, { status: 201 }),
   ),
 
-  http.post("*/api/student/group/:id/join", () =>
-    HttpResponse.json({ id: ":id", groupName: "Groupe Rejoint", members: [] }, { status: 201 }),
+  http.post("*/api/student/groups/:id/members", () =>
+    HttpResponse.json({ id: 1, groupName: "Groupe Rejoint", members: [] }, { status: 201 }),
   ),
 
-  http.post("*/api/student/documents/:documentId/upload", async ({ request }) => {
+  http.post("*/api/student/documents/:documentId/attachments", async ({ request }) => {
     const body = await request.formData();
     const file = body.get("file") as File | null;
-    return HttpResponse.json({ id: ":documentId", name: file?.name ?? "uploaded-file", type: "upload", deadline: "2027-06-01", status: "submitted", submittedAt: new Date().toISOString() }, { status: 201 });
+    return HttpResponse.json({ id: 1, name: file?.name ?? "uploaded-file", type: "upload", deadline: "2027-06-01", status: "submitted", submittedAt: new Date().toISOString(), studentId: 1, filePath: "" }, { status: 201 });
   }),
 ];

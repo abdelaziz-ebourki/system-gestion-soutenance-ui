@@ -10,7 +10,7 @@ import {
 } from "@/components/ui";
 
 interface ConfigItem {
-  id: string;
+  id: number;
   name: string;
 }
 

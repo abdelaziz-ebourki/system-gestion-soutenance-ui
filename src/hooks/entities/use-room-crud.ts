@@ -37,7 +37,7 @@ export function useRoomCrud() {
     form.setFormData({
       name: entity.name,
       capacity: entity.capacity,
-      departmentId: entity.departmentId,
+      departmentId: String(entity.departmentId),
     });
     setSelected(entity);
     setIsDialogOpen(true);
@@ -52,11 +52,16 @@ export function useRoomCrud() {
     e.preventDefault();
     if (!form.validateForm()) return;
     try {
+      const payload = {
+        name: form.formData.name,
+        capacity: form.formData.capacity,
+        departmentId: Number(form.formData.departmentId),
+      };
       if (selected) {
-        await update.mutateAsync({ id: selected.id, data: form.formData });
+        await update.mutateAsync({ id: selected.id, data: payload });
         toast.success("Salle modifiée avec succès");
       } else {
-        await create.mutateAsync(form.formData);
+        await create.mutateAsync(payload);
         toast.success("Salle ajoutée avec succès");
       }
       setIsDialogOpen(false);
@@ -79,10 +84,10 @@ export function useRoomCrud() {
     }
   };
 
-  const updateMutation = (id: string, data: Parameters<typeof update.mutateAsync>[0]["data"]) =>
+  const updateMutation = (id: number, data: Parameters<typeof update.mutateAsync>[0]["data"]) =>
     update.mutateAsync({ id, data });
 
-  const deleteMutation = (id: string) => del.mutateAsync(id);
+  const deleteMutation = (id: number) => del.mutateAsync(id);
 
   const handleClose = () => setIsDialogOpen(false);
   const handleCloseDelete = () => setIsDeleteDialogOpen(false);

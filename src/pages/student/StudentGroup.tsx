@@ -35,7 +35,7 @@ export default function StudentGroup() {
     }
   };
 
-  const handleJoinGroup = async (groupId: string) => {
+  const handleJoinGroup = async (groupId: number) => {
     try {
       await joinGroup.mutateAsync(groupId);
       toast.success("Vous avez rejoint le groupe sélectionné");

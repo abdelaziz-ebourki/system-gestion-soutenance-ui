@@ -40,7 +40,7 @@ export default function Login() {
 
       toast.success(`Bienvenue, ${data.user.firstName} ${data.user.lastName}`);
 
-      login(data.user);
+      login(data.user, data.token, data.expiresAt);
 
       const roleRoutes: Record<string, string> = {
         admin: "/admin",

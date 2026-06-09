@@ -1,7 +1,7 @@
-import type { ProjectGrade } from "@/lib/api-coordinator";
+import type { GradeWeightedAverageResponse } from "@/lib/api-coordinator";
 
 interface ProcesVerbalProps {
-  grade: ProjectGrade;
+  grade: GradeWeightedAverageResponse;
   studentNames: string[];
   supervisorName: string;
   juryMembers: { roleName: string; teacherName: string }[];

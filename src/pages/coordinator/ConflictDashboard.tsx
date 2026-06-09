@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Clock, Users, DoorOpen, UserX } from "lucide-react";
 
-import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useDefenseSchedule, useCoordinatorUnavailability } from "@/hooks/queries";
-import { getAllConflicts } from "@/lib/conflict-engine";
+import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useSchedules, useCoordinatorUnavailability, useTeachersList } from "@/hooks/queries";
+import { buildConflictContext, getAllConflicts } from "@/lib/conflict-engine";
 import type { ConflictIssue } from "@/lib/conflict-engine";
+import { createSlotKey } from "@/lib/utils";
 import {
   Badge,
   Card,
@@ -45,36 +46,43 @@ export default function ConflictDashboard() {
   const juriesQuery = useJuries();
   const groupsQuery = useGroups();
   const sessionsQuery = useCoordinatorDefenseSessions();
-  const scheduleQuery = useDefenseSchedule();
+  const scheduleQuery = useSchedules();
   const unavailabilityQuery = useCoordinatorUnavailability();
+  const teachersQuery = useTeachersList();
 
-  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || groupsQuery.isLoading || sessionsQuery.isLoading || scheduleQuery.isLoading || unavailabilityQuery.isLoading;
+  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || groupsQuery.isLoading || sessionsQuery.isLoading || scheduleQuery.isLoading || unavailabilityQuery.isLoading || teachersQuery.isLoading;
 
   const currentSession = sessionsQuery.data?.[0];
 
   const conflicts = useMemo(() => {
-    const schedule = scheduleQuery.data ?? {};
-    const allUnavailability = (unavailabilityQuery.data ?? []).map((u) => ({
-      date: u.date, slots: u.slots, teacherId: u.teacherId,
-    }));
-    const context = {
-      schedule,
-      rooms: Object.fromEntries((roomsQuery.data ?? []).map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }])),
-      groups: Object.fromEntries((groupsQuery.data ?? []).map((g) => [g.id, { id: g.id, studentIds: g.studentIds }])),
-      projects: Object.fromEntries((projectsQuery.data ?? []).map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }])),
-      teachers: {},
-      juries: Object.fromEntries((juriesQuery.data ?? []).map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) }])),
-      juriesByProjectId: Object.fromEntries((juriesQuery.data ?? []).map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) }])),
-      unavailability: { all: allUnavailability },
-      unavailabilitySet: new Set(allUnavailability.flatMap((u) => u.slots.map((s) => `${u.teacherId}|${u.date}|${s}`))),
-      defenseSession: currentSession ? {
+    const scheduleMap = Object.fromEntries(
+      (scheduleQuery.data ?? []).map((s) => [
+        createSlotKey(s.date, String(s.roomId), s.time),
+        {
+          id: s.projectId,
+          title: s.projectTitle,
+          date: s.date,
+          time: s.time,
+          roomId: s.roomId,
+        },
+      ])
+    );
+    const context = buildConflictContext(
+      scheduleMap,
+      juriesQuery.data ?? [],
+      roomsQuery.data?.items ?? [],
+      projectsQuery.data ?? [],
+      teachersQuery.data ?? [],
+      unavailabilityQuery.data ?? [],
+      currentSession ? {
         startDate: currentSession.startDate,
         endDate: currentSession.endDate,
         breakDuration: currentSession.breakDuration,
       } : undefined,
-    };
-    return getAllConflicts(schedule, context);
-  }, [scheduleQuery.data, projectsQuery.data, roomsQuery.data, juriesQuery.data, groupsQuery.data, currentSession, unavailabilityQuery.data]);
+      [],
+    );
+    return getAllConflicts(scheduleMap, context);
+  }, [scheduleQuery.data, projectsQuery.data, roomsQuery.data, juriesQuery.data, currentSession, unavailabilityQuery.data, teachersQuery.data]);
 
   const groupedConflicts = useMemo(() => {
     const groups: Record<string, ConflictIssue[]> = {};

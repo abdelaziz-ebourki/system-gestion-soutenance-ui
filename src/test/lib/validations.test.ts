@@ -82,16 +82,16 @@ describe("Validation utilities", () => {
 
     it("jurySchema validates unique members", () => {
       const valid = {
-        projectId: "p1",
-        templateId: "t1",
-        members: [{ roleName: "President", teacherId: "t1" }, { roleName: "Member", teacherId: "t2" }],
+        projectId: "1",
+        templateId: "1",
+        members: [{ roleName: "President", teacherId: "1" }, { roleName: "Member", teacherId: "2" }],
       };
       expect(validate(jurySchema, valid)).toBeNull();
 
       const duplicateMembers = {
-        projectId: "p1",
-        templateId: "t1",
-        members: [{ roleName: "President", teacherId: "t1" }, { roleName: "Member", teacherId: "t1" }],
+        projectId: "1",
+        templateId: "1",
+        members: [{ roleName: "President", teacherId: "1" }, { roleName: "Member", teacherId: "1" }],
       };
       expect(validate(jurySchema, duplicateMembers)).toEqual({
         members: "Les membres du jury doivent être des personnes différentes",

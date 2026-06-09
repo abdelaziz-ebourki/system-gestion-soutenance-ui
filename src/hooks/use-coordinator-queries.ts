@@ -1,9 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import { DOC_STALE_TIME } from "@/lib/constants";
-import type { Group, DefenseSessionStatus } from "@/types";
-import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload, CreateDefenseSessionPayload } from "@/lib/api-coordinator";
-import type { SlotAssignment } from "@/lib/conflict-engine";
+import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload, ScheduleSlot } from "@/lib/api-coordinator";
 
 export function useCoordinatorStats() {
   return useQuery({
@@ -27,7 +25,7 @@ export function useCreateProject() {
 export function useUpdateProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateProjectPayload }) =>
+    mutationFn: ({ id, data }: { id: number; data: UpdateProjectPayload }) =>
       api.updateProject(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["projects"], refetchType: "active" }),
   });
@@ -36,7 +34,7 @@ export function useUpdateProject() {
 export function useDeleteProject() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteProject(id),
+    mutationFn: (id: number) => api.deleteProject(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["projects"], refetchType: "active" }),
   });
 }
@@ -56,7 +54,7 @@ export function useCreateJury() {
 export function useUpdateJury() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateJuryPayload }) =>
+    mutationFn: ({ id, data }: { id: number; data: UpdateJuryPayload }) =>
       api.updateJury(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["juries"], refetchType: "active" }),
   });
@@ -65,7 +63,7 @@ export function useUpdateJury() {
 export function useDeleteJury() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteJury(id),
+    mutationFn: (id: number) => api.deleteJury(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["juries"], refetchType: "active" }),
   });
 }
@@ -77,7 +75,8 @@ export function useGroups() {
 export function useCreateGroup() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Group, "id">) => api.createGroup(data),
+    mutationFn: (data: { groupName: string; projectId: number; studentIds: number[]; sessionId?: number; leaderId?: number }) =>
+      api.createGroup(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["groups"], refetchType: "active" }),
   });
 }
@@ -85,8 +84,19 @@ export function useCreateGroup() {
 export function useDeleteGroup() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteGroup(id),
+    mutationFn: (id: number) => api.deleteGroup(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["groups"], refetchType: "active" }),
+  });
+}
+
+export function useAssignProjectToGroup() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { projectId: number; groupId: number }) => api.assignProjectToGroup(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["groups"], refetchType: "active" });
+      qc.invalidateQueries({ queryKey: ["projects"], refetchType: "active" });
+    },
   });
 }
 
@@ -100,7 +110,19 @@ export function useCoordinatorDefenseSessions() {
 export function useCreateDefenseSession() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreateDefenseSessionPayload) => api.createCoordinatorDefenseSession(data),
+    mutationFn: (data: {
+      name: string;
+      defenseType: string;
+      status: string;
+      maxGroupSize: number;
+      defenseDuration: number;
+      breakDuration: number;
+      submissionDeadline: string;
+      juryRoleTemplateId: number;
+      startDate: string;
+      endDate: string;
+      evaluationCoefficients: Record<string, number>;
+    }) => api.createCoordinatorDefenseSession(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["coordinator", "defense-sessions"], refetchType: "active" }),
   });
 }
@@ -108,8 +130,22 @@ export function useCreateDefenseSession() {
 export function useUpdateDefenseSession() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: CreateDefenseSessionPayload }) =>
-      api.updateCoordinatorDefenseSession(id, data),
+    mutationFn: ({ id, data }: {
+      id: number;
+      data: {
+        name: string;
+        defenseType: string;
+        status: string;
+        maxGroupSize: number;
+        defenseDuration: number;
+        breakDuration: number;
+        submissionDeadline: string;
+        juryRoleTemplateId: number;
+        startDate: string;
+        endDate: string;
+        evaluationCoefficients: Record<string, number>;
+      };
+    }) => api.updateCoordinatorDefenseSession(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["coordinator", "defense-sessions"], refetchType: "active" }),
   });
 }
@@ -117,7 +153,7 @@ export function useUpdateDefenseSession() {
 export function useDeleteDefenseSession() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteCoordinatorDefenseSession(id),
+    mutationFn: (id: number) => api.deleteCoordinatorDefenseSession(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["coordinator", "defense-sessions"], refetchType: "active" }),
   });
 }
@@ -125,7 +161,7 @@ export function useDeleteDefenseSession() {
 export function useTransitionDefenseSession() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, toStatus }: { id: string; toStatus: DefenseSessionStatus }) =>
+    mutationFn: ({ id, toStatus }: { id: number; toStatus: string }) =>
       api.transitionDefenseSession(id, toStatus),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["coordinator", "defense-sessions"], refetchType: "active" });
@@ -133,27 +169,63 @@ export function useTransitionDefenseSession() {
   });
 }
 
-export function useDefenseSchedule() {
+export function useSchedules() {
   return useQuery({
-    queryKey: ["coordinator", "schedule"],
-    queryFn: api.getDefenseSchedule,
+    queryKey: ["coordinator", "schedules"],
+    queryFn: api.getSchedules,
   });
 }
 
-export function useSaveDefenseSchedule() {
+export function useSaveSchedules() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (schedule: Record<string, SlotAssignment>) =>
-      api.saveDefenseSchedule(schedule),
+    mutationFn: ({ defenseSessionId, slots }: { defenseSessionId: number; slots: ScheduleSlot[] }) =>
+      api.saveSchedules(defenseSessionId, slots),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["coordinator", "stats"], refetchType: "active" });
-      qc.invalidateQueries({ queryKey: ["coordinator", "schedule"], refetchType: "active" });
+      qc.invalidateQueries({ queryKey: ["coordinator", "schedules"], refetchType: "active" });
     },
   });
 }
 
-// ... (omitted for brevity, but let's be precise)
+export function useAutoGenerateSchedules() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (defenseSessionId: number) => api.autoGenerateSchedules(defenseSessionId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["coordinator", "stats"], refetchType: "active" });
+      qc.invalidateQueries({ queryKey: ["coordinator", "schedules"], refetchType: "active" });
+    },
+  });
+}
 
+export function usePublishSchedule() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (defenseSessionId: number) => api.publishSchedule(defenseSessionId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["coordinator", "defense-sessions"], refetchType: "active" });
+      qc.invalidateQueries({ queryKey: ["coordinator", "schedules"], refetchType: "active" });
+    },
+  });
+}
+
+export function useCancelDefense() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => api.cancelDefense(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["coordinator", "schedules"], refetchType: "active" });
+    },
+  });
+}
+
+export function useValidateConflicts() {
+  return useMutation({
+    mutationFn: ({ defenseSessionId, schedule }: { defenseSessionId: number; schedule: ScheduleSlot[] }) =>
+      api.validateConflicts(defenseSessionId, schedule),
+  });
+}
 
 export function useCoordinatorUnavailability() {
   return useQuery({
@@ -162,35 +234,14 @@ export function useCoordinatorUnavailability() {
   });
 }
 
-export function useStudentGroups() {
-  return useQuery({
-    queryKey: ["coordinator", "student-groups"],
-    queryFn: api.getStudentGroups,
-  });
-}
-
 export function useProjectGrades() {
   return useQuery({
     queryKey: ["coordinator", "grades"],
-    queryFn: () => api.getGrades(),
+    queryFn: () => api.getCoordinatorGrades(),
   });
 }
 
-export function useAssignProjectToGroup() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ projectId, groupId }: { projectId: string; groupId: string }) =>
-      api.assignProjectToGroup(projectId, groupId),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["projects"], refetchType: "active" });
-      qc.invalidateQueries({ queryKey: ["coordinator", "student-groups"], refetchType: "active" });
-    },
-  });
-}
-
-// --- Document generation hooks ---
-
-export function useEvaluationSheet(projectId: string | null) {
+export function useEvaluationSheet(projectId: number | null) {
   return useQuery({
     queryKey: ["coordinator", "documents", "evaluation-sheet", projectId],
     queryFn: () => api.getEvaluationSheet(projectId!),
@@ -199,7 +250,7 @@ export function useEvaluationSheet(projectId: string | null) {
   });
 }
 
-export function useAttendanceList(defenseSessionId: string | null) {
+export function useAttendanceList(defenseSessionId: number | null) {
   return useQuery({
     queryKey: ["coordinator", "documents", "attendance-list", defenseSessionId],
     queryFn: () => api.getAttendanceList(defenseSessionId!),
@@ -208,7 +259,7 @@ export function useAttendanceList(defenseSessionId: string | null) {
   });
 }
 
-export function useJuryConvocations(projectId: string | null) {
+export function useJuryConvocations(projectId: number | null) {
   return useQuery({
     queryKey: ["coordinator", "documents", "jury-convocations", projectId],
     queryFn: () => api.getJuryConvocations(projectId!),
@@ -217,7 +268,7 @@ export function useJuryConvocations(projectId: string | null) {
   });
 }
 
-export function useDefenseScheduleDoc(defenseSessionId: string | null) {
+export function useDefenseScheduleDoc(defenseSessionId: number | null) {
   return useQuery({
     queryKey: ["coordinator", "documents", "schedule", defenseSessionId],
     queryFn: () => api.getDefenseScheduleDoc(defenseSessionId!),
@@ -226,24 +277,11 @@ export function useDefenseScheduleDoc(defenseSessionId: string | null) {
   });
 }
 
-export function useProcesVerbal(projectId: string | null) {
+export function useProcesVerbal(projectId: number | null) {
   return useQuery({
     queryKey: ["coordinator", "documents", "proces-verbal", projectId],
     queryFn: () => api.getProcesVerbal(projectId!),
     enabled: !!projectId,
     staleTime: DOC_STALE_TIME,
-  });
-}
-
-// --- Student documents review hooks ---
-export function useCoordinatorStudentDocuments() {
-  return useQuery({ queryKey: ["coordinator", "student-documents"], queryFn: () => api.getStudentDocumentsForReview() });
-}
-
-export function useUpdateStudentDocumentStatus() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: "validated" | "rejected" }) => api.updateStudentDocumentStatus(id, status),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["coordinator", "student-documents"], refetchType: "active" }),
   });
 }

@@ -36,6 +36,7 @@ export function EmailConfigForm() {
   const { data: initial, isLoading } = useEmailConfig();
   const updateMut = useUpdateEmailConfig();
   const [config, setConfig] = useState<EmailConfig>({
+    id: 0,
     host: "",
     port: DEFAULT_SMTP_PORT,
     username: "",
@@ -53,7 +54,7 @@ export function EmailConfigForm() {
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
-    const errors = validate(emailConfigSchema, config);
+    const errors = validate(emailConfigSchema, config as typeof config & { encryption: "none" | "tls" | "ssl" });
     if (errors) {
       setFieldErrors(errors);
       return;
@@ -147,7 +148,7 @@ export function EmailConfigForm() {
               <FieldLabel>Chiffrement</FieldLabel>
               <Select
                 value={config.encryption ?? 'tls'}
-                onValueChange={(v: "tls" | "ssl" | "none") => setConfig({ ...config, encryption: v })}
+                onValueChange={(v) => setConfig({ ...config, encryption: v })}
               >
                 <SelectTrigger>
                   <SelectValue />

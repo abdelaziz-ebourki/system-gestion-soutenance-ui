@@ -17,10 +17,10 @@ function createWrapper() {
 }
 
 const mockDepartment = {
-  id: "d1",
+  id: 1,
   name: "Informatique",
   code: "INFO",
-  headId: "t1",
+  headId: 1,
 };
 
 describe("useDepartmentCrud", () => {
@@ -50,7 +50,7 @@ describe("useDepartmentCrud", () => {
     expect(result.current.selected).toEqual(mockDepartment);
     expect(result.current.formData.name).toBe("Informatique");
     expect(result.current.formData.code).toBe("INFO");
-    expect(result.current.formData.headId).toBe("t1");
+    expect(result.current.formData.headId).toBe("1");
   });
 
   it("openDelete sets selected and opens dialog", () => {
@@ -75,7 +75,7 @@ describe("useDepartmentCrud", () => {
   it("handleSubmit with valid data creates a department", async () => {
     const { result } = renderHook(() => useDepartmentCrud(), { wrapper: createWrapper() });
     act(() => {
-      result.current.setFormData({ name: "Mathématiques", code: "MATH", headId: "t1" });
+      result.current.setFormData({ name: "Mathématiques", code: "MATH", headId: "1" });
     });
     const fakeEvent = { preventDefault: vi.fn() };
     await act(async () => {

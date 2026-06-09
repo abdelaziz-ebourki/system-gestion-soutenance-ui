@@ -15,7 +15,7 @@ describe("NotificationBadge", () => {
     server.use(
       http.get("*/api/notifications", () =>
         HttpResponse.json([
-          { id: "1", type: "info", title: "Test", message: "msg", timestamp: new Date().toISOString(), read: false },
+          { id: 1, type: "info", title: "Test", message: "msg", timestamp: new Date().toISOString(), read: false },
         ]),
       ),
     );

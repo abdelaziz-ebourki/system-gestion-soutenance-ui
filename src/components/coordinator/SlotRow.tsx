@@ -5,7 +5,7 @@ import type { Project, Jury } from "@/types";
 import type { ScheduleMode } from "./ModeToggle";
 
 export type ScheduledCard = {
-  id: string;
+  id: number;
   title: string;
   roomName: string;
   date: string;
@@ -19,7 +19,7 @@ interface SlotRowProps {
   projects: Project[];
   juries: Jury[];
   mode: ScheduleMode;
-  selectedProjectId: string | null;
+  selectedProjectId: number | null;
   onPlace: (slotKey: string) => void;
   onRemove: (slotKey: string) => void;
 }

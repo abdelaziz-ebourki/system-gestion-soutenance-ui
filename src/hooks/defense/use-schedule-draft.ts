@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 
 export interface ScheduleEntry {
-  roomId: string;
+  roomId: number;
   date: string;
   time: string;
 }

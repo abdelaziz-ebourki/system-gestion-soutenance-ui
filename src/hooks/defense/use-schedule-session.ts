@@ -1,12 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
-import { useCoordinatorDefenseSessions } from "@/hooks/queries";
-import { format, addDays, differenceInDays } from "date-fns";
-import { MS_PER_MINUTE } from "@/lib/constants";
+import { useCoordinatorDefenseSessions, useDefenseSettings } from "@/hooks/queries";
+import { addDays, differenceInDays } from "date-fns";
 
 export function useScheduleSession() {
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
 
   const { data: sessions, isLoading: sessionsLoading } = useCoordinatorDefenseSessions();
+  const { data: defenseSettings } = useDefenseSettings();
 
   useEffect(() => {
     if (sessions?.length && !selectedSessionId) {
@@ -28,17 +28,23 @@ export function useScheduleSession() {
   }, [currentSession]);
 
   const timeSlots = useMemo(() => {
-    if (!currentSession) return [];
-    const slots = [];
-    let current = new Date(`2000-01-01T${currentSession.startTime}`);
-    const end = new Date(`2000-01-01T${currentSession.endTime}`);
-
-    while (current < end) {
-      slots.push(format(current, "HH:mm"));
-      current = new Date(current.getTime() + currentSession.defenseDuration * MS_PER_MINUTE);
+    if (!currentSession || !defenseSettings) return [];
+    const { startTime, endTime } = defenseSettings;
+    const duration = currentSession.defenseDuration;
+    const slots: string[] = [];
+    let [h, m] = startTime.split(":").map(Number);
+    const [endH, endM] = endTime.split(":").map(Number);
+    const endMinutes = endH * 60 + endM;
+    while (h * 60 + m < endMinutes) {
+      slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+      m += duration;
+      if (m >= 60) {
+        h += Math.floor(m / 60);
+        m = m % 60;
+      }
     }
     return slots;
-  }, [currentSession]);
+  }, [currentSession, defenseSettings]);
 
   return {
     sessions: sessions ?? [],

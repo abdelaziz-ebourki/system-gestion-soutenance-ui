@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { useSaveDefenseSchedule, useTransitionDefenseSession } from "@/hooks/queries";
+import { useSaveSchedules, useTransitionDefenseSession } from "@/hooks/queries";
 import { useScheduleAutoGenerator } from "@/hooks/defense/use-schedule-auto-generator";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import type { Room, Jury } from "@/types";
 import type { ScheduleEntry } from "@/hooks/defense/use-schedule-draft";
+import type { ScheduleSlot } from "@/lib/api-coordinator";
+import type { DefenseSession } from "@/types";
 
 interface UseScheduleActionsOptions {
   schedule: Record<string, ScheduleEntry>;
   setSchedule: (schedule: Record<string, ScheduleEntry>) => void;
-  currentSession?: { id: string; startDate: string; endDate: string; startTime: string; endTime: string; defenseDuration: number } | null;
+  currentSession?: DefenseSession | null;
   juries: Jury[];
   rooms: Room[];
   days: Date[];
@@ -26,7 +28,7 @@ export function useScheduleActions({
   timeSlots,
 }: UseScheduleActionsOptions) {
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
-  const saveSchedule = useSaveDefenseSchedule();
+  const saveSchedule = useSaveSchedules();
   const transitionSession = useTransitionDefenseSession();
 
   const { generateSchedule } = useScheduleAutoGenerator(rooms, days, timeSlots, juries);
@@ -36,22 +38,21 @@ export function useScheduleActions({
       toast.error("Aucune modification à enregistrer");
       return;
     }
+    if (!currentSession) return;
 
     try {
-      await saveSchedule.mutateAsync(
-        Object.fromEntries(
-          Object.entries(schedule).map(([juryId, s]) => [
-            juryId,
-            {
-              id: juryId,
-              title: juries.find((j) => j.id === juryId)?.projectTitle ?? "",
-              date: s.date,
-              time: s.time,
-              roomId: s.roomId,
-            },
-          ]),
-        ),
-      );
+      const slots: ScheduleSlot[] = Object.entries(schedule).map(([key, s]) => {
+        const juryId = Number(key);
+        const jury = juries.find((j) => j.id === juryId);
+        return {
+          title: jury?.projectTitle ?? "",
+          date: s.date,
+          time: s.time,
+          projectId: jury?.projectId ?? 0,
+          roomId: Number(s.roomId),
+        };
+      });
+      await saveSchedule.mutateAsync({ defenseSessionId: currentSession.id, slots });
       toast.success("Planning enregistré avec succès");
     } catch (error) {
       toast.error(getErrorMessage(error, "Erreur lors de l'enregistrement"));

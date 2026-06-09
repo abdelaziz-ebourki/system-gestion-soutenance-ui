@@ -6,7 +6,7 @@ import { server } from "@/test/mocks/server";
 import { http, HttpResponse } from "msw";
 
 const coordUser = {
-  id: "2",
+  id: 2,
   email: "coord@univh2c.ma",
   firstName: "Coord",
   lastName: "User",
@@ -24,7 +24,7 @@ describe("PrintDefenseSchedule", () => {
       http.post("*/api/coordinator/documents/schedule", () => new Promise(() => {})),
     );
     renderWithProviders(<PrintDefenseSchedule />, {
-      initialEntries: ["/coordinator/print/schedule?sessionId=ds1"],
+      initialEntries: ["/coordinator/print/schedule?sessionId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(screen.getByTestId("print-schedule-loading")).toBeInTheDocument();
@@ -32,7 +32,7 @@ describe("PrintDefenseSchedule", () => {
 
   it("renders defense schedule on success", async () => {
     renderWithProviders(<PrintDefenseSchedule />, {
-      initialEntries: ["/coordinator/print/schedule?sessionId=ds1"],
+      initialEntries: ["/coordinator/print/schedule?sessionId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-schedule-root")).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe("PrintDefenseSchedule", () => {
       ),
     );
     renderWithProviders(<PrintDefenseSchedule />, {
-      initialEntries: ["/coordinator/print/schedule?sessionId=ds1"],
+      initialEntries: ["/coordinator/print/schedule?sessionId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-schedule-error")).toBeInTheDocument();

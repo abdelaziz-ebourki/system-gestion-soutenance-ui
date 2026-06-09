@@ -13,14 +13,11 @@ vi.mock("@dnd-kit/core", () => ({
 }));
 
 const mockJury: Jury = {
-  id: "j1",
-  projectId: "p1",
+  id: 1,
+  projectId: 1,
   projectTitle: "Project 1",
-  studentNames: ["Student A"],
   members: [],
   defenseType: "pfe",
-  templateId: "t1",
-  templateName: "Standard",
 };
 
 describe("DroppableCalendarCell", () => {

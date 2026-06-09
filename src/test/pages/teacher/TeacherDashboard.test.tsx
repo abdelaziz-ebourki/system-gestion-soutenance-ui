@@ -23,51 +23,41 @@ const mockStats: TeacherStats = {
   juryAssignments: 1,
 };
 
-const mockSchedule: TeacherDefense[] = [
-  {
-    id: "d1",
-    projectId: "p1",
-    projectTitle: "Application CI/CD",
-    studentNames: ["Ali", "Fatima"],
-    date: "2025-06-16",
-    startTime: "09:00",
-    endTime: "09:30",
-    roomName: "Salle A01",
-    role: "president",
-    status: "scheduled",
-  },
-  {
-    id: "d2",
-    projectId: "p2",
-    projectTitle: "IA pour la santé",
-    studentNames: ["Mohammed"],
-    date: "2025-06-16",
-    startTime: "10:00",
-    endTime: "10:30",
-    roomName: "Salle A02",
-    role: "examiner",
-    status: "scheduled",
-  },
-];
+const mockSchedule = {
+  slots: [
+    {
+      date: "2025-06-16",
+      time: "09:00",
+      roomName: "Salle A01",
+      projectTitle: "Application CI/CD",
+      studentNames: ["Ali", "Fatima"],
+    },
+    {
+      date: "2025-06-16",
+      time: "10:00",
+      roomName: "Salle A02",
+      projectTitle: "IA pour la santé",
+      studentNames: ["Mohammed"],
+    },
+  ] as TeacherDefense[],
+};
 
 const mockEvaluations: TeacherEvaluation[] = [
   {
-    id: "e1",
-    defenseId: "d1",
+    id: 1,
+    projectId: 1,
     projectTitle: "Application CI/CD",
-    studentNames: ["Ali", "Fatima"],
-    role: "president",
+    finalGrade: 0,
+    comment: "",
     status: "pending",
   },
   {
-    id: "e2",
-    defenseId: "d2",
+    id: 2,
+    projectId: 2,
     projectTitle: "IA pour la santé",
-    studentNames: ["Mohammed"],
-    role: "examiner",
-    status: "submitted",
-    score: 15,
+    finalGrade: 15,
     comment: "Bon travail",
+    status: "submitted",
   },
 ];
 
@@ -92,7 +82,7 @@ describe("TeacherDashboard", () => {
   it("renders loading state", async () => {
     const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherStats).mockReturnValue({ data: null, isLoading: true } as unknown as UseQueryResult<TeacherStats, Error>);
-    vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: [], isLoading: true } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: null, isLoading: true } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(queries.useTeacherEvaluations).mockReturnValue({ data: [], isLoading: true } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
     renderDashboard();
     expect(screen.getByTestId("teacher-dashboard-stats-upcoming")).toBeInTheDocument();
@@ -101,20 +91,20 @@ describe("TeacherDashboard", () => {
   it("renders hero section and stat cards", async () => {
     const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherStats).mockReturnValue({ data: mockStats, isLoading: false } as unknown as UseQueryResult<TeacherStats, Error>);
-    vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(queries.useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
     renderDashboard();
     expect(await screen.findByText("Un espace enseignant clair pour suivre jurys, planning et notes.")).toBeInTheDocument();
-    expect(screen.getAllByText("2").length).toBeGreaterThanOrEqual(1); // upcomingDefenses
-    expect(screen.getAllByText("3").length).toBeGreaterThanOrEqual(1); // pendingEvaluations
-    expect(screen.getAllByText("5").length).toBeGreaterThanOrEqual(1); // declaredUnavailabilitySlots
-    expect(screen.getAllByText("1").length).toBeGreaterThanOrEqual(1); // juryAssignments
+    expect(screen.getAllByText("2").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("3").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("5").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("1").length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders upcoming defenses list", async () => {
     const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherStats).mockReturnValue({ data: mockStats, isLoading: false } as unknown as UseQueryResult<TeacherStats, Error>);
-    vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(queries.useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
     renderDashboard();
     expect((await screen.findAllByText("Application CI/CD")).length).toBeGreaterThanOrEqual(1);
@@ -126,7 +116,7 @@ describe("TeacherDashboard", () => {
   it("renders pending evaluations list", async () => {
     const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherStats).mockReturnValue({ data: mockStats, isLoading: false } as unknown as UseQueryResult<TeacherStats, Error>);
-    vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(queries.useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
     renderDashboard();
     expect((await screen.findAllByText("Application CI/CD")).length).toBeGreaterThanOrEqual(1);
@@ -136,7 +126,7 @@ describe("TeacherDashboard", () => {
   it("shows empty states when no data", async () => {
     const queries = await import("@/hooks/queries");
     vi.mocked(queries.useTeacherStats).mockReturnValue({ data: { ...mockStats, upcomingDefenses: 0, pendingEvaluations: 0 }, isLoading: false } as unknown as UseQueryResult<TeacherStats, Error>);
-    vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: { slots: [] }, isLoading: false } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(queries.useTeacherEvaluations).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
     renderDashboard();
     expect(await screen.findByText("Aucune soutenance prévue.")).toBeInTheDocument();

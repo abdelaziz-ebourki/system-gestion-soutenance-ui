@@ -5,6 +5,7 @@ import {
   useProjects,
   useTeachersList,
   useCoordinatorUnavailability,
+  useDefenseSettings,
 } from "@/hooks/queries";
 
 import { createSlotKey, parseSlotKey } from "@/lib/utils";
@@ -17,15 +18,17 @@ import { TOAST_DURATION_MS } from "@/lib/constants";
 import { toast } from "sonner";
 
 export function useDefenseSchedule() {
-  const [activeJuryId, setActiveJuryId] = useState<string | null>(null);
+  const [activeJuryId, setActiveJuryId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
 
   const { data: juries = [], isLoading: juriesLoading } = useJuries();
-  const { data: rooms = [], isLoading: roomsLoading } = useRooms();
+  const { data: roomsPage, isLoading: roomsLoading } = useRooms();
+  const rooms = roomsPage?.items ?? [];
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
   const { data: teachers = [], isLoading: teachersLoading } = useTeachersList();
   const { data: unavailabilities = [], isLoading: unavailLoading } = useCoordinatorUnavailability();
+  const { isLoading: settingsLoading } = useDefenseSettings();
 
   const {
     sessions,
@@ -66,15 +69,19 @@ export function useDefenseSchedule() {
         (j) =>
           !schedule[j.id] &&
           (j.projectTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            j.studentNames.some((n) =>
-              n.toLowerCase().includes(searchQuery.toLowerCase()),
+            projects.some(
+              (p) =>
+                p.id === j.projectId &&
+                p.studentNames.some((n) =>
+                  n.toLowerCase().includes(searchQuery.toLowerCase()),
+                ),
             )),
       ),
-    [juries, searchQuery, schedule],
+    [juries, searchQuery, schedule, projects],
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveJuryId(event.active.id as string);
+    setActiveJuryId(event.active.id as number);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -82,13 +89,13 @@ export function useDefenseSchedule() {
     setActiveJuryId(null);
 
     if (over && selectedRoomId) {
-      const juryId = active.id as string;
+      const juryId = active.id as number;
       const { date, time } = parseSlotKey(over.id as string);
 
       const jury = juries.find((j) => j.id === juryId);
       if (!jury) return;
 
-      const slotKey = createSlotKey(date, selectedRoomId, time);
+      const slotKey = createSlotKey(date, String(selectedRoomId), time);
       const result = validateSlot(jury.projectId, slotKey);
 
       if (!result.isValid) {
@@ -101,20 +108,21 @@ export function useDefenseSchedule() {
         return;
       }
 
-      updateSlot(juryId, { roomId: selectedRoomId, date, time });
+      updateSlot(String(juryId), { roomId: selectedRoomId, date, time });
       toast.success("Positionné avec succès");
     }
   };
 
-  const handleRemove = (juryId: string) => {
-    removeSlot(juryId);
+  const handleRemove = (juryId: number) => {
+    removeSlot(String(juryId));
   };
+
 
   return {
     sessions,
     juries,
     rooms,
-    allLoading: sessionsLoading || juriesLoading || roomsLoading || unavailLoading || projectsLoading || teachersLoading,
+    allLoading: sessionsLoading || juriesLoading || roomsLoading || unavailLoading || projectsLoading || teachersLoading || settingsLoading,
     selectedSessionId,
     setSelectedSessionId,
     currentSession,

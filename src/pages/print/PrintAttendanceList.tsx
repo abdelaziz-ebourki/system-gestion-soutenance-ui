@@ -1,6 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { useAttendanceList } from "@/hooks/queries";
-import type { GeneralSettings } from "@/lib/api-core";
+
 import PrintLayout from "@/components/print/PrintLayout";
 import AttendanceList from "@/components/print/AttendanceList";
 
@@ -15,7 +15,7 @@ export default function PrintAttendanceList() {
   const [params] = useSearchParams();
   const date = params.get("date");
   const sessionId = params.get("sessionId");
-  const { data, isLoading, error } = useAttendanceList(sessionId);
+  const { data, isLoading, error } = useAttendanceList(sessionId ? Number(sessionId) : null);
 
   if (!date || !sessionId) {
     return <div className="p-8 text-red-600" data-testid="print-attendance-missing-params">Paramètres date et sessionId requis</div>;
@@ -34,7 +34,7 @@ export default function PrintAttendanceList() {
 
   return (
     <div data-testid="print-attendance-root">
-      <PrintLayout title="Liste de présence" settings={{} as GeneralSettings} autoPrint>
+      <PrintLayout title="Liste de présence" autoPrint>
         <AttendanceList sessionName={data.defenseSessionName} date={date} slots={slots} />
       </PrintLayout>
     </div>

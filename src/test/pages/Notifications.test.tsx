@@ -7,7 +7,7 @@ import { server } from "@/test/mocks/server";
 import { http, HttpResponse } from "msw";
 
 const adminUser = {
-  id: "1",
+  id: 1,
   email: "admin@univh2c.ma",
   firstName: "Admin",
   lastName: "User",
@@ -40,7 +40,7 @@ describe("NotificationsPage", () => {
       http.get("*/api/notifications", () =>
         HttpResponse.json([
           {
-            id: "1",
+            id: 1,
             type: "info",
             title: "Notification test",
             message: "Ceci est une notification de test",
@@ -87,7 +87,7 @@ describe("NotificationsPage", () => {
       http.get("*/api/notifications", () =>
         HttpResponse.json([
           {
-            id: "1",
+            id: 1,
             type: "info",
             title: "Notification test",
             message: "Test",

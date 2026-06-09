@@ -13,12 +13,12 @@ import { useMemo } from "react";
 interface DefenseCalendarProps {
   days: Date[];
   timeSlots: string[];
-  schedule: Record<string, { roomId: string; date: string; time: string }>;
+  schedule: Record<string, { roomId: number; date: string; time: string }>;
   juries: Jury[];
-  selectedRoomId: string | null;
-  onRemove: (juryId: string) => void;
+  selectedRoomId: number | null;
+  onRemove: (juryId: number) => void;
   rooms: Room[];
-  onRoomChange: (roomId: string | null) => void;
+  onRoomChange: (roomId: number | null) => void;
 }
 
 export default function DefenseCalendar({
@@ -36,7 +36,7 @@ export default function DefenseCalendar({
     const map = new Map<string, string>();
     for (const [juryId, jurySlot] of Object.entries(schedule)) {
       if (jurySlot.roomId === selectedRoomId) {
-        const key = createSlotKey(jurySlot.date, jurySlot.roomId, jurySlot.time);
+        const key = createSlotKey(jurySlot.date, String(jurySlot.roomId), jurySlot.time);
         map.set(key, juryId);
       }
     }
@@ -46,7 +46,7 @@ export default function DefenseCalendar({
   const juryLookup = useMemo(() => {
     const map = new Map<string, Jury>();
     for (const jury of juries) {
-      map.set(jury.id, jury);
+      map.set(String(jury.id), jury);
     }
     return map;
   }, [juries]);
@@ -57,8 +57,8 @@ export default function DefenseCalendar({
         <div className="flex-1 max-w-sm">
           <RoomSearchSelect
             rooms={rooms}
-            value={selectedRoomId}
-            onChange={onRoomChange}
+            value={selectedRoomId !== null ? String(selectedRoomId) : null}
+            onChange={(val) => onRoomChange(val ? Number(val) : null)}
           />
         </div>
         <div className="text-sm text-muted-foreground flex items-center gap-2">
@@ -88,7 +88,7 @@ export default function DefenseCalendar({
                     <td className="p-3 border font-mono text-sm font-medium bg-muted/20 text-center">{slot}</td>
                      {days?.map((day) => {
                        const dateStr = format(day, "yyyy-MM-dd");
-                       const key = createSlotKey(dateStr, selectedRoomId!, slot);
+                        const key = createSlotKey(dateStr, String(selectedRoomId!), slot);
                        const scheduledJuryId = scheduleLookup.get(key);
                        const jury = scheduledJuryId ? juryLookup.get(scheduledJuryId) ?? null : null;
 

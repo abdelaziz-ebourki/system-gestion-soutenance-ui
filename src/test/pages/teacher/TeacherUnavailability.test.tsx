@@ -41,20 +41,17 @@ vi.mock("@/components/coordinator/AvailabilityCalendar", () => ({
   ),
 }));
 
-const mockSchedule = [
-  {
-    id: "d1",
-    projectId: "p1",
-    projectTitle: "Project 1",
-    studentNames: ["Student 1"],
-    date: "2025-06-16",
-    startTime: "09:00",
-    endTime: "10:00",
-    roomName: "Room 1",
-    role: "president",
-    status: "scheduled",
-  } as TeacherDefense,
-];
+const mockSchedule = {
+  slots: [
+    {
+      date: "2025-06-16",
+      time: "09:00",
+      roomName: "Room 1",
+      projectTitle: "Project 1",
+      studentNames: ["Student 1"],
+    } as TeacherDefense,
+  ],
+};
 
 const mockUnavailability: UnavailabilityType = {
   slotsByDate: {
@@ -66,7 +63,7 @@ const mockUnavailability: UnavailabilityType = {
 const mockSaveMutation = {
   mutateAsync: vi.fn(),
   isPending: false,
-} as unknown as UseMutationResult<UnavailabilityType, Error, UnavailabilityType, unknown>;
+} as unknown as UseMutationResult<UnavailabilityType, Error, { slots: Array<{ date: string; slots: string[] }> }, unknown>;
 
 function renderUnavailability() {
   const queryClient = new QueryClient({
@@ -87,7 +84,7 @@ describe("TeacherUnavailability", () => {
   });
 
   it("renders loading state", async () => {
-    vi.mocked(useTeacherSchedule).mockReturnValue({ data: null, isLoading: true } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(useTeacherSchedule).mockReturnValue({ data: null, isLoading: true } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(useTeacherUnavailability).mockReturnValue({ data: null, isLoading: true } as unknown as UseQueryResult<UnavailabilityType, Error>);
     vi.mocked(useSaveTeacherUnavailability).mockReturnValue(mockSaveMutation);
     
@@ -97,7 +94,7 @@ describe("TeacherUnavailability", () => {
   });
 
   it("renders header and save button", async () => {
-    vi.mocked(useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(useTeacherUnavailability).mockReturnValue({ data: mockUnavailability, isLoading: false } as unknown as UseQueryResult<UnavailabilityType, Error>);
     vi.mocked(useSaveTeacherUnavailability).mockReturnValue(mockSaveMutation);
     
@@ -108,20 +105,18 @@ describe("TeacherUnavailability", () => {
   });
 
   it("calculates and renders stats correctly", async () => {
-    vi.mocked(useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(useTeacherUnavailability).mockReturnValue({ data: mockUnavailability, isLoading: false } as unknown as UseQueryResult<UnavailabilityType, Error>);
     vi.mocked(useSaveTeacherUnavailability).mockReturnValue(mockSaveMutation);
     
     renderUnavailability();
     
-    // 2 slots on 17th, 1 slot on 18th = 3 total
     expect(screen.getByTestId("teacher-unavailability-stats-blocked")).toHaveTextContent("3");
-    // 2 days
     expect(screen.getByTestId("teacher-unavailability-stats-days")).toHaveTextContent("2");
   });
 
   it("renders AvailabilityCalendar and handles slot toggle", async () => {
-    vi.mocked(useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(useTeacherUnavailability).mockReturnValue({ data: mockUnavailability, isLoading: false } as unknown as UseQueryResult<UnavailabilityType, Error>);
     vi.mocked(useSaveTeacherUnavailability).mockReturnValue(mockSaveMutation);
     
@@ -132,25 +127,23 @@ describe("TeacherUnavailability", () => {
     const toggleBtn = screen.getByTestId("calendar-toggle-slot");
     fireEvent.click(toggleBtn);
     
-    // After toggle, we save and check if it was updated in state. 
-    // Since we don't have a way to check internal state, we check the mutation call on save.
     fireEvent.click(screen.getByTestId("teacher-unavailability-save"));
     
     expect(mockSaveMutation.mutateAsync).toHaveBeenCalledWith(expect.objectContaining({
-      slotsByDate: expect.objectContaining({
-        "2025-06-16": ["09:00-10:00"]
-      })
+      slots: expect.arrayContaining([
+        expect.objectContaining({ date: "2025-06-16" })
+      ])
     }));
   });
 
   it("saves unavailability and shows success toast", async () => {
-    vi.mocked(useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(useTeacherUnavailability).mockReturnValue({ data: mockUnavailability, isLoading: false } as unknown as UseQueryResult<UnavailabilityType, Error>);
     
     const saveMutation = {
       mutateAsync: vi.fn().mockResolvedValue({}),
       isPending: false,
-    } as unknown as UseMutationResult<UnavailabilityType, Error, UnavailabilityType, unknown>;
+    } as unknown as UseMutationResult<UnavailabilityType, Error, { slots: { date: string; slots: string[] }[] }, unknown>;
     vi.mocked(useSaveTeacherUnavailability).mockReturnValue(saveMutation);
     
     const { toast } = await import("sonner");
@@ -166,13 +159,13 @@ describe("TeacherUnavailability", () => {
   });
 
   it("shows error toast when save fails", async () => {
-    vi.mocked(useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<TeacherDefense[], Error>);
+    vi.mocked(useTeacherSchedule).mockReturnValue({ data: mockSchedule, isLoading: false } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     vi.mocked(useTeacherUnavailability).mockReturnValue({ data: mockUnavailability, isLoading: false } as unknown as UseQueryResult<UnavailabilityType, Error>);
     
     const saveMutation = {
       mutateAsync: vi.fn().mockRejectedValue(new Error("API Error")),
       isPending: false,
-    } as unknown as UseMutationResult<UnavailabilityType, Error, UnavailabilityType, unknown>;
+    } as unknown as UseMutationResult<UnavailabilityType, Error, { slots: { date: string; slots: string[] }[] }, unknown>;
     vi.mocked(useSaveTeacherUnavailability).mockReturnValue(saveMutation);
     
     renderUnavailability();

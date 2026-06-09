@@ -17,11 +17,11 @@ function createWrapper() {
 }
 
 const mockTeacher = {
-  id: "t1",
+  id: 1,
   lastName: "Benali",
   firstName: "Ahmed",
   email: "ahmed.benali@example.com",
-  departmentId: "d1",
+  departmentId: 1,
   isActive: true,
   role: "teacher" as const,
 };
@@ -42,7 +42,7 @@ describe("useTeacherCrud", () => {
 
   it("openCreate resets form and opens dialog", () => {
     const { result } = renderHook(() => useTeacherCrud(), { wrapper: createWrapper() });
-    act(() => result.current.setFormData({ lastName: "test", firstName: "test", email: "t@t.com", departmentId: "d1" }));
+    act(() => result.current.setFormData({ lastName: "test", firstName: "test", email: "t@t.com", departmentId: "1" }));
     act(() => result.current.openCreate());
     expect(result.current.selected).toBeNull();
     expect(result.current.isDialogOpen).toBe(true);
@@ -56,7 +56,7 @@ describe("useTeacherCrud", () => {
     expect(result.current.isDialogOpen).toBe(true);
     expect(result.current.formData.lastName).toBe("Benali");
     expect(result.current.formData.email).toBe("ahmed.benali@example.com");
-    expect(result.current.formData.departmentId).toBe("d1");
+    expect(result.current.formData.departmentId).toBe("1");
   });
 
   it("openDelete sets selected and opens delete dialog", () => {
@@ -81,7 +81,7 @@ describe("useTeacherCrud", () => {
   it("handleSubmit with valid data creates a teacher", async () => {
     const { result } = renderHook(() => useTeacherCrud(), { wrapper: createWrapper() });
     act(() => {
-      result.current.setFormData({ lastName: "New", firstName: "Teacher", email: "new@test.com", departmentId: "d1" });
+      result.current.setFormData({ lastName: "New", firstName: "Teacher", email: "new@test.com", departmentId: "1" });
     });
     const fakeEvent = { preventDefault: vi.fn() };
     await act(async () => {
@@ -97,7 +97,7 @@ describe("useTeacherCrud", () => {
     const { result } = renderHook(() => useTeacherCrud(), { wrapper: createWrapper() });
     act(() => result.current.openEdit(mockTeacher));
     act(() => {
-      result.current.setFormData({ lastName: "Updated", firstName: "Teacher", email: "updated@test.com", departmentId: "d2" });
+      result.current.setFormData({ lastName: "Updated", firstName: "Teacher", email: "updated@test.com", departmentId: "1" });
     });
     const fakeEvent = { preventDefault: vi.fn() };
     await act(async () => {

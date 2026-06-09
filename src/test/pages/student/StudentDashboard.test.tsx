@@ -6,7 +6,7 @@ import { server } from "@/test/mocks/server";
 import { http, HttpResponse } from "msw";
 
 const studentUser = {
-  id: "4",
+  id: 4,
   email: "student@univh2c.ma",
   firstName: "Student",
   lastName: "User",
@@ -41,7 +41,7 @@ describe("StudentDashboard", () => {
 
   it("shows group link when defense is pending", async () => {
     server.use(
-      http.get("*/api/student/defense", () =>
+      http.get("*/api/student/defenses", () =>
         HttpResponse.json({
           projectTitle: "Projet Test",
           projectDescription: "Description",
@@ -67,7 +67,7 @@ describe("StudentDashboard", () => {
 
   it("shows result when available", async () => {
     server.use(
-      http.get("*/api/student/defense", () =>
+      http.get("*/api/student/defenses", () =>
         HttpResponse.json({
           projectTitle: "Application CI/CD",
           supervisorName: "Ahmed Benali",
@@ -77,7 +77,7 @@ describe("StudentDashboard", () => {
           endTime: "09:00",
           roomName: "Salle 101",
           status: "scheduled",
-          result: { decision: "Admis", score: 16 },
+          result: "Admis",
         }),
       ),
     );
@@ -85,12 +85,11 @@ describe("StudentDashboard", () => {
       initialAuthState: { user: studentUser },
     });
     expect(await screen.findByText("Admis")).toBeInTheDocument();
-    expect(screen.getByText("Note finale: 16/20")).toBeInTheDocument();
   });
 
   it("shows no jury message when empty", async () => {
     server.use(
-      http.get("*/api/student/defense", () =>
+      http.get("*/api/student/defenses", () =>
         HttpResponse.json({
           projectTitle: "Application CI/CD",
           supervisorName: "Ahmed Benali",

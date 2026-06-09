@@ -34,12 +34,14 @@ vi.mock("sonner", () => ({
 }));
 
 const mockTeachers: Teacher[] = [
-  { id: "t1", role: "teacher", departmentId: "d1", firstName: "Teacher", lastName: "1", email: "t1@univ.ma", isActive: true },
+  { id: 1, role: "teacher", departmentId: 1, firstName: "Teacher", lastName: "1", email: "t1@univ.ma", isActive: true },
 ];
 const mockStudents = {
-  items: [{ id: "s1", firstName: "Student", lastName: "A", email: "s1@univ.ma", phone: "123", dateOfBirth: "2000-01-01", gender: "M" }],
+  items: [{ id: 1, firstName: "Student", lastName: "A", email: "s1@univ.ma", cne: "CNE1", majorId: 1, levelId: 1, isActive: true, role: "student" as const }],
   total: 1,
   pageCount: 1,
+  currentPage: 0,
+  size: 10,
 };
 
 describe("ProjectDialog", () => {
@@ -66,7 +68,7 @@ describe("ProjectDialog", () => {
     vi.mocked(useEntityForm).mockReturnValue(mockForm as unknown as ReturnType<typeof useEntityForm>);
     vi.mocked(validate).mockReturnValue(null);
     vi.mocked(useCreateProject).mockReturnValue({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false } as unknown as UseMutationResult<Project, Error, CreateProjectPayload, unknown>);
-    vi.mocked(useUpdateProject).mockReturnValue({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false } as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
+    vi.mocked(useUpdateProject).mockReturnValue({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false } as unknown as UseMutationResult<Project, Error, { id: number; data: UpdateProjectPayload }, unknown>);
   });
 
   it("renders in create mode", () => {
@@ -77,14 +79,13 @@ describe("ProjectDialog", () => {
 
   it("renders in edit mode with pre-filled data", () => {
     const project: Project = {
-      id: "p1",
+      id: 1,
       title: "Existing Project",
       description: "Desc",
-      supervisorId: "t1",
+      groupId: 0,
       supervisorName: "Teacher 1",
-      studentIds: ["s1"],
+      studentNames: [],
       defenseType: "pfe",
-      status: "approved",
     };
     
     render(<ProjectDialog {...defaultProps} project={project} />);
@@ -109,8 +110,8 @@ describe("ProjectDialog", () => {
     mockForm.formData = { 
       title: "New Project", 
       description: "Desc", 
-      supervisorId: "t1", 
-      studentIds: ["s1"], 
+      supervisorId: "1", 
+      studentIds: ["1"], 
       defenseType: "pfe" 
     };
 
@@ -123,9 +124,9 @@ describe("ProjectDialog", () => {
       expect(createMutation.mutateAsync).toHaveBeenCalledWith({
         title: "New Project",
         description: "Desc",
-        supervisorId: "t1",
-        studentIds: ["s1"],
+        supervisorId: 1,
         defenseType: "pfe",
+        studentIds: [1],
       });
       expect(toast.success).toHaveBeenCalledWith("Projet créé avec succès");
       expect(defaultProps.onSuccess).toHaveBeenCalled();
@@ -135,23 +136,22 @@ describe("ProjectDialog", () => {
 
   it("updates a project successfully", async () => {
     const project: Project = {
-      id: "p1",
+      id: 1,
       title: "Old Project",
       description: "Old Desc",
-      supervisorId: "t1",
+      groupId: 0,
       supervisorName: "Teacher 1",
-      studentIds: ["s1"],
+      studentNames: [],
       defenseType: "pfe",
-      status: "approved",
     };
     const updateMutation = { mutateAsync: vi.fn().mockResolvedValue({}), isPending: false };
-    vi.mocked(useUpdateProject).mockReturnValue(updateMutation as unknown as UseMutationResult<Project, Error, { id: string; data: UpdateProjectPayload }, unknown>);
+    vi.mocked(useUpdateProject).mockReturnValue(updateMutation as unknown as UseMutationResult<Project, Error, { id: number; data: UpdateProjectPayload }, unknown>);
     
     mockForm.formData = { 
       title: "New Title", 
       description: "New Desc", 
-      supervisorId: "t1", 
-      studentIds: ["s1"], 
+      supervisorId: "1", 
+      studentIds: ["1"], 
       defenseType: "pfe" 
     };
 
@@ -162,14 +162,11 @@ describe("ProjectDialog", () => {
     
     await waitFor(() => {
       expect(updateMutation.mutateAsync).toHaveBeenCalledWith({
-        id: "p1",
+        id: 1,
         data: {
           title: "New Title",
           description: "New Desc",
-          supervisorId: "t1",
-          studentIds: ["s1"],
           defenseType: "pfe",
-          status: "approved",
         },
       });
       expect(toast.success).toHaveBeenCalledWith("Projet mis à jour");
@@ -185,8 +182,8 @@ describe("ProjectDialog", () => {
     mockForm.formData = { 
       title: "New Project", 
       description: "Desc", 
-      supervisorId: "t1", 
-      studentIds: ["s1"], 
+      supervisorId: "1", 
+      studentIds: ["1"], 
       defenseType: "pfe" 
     };
 

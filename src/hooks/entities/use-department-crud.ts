@@ -37,7 +37,7 @@ export function useDepartmentCrud() {
     form.setFormData({
       name: entity.name,
       code: entity.code,
-      headId: entity.headId ?? "",
+      headId: entity.headId != null ? String(entity.headId) : "",
     });
     setSelected(entity);
     setIsDialogOpen(true);
@@ -52,11 +52,16 @@ export function useDepartmentCrud() {
     e.preventDefault();
     if (!form.validateForm()) return;
     try {
+      const payload = {
+        name: form.formData.name,
+        code: form.formData.code,
+        headId: form.formData.headId ? Number(form.formData.headId) : undefined,
+      };
       if (selected) {
-        await update.mutateAsync({ id: selected.id, data: form.formData });
+        await update.mutateAsync({ id: selected.id, data: payload });
         toast.success("Département mis à jour avec succès");
       } else {
-        await create.mutateAsync(form.formData);
+        await create.mutateAsync(payload);
         toast.success("Département ajouté avec succès");
       }
       setIsDialogOpen(false);
@@ -79,10 +84,10 @@ export function useDepartmentCrud() {
     }
   };
 
-  const updateMutation = (id: string, data: Parameters<typeof update.mutateAsync>[0]["data"]) =>
+  const updateMutation = (id: number, data: Parameters<typeof update.mutateAsync>[0]["data"]) =>
     update.mutateAsync({ id, data });
 
-  const deleteMutation = (id: string) => del.mutateAsync(id);
+  const deleteMutation = (id: number) => del.mutateAsync(id);
 
   const handleClose = () => setIsDialogOpen(false);
   const handleCloseDelete = () => setIsDeleteDialogOpen(false);

@@ -35,7 +35,7 @@ describe("ProtectedRoute", () => {
     localStorage.setItem(
       STORAGE_KEYS.USER,
       JSON.stringify({
-        id: "1",
+        id: 1,
         email: "admin@test.com",
         firstName: "Admin",
         lastName: "User",
@@ -43,6 +43,7 @@ describe("ProtectedRoute", () => {
         isActive: true,
       }),
     );
+    localStorage.setItem(STORAGE_KEYS.TOKEN, "mock-token");
 
     renderWithAuth();
 
@@ -61,7 +62,7 @@ describe("ProtectedRoute", () => {
     localStorage.setItem(
       STORAGE_KEYS.USER,
       JSON.stringify({
-        id: "1",
+        id: 1,
         email: "admin@test.com",
         firstName: "Admin",
         lastName: "User",
@@ -69,6 +70,7 @@ describe("ProtectedRoute", () => {
         isActive: true,
       }),
     );
+    localStorage.setItem(STORAGE_KEYS.TOKEN, "mock-token");
 
     renderWithAuth();
 
@@ -76,7 +78,8 @@ describe("ProtectedRoute", () => {
       window.dispatchEvent(new CustomEvent("auth:expired"));
     });
 
-    expect(await screen.findByTestId("login-page")).toBeInTheDocument();
+    expect(localStorage.getItem(STORAGE_KEYS.USER)).toBeNull();
+    expect(localStorage.getItem(STORAGE_KEYS.TOKEN)).toBeNull();
     expect(toast.error).toHaveBeenCalledWith(
       "Votre session a expiré. Veuillez vous reconnecter.",
     );
@@ -86,7 +89,7 @@ describe("ProtectedRoute", () => {
     localStorage.setItem(
       STORAGE_KEYS.USER,
       JSON.stringify({
-        id: "2",
+        id: 2,
         email: "student@test.com",
         firstName: "Student",
         lastName: "User",
@@ -94,6 +97,7 @@ describe("ProtectedRoute", () => {
         isActive: true,
       }),
     );
+    localStorage.setItem(STORAGE_KEYS.TOKEN, "mock-token");
 
     renderWithAuth();
 

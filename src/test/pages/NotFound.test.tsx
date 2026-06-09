@@ -27,7 +27,7 @@ describe("NotFound", () => {
     renderWithProviders(<NotFound />, {
       initialAuthState: {
         user: {
-          id: "1",
+          id: 1,
           email: "admin@univh2c.ma",
           firstName: "Admin",
           lastName: "User",
@@ -45,7 +45,7 @@ describe("NotFound", () => {
     renderWithProviders(<NotFound />, {
       initialAuthState: {
         user: {
-          id: "4",
+          id: 4,
           email: "student@univh2c.ma",
           firstName: "Student",
           lastName: "User",

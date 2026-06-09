@@ -3,6 +3,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Users } from "lucide-react";
 import type { Jury } from "@/types";
 import { Badge } from "@/components/ui";
+import { useProjects } from "@/hooks/queries";
 
 interface DraggableJurySlotProps {
   jury: Jury;
@@ -13,6 +14,9 @@ export default function DraggableJurySlot({ jury, isOverlay }: DraggableJurySlot
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: jury.id,
   });
+  const { data: projects = [] } = useProjects();
+  const project = projects.find((p) => p.id === jury.projectId);
+  const studentNames = project?.studentNames ?? [];
 
   const style = transform ? {
     transform: CSS.Translate.toString(transform),
@@ -37,7 +41,7 @@ export default function DraggableJurySlot({ jury, isOverlay }: DraggableJurySlot
           <p className="truncate text-sm font-medium" data-testid={`coord-jury-slot-title-${jury.id}`}>{jury.projectTitle}</p>
           <div className="flex items-center gap-1 text-xs text-muted-foreground" data-testid={`coord-jury-slot-students-${jury.id}`}>
             <Users className="size-3" />
-            <span>{jury.studentNames?.join(", ") ?? "—"}</span>
+            <span>{studentNames.join(", ") || "—"}</span>
           </div>
         </div>
       </div>

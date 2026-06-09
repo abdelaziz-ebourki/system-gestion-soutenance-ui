@@ -36,7 +36,7 @@ describe("useUnreadCount", () => {
 describe("useMarkNotificationRead", () => {
   it("mutates and invalidates query", async () => {
     const { result } = renderHook(() => useMarkNotificationRead(), { wrapper: createWrapper() });
-    act(() => { result.current.mutate("1"); });
+    act(() => { result.current.mutate(1); });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
   });
 });

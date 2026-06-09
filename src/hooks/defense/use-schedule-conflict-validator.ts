@@ -36,7 +36,7 @@ export function useScheduleConflictValidator({
     allTimeSlots ?? []
   ), [schedule, juries, rooms, projects, teachers, unavailabilities, currentSession, allTimeSlots]);
 
-  const validateSlot = useCallback((projectId: string, slotKey: string) => {
+  const validateSlot = useCallback((projectId: number, slotKey: string) => {
     return validateSlotAssignment(projectId, slotKey, context);
   }, [context]);
 

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { FileText, Users, Calendar, ClipboardList, ScrollText } from "lucide-react";
-import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades, useCoordinatorStudentDocuments, useUpdateStudentDocumentStatus } from "@/hooks/queries";
-import type { CoordinatorStudentDocument } from "@/lib/api-coordinator";
+import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades } from "@/hooks/queries";
 import {
   Button,
   Card,
@@ -18,7 +17,6 @@ import {
   Input,
   Skeleton,
   EmptyState,
-  Badge,
 } from "@/components/ui";
 
 import { toast } from "sonner";
@@ -80,24 +78,6 @@ const DOC_TYPES: {
 ];
 
 export default function Documents() {
-  const [isReviewOpen, setIsReviewOpen] = useState(false);
-  const studentDocsQuery = useCoordinatorStudentDocuments();
-  const updateStatusMutation = useUpdateStudentDocumentStatus();
-
-  const statusLabelMap: Record<string, string> = {
-    submitted: "Déposé",
-    validated: "Validé",
-    missing: "Manquant",
-    rejected: "Refusé",
-  };
-
-  const statusClassMap: Record<string, string> = {
-    submitted: "bg-secondary text-secondary-foreground",
-    validated: "bg-primary text-primary-foreground",
-    missing: "bg-destructive/10 text-destructive",
-    rejected: "bg-destructive/10 text-destructive line-through",
-  };
-
   const [isDateDialogOpen, setIsDateDialogOpen] = useState(false);
   const [dateInput, setDateInput] = useState(() => new Date().toISOString().split("T")[0]);
 
@@ -117,28 +97,28 @@ export default function Documents() {
     setIsDateDialogOpen(true);
   };
 
-  const handleOpen = (doc: (typeof DOC_TYPES)[number], projectId?: string) => {
+  const handleOpen = (doc: (typeof DOC_TYPES)[number], projectId?: number | string) => {
+    const pid = projectId != null ? String(projectId) : undefined;
     let url: string;
     if (doc.id === "attendance-list") {
       return;
     } else if (doc.id === "schedule") {
       if (sessions.length === 0) { toast.error("Aucune session disponible."); return; }
-      url = doc.getUrl(sessions[0].id);
-    } else if (doc.id === "jury-convocation" && projectId) {
-      const jury = juries.find((j) => j.projectId === projectId);
+      url = doc.getUrl(String(sessions[0].id));
+    } else if (doc.id === "jury-convocation" && pid) {
+      const jury = juries.find((j) => j.projectId === Number(pid));
       if (!jury) { toast.error("Aucun jury pour ce projet."); return; }
       if (jury.members.length === 0) { toast.error("Aucun membre dans ce jury."); return; }
       if (jury.members.length === 1) {
-        url = doc.getUrl(projectId, jury.members[0].teacherId);
+        url = doc.getUrl(pid, String(jury.members[0].teacherId));
       } else {
-        // Open all convocations in new tabs
         for (const member of jury.members) {
-          window.open(doc.getUrl(projectId, member.teacherId), "_blank");
+          window.open(doc.getUrl(pid, String(member.teacherId)), "_blank");
         }
         return;
       }
-    } else if (projectId) {
-      url = doc.getUrl(projectId);
+    } else if (pid) {
+      url = doc.getUrl(pid);
     } else {
       return;
     }
@@ -164,18 +144,6 @@ export default function Documents() {
           Générez les documents PDF pour les soutenances via l'impression navigateur.
         </p>
       </div>
-
-      <Card className="p-4">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Revue des documents étudiants</CardTitle>
-            <div>
-              <Button onClick={() => setIsReviewOpen(true)} data-testid="coord-open-review-dialog">Ouvrir la revue</Button>
-            </div>
-          </div>
-          <CardDescription>Validez ou refusez les documents déposés par les étudiants.</CardDescription>
-        </CardHeader>
-      </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {DOC_TYPES.map((doc) => (
@@ -258,62 +226,13 @@ export default function Documents() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDateDialogOpen(false)} data-testid="coord-documents-date-cancel">Annuler</Button>
             <Button onClick={() => {
-              const sessionId = sessions[0]?.id;
-              const url = DOC_TYPES.find((d) => d.id === "attendance-list")!.getUrl(dateInput, sessionId);
+              const sessionId = sessions[0]?.id != null ? String(sessions[0].id) : undefined;
+              const url = DOC_TYPES.find((d) => d.id === "attendance-list")!.getUrl(dateInput, sessionId ?? "");
               window.open(url, "_blank");
               setIsDateDialogOpen(false);
             }} data-testid="coord-documents-date-generate">
               Générer
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={isReviewOpen} onOpenChange={setIsReviewOpen}>
-        <DialogContent className="lg:max-w-2xl" data-testid="coord-documents-review-dialog">
-          <DialogHeader>
-            <DialogTitle>Revue des documents étudiants</DialogTitle>
-            <DialogDescription>Liste des documents déposés par les étudiants. Approuvez ou refusez chaque fichier.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 mt-4">
-            {studentDocsQuery.isLoading ? (
-              <div className="space-y-2">
-                {[1, 2, 3].map((i) => <Skeleton key={i} className="h-12 rounded" />)}
-              </div>
-            ) : (studentDocsQuery.data && studentDocsQuery.data.length > 0) ? (
-              studentDocsQuery.data.map((d: CoordinatorStudentDocument) => (
-                <div key={d.id} className="flex items-center justify-between p-2 border rounded">
-                  <div>
-                    <div className="font-medium">{d.name} <span className="text-sm text-muted-foreground">— {d.studentName}</span></div>
-                    <div className="text-sm text-muted-foreground">Déposé: {d.submittedAt ?? "-"} • Échéance: {d.deadline}</div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge className={statusClassMap[d.status]}>{statusLabelMap[d.status]}</Badge>
-                    <Button size="sm" variant="outline" onClick={async () => {
-                      try {
-                        await updateStatusMutation.mutateAsync({ id: d.id, status: "validated" });
-                        toast.success("Document validé");
-                      } catch {
-                        toast.error("Erreur lors de la validation");
-                      }
-                    }} data-testid={`coord-doc-approve-${d.id}`}>Valider</Button>
-                    <Button size="sm" variant="destructive" onClick={async () => {
-                      try {
-                        await updateStatusMutation.mutateAsync({ id: d.id, status: "rejected" });
-                        toast.success("Document refusé");
-                      } catch {
-                        toast.error("Erreur lors du refus");
-                      }
-                    }} data-testid={`coord-doc-reject-${d.id}`}>Refuser</Button>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <EmptyState variant="dashed" description="Aucun document à réviser." />
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsReviewOpen(false)}>Fermer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
