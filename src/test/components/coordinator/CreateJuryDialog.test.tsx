@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CreateJuryDialog } from "@/components/academic/CreateJuryDialog";
-import { useTeachersList, useProjects, useJuryRoleTemplates, useCreateJury, useUpdateJury } from "@/hooks/use-queries";
+import { CreateJuryDialog } from "@/components/coordinator/CreateJuryDialog";
+import { useTeachersList, useProjects, useJuryRoleTemplates, useCreateJury, useUpdateJury } from "@/hooks/queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate } from "@/lib/validations";
 import { toast } from "sonner";
@@ -9,7 +9,7 @@ import type { Teacher, Project, JuryRoleTemplate, Jury } from "@/types";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import type { CreateJuryPayload, UpdateJuryPayload } from "@/lib/api-coordinator";
 
-vi.mock("@/hooks/use-queries", () => ({
+vi.mock("@/hooks/queries", () => ({
   useTeachersList: vi.fn(),
   useProjects: vi.fn(),
   useJuryRoleTemplates: vi.fn(),
@@ -190,3 +190,4 @@ describe("CreateJuryDialog", () => {
     });
   });
 });
+

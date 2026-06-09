@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ProjectDialog } from "@/components/academic/ProjectDialog";
-import { useTeachersList, useStudents, useCreateProject, useUpdateProject } from "@/hooks/use-queries";
+import { ProjectDialog } from "@/components/coordinator/ProjectDialog";
+import { useTeachersList, useStudents, useCreateProject, useUpdateProject } from "@/hooks/queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate } from "@/lib/validations";
 import { toast } from "sonner";
@@ -10,7 +10,7 @@ import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import type { PaginatedResponse } from "@/lib/api";
 import type { CreateProjectPayload, UpdateProjectPayload } from "@/lib/api-coordinator";
 
-vi.mock("@/hooks/use-queries", () => ({
+vi.mock("@/hooks/queries", () => ({
   useTeachersList: vi.fn(),
   useStudents: vi.fn(),
   useCreateProject: vi.fn(),
@@ -197,3 +197,4 @@ describe("ProjectDialog", () => {
     });
   });
 });
+

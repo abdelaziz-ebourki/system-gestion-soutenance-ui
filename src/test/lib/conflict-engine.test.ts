@@ -26,9 +26,15 @@ describe("Conflict Engine", () => {
       "2": { id: 2, projectId: 2, teacherIds: [2, 3] },
       "3": { id: 3, projectId: 3, teacherIds: [1, 3] },
     },
+    juriesByProjectId: {
+      "1": { id: 1, projectId: 1, teacherIds: [1, 2] },
+      "2": { id: 2, projectId: 2, teacherIds: [2, 3] },
+      "3": { id: 3, projectId: 3, teacherIds: [1, 3] },
+    },
     unavailability: {
       "1": [{ date: "2026-06-01", slots: ["09:00", "10:00"], teacherId: 1 }],
     },
+    unavailabilitySet: new Set(["1|2026-06-01|09:00", "1|2026-06-01|10:00"]),
     defenseSession: {
       startDate: "2026-06-01",
       endDate: "2026-06-14",
@@ -51,6 +57,7 @@ describe("Conflict Engine", () => {
         const context: ConflictContext = {
             ...mockContext,
             unavailability: {},
+            unavailabilitySet: new Set(),
             schedule: { 
                 "2026-06-01|1|11:00": { id: 2, title: "P2", date: "2026-06-01", time: "11:00", roomId: 1 },
                 "2026-06-01|2|11:00": { id: 3, title: "P3", date: "2026-06-01", time: "11:00", roomId: 2 } 
@@ -201,7 +208,9 @@ describe("Conflict Engine", () => {
         projects: { "1": { id: 1, studentIds: [], supervisorId: 100 } },
         teachers: {},
         juries: {},
+        juriesByProjectId: {},
         unavailability: {},
+        unavailabilitySet: new Set(),
       };
       const result = validateSlotAssignment(1, "2026-06-01|100|09:00", minimalContext);
       expect(result.isValid).toBe(true);
@@ -218,7 +227,7 @@ describe("Conflict Engine", () => {
     });
 
     it("should handle missing juries context", () => {
-      const context = { ...mockContext, juries: {} };
+      const context = { ...mockContext, juries: {}, juriesByProjectId: {} };
       const result = validateSlotAssignment(1, "2026-06-01|1|09:00", context);
       expect(result.isValid).toBe(true);
     });
@@ -261,6 +270,9 @@ describe("Conflict Engine", () => {
         juries: {
           "1": { id: 1, projectId: 1, teacherIds: [1] },
         },
+        juriesByProjectId: {
+          "1": { id: 1, projectId: 1, teacherIds: [1] },
+        },
         schedule: { "2026-06-01|1|09:00": { id: 2, title: "P2", date: "2026-06-01", time: "09:00", roomId: 1 } },
       };
       const result = validateSlotAssignment(1, "2026-06-01|2|11:00", context);
@@ -268,7 +280,7 @@ describe("Conflict Engine", () => {
     });
 
     it("should handle missing unavailability context", () => {
-      const context = { ...mockContext, unavailability: {} };
+      const context = { ...mockContext, unavailability: {}, unavailabilitySet: new Set<string>() };
       const result = validateSlotAssignment(1, "2026-06-01|1|09:00", context);
       expect(result.isValid).toBe(true);
     });
@@ -321,6 +333,7 @@ describe("Conflict Engine", () => {
         const context = {
             ...mockContext,
             juries: {},
+            juriesByProjectId: {},
             projects: {
                 ...mockContext.projects,
                 "1": { ...mockContext.projects["1"], supervisorId: 40 },
@@ -330,7 +343,7 @@ describe("Conflict Engine", () => {
         const result = validateSlotAssignment(1, "2026-06-01|1|09:10", context);
         const breakIssue = result.issues.find(i => i.type === "break_violation");
         expect(breakIssue?.severity).toBe("warning");
-        expect(result.isValid).toBe(true);
+        expect(result.isValid).toBe(true); // Warnings don't make it invalid
     });
   });
 

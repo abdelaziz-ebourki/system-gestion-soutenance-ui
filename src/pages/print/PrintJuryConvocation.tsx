@@ -1,5 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { useJuryConvocations } from "@/hooks/queries";
+
 import PrintLayout from "@/components/print/PrintLayout";
 import JuryConvocation from "@/components/print/JuryConvocation";
 
@@ -37,3 +38,4 @@ export default function PrintJuryConvocation() {
     </div>
   );
 }
+

@@ -29,7 +29,9 @@ export interface ConflictContext {
   projects: Record<string, { id: number; studentIds: number[]; supervisorId: number }>;
   teachers: Record<string, { id: number; name: string }>;
   juries: Record<string, { id: number; projectId: number; teacherIds: number[] }>;
+  juriesByProjectId: Record<string, { id: number; projectId: number; teacherIds: number[] }>;
   unavailability: Record<string, { date: string; slots: string[]; teacherId: number }[]>;
+  unavailabilitySet: Set<string>;
   defenseSession?: { startDate: string; endDate: string; breakDuration: number };
   allTimeSlots?: string[];
 }
@@ -44,6 +46,24 @@ export function buildConflictContext(
   currentSession: { startDate: string; endDate: string; breakDuration: number } | undefined,
   allTimeSlots: string[],
 ): ConflictContext {
+  const juriesMap = Object.fromEntries(
+    juries.map((j) => [
+      j.id,
+      { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) },
+    ]),
+  );
+
+  const juriesByProjectId = Object.fromEntries(
+    juries.map((j) => [
+      j.projectId,
+      { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) },
+    ]),
+  );
+
+  const unavailabilitySet = new Set(
+    unavailabilities.flatMap((u) => u.slots.map((s) => `${u.teacherId}|${u.date}|${s}`)),
+  );
+
   return {
     schedule: Object.fromEntries(
       Object.entries(schedule).map(([id, s]) => [
@@ -67,17 +87,13 @@ export function buildConflictContext(
     teachers: Object.fromEntries(
       teachers.map((t) => [t.id, { id: t.id, name: `${t.firstName} ${t.lastName}` }]),
     ),
-    juries: Object.fromEntries(
-      juries.map((j) => [
-        j.id,
-        { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) },
-      ]),
-    ),
-    unavailability: Object.fromEntries(
-      unavailabilities.map(
-        (u) => [u.teacherId, [{ date: u.date, slots: u.slots, teacherId: u.teacherId }]],
-      ),
-    ),
+    juries: juriesMap,
+    juriesByProjectId,
+    unavailability: unavailabilities.reduce((acc, u) => {
+      (acc[u.teacherId] ??= []).push({ date: u.date, slots: u.slots, teacherId: u.teacherId });
+      return acc;
+    }, {} as Record<string, { date: string; slots: string[]; teacherId: number }[]>),
+    unavailabilitySet,
     defenseSession: currentSession
       ? { startDate: currentSession.startDate, endDate: currentSession.endDate, breakDuration: currentSession.breakDuration }
       : undefined,
@@ -101,12 +117,11 @@ export function getSmartSuggestions(
     const project = context.projects[projectId];
     if (room && project && project.studentIds.length > room.capacity) return false;
 
-    const projectJury = context.juries && Object.values(context.juries).find((j) => j.projectId === projectId);
+    const projectJury = context.juriesByProjectId[projectId];
     const teacherIds = projectJury?.teacherIds ?? [];
-    if (teacherIds.length > 0 && context.unavailability) {
-      const allUnavailability = Object.values(context.unavailability).flat();
+    if (teacherIds.length > 0) {
       for (const tid of teacherIds) {
-        if (allUnavailability.find((u) => u.teacherId === tid && u.date === date && u.slots.includes(altTime))) return false;
+        if (context.unavailabilitySet.has(`${tid}|${date}|${altTime}`)) return false;
       }
     }
     return true;
@@ -208,13 +223,14 @@ export function validateSlotAssignment(
     }
   }
 
-  const projectJury = context.juries && Object.values(context.juries).find((j) => j.projectId === projectId);
+  const projectJury = context.juriesByProjectId[projectId];
   const teacherIds = projectJury?.teacherIds ?? [];
 
-  if (teacherIds.length > 0) {
-    for (const [, existing] of Object.entries(context.schedule)) {
-      if (existing.date !== date) continue;
-      const existingJury = context.juries && Object.values(context.juries).find((j) => j.projectId === existing.id);
+  for (const [, existing] of Object.entries(context.schedule)) {
+    if (existing.date !== date) continue;
+
+    if (teacherIds.length > 0) {
+      const existingJury = context.juriesByProjectId[existing.id];
       const existingTeachers = existingJury?.teacherIds ?? [];
       const overlap = teacherIds.filter((t) => existingTeachers.includes(t));
       if (overlap.length > 0) {
@@ -230,14 +246,10 @@ export function validateSlotAssignment(
         }
       }
     }
-  }
 
-  if (project?.supervisorId) {
-    const supervisorId = project.supervisorId;
-    for (const [, existing] of Object.entries(context.schedule)) {
-      if (existing.date !== date) continue;
+    if (project?.supervisorId) {
       const existingProject = context.projects[existing.id];
-      if (existingProject?.supervisorId === supervisorId) {
+      if (existingProject?.supervisorId === project.supervisorId) {
         issues.push({
           type: "supervisor_conflict",
           severity: "error",
@@ -247,11 +259,8 @@ export function validateSlotAssignment(
         });
       }
     }
-  }
 
-  if (project?.studentIds?.length) {
-    for (const [, existing] of Object.entries(context.schedule)) {
-      if (existing.date !== date) continue;
+    if (project?.studentIds?.length) {
       const existingProject = context.projects[existing.id];
       const overlapping = project.studentIds.filter((sid) => existingProject?.studentIds.includes(sid));
       if (overlapping.length > 0) {
@@ -294,13 +303,9 @@ export function validateSlotAssignment(
     }
   }
 
-  if (teacherIds.length > 0 && context.unavailability) {
-    const allUnavailability = Object.values(context.unavailability).flat();
+  if (teacherIds.length > 0) {
     for (const teacherId of teacherIds) {
-      const unavailable = allUnavailability.find(
-        (u) => u.teacherId === teacherId && u.date === date && u.slots.includes(time),
-      );
-      if (unavailable) {
+      if (context.unavailabilitySet.has(`${teacherId}|${date}|${time}`)) {
         const teacher = context.teachers[teacherId];
         issues.push({
           type: "teacher_unavailable",

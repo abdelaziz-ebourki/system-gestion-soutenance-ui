@@ -27,8 +27,8 @@ import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { CrudActions } from "@/components/admin/CrudActions";
 import { DataTable } from "@/components/ui/data-table";
-import { ProjectDialog } from "@/components/academic/ProjectDialog";
-import { AssignProjectDialog } from "@/components/academic/AssignProjectDialog";
+import { ProjectDialog } from "@/components/coordinator/ProjectDialog";
+import { AssignProjectDialog } from "@/components/coordinator/AssignProjectDialog";
 
 export default function CoordinatorProjects() {
   const projectsQuery = useProjects();

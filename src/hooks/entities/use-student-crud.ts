@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/use-queries";
+import { useCreateUser, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import { studentSchema } from "@/lib/validations";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { toast } from "sonner";
@@ -36,6 +36,7 @@ export function useStudentCrud() {
   };
 
   const openEdit = (entity: Student) => {
+    form.resetForm();
     form.setFormData({
       lastName: entity.lastName,
       firstName: entity.firstName,
@@ -123,3 +124,4 @@ export function useStudentCrud() {
     isPending: create.isPending || update.isPending || del.isPending,
   };
 }
+

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { Plus } from "lucide-react";
 
-import { useDepartments, useTeachersList } from "@/hooks/use-queries";
+import { useDepartments, useTeachersList } from "@/hooks/queries";
 import { type Department } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -180,3 +180,4 @@ export default function Departments() {
     </div>
   );
 }
+

@@ -40,6 +40,7 @@ import { RotateCcw, ArrowUpDown, ArrowUp, ArrowDown, Columns } from "lucide-reac
 interface DataTableContextValue {
   table: TanStackTable<unknown>;
   labels: Required<DataTableLabels>;
+  loading?: boolean;
   enableRowSelection?: boolean;
   onRowClick?: (row: unknown) => void;
   emptyMessage?: string;
@@ -56,10 +57,10 @@ interface DataTableContextValue {
 
 const DataTableCtx = React.createContext<DataTableContextValue | null>(null);
 
-function useDataTable<TData>(): DataTableContextValue & { table: TanStackTable<TData>; onRowClick?: (row: TData) => void; mergedColumns: ColumnDef<TData, unknown>[] } {
-  const ctx = React.useContext(DataTableCtx);
+function useDataTable<TData>() {
+  const ctx = React.useContext(DataTableCtx) as DataTableContextValue & { table: TanStackTable<TData>; onRowClick?: (row: TData) => void; mergedColumns: ColumnDef<TData, unknown>[] } | null;
   if (!ctx) throw new Error("useDataTable must be used within DataTableProvider");
-  return ctx as unknown as DataTableContextValue & { table: TanStackTable<TData>; onRowClick?: (row: TData) => void; mergedColumns: ColumnDef<TData, unknown>[] };
+  return ctx;
 }
 
 interface DataTableFilter {
@@ -201,6 +202,18 @@ function DataTableProvider<TData, TValue>({
     [filterColumns],
   );
 
+  const globalFilterFn = React.useCallback(
+    (row: Row<TData>, _columnId: string, filterValue: string) => {
+      if (!searchCols) return true;
+      const query = String(filterValue).toLowerCase();
+      return searchCols.some((colId) => {
+        const val = row.getValue(colId);
+        return String(val ?? "").toLowerCase().includes(query);
+      });
+    },
+    [searchCols],
+  );
+
    // eslint-disable-next-line react-hooks/incompatible-library
    const table = useReactTable({
     data,
@@ -218,19 +231,19 @@ function DataTableProvider<TData, TValue>({
     onGlobalFilterChange: setGlobalFilter,
     enableRowSelection: !!enableRowSelection,
     onRowSelectionChange: setRowSelection,
-    globalFilterFn: searchCols
-      ? (row, _id, value) => {
-          const query = String(value).toLowerCase();
-          return searchCols.some((colId) => {
-            const val = row.getValue(colId);
-            return String(val ?? "").toLowerCase().includes(query);
-          });
-        }
-      : undefined,
+    globalFilterFn,
     state: { sorting, columnFilters, globalFilter: deferredGlobalFilter, pagination: pagination ?? internalPagination, rowSelection },
   });
 
   const hasActiveFilters = columnFilters.length > 0 || globalFilter.length > 0;
+
+  const ctxValue = React.useMemo(() => ({
+    table, labels, loading, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
+    setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
+  } as unknown as DataTableContextValue), [
+    table, labels, loading, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
+    setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
+  ]);
 
   const prevFiltering = React.useRef(hasActiveFilters);
   React.useEffect(() => {
@@ -240,19 +253,19 @@ function DataTableProvider<TData, TValue>({
     }
   }, [hasActiveFilters, onFiltering]);
 
+  const onSelectionChangeRef = React.useRef(onSelectedRowsChange);
   React.useEffect(() => {
-    if (!onSelectedRowsChange) return;
-    onSelectedRowsChange(table.getSelectedRowModel().rows.map((r) => r.original));
-  }, [rowSelection, onSelectedRowsChange, table]);
+    onSelectionChangeRef.current = onSelectedRowsChange;
+  });
+  React.useEffect(() => {
+    if (!onSelectionChangeRef.current) return;
+    onSelectionChangeRef.current(table.getSelectedRowModel().rows.map((r) => r.original));
+  }, [rowSelection, table]);
 
-  if (loading) return <Skeleton className="h-64 w-full" />;
   if (error) return <div className="rounded-md border border-destructive/50 p-6 text-center text-sm text-destructive">{error}</div>;
 
   return (
-    <DataTableCtx.Provider value={{
-      table, labels, enableRowSelection, onRowClick, emptyMessage, mergedColumns, globalFilter,
-      setGlobalFilter, searchCols, filters, columnVisibility, filterPlaceholder, hasActiveFilters, pageSizeOptions,
-    } as unknown as DataTableContextValue}>
+    <DataTableCtx.Provider value={ctxValue}>
       <div>{children}</div>
     </DataTableCtx.Provider>
   );
@@ -391,7 +404,24 @@ function DataTableHeader() {
 }
 
 function DataTableBody() {
-  const { table, labels, onRowClick, emptyMessage, mergedColumns } = useDataTable();
+  const { table, labels, onRowClick, emptyMessage, mergedColumns, loading } = useDataTable();
+
+  if (loading) {
+    return (
+      <TableBody>
+        {Array.from({ length: table.getState().pagination.pageSize || 10 }).map((_, i) => (
+          <TableRow key={`skeleton-${i}`}>
+            {mergedColumns.map((_, j) => (
+              <TableCell key={`skeleton-cell-${j}`}>
+                <Skeleton className="h-6 w-full" />
+              </TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    );
+  }
+
   return (
     <TableBody>
       {table.getRowModel().rows?.length ? (
@@ -421,14 +451,16 @@ function DataTableBody() {
 }
 
 function DataTablePagination() {
-  const { table, labels, enableRowSelection, pageSizeOptions } = useDataTable();
+  const { table, labels, enableRowSelection, pageSizeOptions, loading } = useDataTable();
   const totalPages = table.getPageCount();
+  const displayTotalPages = loading && totalPages === 0 ? 1 : totalPages;
+  const currentPage = table.getState().pagination.pageIndex + 1;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 py-4">
       <div className="flex items-center gap-4">
         <div className="text-sm text-muted-foreground">
-          {labels.pageXofY(table.getState().pagination.pageIndex + 1, totalPages)}
+          {labels.pageXofY(currentPage, displayTotalPages)}
         </div>
         {enableRowSelection && table.getFilteredSelectedRowModel().rows.length > 0 && (
           <div className="text-sm font-medium text-primary">
@@ -438,6 +470,7 @@ function DataTablePagination() {
         <Select
           value={String(table.getState().pagination.pageSize)}
           onValueChange={(v) => table.setPageSize(Number(v))}
+          disabled={loading}
         >
           <SelectTrigger className="h-8 w-28">
             <span className="flex-1 text-left">{table.getState().pagination.pageSize}{labels.itemsPerPage}</span>
@@ -450,26 +483,41 @@ function DataTablePagination() {
         </Select>
       </div>
       <div className="flex flex-wrap items-center gap-1">
-        <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.previousPage()}
+          disabled={loading || !table.getCanPreviousPage()}
+        >
           {labels.previous}
         </Button>
-        {totalPages > 1 &&
-          getPageNumbers(table.getState().pagination.pageIndex + 1, totalPages).map((page, i) =>
-            page === "..." ? (
-              <span key={`ellipsis-${i}`} className="px-1 text-muted-foreground">...</span>
-            ) : (
-              <Button
-                key={page}
-                variant={page === table.getState().pagination.pageIndex + 1 ? "default" : "outline"}
-                size="sm"
-                className="min-w-9"
-                onClick={() => table.setPageIndex(page - 1)}
-              >
-                {page}
-              </Button>
-            ),
-          )}
-        <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+        {displayTotalPages > 1 &&
+          (() => {
+            let ellipsisCount = 0;
+            return getPageNumbers(currentPage, displayTotalPages).map((page) => {
+              const key = page === "..." ? `ellipsis-${++ellipsisCount}` : `page-${page}`;
+              return page === "..." ? (
+                <span key={key} className="px-1 text-muted-foreground">...</span>
+              ) : (
+                <Button
+                  key={key}
+                  variant={page === currentPage ? "default" : "outline"}
+                  size="sm"
+                  className="min-w-9"
+                  onClick={() => table.setPageIndex(page - 1)}
+                  disabled={loading}
+                >
+                  {page}
+                </Button>
+              );
+            });
+          })()}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => table.nextPage()}
+          disabled={loading || !table.getCanNextPage()}
+        >
           {labels.next}
         </Button>
       </div>

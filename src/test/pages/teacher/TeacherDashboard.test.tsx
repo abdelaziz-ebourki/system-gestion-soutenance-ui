@@ -133,3 +133,4 @@ describe("TeacherDashboard", () => {
     expect(screen.getByText("Aucune évaluation en attente.")).toBeInTheDocument();
   });
 });
+

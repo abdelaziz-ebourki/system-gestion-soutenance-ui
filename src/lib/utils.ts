@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { ApiError } from "@/lib/api-error"
+import { format, parseISO } from "date-fns"
+import { fr } from "date-fns/locale"
 import type { SlotKey } from "@/types";
 import { MAX_SUGGESTIONS } from "@/lib/constants";
 
@@ -10,6 +12,21 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getFullName(person: { firstName: string; lastName: string }): string {
   return `${person.firstName} ${person.lastName}`.trim()
+}
+
+export function formatDate(date: string | Date | null | undefined, pattern = "dd MMM yyyy"): string {
+  if (!date) return "";
+  try {
+    const d = typeof date === "string" ? parseISO(date) : date;
+    return format(d, pattern, { locale: fr });
+  } catch {
+    return String(date);
+  }
+}
+
+export function formatTime(time: string): string {
+  if (!time) return "";
+  return time.split(":").slice(0, 2).join(":");
 }
 
 export function createSlotKey(date: string, room: string, time: string): SlotKey {

@@ -44,7 +44,7 @@ import { useTheme } from "next-themes";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
-import { useUnreadCount } from "@/hooks/use-queries";
+import { useUnreadCount } from "@/hooks/queries";
 import { Badge } from "@/components/ui/badge";
 import { ROUTES } from "@/config/routes";
 
@@ -221,3 +221,4 @@ function UnreadBadge() {
     </Badge>
   );
 }
+

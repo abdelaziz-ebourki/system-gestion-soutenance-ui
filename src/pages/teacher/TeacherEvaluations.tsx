@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { FileCheck2, MessageSquareText, PencilLine } from "lucide-react";
 
-import { useTeacherEvaluations } from "@/hooks/use-queries";
+import { useTeacherEvaluations } from "@/hooks/queries";
 import { useEvaluationForm } from "@/hooks/use-evaluation-form";
 import {
   Button,
@@ -189,3 +189,4 @@ export default function TeacherEvaluations() {
     </div>
   );
 }
+

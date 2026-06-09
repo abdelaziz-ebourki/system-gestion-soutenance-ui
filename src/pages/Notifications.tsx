@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 
-import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/use-queries";
+import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead } from "@/hooks/queries";
 import type { AppNotification } from "@/types";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
@@ -177,3 +177,4 @@ export default function NotificationsPage() {
     </div>
   );
 }
+

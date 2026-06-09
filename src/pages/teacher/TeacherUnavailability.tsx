@@ -2,12 +2,12 @@ import { useMemo } from "react";
 import * as React from "react";
 import { Ban, CalendarClock, Save } from "lucide-react";
 
-import { useTeacherSchedule, useTeacherUnavailability, useSaveTeacherUnavailability } from "@/hooks/use-queries";
+import { useTeacherSchedule, useTeacherUnavailability, useSaveTeacherUnavailability } from "@/hooks/queries";
 import type { TeacherUnavailability } from "@/types";
 import { unavailabilitySchema, validate } from "@/lib/validations";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import AvailabilityCalendar from "@/components/academic/AvailabilityCalendar";
+import AvailabilityCalendar from "@/components/coordinator/AvailabilityCalendar";
 import {
   Button,
   Card,

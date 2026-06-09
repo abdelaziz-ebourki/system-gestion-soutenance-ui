@@ -4,13 +4,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 import { toast } from "sonner";
 import TeacherUnavailability from "@/pages/teacher/TeacherUnavailability";
-import { useTeacherSchedule, useTeacherUnavailability, useSaveTeacherUnavailability } from "@/hooks/use-queries";
+import { useTeacherSchedule, useTeacherUnavailability, useSaveTeacherUnavailability } from "@/hooks/queries";
 import type { TeacherUnavailability as UnavailabilityType, TeacherDefense } from "@/types";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
-import type { AvailabilityCalendarProps } from "@/components/academic/AvailabilityCalendar";
+import type { AvailabilityCalendarProps } from "@/components/coordinator/AvailabilityCalendar";
 
-vi.mock("@/hooks/use-queries", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/hooks/use-queries")>();
+vi.mock("@/hooks/queries", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/hooks/queries")>();
   return {
     ...actual,
     useTeacherSchedule: vi.fn(),
@@ -28,7 +28,7 @@ vi.mock("sonner", () => ({
 
 
 
-vi.mock("@/components/academic/AvailabilityCalendar", () => ({
+vi.mock("@/components/coordinator/AvailabilityCalendar", () => ({
   default: ({ onToggleSlot }: AvailabilityCalendarProps) => (
     <div data-testid="availability-calendar">
       <button 
@@ -177,3 +177,4 @@ describe("TeacherUnavailability", () => {
     });
   });
 });
+

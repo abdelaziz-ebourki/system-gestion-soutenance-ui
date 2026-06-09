@@ -10,7 +10,7 @@ import {
   Users,
 } from "lucide-react";
 
-import { useCoordinatorStats, useProjects, useJuries } from "@/hooks/use-queries";
+import { useCoordinatorStats, useProjects, useJuries } from "@/hooks/queries";
 
 import {
   Badge,
@@ -144,11 +144,7 @@ export default function CoordinatorDashboard() {
                     Prêts
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
-                    {isLoading ? (
-                      <Skeleton className="h-8 w-16" />
-                    ) : (
-                      projectsWithJury.length
-                    )}
+                    {projectsWithJury.length}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Projets avec jury
@@ -159,11 +155,7 @@ export default function CoordinatorDashboard() {
                     A completer
                   </p>
                   <p className="mt-2 text-2xl font-semibold">
-                    {isLoading ? (
-                      <Skeleton className="h-8 w-16" />
-                    ) : (
-                      projectsWithoutJury.length
-                    )}
+                    {projectsWithoutJury.length}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Projets sans jury
@@ -243,3 +235,4 @@ export default function CoordinatorDashboard() {
     </div>
   );
 }
+

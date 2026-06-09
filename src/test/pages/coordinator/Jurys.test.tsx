@@ -9,7 +9,7 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
-vi.mock("@/components/academic/CreateJuryDialog", () => ({
+vi.mock("@/components/coordinator/CreateJuryDialog", () => ({
   CreateJuryDialog: ({ open }: { open: boolean }) => open ? <div data-testid="coord-jury-create-dialog" /> : null,
 }));
 
@@ -59,7 +59,7 @@ const { mockUseJuries, mockUseProjects, mockUseDeleteJury } = vi.hoisted(() => (
   mockUseDeleteJury: vi.fn(() => ({ isPending: false, mutateAsync: vi.fn() })),
 }));
 
-vi.mock("@/hooks/use-queries", () => ({
+vi.mock("@/hooks/queries", () => ({
   useJuries: mockUseJuries,
   useProjects: mockUseProjects,
   useDeleteJury: mockUseDeleteJury,
@@ -164,3 +164,4 @@ describe("Jurys (Coordinator)", () => {
     });
   });
 });
+

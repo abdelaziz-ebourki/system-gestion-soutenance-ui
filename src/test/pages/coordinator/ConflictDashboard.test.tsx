@@ -166,3 +166,4 @@ describe("ConflictDashboard (Coordinator)", () => {
     expect(screen.getByText(/Suggestion : Utiliser la salle B02/)).toBeInTheDocument();
   });
 });
+

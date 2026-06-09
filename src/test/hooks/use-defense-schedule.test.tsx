@@ -129,3 +129,4 @@ describe("useDefenseSchedule", () => {
     expect(toast.success).toHaveBeenCalledWith("Session publiée avec succès");
   });
 });
+

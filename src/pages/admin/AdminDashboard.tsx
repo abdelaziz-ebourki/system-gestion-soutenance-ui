@@ -10,7 +10,7 @@ import {
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { format } from "date-fns";
 
-import { useAdminStats, useUsers, useAuditLogs, useUpdateUser, useDeleteUser } from "@/hooks/use-queries";
+import { useAdminStats, useUsers, useAuditLogs, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import type { User } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
@@ -31,6 +31,56 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+
+const userColumns: ColumnDef<User>[] = [
+  {
+    accessorKey: "lastName",
+    header: "Nom",
+  },
+  {
+    accessorKey: "firstName",
+    header: "Prénom",
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+  },
+  {
+    accessorKey: "role",
+    header: "Rôle",
+    cell: ({ row }) => (
+      <Badge variant="outline" className="capitalize">
+        {row.getValue("role")}
+      </Badge>
+    ),
+  },
+];
+
+const logColumns: ColumnDef<AuditLog>[] = [
+  {
+    accessorKey: "timestamp",
+    header: "Date",
+    cell: ({ row }) =>
+      format(new Date(row.original.timestamp), "dd/MM/yyyy HH:mm"),
+  },
+  {
+    accessorKey: "adminEmail",
+    header: "Admin",
+  },
+  {
+    accessorKey: "action",
+    header: "Action",
+    cell: ({ row }) => (
+      <Badge variant="outline" className="font-mono">
+        {row.original.action}
+      </Badge>
+    ),
+  },
+  {
+    accessorKey: "details",
+    header: "Détails",
+  },
+];
 
 export default function AdminDashboard() {
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -53,55 +103,6 @@ export default function AdminDashboard() {
   const pageCount = usersData?.pageCount ?? 0;
   const auditLogs = logs?.items ?? [];
 
-  const userColumns: ColumnDef<User>[] = [
-    {
-      accessorKey: "lastName",
-      header: "Nom",
-    },
-    {
-      accessorKey: "firstName",
-      header: "Prénom",
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-    },
-    {
-      accessorKey: "role",
-      header: "Rôle",
-      cell: ({ row }) => (
-        <Badge variant="outline" className="capitalize">
-          {row.getValue("role")}
-        </Badge>
-      ),
-    },
-  ];
-
-  const logColumns: ColumnDef<AuditLog>[] = [
-    {
-      accessorKey: "timestamp",
-      header: "Date",
-      cell: ({ row }) =>
-        format(new Date(row.original.timestamp), "dd/MM/yyyy HH:mm"),
-    },
-    {
-      accessorKey: "performedByEmail",
-      header: "Utilisateur",
-    },
-    {
-      accessorKey: "action",
-      header: "Action",
-      cell: ({ row }) => (
-        <Badge variant="outline" className="font-mono">
-          {row.original.action}
-        </Badge>
-      ),
-    },
-    {
-      accessorKey: "details",
-      header: "Détails",
-    },
-  ];
 
   const chartData = React.useMemo(() => [
     { name: "Étudiants", total: stats?.totalStudents || 0 },

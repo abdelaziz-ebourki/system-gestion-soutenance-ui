@@ -108,7 +108,7 @@ describe("Validation utilities", () => {
     });
 
     it("juryMemberSchema validates", () => {
-        expect(validate(juryMemberSchema, { roleName: "President", teacherId: "1" })).toBeNull();
+        expect(validate(juryMemberSchema, { roleName: "President", teacherId: "t1" })).toBeNull();
         expect(validate(juryMemberSchema, { roleName: "", teacherId: "" })).toBeDefined();
     });
 

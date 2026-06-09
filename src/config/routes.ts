@@ -79,3 +79,36 @@ export const VALID_DASHBOARD_ROUTES = new Set([
   ROUTES.SHARED.PROFILE,
   ROUTES.SHARED.NOTIFICATIONS,
 ]);
+
+export const BREADCRUMB_LABELS: Record<string, string> = {
+  [ROUTES.ADMIN.DASHBOARD]: "Admin",
+  [ROUTES.ADMIN.CONFIG]: "Configuration",
+  [ROUTES.ADMIN.DEPARTMENTS]: "Départements",
+  [ROUTES.ADMIN.ROOMS]: "Salles",
+  "/admin/users": "Utilisateurs",
+  [ROUTES.ADMIN.USERS.STUDENTS]: "Étudiants",
+  [ROUTES.ADMIN.USERS.TEACHERS]: "Enseignants",
+  [ROUTES.ADMIN.USERS.COORDINATORS]: "Coordinateurs",
+  [ROUTES.ADMIN.AUDIT_LOGS]: "Audit Log",
+
+  [ROUTES.COORDINATOR.DASHBOARD]: "Coordinateur",
+  [ROUTES.COORDINATOR.SCHEDULE]: "Planification",
+  [ROUTES.COORDINATOR.PROJECTS]: "Projets & Groupes",
+  [ROUTES.COORDINATOR.JURIES]: "Jurys",
+  [ROUTES.COORDINATOR.DEFENSE_SESSIONS]: "Sessions de soutenance",
+  [ROUTES.COORDINATOR.CONFLICTS]: "Conflits",
+  [ROUTES.COORDINATOR.GRADES]: "Notes",
+  [ROUTES.COORDINATOR.DOCUMENTS]: "Documents",
+
+  [ROUTES.TEACHER.DASHBOARD]: "Enseignant",
+  [ROUTES.TEACHER.SCHEDULE]: "Planification",
+  [ROUTES.TEACHER.EVALUATIONS]: "Évaluations",
+  [ROUTES.TEACHER.UNAVAILABILITY]: "Indisponibilités",
+
+  [ROUTES.STUDENT.DASHBOARD]: "Étudiant",
+  [ROUTES.STUDENT.GROUP]: "Groupe",
+  [ROUTES.STUDENT.DOCUMENTS]: "Documents",
+
+  [ROUTES.SHARED.PROFILE]: "Profil",
+  [ROUTES.SHARED.NOTIFICATIONS]: "Notifications",
+};

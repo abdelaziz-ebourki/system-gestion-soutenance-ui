@@ -137,14 +137,14 @@ export default function DefenseDesigner() {
         </div>
 
         <DragOverlay>
-          {activeJuryId ? (
-            <div className="w-64">
-              <DraggableJurySlot
-                jury={juries.find((j) => j.id === activeJuryId)!}
-                isOverlay
-              />
-            </div>
-          ) : null}
+          {(() => {
+            const activeJury = juries.find((j) => j.id === activeJuryId);
+            return activeJury ? (
+              <div className="w-64">
+                <DraggableJurySlot jury={activeJury} isOverlay />
+              </div>
+            ) : null;
+          })()}
         </DragOverlay>
       </DndContext>
 

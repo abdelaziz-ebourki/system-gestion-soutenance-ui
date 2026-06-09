@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AssignProjectDialog } from "@/components/academic/AssignProjectDialog";
+import { AssignProjectDialog } from "@/components/coordinator/AssignProjectDialog";
 import { useProjects, useGroups, useAssignProjectToGroup } from "@/hooks/queries";
 import { toast } from "sonner";
 import type { Project, Group } from "@/types";
@@ -137,3 +137,4 @@ describe("AssignProjectDialog", () => {
     });
   });
 });
+

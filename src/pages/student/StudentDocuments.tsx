@@ -9,7 +9,7 @@ import {
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 
-import { useStudentDocuments, useUploadStudentDocument } from "@/hooks/use-queries";
+import { useStudentDocuments, useUploadStudentDocument } from "@/hooks/queries";
 import type { StudentDocument } from "@/types";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
@@ -218,3 +218,4 @@ export default function StudentDocuments() {
     </div>
   );
 }
+

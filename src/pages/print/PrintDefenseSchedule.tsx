@@ -1,5 +1,6 @@
 import { useSearchParams } from "react-router-dom";
 import { useDefenseScheduleDoc } from "@/hooks/queries";
+
 import PrintLayout from "@/components/print/PrintLayout";
 import DefenseSchedule from "@/components/print/DefenseSchedule";
 
@@ -38,3 +39,4 @@ export default function PrintDefenseSchedule() {
     </div>
   );
 }
+
