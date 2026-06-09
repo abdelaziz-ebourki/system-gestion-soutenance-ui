@@ -1,23 +1,17 @@
 import { ApiError } from "@/lib/api-error";
-import type {
-  Student,
-  Teacher,
-  Coordinator,
-  AppNotification,
-} from "@/types";
+import { STORAGE_KEYS } from "@/lib/constants";
+import type { AppNotification } from "@/types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
-const CSRF_COOKIE_NAME = "XSRF-TOKEN";
-const CSRF_HEADER_NAME = "X-XSRF-TOKEN";
-
-const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS", "TRACE"]);
-
 export const DEFAULT_TIMEOUT = 15_000;
 
-function getCsrfToken(): string | null {
-  const match = document.cookie.match(new RegExp(`(?:^|;\\s*)${CSRF_COOKIE_NAME}=([^;]*)`));
-  return match ? decodeURIComponent(match[1]) : null;
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  timestamp: string;
+  errors: string[];
 }
 
 interface ApiOptions extends RequestInit {
@@ -30,17 +24,18 @@ export async function api<T>(
   endpoint: string,
   options: ApiOptions = {},
 ): Promise<T> {
-  const { responseType = "json", timeout = DEFAULT_TIMEOUT, ...customConfig } = options;
+  const { responseType = "json", timeout = DEFAULT_TIMEOUT, requiresAuth = true, ...customConfig } = options;
 
   const headers: Record<string, string> = {
     ...customConfig.headers as Record<string, string> | undefined,
   };
 
   const method = (customConfig.method || "GET").toUpperCase();
-  if (!SAFE_METHODS.has(method)) {
-    const csrfToken = getCsrfToken();
-    if (csrfToken) {
-      headers[CSRF_HEADER_NAME] = csrfToken;
+
+  if (requiresAuth) {
+    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
   }
 
@@ -55,7 +50,6 @@ export async function api<T>(
     ...customConfig,
     method,
     headers,
-    credentials: customConfig.credentials || "include",
     signal: controller.signal,
   };
 
@@ -75,12 +69,18 @@ export async function api<T>(
       } catch {
         data = {};
       }
-      const errorMessage =
-        (data?.message as string) || "Une erreur est survenue lors de la requête.";
+
+      if (data && typeof data === "object" && "message" in data) {
+        throw new ApiError({
+          status: response.status,
+          message: (data.message as string) || "Une erreur est survenue lors de la requête.",
+          fieldErrors: data.fieldErrors as Record<string, string> | undefined,
+        });
+      }
+
       throw new ApiError({
         status: response.status,
-        message: errorMessage,
-        fieldErrors: data?.fieldErrors as Record<string, string> | undefined,
+        message: "Une erreur est survenue lors de la requête.",
       });
     }
 
@@ -91,10 +91,25 @@ export async function api<T>(
       return {} as T;
     }
 
-    const data = responseType === "blob"
-      ? await response.blob()
-      : await response.json();
-    return data as T;
+    if (responseType === "blob") {
+      return await response.blob() as T;
+    }
+
+    const json = await response.json();
+
+    if (json && typeof json === "object" && "success" in json && "data" in json) {
+      const envelope = json as ApiResponse<T>;
+      if (!envelope.success) {
+        throw new ApiError({
+          status: response.status,
+          message: envelope.message || "Une erreur est survenue.",
+          fieldErrors: envelope.errors?.[0] ? { general: envelope.errors[0] } : undefined,
+        });
+      }
+      return envelope.data;
+    }
+
+    return json as T;
   } catch (error: unknown) {
     clearTimeout(timeoutId);
 
@@ -129,29 +144,23 @@ export interface PaginatedResponse<T> {
   items: T[];
   total: number;
   pageCount: number;
-}
-
-export type UserCreateParams =
-  | Partial<Student>
-  | Partial<Teacher>
-  | Partial<Coordinator>;
-
-export interface RoomImportData {
-  name: string;
-  capacity: number;
-  departmentId: string;
-  [key: string]: string | number;
+  currentPage: number;
+  size: number;
 }
 
 export const getNotifications = () => api<AppNotification[]>("/notifications");
 
-export const markNotificationRead = (id: string) =>
+export const markNotificationRead = (id: number) =>
   api<void>(`/notifications/${id}/read`, { method: "PATCH" });
 
 export const markAllNotificationsRead = () =>
   api<void>("/notifications/read-all", { method: "PATCH" });
 
+export const sendNotificationEmail = (id: number) =>
+  api<void>(`/notifications/${id}/send-email`, { method: "POST" });
+
 export interface DefenseSettings {
+  id: number;
   startTime: string;
   endTime: string;
   defenseDuration: number;
@@ -161,6 +170,7 @@ export interface DefenseSettings {
 }
 
 export interface GeneralSettings {
+  id: number;
   institutionName: string;
   institutionLogoUrl: string;
   timezone: string;
@@ -169,17 +179,19 @@ export interface GeneralSettings {
 }
 
 export interface DocumentConfig {
+  id: number;
   maxFileSizeMb: number;
   allowedExtensions: string;
   versionLimit: number;
 }
 
 export interface EmailConfig {
+  id: number;
   host: string;
   port: number;
   username: string;
   password: string;
   senderName: string;
   senderEmail: string;
-  encryption: "tls" | "ssl" | "none";
+  encryption: string;
 }

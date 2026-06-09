@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 import { ClipboardCheck, Clock3, FileCheck2, ShieldCheck } from "lucide-react";
 
-import { useTeacherStats, useTeacherSchedule, useTeacherEvaluations } from "@/hooks/use-queries";
-import { DEFENSE_ROLE_LABELS } from "@/lib/constants";
+import { useTeacherStats, useTeacherSchedule, useTeacherEvaluations } from "@/hooks/queries";
 
 import {
   Badge,
@@ -21,13 +20,11 @@ export default function TeacherDashboard() {
   const scheduleQuery = useTeacherSchedule();
   const evaluationsQuery = useTeacherEvaluations();
   const stats = statsQuery.data ?? null;
-  const schedule = useMemo(() => scheduleQuery.data ?? [], [scheduleQuery.data]);
+  const schedule = useMemo(() => scheduleQuery.data?.slots ?? [], [scheduleQuery.data]);
   const evaluations = useMemo(() => evaluationsQuery.data ?? [], [evaluationsQuery.data]);
   const isLoading = statsQuery.isLoading || scheduleQuery.isLoading || evaluationsQuery.isLoading;
 
-  const upcomingDefenses = useMemo(() => schedule
-    .filter((defense) => defense.status === "scheduled")
-    .slice(0, 3), [schedule]);
+  const upcomingDefenses = useMemo(() => schedule.slice(0, 3), [schedule]);
   const pendingEvaluations = useMemo(() => evaluations.filter(
     (evaluation) => evaluation.status === "pending",
   ), [evaluations]);
@@ -105,8 +102,8 @@ export default function TeacherDashboard() {
           </CardHeader>
           <CardContent className="space-y-3">
             {upcomingDefenses.length > 0 ? (
-              upcomingDefenses.map((defense) => (
-              <div key={defense.id} className="rounded-lg border p-4" data-testid={`teacher-dashboard-upcoming-item-${defense.id}`}>
+              upcomingDefenses.map((defense, index) => (
+              <div key={`${defense.date}-${defense.time}-${index}`} className="rounded-lg border p-4" data-testid={`teacher-dashboard-upcoming-item-${index}`}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-medium">{defense.projectTitle}</p>
@@ -114,12 +111,9 @@ export default function TeacherDashboard() {
                       {defense.studentNames.join(", ")}
                     </p>
                   </div>
-                  <Badge variant="secondary">
-                    {DEFENSE_ROLE_LABELS[defense.role]}
-                  </Badge>
                 </div>
                 <div className="mt-3 text-sm text-muted-foreground">
-                  {defense.date} · {defense.startTime} - {defense.endTime} ·{" "}
+                  {defense.date} · {defense.time} ·{" "}
                   {defense.roomName}
                 </div>
               </div>
@@ -143,12 +137,6 @@ export default function TeacherDashboard() {
             {pendingEvaluations.map((evaluation) => (
               <div key={evaluation.id} className="rounded-lg border p-4" data-testid={`teacher-dashboard-evaluations-item-${evaluation.id}`}>
                 <p className="font-medium">{evaluation.projectTitle}</p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {evaluation.studentNames.join(", ")}
-                </p>
-                <div className="mt-3">
-                  <Badge variant="outline">{DEFENSE_ROLE_LABELS[evaluation.role]}</Badge>
-                </div>
               </div>
             ))}
             {!isLoading && pendingEvaluations.length === 0 && (

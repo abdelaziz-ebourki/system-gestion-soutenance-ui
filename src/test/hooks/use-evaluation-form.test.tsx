@@ -16,12 +16,12 @@ function createWrapper() {
 }
 
 const mockEvaluation = {
-  id: "te1",
-  defenseId: "td1",
+  id: 1,
+  projectId: 1,
   projectTitle: "Test",
-  studentNames: ["John"],
-  role: "president" as const,
-  status: "pending" as const,
+  finalGrade: 0,
+  comment: "",
+  status: "pending",
 };
 
 describe("useEvaluationForm", () => {
@@ -39,7 +39,7 @@ describe("useEvaluationForm", () => {
 
   it("openEdit populates form with evaluation data", () => {
     const { result } = renderHook(() => useEvaluationForm(), { wrapper: createWrapper() });
-    act(() => result.current.openEdit({ ...mockEvaluation, score: 15, comment: "Good" }));
+    act(() => result.current.openEdit({ ...mockEvaluation, finalGrade: 15, comment: "Good" }));
     expect(result.current.selected).toBeDefined();
     expect(result.current.formData.score).toBe(15);
     expect(result.current.formData.comment).toBe("Good");
@@ -57,7 +57,7 @@ describe("useEvaluationForm", () => {
 
   it("handleSubmit with selected submits successfully", async () => {
     const { result } = renderHook(() => useEvaluationForm(), { wrapper: createWrapper() });
-    act(() => result.current.openEdit({ ...mockEvaluation, score: 15, comment: "Good" }));
+    act(() => result.current.openEdit({ ...mockEvaluation, finalGrade: 15, comment: "Good" }));
     const fakeEvent = { preventDefault: vi.fn() };
     await act(async () => {
       await result.current.handleSubmit(fakeEvent);
@@ -69,7 +69,7 @@ describe("useEvaluationForm", () => {
 
   it("handleSubmit sets field errors for invalid data", async () => {
     const { result } = renderHook(() => useEvaluationForm(), { wrapper: createWrapper() });
-    act(() => result.current.openEdit({ ...mockEvaluation, score: 15, comment: "Good" }));
+    act(() => result.current.openEdit({ ...mockEvaluation, finalGrade: 15, comment: "Good" }));
     act(() => result.current.setFormData({ score: -1, comment: "" }));
     const fakeEvent = { preventDefault: vi.fn() };
     await act(async () => {

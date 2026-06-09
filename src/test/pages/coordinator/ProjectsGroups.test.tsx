@@ -39,7 +39,7 @@ describe("ProjectsGroups (Coordinator)", () => {
     renderProjects();
     expect(await screen.findByText("2")).toBeInTheDocument();
     expect(screen.getByText("Portefeuille")).toBeInTheDocument();
-    expect(screen.getByText("A valider")).toBeInTheDocument();
+    expect(screen.getByText("Groupes complets")).toBeInTheDocument();
   });
 
   it("renders the add project button", async () => {
@@ -51,8 +51,6 @@ describe("ProjectsGroups (Coordinator)", () => {
     renderProjects();
     const projectTitles = await screen.findAllByText(/Application CI\/CD|Analyse des données/);
     expect(projectTitles.length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("Valide")).toBeInTheDocument();
-    expect(screen.getByText("En attente")).toBeInTheDocument();
   });
 
   it("renders student groups section with assigned and unassigned groups", async () => {
@@ -66,7 +64,7 @@ describe("ProjectsGroups (Coordinator)", () => {
   it("renders assign button for unassigned groups", async () => {
     renderProjects();
     expect(await screen.findByText("Groupe Beta")).toBeInTheDocument();
-    expect(screen.getByTestId("coord-projects-assign-sg2")).toBeInTheDocument();
+    expect(screen.getByTestId("coord-projects-assign-2")).toBeInTheDocument();
   });
 
   it("shows loading skeleton when projects are loading", async () => {
@@ -146,7 +144,7 @@ describe("ProjectsGroups (Coordinator)", () => {
   it("opens AssignProjectDialog on assign button click", async () => {
     const user = userEvent.setup();
     renderProjects();
-    const assignBtn = await screen.findByTestId("coord-projects-assign-sg2");
+    const assignBtn = await screen.findByTestId("coord-projects-assign-2");
     await user.click(assignBtn);
     expect(await screen.findByTestId("coord-assign-project-dialog")).toBeInTheDocument();
     expect(screen.getByTestId("coord-assign-project-dialog")).toHaveTextContent("Assigner un projet");
@@ -155,7 +153,7 @@ describe("ProjectsGroups (Coordinator)", () => {
   it("closes AssignProjectDialog via cancel", async () => {
     const user = userEvent.setup();
     renderProjects();
-    const assignBtn = await screen.findByTestId("coord-projects-assign-sg2");
+    const assignBtn = await screen.findByTestId("coord-projects-assign-2");
     await user.click(assignBtn);
     expect(await screen.findByTestId("coord-assign-project-dialog")).toBeInTheDocument();
     await user.click(screen.getByTestId("coord-assign-project-cancel"));

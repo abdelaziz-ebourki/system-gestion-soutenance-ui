@@ -12,7 +12,7 @@ vi.mock("sonner", () => ({
 }));
 
 const studentUser = {
-  id: "4",
+  id: 4,
   email: "student@univh2c.ma",
   firstName: "Student",
   lastName: "User",
@@ -38,7 +38,7 @@ describe("StudentGroup", () => {
 
   it("shows create button when group creation is open and user has no group", async () => {
     server.use(
-      http.get("*/api/student/group", () =>
+      http.get("*/api/student/groups", () =>
         HttpResponse.json({
           currentGroup: null,
           availableGroups: [],
@@ -65,7 +65,7 @@ describe("StudentGroup", () => {
 
   it("shows closure message when group creation is closed", async () => {
     server.use(
-      http.get("*/api/student/group", () =>
+      http.get("*/api/student/groups", () =>
         HttpResponse.json({
           currentGroup: null,
           availableGroups: [],
@@ -83,11 +83,11 @@ describe("StudentGroup", () => {
 
   it("shows available groups to join", async () => {
     server.use(
-      http.get("*/api/student/group", () =>
+      http.get("*/api/student/groups", () =>
         HttpResponse.json({
           currentGroup: null,
           availableGroups: [
-            { id: "g2", groupName: "Groupe Beta", memberCount: 2 },
+            { id: 2, groupName: "Groupe Beta", memberCount: 2 },
           ],
           groupCreationStartDate: "2026-01-01",
           groupCreationEndDate: "2026-06-01",
@@ -99,13 +99,13 @@ describe("StudentGroup", () => {
       initialAuthState: { user: studentUser },
     });
     expect(await screen.findByText("Groupe Beta")).toBeInTheDocument();
-    expect(screen.getByTestId("student-group-join-btn-g2")).toBeInTheDocument();
+    expect(screen.getByTestId("student-group-join-btn-2")).toBeInTheDocument();
   });
 
   it("creates a group successfully", async () => {
     const user = userEvent.setup();
     server.use(
-      http.get("*/api/student/group", () =>
+      http.get("*/api/student/groups", () =>
         HttpResponse.json({
           currentGroup: null,
           availableGroups: [],

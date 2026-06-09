@@ -17,10 +17,10 @@ function createWrapper() {
 }
 
 const mockRoom = {
-  id: "r1",
+  id: 1,
   name: "Salle 101",
   capacity: 30,
-  departmentId: "d1",
+  departmentId: 1,
 };
 
 describe("useRoomCrud", () => {
@@ -53,7 +53,7 @@ describe("useRoomCrud", () => {
     expect(result.current.isDialogOpen).toBe(true);
     expect(result.current.formData.name).toBe("Salle 101");
     expect(result.current.formData.capacity).toBe(30);
-    expect(result.current.formData.departmentId).toBe("d1");
+    expect(result.current.formData.departmentId).toBe("1");
   });
 
   it("openDelete sets selected and opens delete dialog", () => {
@@ -78,7 +78,7 @@ describe("useRoomCrud", () => {
   it("handleSubmit with valid data creates a room", async () => {
     const { result } = renderHook(() => useRoomCrud(), { wrapper: createWrapper() });
     act(() => {
-      result.current.setFormData({ name: "New Room", capacity: 20, departmentId: "d1" });
+      result.current.setFormData({ name: "New Room", capacity: 20, departmentId: "1" });
     });
     const fakeEvent = { preventDefault: vi.fn() };
     await act(async () => {
@@ -94,7 +94,7 @@ describe("useRoomCrud", () => {
     const { result } = renderHook(() => useRoomCrud(), { wrapper: createWrapper() });
     act(() => result.current.openEdit(mockRoom));
     act(() => {
-      result.current.setFormData({ name: "Updated Room", capacity: 25, departmentId: "d1" });
+      result.current.setFormData({ name: "Updated Room", capacity: 25, departmentId: "1" });
     });
     const fakeEvent = { preventDefault: vi.fn() };
     await act(async () => {

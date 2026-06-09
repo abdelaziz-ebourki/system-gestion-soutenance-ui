@@ -1,6 +1,5 @@
 import { useSearchParams } from "react-router-dom";
-import { useDefenseScheduleDoc } from "@/hooks/use-queries";
-import type { GeneralSettings } from "@/lib/api-core";
+import { useDefenseScheduleDoc } from "@/hooks/queries";
 import PrintLayout from "@/components/print/PrintLayout";
 import DefenseSchedule from "@/components/print/DefenseSchedule";
 
@@ -12,7 +11,7 @@ interface ScheduleDay {
 export default function PrintDefenseSchedule() {
   const [params] = useSearchParams();
   const sessionId = params.get("sessionId");
-  const { data, isLoading, error } = useDefenseScheduleDoc(sessionId);
+  const { data, isLoading, error } = useDefenseScheduleDoc(sessionId ? Number(sessionId) : null);
 
   if (error) return <div className="p-8 text-red-600" data-testid="print-schedule-error">{(error as Error).message}</div>;
   if (isLoading || !data) return <div className="p-8" data-testid="print-schedule-loading">Chargement...</div>;
@@ -33,7 +32,7 @@ export default function PrintDefenseSchedule() {
 
   return (
     <div data-testid="print-schedule-root">
-      <PrintLayout title="Planning des soutenances" settings={{} as GeneralSettings} autoPrint>
+      <PrintLayout title="Planning des soutenances" autoPrint>
         <DefenseSchedule sessionName={data.defenseSessionName} days={Object.values(grouped)} />
       </PrintLayout>
     </div>

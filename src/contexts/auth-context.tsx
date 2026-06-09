@@ -10,20 +10,19 @@ import { STORAGE_KEYS } from "@/lib/constants";
 import type { UserRole } from "@/types";
 
 interface User {
-  id: string | number;
+  id: number;
   firstName: string;
   lastName: string;
   email: string;
   role: UserRole;
   isActive: boolean;
-  avatar?: string;
 }
 
 function isValidUser(data: unknown): data is User {
   if (!data || typeof data !== "object") return false;
   const obj = data as Record<string, unknown>;
   return (
-    (typeof obj.id === "string" || typeof obj.id === "number") &&
+    typeof obj.id === "number" &&
     typeof obj.firstName === "string" &&
     typeof obj.lastName === "string" &&
     typeof obj.email === "string" &&
@@ -36,7 +35,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   wasExpired: boolean;
-  login: (user: User) => void;
+  login: (user: User, token: string, expiresAt: number) => void;
   logout: () => void;
   clearExpired: () => void;
 }
@@ -50,25 +49,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
+    const storedToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
 
-    if (storedUser) {
+    if (storedUser && storedToken) {
       try {
         const parsed = JSON.parse(storedUser);
         if (isValidUser(parsed)) {
           setUser(parsed);
         } else {
           localStorage.removeItem(STORAGE_KEYS.USER);
+          localStorage.removeItem(STORAGE_KEYS.TOKEN);
         }
       } catch {
         localStorage.removeItem(STORAGE_KEYS.USER);
+        localStorage.removeItem(STORAGE_KEYS.TOKEN);
       }
     }
     setIsLoading(false);
   }, []);
 
   const login = useCallback(
-    (newUser: User) => {
+    (newUser: User, token: string, expiresAt: number) => {
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(newUser));
+      localStorage.setItem(STORAGE_KEYS.TOKEN, token);
+      localStorage.setItem(STORAGE_KEYS.EXPIRES_AT, String(expiresAt));
       setUser(newUser);
     },
     [],
@@ -76,6 +80,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     localStorage.removeItem(STORAGE_KEYS.USER);
+    localStorage.removeItem(STORAGE_KEYS.TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.EXPIRES_AT);
     setUser(null);
   }, []);
 

@@ -37,7 +37,7 @@ export default function DraggableJurySlot({ jury, isOverlay }: DraggableJurySlot
           <p className="truncate text-sm font-medium" data-testid={`coord-jury-slot-title-${jury.id}`}>{jury.projectTitle}</p>
           <div className="flex items-center gap-1 text-xs text-muted-foreground" data-testid={`coord-jury-slot-students-${jury.id}`}>
             <Users className="size-3" />
-            <span>{jury.studentNames?.join(", ") ?? "—"}</span>
+            <span>{jury.members?.map((m) => m.teacherName).join(", ") || "—"}</span>
           </div>
         </div>
       </div>

@@ -1,20 +1,5 @@
 import { api, type GeneralSettings } from "./api-core";
-import type { Project, Group, Jury, DefenseSession, DefenseSessionStatus } from "@/types";
-import type { SlotAssignment } from "@/lib/conflict-engine";
-
-export interface CreateDefenseSessionPayload {
-  name: string;
-  defenseType: string;
-  status?: string;
-  maxGroupSize: number;
-  defenseDuration: number;
-  breakDuration: number;
-  submissionDeadline: string;
-  juryRoleTemplateId: string;
-  startDate: string;
-  endDate: string;
-  evaluationCoefficients: Record<string, number>;
-}
+import type { Project, Group, Jury, DefenseSession, User } from "@/types";
 
 export interface CoordinatorStats {
   totalProjects: number;
@@ -25,34 +10,119 @@ export interface CoordinatorStats {
 
 export interface CreateProjectPayload {
   title: string;
-  description?: string;
-  supervisorId: string;
-  studentIds?: string[];
+  description: string;
+  supervisorId: number;
+  defenseType: string;
+  studentIds?: number[];
 }
 
 export interface UpdateProjectPayload {
-  title?: string;
-  description?: string;
-  supervisorId?: string;
-  studentIds?: string[];
-  status?: "pending" | "approved" | "rejected";
+  title: string;
+  description: string;
+  defenseType: string;
 }
 
-export interface JuryMemberPayload {
+export interface MemberEntry {
+  teacherId: number;
   roleName: string;
-  teacherId: string;
 }
 
 export interface CreateJuryPayload {
-  projectId: string;
-  templateId: string;
-  members: JuryMemberPayload[];
+  projectId: number;
+  members: MemberEntry[];
 }
 
 export interface UpdateJuryPayload {
-  projectId?: string;
-  templateId?: string;
-  members?: JuryMemberPayload[];
+  projectId: number;
+  members: MemberEntry[];
+}
+
+export interface ScheduleSlot {
+  title: string;
+  date: string;
+  time: string;
+  projectId: number;
+  roomId: number;
+}
+
+export interface ScheduleResponse {
+  id: number;
+  title: string;
+  date: string;
+  time: string;
+  projectId: number;
+  roomId: number;
+  roomName: string;
+  projectTitle: string;
+  studentNames: string[];
+  role: string;
+  status: string;
+}
+
+export interface ConflictDetail {
+  type: string;
+  severity: string;
+  message: string;
+  slot: string;
+  suggestedResolution: string;
+}
+
+export interface EvaluationSheetResponse {
+  projectId: number;
+  projectTitle: string;
+  studentNames: string[];
+  supervisorName: string;
+  date: string;
+  time: string;
+  roomName: string;
+  juryMembers: Array<{ roleName: string; teacherName: string; coefficient: number }>;
+  evaluationCoefficients: Record<string, number>;
+}
+
+export interface AttendanceListResponse {
+  defenseSessionName: string;
+  slots: Array<{ date: string; time: string; roomName: string; projectTitle: string; studentNames: string[] }>;
+}
+
+export interface JuryConvocationResponse {
+  teacherName: string;
+  role: string;
+  projectTitle: string;
+  studentNames: string[];
+  date: string;
+  time: string;
+  roomName: string;
+  defenseSessionName: string;
+}
+
+export interface ScheduleDocResponse {
+  defenseSessionName: string;
+  slots: Array<{ date: string; time: string; roomName: string; projectTitle: string; studentNames: string[] }>;
+}
+
+export interface MinutesResponse {
+  settings: GeneralSettings;
+  grade: { projectId: number; projectTitle: string; finalScore: number; decision: string };
+  studentNames: string[];
+  supervisorName: string;
+  juryMembers: Array<{ roleName: string; teacherName: string }>;
+}
+
+export interface GradeWeightedAverageResponse {
+  projectId: number;
+  projectTitle: string;
+  defenseDate: string;
+  status: string;
+  finalScore: number;
+  evaluationCoefficients: Record<string, number>;
+  individualScores: Array<{ roleName: string; teacherName: string; score: number }>;
+}
+
+export interface UnavailabilityEntry {
+  id: number;
+  teacherId: number;
+  date: string;
+  slots: string[];
 }
 
 export const getCoordinatorStats = () =>
@@ -64,22 +134,27 @@ export const createProject = (data: CreateProjectPayload) =>
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateProject = (id: string, data: UpdateProjectPayload) =>
+export const updateProject = (id: number, data: UpdateProjectPayload) =>
   api<Project>(`/coordinator/projects/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
-export const deleteProject = (id: string) =>
+export const deleteProject = (id: number) =>
   api<void>(`/coordinator/projects/${id}`, { method: "DELETE" });
 
 export const getGroups = () => api<Group[]>("/coordinator/groups");
-export const createGroup = (data: Omit<Group, "id">) =>
+export const createGroup = (data: { groupName: string; projectId: number; studentIds: number[]; sessionId?: number; leaderId?: number }) =>
   api<Group>("/coordinator/groups", {
     method: "POST",
     body: JSON.stringify(data),
   });
-export const deleteGroup = (id: string) =>
+export const deleteGroup = (id: number) =>
   api<void>(`/coordinator/groups/${id}`, { method: "DELETE" });
+export const assignProjectToGroup = (data: { projectId: number; groupId: number }) =>
+  api<Group>("/coordinator/groups/assign", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
 
 export const getJuries = () => api<Jury[]>("/coordinator/juries");
 export const createJury = (data: CreateJuryPayload) =>
@@ -87,173 +162,130 @@ export const createJury = (data: CreateJuryPayload) =>
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateJury = (id: string, data: UpdateJuryPayload) =>
+export const updateJury = (id: number, data: UpdateJuryPayload) =>
   api<Jury>(`/coordinator/juries/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
-export const deleteJury = (id: string) =>
+export const deleteJury = (id: number) =>
   api<void>(`/coordinator/juries/${id}`, { method: "DELETE" });
 
 export const getCoordinatorDefenseSessions = () =>
   api<DefenseSession[]>("/coordinator/defense-sessions");
 
-export const transitionDefenseSession = (id: string, toStatus: DefenseSessionStatus) =>
+export const createCoordinatorDefenseSession = (data: {
+  name: string;
+  defenseType: string;
+  status: string;
+  maxGroupSize: number;
+  defenseDuration: number;
+  breakDuration: number;
+  submissionDeadline: string;
+  juryRoleTemplateId: number;
+  startDate: string;
+  endDate: string;
+  evaluationCoefficients: Record<string, number>;
+}) =>
+  api<DefenseSession>("/coordinator/defense-sessions", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+
+export const updateCoordinatorDefenseSession = (id: number, data: {
+  name: string;
+  defenseType: string;
+  status: string;
+  maxGroupSize: number;
+  defenseDuration: number;
+  breakDuration: number;
+  submissionDeadline: string;
+  juryRoleTemplateId: number;
+  startDate: string;
+  endDate: string;
+  evaluationCoefficients: Record<string, number>;
+}) =>
+  api<DefenseSession>(`/coordinator/defense-sessions/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+
+export const deleteCoordinatorDefenseSession = (id: number) =>
+  api<void>(`/coordinator/defense-sessions/${id}`, { method: "DELETE" });
+
+export const transitionDefenseSession = (id: number, toStatus: string) =>
   api<DefenseSession>(`/coordinator/defense-sessions/${id}/transition`, {
     method: "POST",
     body: JSON.stringify({ toStatus }),
   });
 
-export const createCoordinatorDefenseSession = (data: CreateDefenseSessionPayload) =>
-  api<DefenseSession>("/coordinator/defense-sessions", {
+export const getSchedules = () =>
+  api<ScheduleResponse[]>("/coordinator/schedules");
+
+export const saveSchedules = (defenseSessionId: number, slots: ScheduleSlot[]) =>
+  api<ScheduleResponse[]>("/coordinator/schedules", {
     method: "POST",
-    body: JSON.stringify(data),
+    body: JSON.stringify({ defenseSessionId, slots }),
   });
-export const updateCoordinatorDefenseSession = (id: string, data: CreateDefenseSessionPayload) =>
-  api<DefenseSession>(`/coordinator/defense-sessions/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-export const deleteCoordinatorDefenseSession = (id: string) =>
-  api<void>(`/coordinator/defense-sessions/${id}`, { method: "DELETE" });
 
-export const getDefenseSchedule = () =>
-  api<Record<string, SlotAssignment>>("/coordinator/schedule");
-
-export const saveDefenseSchedule = (
-  schedule: Record<string, SlotAssignment>,
-) =>
-  api<void>("/coordinator/schedule", {
+export const autoGenerateSchedules = (defenseSessionId: number) =>
+  api<ScheduleResponse[]>("/coordinator/schedules/generation", {
     method: "POST",
-    body: JSON.stringify({ schedule }),
+    body: JSON.stringify({ defenseSessionId }),
   });
 
-export interface UnavailabilityEntry {
-  id: string;
-  teacherId: string;
-  date: string;
-  slots: string[];
-}
+export const publishSchedule = (defenseSessionId: number) =>
+  api<void>("/coordinator/schedules/publication", {
+    method: "PATCH",
+    body: JSON.stringify({ defenseSessionId }),
+  });
+
+export const cancelDefense = (id: number) =>
+  api<void>(`/coordinator/defenses/${id}/cancel`, { method: "POST" });
+
+export const validateConflicts = (defenseSessionId: number, schedule: ScheduleSlot[]) =>
+  api<ConflictDetail[]>("/coordinator/conflicts/validate", {
+    method: "POST",
+    body: JSON.stringify({ defenseSessionId, schedule }),
+  });
 
 export const getCoordinatorUnavailability = () =>
   api<UnavailabilityEntry[]>("/coordinator/unavailability");
 
-export interface StudentGroupAssignment {
-  id: string;
-  groupName: string;
-  memberNames: string[];
-  memberCount: number;
-  projectId: string | null;
-  projectTitle?: string;
-}
-
-export interface ProjectGrade {
-  projectId: string;
-  projectTitle: string;
-  defenseDate: string | null;
-  status: "completed" | "pending" | "no_evaluations";
-  finalScore: number | null;
-  evaluationCoefficients: Record<string, number>;
-  individualScores: { roleName: string; teacherName: string; score: number | undefined }[];
-}
+export const getCoordinatorUsers = (role: string, page = 0, limit = 5000, search?: string) => {
+  const params = new URLSearchParams({ role, page: String(page), limit: String(limit) });
+  if (search) params.append("search", search);
+  return api<{ items: User[]; total: number; pageCount: number; currentPage: number; size: number }>(`/coordinator/users?${params}`);
+};
 
 export const getGrades = () =>
-  api<ProjectGrade[]>("/coordinator/grades");
+  api<GradeWeightedAverageResponse[]>("/coordinator/grades");
 
-export const getStudentGroups = () =>
-  api<StudentGroupAssignment[]>("/coordinator/student-groups");
-
-export const assignProjectToGroup = (projectId: string, groupId: string) =>
-  api<Project>(`/coordinator/projects/${projectId}/assign-group`, {
-    method: "POST",
-    body: JSON.stringify({ groupId }),
-  });
-
-// --- Document generation ---
-
-export interface EvaluationSheetData {
-  settings: GeneralSettings;
-  grade: ProjectGrade;
-  studentNames: string[];
-}
-
-export const getEvaluationSheet = (projectId: string) =>
-  api<EvaluationSheetData>("/coordinator/documents/evaluation-sheets", {
+export const getEvaluationSheet = (projectId: number) =>
+  api<EvaluationSheetResponse[]>("/coordinator/documents/evaluation-sheets", {
     method: "POST",
     body: JSON.stringify({ projectId }),
   });
 
-export interface AttendanceListData {
-  defenseSessionName: string;
-  slots: { date: string; time: string; roomName: string; projectTitle: string; studentNames: string[] }[];
-}
-
-export const getAttendanceList = (defenseSessionId: string) =>
-  api<AttendanceListData>("/coordinator/documents/attendance-lists", {
+export const getAttendanceList = (defenseSessionId: number) =>
+  api<AttendanceListResponse>("/coordinator/documents/attendance-lists", {
     method: "POST",
     body: JSON.stringify({ defenseSessionId }),
   });
 
-export interface JuryConvocationData {
-  teacherName: string;
-  role: string;
-  projectTitle: string;
-  studentNames: string[];
-  date: string;
-  time: string;
-  roomName: string;
-  defenseSessionName: string;
-}
-
-export const getJuryConvocations = (projectId: string) =>
-  api<JuryConvocationData[]>("/coordinator/documents/jury-convocations", {
+export const getJuryConvocations = (projectId: number) =>
+  api<JuryConvocationResponse[]>("/coordinator/documents/jury-convocations", {
     method: "POST",
     body: JSON.stringify({ projectId }),
   });
 
-export interface DefenseScheduleData {
-  defenseSessionName: string;
-  slots: { date: string; time: string; roomName: string; projectTitle: string; studentNames: string[] }[];
-}
-
-export const getDefenseScheduleDoc = (defenseSessionId: string) =>
-  api<DefenseScheduleData>("/coordinator/documents/schedule", {
+export const getDefenseScheduleDoc = (defenseSessionId: number) =>
+  api<ScheduleDocResponse>("/coordinator/documents/schedule", {
     method: "POST",
     body: JSON.stringify({ defenseSessionId }),
   });
 
-export interface ProcesVerbalData {
-  settings: GeneralSettings;
-  grade: ProjectGrade;
-  studentNames: string[];
-  supervisorName: string;
-  juryMembers: { roleName: string; teacherName: string }[];
-}
-
-export const getProcesVerbal = (projectId: string) =>
-  api<ProcesVerbalData>("/coordinator/documents/proces-verbal", {
+export const getProcesVerbal = (projectId: number) =>
+  api<MinutesResponse>("/coordinator/documents/proces-verbal", {
     method: "POST",
     body: JSON.stringify({ projectId }),
-  });
-
-// --- Student documents review (Coordinator) ---
-export interface CoordinatorStudentDocument {
-  id: string;
-  name: string;
-  type: string;
-  deadline: string;
-  status: "submitted" | "missing" | "validated" | "rejected";
-  submittedAt?: string;
-  studentId?: string;
-  studentName?: string;
-  projectId?: string;
-}
-
-export const getStudentDocumentsForReview = () =>
-  api<CoordinatorStudentDocument[]>("/coordinator/student-documents");
-
-export const updateStudentDocumentStatus = (id: string, status: "validated" | "rejected") =>
-  api<CoordinatorStudentDocument>(`/coordinator/student-documents/${id}/status`, {
-    method: "POST",
-    body: JSON.stringify({ status }),
   });

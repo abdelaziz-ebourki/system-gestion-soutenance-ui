@@ -23,7 +23,7 @@ describe("Infrastructure Validation", () => {
       initialEntries: [ROUTES.ADMIN.DASHBOARD],
       initialAuthState: {
         user: {
-          id: "1",
+          id: 1,
           firstName: "Admin",
           lastName: "User",
           email: "admin@univh2c.ma",
@@ -42,7 +42,7 @@ describe("Infrastructure Validation", () => {
       initialEntries: [ROUTES.ADMIN.DASHBOARD],
       initialAuthState: {
         user: {
-          id: "2",
+          id: 2,
           firstName: "Student",
           lastName: "User",
           email: "student@univh2c.ma",

@@ -44,14 +44,14 @@ export default function NotificationsPage() {
   const markReadMutation = useMarkNotificationRead();
   const markAllReadMutation = useMarkAllNotificationsRead();
   const navigate = useNavigate();
-  const [readingId, setReadingId] = useState<string | null>(null);
+  const [readingId, setReadingId] = useState<number | null>(null);
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
     [notifications],
   );
 
-  const handleMarkRead = async (id: string) => {
+  const handleMarkRead = async (id: number) => {
     setReadingId(id);
     try {
       await markReadMutation.mutateAsync(id);

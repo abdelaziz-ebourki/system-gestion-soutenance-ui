@@ -62,7 +62,7 @@ export default function Students() {
       header: "Filière",
       filterFn: "equalsString",
       cell: ({ row }) => {
-        const id = row.getValue("majorId") as string;
+        const id = row.getValue("majorId") as number;
         return majors.find((f) => f.id === id)?.name || id;
       },
     },
@@ -71,7 +71,7 @@ export default function Students() {
       header: "Niveau",
       filterFn: "equalsString",
       cell: ({ row }) => {
-        const id = row.getValue("levelId") as string;
+        const id = row.getValue("levelId") as number;
         const name = levels.find((l) => l.id === id)?.name || id;
         return <Badge variant="secondary">{name}</Badge>;
       },
@@ -142,14 +142,14 @@ export default function Students() {
         entityLabel="étudiant(s)"
         actions={[{ key: "major", label: "Modifier la filière" }, { key: "level", label: "Modifier le niveau" }, { key: "delete", label: "Supprimer" }]}
         fieldOptionsMap={{
-          major: majors.map((f) => ({ value: f.id, label: f.name })),
-          level: levels.map((l) => ({ value: l.id, label: l.name })),
+          major: majors.map((f) => ({ value: String(f.id), label: f.name })),
+          level: levels.map((l) => ({ value: String(l.id), label: l.name })),
         }}
         onUpdateField={async (field, value) => {
           if (field === "major") {
-            await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { majorId: value, role: "student" })));
+            await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { lastName: s.lastName, firstName: s.firstName, email: s.email, majorId: Number(value), role: "STUDENT" })));
           } else if (field === "level") {
-            await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { levelId: value, role: "student" })));
+            await Promise.all(selectedStudents.map((s) => crud.updateMutation(s.id, { lastName: s.lastName, firstName: s.firstName, email: s.email, levelId: Number(value), role: "STUDENT" })));
           }
         }}
         onDeleteSelected={async () => {
@@ -193,22 +193,22 @@ export default function Students() {
               </Field>
               <Field>
                 <FieldLabel>Niveau</FieldLabel>
-                <Select value={crud.formData.levelId}
+                <Select value={crud.formData.levelId ? String(crud.formData.levelId) : ""}
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, levelId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un niveau" /></SelectTrigger>
                   <SelectContent>
-                    {levels.map((n) => <SelectItem key={n.id} value={n.id}>{n.name}</SelectItem>)}
+                    {levels.map((n) => <SelectItem key={n.id} value={String(n.id)}>{n.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.levelId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.levelId}</p>}
               </Field>
               <Field className="col-span-2">
                 <FieldLabel>Filière</FieldLabel>
-                <Select value={crud.formData.majorId}
+                <Select value={crud.formData.majorId ? String(crud.formData.majorId) : ""}
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, majorId: v || "" })}>
               <SelectTrigger><SelectValue placeholder="Choisir une filière" /></SelectTrigger>
                   <SelectContent>
-                    {majors.map((f) => <SelectItem key={f.id} value={f.id}>{f.name}</SelectItem>)}
+                    {majors.map((f) => <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.majorId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.majorId}</p>}

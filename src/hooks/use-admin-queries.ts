@@ -1,9 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import { CONFIG_STALE_TIME, AUDIT_LOG_PAGE_SIZE, DEFAULT_API_LIMIT } from "@/lib/constants";
-import type {
-  Room, Department, Major, Level,
-} from "@/types";
 import type { EmailConfig } from "@/lib/api";
 
 export function useAdminStats() {
@@ -17,14 +14,18 @@ export function useAuditLogs(page = 0, limit = AUDIT_LOG_PAGE_SIZE) {
   });
 }
 
-export function useRooms() {
-  return useQuery({ queryKey: ["rooms"], queryFn: api.getRooms, staleTime: CONFIG_STALE_TIME });
+export function useRooms(page = 0, limit = DEFAULT_API_LIMIT) {
+  return useQuery({
+    queryKey: ["rooms", page, limit],
+    queryFn: () => api.getRooms(page, limit),
+    staleTime: CONFIG_STALE_TIME,
+  });
 }
 
 export function useCreateRoom() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Room, "id">) => api.createRoom(data),
+    mutationFn: (data: { name: string; capacity: number; departmentId: number }) => api.createRoom(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["rooms"], refetchType: "active" }),
   });
 }
@@ -32,7 +33,7 @@ export function useCreateRoom() {
 export function useUpdateRoom() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<Room, "id"> }) =>
+    mutationFn: ({ id, data }: { id: number; data: { name: string; capacity: number; departmentId: number } }) =>
       api.updateRoom(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["rooms"], refetchType: "active" }),
   });
@@ -41,7 +42,7 @@ export function useUpdateRoom() {
 export function useDeleteRoom() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteRoom(id),
+    mutationFn: (id: number) => api.deleteRoom(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["rooms"], refetchType: "active" }),
   });
 }
@@ -53,7 +54,7 @@ export function useDepartments() {
 export function useCreateDepartment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Department, "id">) => api.createDepartment(data),
+    mutationFn: (data: { name: string; code: string; headId?: number; facultyId?: number }) => api.createDepartment(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["departments"], refetchType: "active" }),
   });
 }
@@ -61,7 +62,7 @@ export function useCreateDepartment() {
 export function useUpdateDepartment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<Department, "id"> }) =>
+    mutationFn: ({ id, data }: { id: number; data: { name: string; code: string; headId?: number; facultyId?: number } }) =>
       api.updateDepartment(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["departments"], refetchType: "active" }),
   });
@@ -70,8 +71,37 @@ export function useUpdateDepartment() {
 export function useDeleteDepartment() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteDepartment(id),
+    mutationFn: (id: number) => api.deleteDepartment(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["departments"], refetchType: "active" }),
+  });
+}
+
+export function useFaculties() {
+  return useQuery({ queryKey: ["faculties"], queryFn: api.getFaculties, staleTime: CONFIG_STALE_TIME });
+}
+
+export function useCreateFaculty() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { name: string; code: string; deanId?: number; logoUrl?: string }) => api.createFaculty(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["faculties"], refetchType: "active" }),
+  });
+}
+
+export function useUpdateFaculty() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: { name: string; code: string; deanId?: number; logoUrl?: string } }) =>
+      api.updateFaculty(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["faculties"], refetchType: "active" }),
+  });
+}
+
+export function useDeleteFaculty() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => api.deleteFaculty(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["faculties"], refetchType: "active" }),
   });
 }
 
@@ -82,7 +112,7 @@ export function useMajors() {
 export function useCreateMajor() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Major, "id">) => api.createMajor(data),
+    mutationFn: (data: { name: string }) => api.createMajor(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"], refetchType: "active" }),
   });
 }
@@ -90,7 +120,7 @@ export function useCreateMajor() {
 export function useUpdateMajor() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<Major, "id"> }) =>
+    mutationFn: ({ id, data }: { id: number; data: { name: string } }) =>
       api.updateMajor(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"], refetchType: "active" }),
   });
@@ -99,7 +129,7 @@ export function useUpdateMajor() {
 export function useDeleteMajor() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteMajor(id),
+    mutationFn: (id: number) => api.deleteMajor(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"], refetchType: "active" }),
   });
 }
@@ -111,7 +141,7 @@ export function useLevels() {
 export function useCreateLevel() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: Omit<Level, "id">) => api.createLevel(data),
+    mutationFn: (data: { name: string }) => api.createLevel(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["levels"], refetchType: "active" }),
   });
 }
@@ -119,7 +149,7 @@ export function useCreateLevel() {
 export function useUpdateLevel() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Omit<Level, "id"> }) =>
+    mutationFn: ({ id, data }: { id: number; data: { name: string } }) =>
       api.updateLevel(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["levels"], refetchType: "active" }),
   });
@@ -128,8 +158,37 @@ export function useUpdateLevel() {
 export function useDeleteLevel() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteLevel(id),
+    mutationFn: (id: number) => api.deleteLevel(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["levels"], refetchType: "active" }),
+  });
+}
+
+export function useGrades() {
+  return useQuery({ queryKey: ["grades"], queryFn: api.getGrades, staleTime: CONFIG_STALE_TIME });
+}
+
+export function useCreateGrade() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { name: string }) => api.createGrade(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"], refetchType: "active" }),
+  });
+}
+
+export function useUpdateGrade() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: { name: string } }) =>
+      api.updateGrade(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"], refetchType: "active" }),
+  });
+}
+
+export function useDeleteGrade() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => api.deleteGrade(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"], refetchType: "active" }),
   });
 }
 
@@ -148,7 +207,7 @@ export function useStudents(params?: { page?: number; limit?: number; search?: s
   const { page = 0, limit = DEFAULT_API_LIMIT, search } = params ?? {};
   return useQuery({
     queryKey: ["users", "students", page, limit, search],
-    queryFn: () => api.getStudents(page, limit, search),
+    queryFn: () => api.getUsers({ role: "STUDENT", page, limit, search }),
   });
 }
 
@@ -156,7 +215,7 @@ export function useTeachers(params?: { page?: number; limit?: number; search?: s
   const { page = 0, limit = DEFAULT_API_LIMIT, search } = params ?? {};
   return useQuery({
     queryKey: ["users", "teachers", page, limit, search],
-    queryFn: () => api.getTeachers(page, limit, search),
+    queryFn: () => api.getUsers({ role: "TEACHER", page, limit, search }),
   });
 }
 
@@ -164,7 +223,7 @@ export function useCoordinators(params?: { page?: number; limit?: number; search
   const { page = 0, limit = DEFAULT_API_LIMIT, search } = params ?? {};
   return useQuery({
     queryKey: ["users", "coordinators", page, limit, search],
-    queryFn: () => api.getCoordinators(page, limit, search),
+    queryFn: () => api.getUsers({ role: "COORDINATOR", page, limit, search }),
   });
 }
 
@@ -179,7 +238,17 @@ export function useTeachersList() {
 export function useCreateUser() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: api.UserCreateParams) => api.createUser(data),
+    mutationFn: (data: {
+      lastName: string;
+      firstName: string;
+      email: string;
+      role: string;
+      cne?: string;
+      majorId?: number;
+      levelId?: number;
+      gradeId?: number;
+      departmentId?: number;
+    }) => api.createUser(data),
     onSuccess: (user) => {
       const roleKey = user.role === "student" ? "students" : user.role === "teacher" ? "teachers" : "coordinators";
       qc.invalidateQueries({ queryKey: ["users", roleKey], refetchType: "active" });
@@ -191,8 +260,20 @@ export function useCreateUser() {
 export function useUpdateUser() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<api.UserCreateParams> }) =>
-      api.updateUser(id, data),
+    mutationFn: ({ id, data }: {
+      id: number;
+      data: {
+        lastName: string;
+        firstName: string;
+        email: string;
+        role: string;
+        cne?: string;
+        majorId?: number;
+        levelId?: number;
+        gradeId?: number;
+        departmentId?: number;
+      };
+    }) => api.updateUser(id, data),
     onSuccess: (user) => {
       const roleKey = user.role === "student" ? "students" : user.role === "teacher" ? "teachers" : "coordinators";
       qc.invalidateQueries({ queryKey: ["users", roleKey], refetchType: "active" });
@@ -204,7 +285,7 @@ export function useUpdateUser() {
 export function useDeleteUser() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.deleteUser(id),
+    mutationFn: (id: number) => api.deleteUser(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["users"], refetchType: "active" }),
   });
 }
@@ -214,6 +295,63 @@ export function useGeneralSettings() {
     queryKey: ["admin", "config", "general"],
     queryFn: api.getGeneralSettings,
     staleTime: CONFIG_STALE_TIME,
+  });
+}
+
+export function useUpdateGeneralSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: {
+      institutionName: string;
+      institutionLogoUrl: string;
+      timezone: string;
+      dateFormat: string;
+      setupCompleted: boolean;
+    }) => api.updateGeneralSettings(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "general"], refetchType: "active" }),
+  });
+}
+
+export function useDefenseSettings() {
+  return useQuery({
+    queryKey: ["admin", "config", "settings"],
+    queryFn: api.getDefenseSettings,
+    staleTime: CONFIG_STALE_TIME,
+  });
+}
+
+export function useUpdateDefenseSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: {
+      startTime: string;
+      endTime: string;
+      defenseDuration: number;
+      breakDuration: number;
+      groupCreationStartDate: string;
+      groupCreationEndDate: string;
+    }) => api.updateDefenseSettings(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "settings"], refetchType: "active" }),
+  });
+}
+
+export function useDocumentConfig() {
+  return useQuery({
+    queryKey: ["admin", "config", "documents"],
+    queryFn: api.getDocumentConfig,
+    staleTime: CONFIG_STALE_TIME,
+  });
+}
+
+export function useUpdateDocumentConfig() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: {
+      maxFileSizeMb: number;
+      allowedExtensions: string;
+      versionLimit: number;
+    }) => api.updateDocumentConfig(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "documents"], refetchType: "active" }),
   });
 }
 

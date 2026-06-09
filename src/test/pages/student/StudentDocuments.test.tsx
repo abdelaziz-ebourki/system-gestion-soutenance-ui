@@ -12,7 +12,7 @@ vi.mock("sonner", () => ({
 }));
 
 const studentUser = {
-  id: "4",
+  id: 4,
   email: "student@univh2c.ma",
   firstName: "Student",
   lastName: "User",
@@ -50,9 +50,9 @@ describe("StudentDocuments", () => {
     renderWithProviders(<StudentDocuments />, {
       initialAuthState: { user: studentUser },
     });
-    expect(await screen.findByTestId("student-documents-file-input-d2")).toBeInTheDocument();
-    expect(screen.queryByTestId("student-documents-file-input-d1")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("student-documents-file-input-d3")).not.toBeInTheDocument();
+    expect(await screen.findByTestId("student-documents-file-input-2")).toBeInTheDocument();
+    expect(screen.queryByTestId("student-documents-file-input-1")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("student-documents-file-input-3")).not.toBeInTheDocument();
   });
 
   it("uploads a document successfully", async () => {
@@ -60,10 +60,10 @@ describe("StudentDocuments", () => {
     renderWithProviders(<StudentDocuments />, {
       initialAuthState: { user: studentUser },
     });
-    const fileInput = await screen.findByTestId("student-documents-file-input-d2");
+    const fileInput = await screen.findByTestId("student-documents-file-input-2");
     const file = new File(["dummy content"], "fiche.pdf", { type: "application/pdf" });
     await user.upload(fileInput, file);
-    await user.click(screen.getByTestId("student-documents-upload-btn-d2"));
+    await user.click(screen.getByTestId("student-documents-upload-btn-2"));
     await vi.waitFor(() => {
       expect(toast.success).toHaveBeenCalledWith("Document envoyé avec succès");
     });
@@ -74,7 +74,7 @@ describe("StudentDocuments", () => {
     renderWithProviders(<StudentDocuments />, {
       initialAuthState: { user: studentUser },
     });
-    const uploadBtn = await screen.findByTestId("student-documents-upload-btn-d2");
+    const uploadBtn = await screen.findByTestId("student-documents-upload-btn-2");
     await user.click(uploadBtn);
     expect(toast.error).toHaveBeenCalledWith("Veuillez sélectionner un fichier.");
   });

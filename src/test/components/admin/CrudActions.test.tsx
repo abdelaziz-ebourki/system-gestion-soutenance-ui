@@ -19,7 +19,7 @@ function renderWithProviders(ui: React.ReactElement) {
 }
 
 describe("CrudActions", () => {
-  const mockEntity = { id: "1", name: "Test Entity" };
+  const mockEntity = { id: 1, name: "Test Entity" };
   const onEdit = vi.fn();
   const onDelete = vi.fn();
 

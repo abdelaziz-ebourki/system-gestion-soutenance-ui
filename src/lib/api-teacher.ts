@@ -6,14 +6,14 @@ import type {
 export const getTeacherStats = () => api<TeacherStats>("/teacher/stats");
 
 export const getTeacherSchedule = () =>
-  api<TeacherDefense[]>("/teacher/schedule");
+  api<{ slots: TeacherDefense[] }>("/teacher/schedules");
 
 export const getTeacherEvaluations = () =>
   api<TeacherEvaluation[]>("/teacher/evaluations");
 
 export const submitTeacherEvaluation = (
-  id: string,
-  data: Pick<TeacherEvaluation, "score" | "comment">,
+  id: number,
+  data: { score: number; comment: string },
 ) =>
   api<TeacherEvaluation>(`/teacher/evaluations/${id}`, {
     method: "POST",
@@ -21,10 +21,10 @@ export const submitTeacherEvaluation = (
   });
 
 export const getTeacherUnavailability = () =>
-  api<TeacherUnavailability>("/teacher/unavailability");
+  api<TeacherUnavailability>("/teacher/unavailabilities");
 
-export const saveTeacherUnavailability = (data: TeacherUnavailability) =>
-  api<TeacherUnavailability>("/teacher/unavailability", {
+export const saveTeacherUnavailability = (data: { slots: Array<{ date: string; slots: string[] }> }) =>
+  api<TeacherUnavailability>("/teacher/unavailabilities", {
     method: "POST",
     body: JSON.stringify(data),
   });

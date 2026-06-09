@@ -17,7 +17,7 @@ function TestConsumer() {
       <button
         data-testid="login-btn"
         onClick={() =>
-          login({ id: "1", email: "test@test.com", firstName: "Test", lastName: "User", role: "admin", isActive: true })
+          login({ id: 1, email: "test@test.com", firstName: "Test", lastName: "User", role: "admin", isActive: true }, "mock-token", Date.now() + 3600000)
         }
       />
       <button data-testid="logout-btn" onClick={logout} />
@@ -50,7 +50,7 @@ describe("AuthProvider", () => {
   it("restores session from localStorage if not expired", async () => {
     localStorage.setItem(STORAGE_KEYS.USER,
       JSON.stringify({
-        id: "2",
+        id: 2,
         email: "stored@test.com",
         firstName: "Stored",
         lastName: "User",
@@ -58,6 +58,7 @@ describe("AuthProvider", () => {
         isActive: true,
       }),
     );
+    localStorage.setItem(STORAGE_KEYS.TOKEN, "mock-token");
 
     renderWithAuth();
 
@@ -78,6 +79,7 @@ describe("AuthProvider", () => {
 
   it("clears invalid stored user data", async () => {
     localStorage.setItem(STORAGE_KEYS.USER, '"not a valid user object"');
+    localStorage.setItem(STORAGE_KEYS.TOKEN, "mock-token");
 
     renderWithAuth();
 

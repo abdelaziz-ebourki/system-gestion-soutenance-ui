@@ -28,12 +28,12 @@ function renderManager(overrideProps: Record<string, unknown> = {}) {
     entityLabel: "Filière",
     entityLabelPlural: "Filières",
     data: [
-      { id: "1", name: "Génie Informatique" },
-      { id: "2", name: "Génie Civil" },
+      { id: 1, name: "Génie Informatique" },
+      { id: 2, name: "Génie Civil" },
     ],
     createMut: createMockMut<{ name: string }>(),
-    updateMut: createMockMut<{ id: string; data: { name: string } }>(),
-    deleteMut: createMockMut<string>(),
+    updateMut: createMockMut<{ id: number; data: { name: string } }>(),
+    deleteMut: createMockMut<number>(),
   };
   return render(
     <QueryClientProvider client={queryClient}>

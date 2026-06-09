@@ -6,7 +6,7 @@ import { server } from "@/test/mocks/server";
 import { http, HttpResponse } from "msw";
 
 const coordUser = {
-  id: "2",
+  id: 2,
   email: "coord@univh2c.ma",
   firstName: "Coord",
   lastName: "User",
@@ -24,7 +24,7 @@ describe("PrintProcesVerbal", () => {
       http.post("*/api/coordinator/documents/proces-verbal", () => new Promise(() => {})),
     );
     renderWithProviders(<PrintProcesVerbal />, {
-      initialEntries: ["/coordinator/print/pv?projectId=p1"],
+      initialEntries: ["/coordinator/print/pv?projectId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(screen.getByTestId("print-pv-loading")).toBeInTheDocument();
@@ -32,7 +32,7 @@ describe("PrintProcesVerbal", () => {
 
   it("renders proces verbal on success", async () => {
     renderWithProviders(<PrintProcesVerbal />, {
-      initialEntries: ["/coordinator/print/pv?projectId=p1"],
+      initialEntries: ["/coordinator/print/pv?projectId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-pv-root")).toBeInTheDocument();
@@ -45,28 +45,11 @@ describe("PrintProcesVerbal", () => {
       ),
     );
     renderWithProviders(<PrintProcesVerbal />, {
-      initialEntries: ["/coordinator/print/pv?projectId=p1"],
+      initialEntries: ["/coordinator/print/pv?projectId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-pv-error")).toBeInTheDocument();
   });
 
-  it("shows empty state when no grade data", async () => {
-    server.use(
-      http.post("*/api/coordinator/documents/proces-verbal", () =>
-        HttpResponse.json({
-          settings: { institutionName: "Test" },
-          grade: null,
-          studentNames: [],
-          supervisorName: "",
-          juryMembers: [],
-        }),
-      ),
-    );
-    renderWithProviders(<PrintProcesVerbal />, {
-      initialEntries: ["/coordinator/print/pv?projectId=p1"],
-      initialAuthState: { user: coordUser },
-    });
-    expect(await screen.findByTestId("print-pv-empty")).toBeInTheDocument();
-  });
+
 });

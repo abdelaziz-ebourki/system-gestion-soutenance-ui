@@ -55,9 +55,9 @@ export default function CoordinatorDashboard() {
   const juries = useMemo(() => juriesQuery.data ?? [], [juriesQuery.data]);
   const isLoading = statsQuery.isLoading || projectsQuery.isLoading || juriesQuery.isLoading;
 
-  const readyProjects = useMemo(() => projects.filter(
-    (project) => project.status === "approved",
-  ), [projects]);
+  const projectsWithJury = useMemo(() => projects.filter(
+    (project) => juries.some((jury) => jury.projectId === project.id),
+  ), [projects, juries]);
   const projectsWithoutJury = useMemo(() => projects.filter(
     (project) => !juries.some((jury) => jury.projectId === project.id),
   ), [projects, juries]);
@@ -147,11 +147,11 @@ export default function CoordinatorDashboard() {
                     {isLoading ? (
                       <Skeleton className="h-8 w-16" />
                     ) : (
-                      readyProjects.length
+                      projectsWithJury.length
                     )}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Projets approuves
+                    Projets avec jury
                   </p>
                 </div>
                 <div className="rounded-lg border bg-background/80 p-4">

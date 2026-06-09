@@ -7,31 +7,31 @@ import type {
 export const getStudentStats = () => api<StudentStats>("/student/stats");
 
 export const getStudentDefense = () =>
-  api<StudentDefenseDetails>("/student/defense");
+  api<StudentDefenseDetails>("/student/defenses");
 
 export const getStudentGroup = () =>
-  api<StudentGroupWorkspace>("/student/group");
+  api<StudentGroupWorkspace>("/student/groups");
 
 export const getStudentDocuments = () =>
   api<StudentDocument[]>("/student/documents");
 
 export const createStudentGroup = () =>
-  api<StudentGroupDetails>("/student/group", {
+  api<StudentGroupDetails>("/student/groups", {
     method: "POST",
   });
 
-export const joinStudentGroup = (groupId: string) =>
-  api<StudentGroupDetails>(`/student/group/${groupId}/join`, {
+export const joinStudentGroup = (groupId: number) =>
+  api<StudentGroupDetails>(`/student/groups/${groupId}/members`, {
     method: "POST",
   });
 
 export const getStudentConvocation = () =>
-  api<Blob>("/student/convocation", { responseType: "blob" });
+  api<Blob>("/student/convocations", { responseType: "blob" });
 
-export const uploadStudentDocument = (documentId: string, file: File) => {
+export const uploadStudentDocument = (documentId: number, file: File) => {
   const formData = new FormData();
   formData.append("file", file);
-  return api<StudentDocument>(`/student/documents/${documentId}/upload`, {
+  return api<StudentDocument>(`/student/documents/${documentId}/attachments`, {
     method: "POST",
     body: formData,
   });

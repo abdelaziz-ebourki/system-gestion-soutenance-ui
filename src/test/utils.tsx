@@ -31,10 +31,9 @@ function createWrapper(options: WrapperOptions = {}) {
   const queryClient = createTestQueryClient();
   const { initialEntries = ["/"], initialAuthState } = options;
 
-  if (initialAuthState) {
-    if (initialAuthState.user) {
-      localStorage.setItem("user", JSON.stringify(initialAuthState.user));
-    }
+  if (initialAuthState?.user) {
+    localStorage.setItem("user", JSON.stringify(initialAuthState.user));
+    localStorage.setItem("token", "mock-test-token");
   } else {
     localStorage.clear();
   }

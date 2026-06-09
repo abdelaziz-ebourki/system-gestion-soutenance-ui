@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Clock, Users, DoorOpen, UserX } from "lucide-react";
 
-import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useDefenseSchedule, useCoordinatorUnavailability } from "@/hooks/use-queries";
+import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useSchedules, useCoordinatorUnavailability } from "@/hooks/queries";
 import { getAllConflicts } from "@/lib/conflict-engine";
-import type { ConflictIssue } from "@/lib/conflict-engine";
+import type { ConflictIssue, ConflictContext } from "@/lib/conflict-engine";
+import { createSlotKey } from "@/lib/utils";
 import {
   Badge,
   Card,
@@ -45,7 +46,7 @@ export default function ConflictDashboard() {
   const juriesQuery = useJuries();
   const groupsQuery = useGroups();
   const sessionsQuery = useCoordinatorDefenseSessions();
-  const scheduleQuery = useDefenseSchedule();
+  const scheduleQuery = useSchedules();
   const unavailabilityQuery = useCoordinatorUnavailability();
 
   const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || groupsQuery.isLoading || sessionsQuery.isLoading || scheduleQuery.isLoading || unavailabilityQuery.isLoading;
@@ -53,25 +54,33 @@ export default function ConflictDashboard() {
   const currentSession = sessionsQuery.data?.[0];
 
   const conflicts = useMemo(() => {
-    const schedule = scheduleQuery.data ?? {};
-    const allUnavailability = (unavailabilityQuery.data ?? []).map((u) => ({
-      date: u.date, slots: u.slots, teacherId: u.teacherId,
-    }));
-    const context = {
-      schedule,
-      rooms: Object.fromEntries((roomsQuery.data ?? []).map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }])),
-      groups: Object.fromEntries((groupsQuery.data ?? []).map((g) => [g.id, { id: g.id, studentIds: g.studentIds }])),
-      projects: Object.fromEntries((projectsQuery.data ?? []).map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }])),
+    const scheduleMap = Object.fromEntries(
+      (scheduleQuery.data ?? []).map((s) => [
+        createSlotKey(s.date, String(s.roomId), s.time),
+        {
+          id: s.projectId,
+          title: s.projectTitle,
+          date: s.date,
+          time: s.time,
+          roomId: s.roomId,
+        },
+      ])
+    );
+    const context: ConflictContext = {
+      schedule: scheduleMap,
+      rooms: Object.fromEntries((roomsQuery.data?.items ?? []).map((r) => [String(r.id), { id: r.id, name: r.name, capacity: r.capacity }])),
+      groups: {},
+      projects: Object.fromEntries((projectsQuery.data ?? []).map((p) => [String(p.id), { id: p.id, studentIds: [], supervisorId: 0 }])),
       teachers: {},
-      juries: Object.fromEntries((juriesQuery.data ?? []).map((j) => [j.projectId, { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) }])),
-      unavailability: { all: allUnavailability },
+      juries: Object.fromEntries((juriesQuery.data ?? []).map((j) => [String(j.projectId), { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) }])),
+      unavailability: { all: (unavailabilityQuery.data ?? []).map((u) => ({ date: u.date, slots: u.slots, teacherId: u.teacherId })) },
       defenseSession: currentSession ? {
         startDate: currentSession.startDate,
         endDate: currentSession.endDate,
         breakDuration: currentSession.breakDuration,
       } : undefined,
     };
-    return getAllConflicts(schedule, context);
+    return getAllConflicts(scheduleMap, context);
   }, [scheduleQuery.data, projectsQuery.data, roomsQuery.data, juriesQuery.data, groupsQuery.data, currentSession, unavailabilityQuery.data]);
 
   const groupedConflicts = useMemo(() => {
@@ -207,3 +216,4 @@ export default function ConflictDashboard() {
     </div>
   );
 }
+

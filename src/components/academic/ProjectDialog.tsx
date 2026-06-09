@@ -55,7 +55,7 @@ export function ProjectDialog({
   const studentsQuery = useStudents({ limit: MAX_STUDENT_FETCH_LIMIT });
   const studentOptions = React.useMemo(() => 
     (studentsQuery.data?.items ?? []).map((s) => ({
-      value: s.id,
+      value: String(s.id),
       label: getFullName(s),
     })),
     [studentsQuery.data?.items],
@@ -75,9 +75,9 @@ export function ProjectDialog({
         f.setFormData({
           title: project.title,
           description: project.description || "",
-          supervisorId: project.supervisorId,
-          studentIds: project.studentIds,
-          defenseType: project.defenseType,
+          supervisorId: "",
+          studentIds: [],
+          defenseType: project.defenseType as DefenseType,
         });
       } else {
         f.resetForm();
@@ -96,7 +96,7 @@ export function ProjectDialog({
 
     try {
       const supervisor = teachers.find(
-        (teacher) => teacher.id === form.formData.supervisorId,
+        (teacher) => String(teacher.id) === form.formData.supervisorId,
       );
 
       if (!supervisor) {
@@ -108,14 +108,19 @@ export function ProjectDialog({
         await updateProjectMutation.mutateAsync({
           id: project.id,
           data: {
-            ...form.formData,
-            status: project.status,
+            title: form.formData.title,
+            description: form.formData.description ?? "",
+            defenseType: form.formData.defenseType,
           },
         });
         toast.success("Projet mis à jour");
       } else {
         await createProjectMutation.mutateAsync({
-          ...form.formData,
+          title: form.formData.title,
+          description: form.formData.description ?? "",
+          supervisorId: Number(form.formData.supervisorId),
+          defenseType: form.formData.defenseType,
+          studentIds: form.formData.studentIds.map(Number),
         });
         toast.success("Projet créé avec succès");
       }
@@ -202,7 +207,7 @@ export function ProjectDialog({
               <ComboboxContent>
                 <ComboboxList>
                   {teachers.map((teacher) => (
-                    <ComboboxItem key={teacher.id} value={teacher.id}>
+                    <ComboboxItem key={teacher.id} value={String(teacher.id)}>
                       {getFullName(teacher)}
                     </ComboboxItem>
                   ))}

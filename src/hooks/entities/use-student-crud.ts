@@ -40,9 +40,9 @@ export function useStudentCrud() {
       lastName: entity.lastName,
       firstName: entity.firstName,
       email: entity.email,
-      cne: entity.cne,
-      majorId: entity.majorId,
-      levelId: entity.levelId,
+      cne: entity.cne ?? "",
+      majorId: entity.majorId != null ? String(entity.majorId) : "",
+      levelId: entity.levelId != null ? String(entity.levelId) : "",
     });
     setSelected(entity);
     setIsDialogOpen(true);
@@ -57,11 +57,20 @@ export function useStudentCrud() {
     e.preventDefault();
     if (!form.validateForm()) return;
     try {
+      const payload = {
+        lastName: form.formData.lastName,
+        firstName: form.formData.firstName,
+        email: form.formData.email,
+        cne: form.formData.cne,
+        majorId: form.formData.majorId ? Number(form.formData.majorId) : undefined,
+        levelId: form.formData.levelId ? Number(form.formData.levelId) : undefined,
+        role: "STUDENT" as const,
+      };
       if (selected) {
-        await update.mutateAsync({ id: selected.id, data: { ...form.formData, role: "student" as const } });
+        await update.mutateAsync({ id: selected.id, data: payload });
         toast.success("Étudiant modifié avec succès");
       } else {
-        await create.mutateAsync({ ...form.formData, role: "student", isActive: false });
+        await create.mutateAsync(payload);
         toast.success("Étudiant créé avec succès");
       }
       setIsDialogOpen(false);
@@ -84,10 +93,10 @@ export function useStudentCrud() {
     }
   };
 
-  const updateMutation = (id: string, data: Partial<StudentFormData> & { role: "student" }) =>
+  const updateMutation = (id: number, data: Parameters<typeof update.mutateAsync>[0]["data"]) =>
     update.mutateAsync({ id, data });
 
-  const deleteMutation = (id: string) => del.mutateAsync(id);
+  const deleteMutation = (id: number) => del.mutateAsync(id);
 
   const handleClose = () => setIsDialogOpen(false);
   const handleCloseDelete = () => setIsDeleteDialogOpen(false);

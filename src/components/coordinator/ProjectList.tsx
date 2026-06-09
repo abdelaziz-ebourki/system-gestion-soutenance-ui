@@ -10,7 +10,7 @@ interface DraggableProjectCardProps {
   assigned: boolean;
   mode: ScheduleMode;
   isSelected: boolean;
-  onSelect: (projectId: string | null) => void;
+  onSelect: (projectId: number | null) => void;
 }
 
 function DraggableProjectCard({
@@ -68,10 +68,10 @@ function DraggableProjectCard({
 
 interface ProjectListProps {
   projects: Project[];
-  assignedProjectIds: Set<string>;
+  assignedProjectIds: Set<number>;
   mode: ScheduleMode;
-  selectedProjectId: string | null;
-  onSelect: (projectId: string | null) => void;
+  selectedProjectId: number | null;
+  onSelect: (projectId: number | null) => void;
 }
 
 export function ProjectList({

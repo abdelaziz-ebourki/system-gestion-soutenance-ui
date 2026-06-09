@@ -3,19 +3,16 @@ import {
   Plus,
   Users,
   FolderKanban,
-  CircleAlert,
   UserPlus,
   CheckCircle2,
 } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 
-import { useProjects, useUpdateProject, useDeleteProject, useStudentGroups } from "@/hooks/use-queries";
-import type { Project } from "@/types";
-import type { StudentGroupAssignment } from "@/lib/api-coordinator";
+import { useProjects, useUpdateProject, useDeleteProject, useGroups } from "@/hooks/queries";
+import type { Project, Group } from "@/types";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import {
-  Badge,
   Button,
   Card,
   CardContent,
@@ -32,18 +29,6 @@ import { CrudActions } from "@/components/admin/CrudActions";
 import { DataTable } from "@/components/ui/data-table";
 import { ProjectDialog } from "@/components/academic/ProjectDialog";
 import { AssignProjectDialog } from "@/components/academic/AssignProjectDialog";
-
-const statusLabel: Record<Project["status"], string> = {
-  pending: "En attente",
-  approved: "Valide",
-  rejected: "Refuse",
-};
-
-const statusClass: Record<Project["status"], string> = {
-  pending: "bg-secondary text-secondary-foreground",
-  approved: "bg-primary text-primary-foreground",
-  rejected: "bg-destructive/10 text-destructive",
-};
 
 export default function CoordinatorProjects() {
   const projectsQuery = useProjects();
@@ -83,15 +68,6 @@ export default function CoordinatorProjects() {
       header: "Encadrant",
     },
     {
-      accessorKey: "status",
-      header: "Statut",
-      cell: ({ row }) => (
-        <Badge className={statusClass[row.original.status]}>
-          {statusLabel[row.original.status]}
-        </Badge>
-      ),
-    },
-    {
       id: "actions",
       header: "",
       cell: ({ row }) => (
@@ -102,15 +78,12 @@ export default function CoordinatorProjects() {
     },
   ], []);
 
-  const groupsQuery = useStudentGroups();
+  const groupsQuery = useGroups();
   const studentGroups = groupsQuery.data ?? [];
-  const [assignTarget, setAssignTarget] = useState<StudentGroupAssignment | null>(null);
+  const [assignTarget, setAssignTarget] = useState<Group | null>(null);
 
-  const pendingProjects = useMemo(() => projects.filter(
-    (project) => project.status === "pending",
-  ), [projects]);
   const multiMemberGroups = useMemo(() => projects.filter(
-    (project) => (project.studentIds?.length || 0) > 1,
+    (project) => (project.studentNames?.length || 0) > 1,
   ), [projects]);
 
   return (
@@ -131,10 +104,9 @@ export default function CoordinatorProjects() {
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <StatsCard label="Portefeuille" value={projects.length} icon={FolderKanban} />
         <StatsCard label="Groupes complets" value={multiMemberGroups.length} icon={Users} />
-        <StatsCard label="A valider" value={pendingProjects.length} icon={CircleAlert} />
       </div>
 
       <Card>
@@ -150,14 +122,12 @@ export default function CoordinatorProjects() {
               columns={columns}
               data={projects}
               loading={isLoading}
-              getRowId={(row) => row.id}
+              getRowId={(row) => String(row.id)}
               enableRowSelection
               onSelectedRowsChange={setSelectedProjects}
               filterColumns="title"
               filterPlaceholder="Rechercher un projet..."
-              filters={[
-                { column: "status", label: "Statut", options: [{ value: "pending", label: "En attente" }, { value: "approved", label: "Valide" }, { value: "rejected", label: "Refuse" }] },
-              ]}
+              filters={[]}
             />
         </CardContent>
       </Card>
@@ -182,21 +152,22 @@ export default function CoordinatorProjects() {
             <EmptyState variant="dashed" description="Aucun groupe étudiant pour le moment." />
           ) : (
             <div className="space-y-3">
-              {studentGroups.map((g) => {
+              {studentGroups.map((g: Group) => {
                 const hasProject = !!g.projectId;
+                const assignedProject = hasProject ? projects.find((p) => p.id === g.projectId) : null;
                 return (
                   <div key={g.id} className="flex items-center justify-between rounded-lg border p-4">
                     <div className="space-y-1">
                       <p className="font-medium">{g.groupName}</p>
                       <p className="text-xs text-muted-foreground">
-                        {g.memberNames.join(", ")}
+                        {g.studentNames.join(", ")}
                       </p>
                     </div>
                     <div className="flex items-center gap-3">
                       {hasProject ? (
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <CheckCircle2 className="size-4 text-primary" />
-                          {g.projectTitle}
+                          {assignedProject?.title ?? `Projet #${g.projectId}`}
                         </div>
                       ) : (
                         <Button size="sm" variant="outline" onClick={() => setAssignTarget(g)} data-testid={`coord-projects-assign-${g.id}`}>
@@ -217,19 +188,10 @@ export default function CoordinatorProjects() {
         selectedCount={selectedProjects.length}
         entityLabel="projet(s)"
         actions={[
-          { key: "status", label: "Changer le statut" },
           { key: "delete", label: "Supprimer" },
         ]}
-        fieldOptionsMap={{
-          status: [
-            { value: "pending", label: "En attente" },
-            { value: "approved", label: "Valide" },
-            { value: "rejected", label: "Refuse" },
-          ],
-        }}
-        onUpdateField={async (_field, value) => {
-          await Promise.all(selectedProjects.map((p) => updateProjectMutation.mutateAsync({ id: p.id, data: { status: value as Project["status"] } })));
-        }}
+        fieldOptionsMap={{}}
+        onUpdateField={async () => {}}
         onDeleteSelected={async () => {
           await Promise.all(selectedProjects.map((p) => deleteProjectMutation.mutateAsync(p.id)));
         }}
@@ -274,3 +236,4 @@ export default function CoordinatorProjects() {
     </div>
   );
 }
+

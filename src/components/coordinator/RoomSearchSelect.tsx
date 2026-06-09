@@ -4,7 +4,7 @@ import type { Room } from "@/types";
 interface RoomSearchSelectProps {
   rooms: Room[];
   value: string | null;
-  onChange: (roomId: string) => void;
+  onChange: (roomId: string | null) => void;
 }
 
 export function RoomSearchSelect({ rooms, value, onChange }: RoomSearchSelectProps) {
@@ -12,7 +12,7 @@ export function RoomSearchSelect({ rooms, value, onChange }: RoomSearchSelectPro
      <SimpleSelect
        label="Salle"
        placeholder="Choisir une salle..."
-       options={rooms?.map((r) => ({ value: r.id, label: `${r.name} (${r.capacity} places)` }))}
+       options={rooms?.map((r) => ({ value: String(r.id), label: `${r.name} (${r.capacity} places)` }))}
        value={value ?? undefined}
        onChange={(val) => {
          if (val) onChange(val);

@@ -4,34 +4,37 @@ import {
   useRooms,
   useProjects,
   useTeachersList,
-  useSaveDefenseSchedule,
+  useSaveSchedules,
   useCoordinatorDefenseSessions,
   useCoordinatorUnavailability,
   useTransitionDefenseSession,
-} from "@/hooks/use-queries";
+} from "@/hooks/queries";
+import type { ScheduleSlot } from "@/lib/api-coordinator";
+
 import { toast } from "sonner";
 import { getErrorMessage, createSlotKey, parseSlotKey } from "@/lib/utils";
-import { format, addDays, differenceInDays } from "date-fns";
-import { MS_PER_MINUTE, TOAST_DURATION_MS } from "@/lib/constants";
+import { addDays, differenceInDays } from "date-fns";
+import { TOAST_DURATION_MS } from "@/lib/constants";
 import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
 import { useScheduleDraft } from "@/hooks/defense/use-schedule-draft";
 import { useScheduleAutoGenerator } from "@/hooks/defense/use-schedule-auto-generator";
 import { useScheduleConflictValidator } from "@/hooks/defense/use-schedule-conflict-validator";
 
 export function useDefenseSchedule() {
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
-  const [activeJuryId, setActiveJuryId] = useState<string | null>(null);
+  const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
+  const [activeJuryId, setActiveJuryId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
   const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
 
   const { data: sessions, isLoading: sessionsLoading } = useCoordinatorDefenseSessions();
   const { data: juries = [], isLoading: juriesLoading } = useJuries();
-  const { data: rooms = [], isLoading: roomsLoading } = useRooms();
+  const { data: roomsPage, isLoading: roomsLoading } = useRooms();
+  const rooms = roomsPage?.items ?? [];
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
   const { data: teachers = [], isLoading: teachersLoading } = useTeachersList();
   const { data: unavailabilities = [], isLoading: unavailLoading } = useCoordinatorUnavailability();
-  const saveSchedule = useSaveDefenseSchedule();
+  const saveSchedule = useSaveSchedules();
   const transitionSession = useTransitionDefenseSession();
 
   useEffect(() => {
@@ -55,15 +58,7 @@ export function useDefenseSchedule() {
 
   const timeSlots = useMemo(() => {
     if (!currentSession) return [];
-    const slots = [];
-    let current = new Date(`2000-01-01T${currentSession.startTime}`);
-    const end = new Date(`2000-01-01T${currentSession.endTime}`);
-
-    while (current < end) {
-      slots.push(format(current, "HH:mm"));
-      current = new Date(current.getTime() + currentSession.defenseDuration * MS_PER_MINUTE);
-    }
-    return slots;
+    return [];
   }, [currentSession]);
 
   const { schedule, setSchedule, updateSlot, removeSlot } = useScheduleDraft();
@@ -86,16 +81,13 @@ export function useDefenseSchedule() {
       juries.filter(
         (j) =>
           !schedule[j.id] &&
-          (j.projectTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            j.studentNames.some((n) =>
-              n.toLowerCase().includes(searchQuery.toLowerCase()),
-            )),
+          j.projectTitle.toLowerCase().includes(searchQuery.toLowerCase()),
       ),
     [juries, searchQuery, schedule],
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveJuryId(event.active.id as string);
+    setActiveJuryId(event.active.id as number);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -103,13 +95,13 @@ export function useDefenseSchedule() {
     setActiveJuryId(null);
 
     if (over && selectedRoomId) {
-      const juryId = active.id as string;
+      const juryId = active.id as number;
       const { date, time } = parseSlotKey(over.id as string);
 
       const jury = juries.find((j) => j.id === juryId);
       if (!jury) return;
 
-      const slotKey = createSlotKey(date, selectedRoomId, time);
+      const slotKey = createSlotKey(date, String(selectedRoomId), time);
       const result = validateSlot(jury.projectId, slotKey);
 
       if (!result.isValid) {
@@ -122,13 +114,13 @@ export function useDefenseSchedule() {
         return;
       }
 
-      updateSlot(juryId, { roomId: selectedRoomId, date, time });
+      updateSlot(String(juryId), { roomId: selectedRoomId, date, time });
       toast.success("Positionné avec succès");
     }
   };
 
-  const handleRemove = (juryId: string) => {
-    removeSlot(juryId);
+  const handleRemove = (juryId: number) => {
+    removeSlot(String(juryId));
   };
 
   const handleSave = async () => {
@@ -136,22 +128,21 @@ export function useDefenseSchedule() {
       toast.error("Aucune modification à enregistrer");
       return;
     }
+    if (!selectedSessionId) return;
 
     try {
-      await saveSchedule.mutateAsync(
-        Object.fromEntries(
-          Object.entries(schedule).map(([juryId, s]) => [
-            juryId,
-            {
-              id: juryId,
-              title: juries.find((j) => j.id === juryId)?.projectTitle ?? "",
-              date: s.date,
-              time: s.time,
-              roomId: s.roomId,
-            },
-          ]),
-        ),
-      );
+      const slots: ScheduleSlot[] = Object.entries(schedule).map(([key, s]) => {
+        const juryId = Number(key);
+        const jury = juries.find((j) => j.id === juryId);
+        return {
+          title: jury?.projectTitle ?? "",
+          date: s.date,
+          time: s.time,
+          projectId: jury?.projectId ?? 0,
+          roomId: Number(s.roomId),
+        };
+      });
+      await saveSchedule.mutateAsync({ defenseSessionId: selectedSessionId, slots });
       toast.success("Planning enregistré avec succès");
     } catch (error) {
       toast.error(getErrorMessage(error, "Erreur lors de l'enregistrement"));

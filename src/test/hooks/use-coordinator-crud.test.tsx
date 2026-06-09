@@ -17,7 +17,7 @@ function createWrapper() {
 }
 
 const mockCoordinator = {
-  id: "c1",
+  id: 1,
   lastName: "Idrissi",
   firstName: "Hassan",
   email: "hassan.idrissi@example.com",

@@ -1,61 +1,63 @@
 export type UserRole = "admin" | "coordinator" | "teacher" | "student";
 
 export interface User {
-  id: string;
+  id: number;
   lastName: string;
   firstName: string;
   email: string;
   role: UserRole;
   isActive: boolean;
   password?: string;
+  cne?: string;
+  majorId?: number;
+  majorName?: string;
+  levelId?: number;
+  levelName?: string;
+  gradeId?: number;
+  gradeName?: string;
+  departmentId?: number;
+  departmentName?: string;
 }
 
+export type Student = User;
+export type Teacher = User;
+export type Coordinator = User;
+
 export interface Major {
-  id: string;
+  id: number;
   name: string;
 }
 
 export interface Level {
-  id: string;
+  id: number;
   name: string;
 }
 
-export interface Student extends User {
-  role: "student";
-  cne: string;
-  majorId: string;
-  levelId: string;
-  projectId?: string;
-}
-
-export interface Teacher extends User {
-  role: "teacher";
-  departmentId: string;
-}
-
-export interface Coordinator extends User {
-  role: "coordinator";
+export interface Grade {
+  id: number;
+  name: string;
 }
 
 export interface Faculty {
-  id: string;
+  id: number;
   name: string;
   code: string;
-  deanId?: string;
+  deanId?: number;
   logoUrl?: string;
 }
 
 export interface Department {
-  id: string;
+  id: number;
   name: string;
   code: string;
-  headId?: string;
-  facultyId?: string;
+  headId?: number;
+  facultyId?: number;
+  facultyName?: string;
 }
 
 export interface Room {
-  id: string;
+  id: number;
   name: string;
   capacity: number;
-  departmentId: string;
+  departmentId: number;
 }

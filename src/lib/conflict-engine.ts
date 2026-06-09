@@ -12,30 +12,30 @@ export interface ConflictIssue {
 }
 
 export interface SlotAssignment {
-  id: string;
+  id: number;
   title: string;
   date: string;
   time: string;
-  roomId: string;
-  studentIds?: string[];
-  supervisorId?: string;
-  juryTeacherIds?: string[];
+  roomId: number;
+  studentIds?: number[];
+  supervisorId?: number;
+  juryTeacherIds?: number[];
 }
 
 export interface ConflictContext {
   schedule: Record<string, SlotAssignment>;
-  rooms: Record<string, { id: string; name: string; capacity: number }>;
-  groups: Record<string, { id: string; studentIds: string[] }>;
-  projects: Record<string, { id: string; studentIds: string[]; supervisorId: string }>;
-  teachers: Record<string, { id: string; name: string }>;
-  juries: Record<string, { id: string; projectId: string; teacherIds: string[] }>;
-  unavailability: Record<string, { date: string; slots: string[]; teacherId: string }[]>;
+  rooms: Record<string, { id: number; name: string; capacity: number }>;
+  groups: Record<string, { id: number; studentIds: number[] }>;
+  projects: Record<string, { id: number; studentIds: number[]; supervisorId: number }>;
+  teachers: Record<string, { id: number; name: string }>;
+  juries: Record<string, { id: number; projectId: number; teacherIds: number[] }>;
+  unavailability: Record<string, { date: string; slots: string[]; teacherId: number }[]>;
   defenseSession?: { startDate: string; endDate: string; breakDuration: number };
   allTimeSlots?: string[];
 }
 
 export function buildConflictContext(
-  schedule: Record<string, { roomId: string; date: string; time: string }>,
+  schedule: Record<string, { roomId: number; date: string; time: string }>,
   juries: Jury[],
   rooms: Room[],
   projects: Project[],
@@ -47,10 +47,10 @@ export function buildConflictContext(
   return {
     schedule: Object.fromEntries(
       Object.entries(schedule).map(([id, s]) => [
-        createSlotKey(s.date, s.roomId, s.time),
+        createSlotKey(s.date, String(s.roomId), s.time),
         {
-          id,
-          title: juries.find((j) => j.id === id)?.projectTitle ?? "",
+          id: Number(id),
+          title: juries.find((j) => String(j.id) === id)?.projectTitle ?? "",
           date: s.date,
           time: s.time,
           roomId: s.roomId,
@@ -62,7 +62,7 @@ export function buildConflictContext(
     ),
     groups: {},
     projects: Object.fromEntries(
-      projects.map((p) => [p.id, { id: p.id, studentIds: p.studentIds, supervisorId: p.supervisorId }]),
+      projects.map((p) => [p.id, { id: p.id, studentIds: [] as number[], supervisorId: 0 }]),
     ),
     teachers: Object.fromEntries(
       teachers.map((t) => [t.id, { id: t.id, name: `${t.firstName} ${t.lastName}` }]),
@@ -85,16 +85,16 @@ export function buildConflictContext(
   };
 }
 
-function getSmartSuggestions(
-  projectId: string,
+export function getSmartSuggestions(
+  projectId: number,
   date: string,
-  roomId: string,
+  roomId: number,
   time: string,
   context: ConflictContext,
   issueType: ConflictIssue["type"],
 ): string | undefined {
-  const canFit = (altRoomId: string, altTime: string) => {
-    const altSlot = createSlotKey(date, altRoomId, altTime);
+  const canFit = (altRoomId: number, altTime: string) => {
+    const altSlot = createSlotKey(date, String(altRoomId), altTime);
     if (context.schedule[altSlot]) return false;
 
     const room = context.rooms[altRoomId];
@@ -146,17 +146,17 @@ function getSmartSuggestions(
 }
 
 export function validateSlotAssignment(
-  projectId: string,
+  projectId: number,
   slot: string,
   context: ConflictContext,
 ): { isValid: boolean; issues: ConflictIssue[] } {
   const issues: ConflictIssue[] = [];
 
-  let date: string, roomId: string, time: string;
+  let date: string, roomId: number, time: string;
   try {
     const parsed = parseSlotKey(slot);
     date = parsed.date;
-    roomId = parsed.room;
+    roomId = Number(parsed.room);
     time = parsed.time;
   } catch {
     return { isValid: false, issues: [{ type: "slot_occupied", severity: "error", message: "Format de créneau invalide.", slot }] };

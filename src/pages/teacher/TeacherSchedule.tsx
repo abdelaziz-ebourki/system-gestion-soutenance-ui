@@ -1,13 +1,11 @@
 import { useMemo } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { CalendarDays, MapPin, ShieldCheck, Timer } from "lucide-react";
+import { CalendarDays, MapPin, Timer } from "lucide-react";
 
 import { useTeacherSchedule } from "@/hooks/use-queries";
 import type { TeacherDefense } from "@/types";
-import { DEFENSE_ROLE_LABELS } from "@/lib/constants";
 
 import {
-  Badge,
   Card,
   CardContent,
   CardDescription,
@@ -17,14 +15,9 @@ import {
 } from "@/components/ui";
 import { DataTable } from "@/components/ui/data-table";
 
-const statusLabel: Record<TeacherDefense["status"], string> = {
-  scheduled: "Planifiée",
-  completed: "Terminée",
-};
-
 export default function TeacherSchedule() {
   const scheduleQuery = useTeacherSchedule();
-  const schedule = useMemo(() => scheduleQuery.data ?? [], [scheduleQuery.data]);
+  const schedule = useMemo(() => scheduleQuery.data?.slots ?? [], [scheduleQuery.data]);
   const isLoading = scheduleQuery.isLoading;
 
   const columns: ColumnDef<TeacherDefense>[] = [
@@ -45,40 +38,14 @@ export default function TeacherSchedule() {
       header: "Date",
     },
     {
-      id: "slot",
+      accessorKey: "time",
       header: "Horaire",
-      cell: ({ row }) => `${row.original.startTime} - ${row.original.endTime}`,
     },
     {
       accessorKey: "roomName",
       header: "Salle",
     },
-    {
-      accessorKey: "role",
-      header: "Rôle",
-      cell: ({ row }) => (
-        <Badge variant="outline">{DEFENSE_ROLE_LABELS[row.original.role]}</Badge>
-      ),
-    },
-    {
-      accessorKey: "status",
-      header: "Statut",
-      cell: ({ row }) => (
-        <Badge variant="secondary">
-          {statusLabel[row.original.status]}
-        </Badge>
-      ),
-    },
   ];
-
-  const scheduled = useMemo(
-    () => schedule.filter(
-      (defense) => defense.status === "scheduled",
-    ), [schedule]);
-  const upcomingCount = scheduled.length;
-  const supervisorCount = useMemo(() => schedule.filter(
-    (defense) => defense.role === "supervisor",
-  ).length, [schedule]);
 
   return (
     <div className="space-y-6">
@@ -90,16 +57,16 @@ export default function TeacherSchedule() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatsCard label="Soutenances à venir" value={upcomingCount} icon={CalendarDays} data-testid="teacher-schedule-stats-upcoming" />
-        <StatsCard label="Rôles de jury" value={schedule.length - supervisorCount} icon={ShieldCheck} data-testid="teacher-schedule-stats-jury" />
-        <StatsCard label="Encadrements" value={supervisorCount} icon={Timer} data-testid="teacher-schedule-stats-supervisor" />
+        <StatsCard label="Soutenances à venir" value={schedule.length} icon={CalendarDays} data-testid="teacher-schedule-stats-upcoming" />
+        <StatsCard label="Créneaux" value={schedule.length} icon={Timer} data-testid="teacher-schedule-stats-jury" />
+        <StatsCard label="Salles uniques" value={new Set(schedule.map((d) => d.roomName)).size} icon={MapPin} data-testid="teacher-schedule-stats-supervisor" />
       </div>
 
       <Card data-testid="teacher-schedule-table-card">
         <CardHeader>
           <CardTitle>Planning détaillé</CardTitle>
           <CardDescription>
-            Chaque passage indique votre rôle, la salle et le groupe
+            Chaque passage indique la salle et le groupe
             d'étudiants.
           </CardDescription>
         </CardHeader>
@@ -108,17 +75,16 @@ export default function TeacherSchedule() {
               columns={columns}
               data={schedule}
               loading={isLoading}
-              getRowId={(row) => row.id}
               filterColumns="projectTitle"
               filterPlaceholder="Rechercher un projet..."
             />
         </CardContent>
       </Card>
 
-      {scheduled.length > 0 ? (
+      {schedule.length > 0 ? (
         <div className="grid gap-4 lg:grid-cols-2">
-          {scheduled.map((defense) => (
-            <Card key={defense.id} data-testid={`teacher-schedule-card-${defense.id}`}>
+          {schedule.map((defense, index) => (
+            <Card key={`${defense.date}-${defense.time}-${index}`} data-testid={`teacher-schedule-card-${index}`}>
               <CardContent className="flex items-start justify-between gap-4 p-5">
                 <div>
                   <p className="font-medium">{defense.projectTitle}</p>
@@ -127,18 +93,13 @@ export default function TeacherSchedule() {
                   </p>
                   <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted-foreground">
                     <span>{defense.date}</span>
-                    <span>
-                      {defense.startTime} - {defense.endTime}
-                    </span>
+                    <span>{defense.time}</span>
                     <span className="inline-flex items-center gap-1">
                       <MapPin className="size-3.5" />
                       {defense.roomName}
                     </span>
                   </div>
                 </div>
-                <Badge variant="secondary">
-                  {DEFENSE_ROLE_LABELS[defense.role]}
-                </Badge>
               </CardContent>
             </Card>
           ))}

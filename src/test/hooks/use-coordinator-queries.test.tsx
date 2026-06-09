@@ -24,10 +24,9 @@ vi.mock("@/lib/api", () => {
     updateCoordinatorDefenseSession: vi.fn(),
     deleteCoordinatorDefenseSession: vi.fn(),
     transitionDefenseSession: vi.fn(),
-    getDefenseSchedule: vi.fn(),
-    saveDefenseSchedule: vi.fn(),
+    getSchedules: vi.fn(),
+    saveSchedules: vi.fn(),
     getCoordinatorUnavailability: vi.fn(),
-    getStudentGroups: vi.fn(),
     getGrades: vi.fn(),
     assignProjectToGroup: vi.fn(),
     getEvaluationSheet: vi.fn(),
@@ -70,7 +69,7 @@ describe("useCoordinatorQueries", () => {
     });
 
     it("useCoordinatorUnavailability fetches unavailabilities", async () => {
-      const mockUnavail = [{ teacherId: "t1", date: "2026-06-01", slots: ["08:00"] }];
+      const mockUnavail = [{ id: 1, teacherId: 1, date: "2026-06-01", slots: ["08:00"] }];
       vi.mocked(api.getCoordinatorUnavailability).mockResolvedValue(mockUnavail as never);
       
       const { result } = renderHook(() => queries.useCoordinatorUnavailability(), { wrapper: createWrapper() });
@@ -87,7 +86,7 @@ describe("useCoordinatorQueries", () => {
       vi.mocked(api.createProject).mockResolvedValue({} as never);
       
       await act(async () => {
-        await result.current.mutateAsync({ title: "New Project", supervisorId: "s1" });
+        await result.current.mutateAsync({ title: "New Project", description: "", supervisorId: 10, defenseType: "pfe" });
       });
       
       expect(api.createProject).toHaveBeenCalled();
@@ -98,11 +97,7 @@ describe("useCoordinatorQueries", () => {
       vi.mocked(api.createProject).mockRejectedValue(new Error("API Error"));
       
       await act(async () => {
-        try {
-          await result.current.mutateAsync({ title: "Fail", supervisorId: "s1" });
-        } catch {
-          // Expected error
-        }
+        await result.current.mutateAsync({ title: "Fail", description: "", supervisorId: 10, defenseType: "pfe" }).catch(() => {});
       });
       
       await waitFor(() => expect(result.current.isError).toBe(true));
@@ -114,10 +109,10 @@ describe("useCoordinatorQueries", () => {
       vi.mocked(api.updateProject).mockResolvedValue({} as never);
       
       await act(async () => {
-        await result.current.mutateAsync({ id: "p1", data: { title: "Updated" } });
+        await result.current.mutateAsync({ id: 1, data: { title: "Updated", description: "", defenseType: "pfe" } });
       });
       
-      expect(api.updateProject).toHaveBeenCalledWith("p1", { title: "Updated" });
+      expect(api.updateProject).toHaveBeenCalledWith(1, { title: "Updated", description: "", defenseType: "pfe" });
     });
   });
 
@@ -127,7 +122,7 @@ describe("useCoordinatorQueries", () => {
       vi.mocked(api.createGroup).mockResolvedValue({} as never);
       
       await act(async () => {
-        await result.current.mutateAsync({ projectId: "p1", studentIds: ["s1"], sessionId: "ds1" });
+        await result.current.mutateAsync({ groupName: "G1", projectId: 1, studentIds: [1], sessionId: 1 });
       });
       
       expect(api.createGroup).toHaveBeenCalled();
@@ -138,10 +133,10 @@ describe("useCoordinatorQueries", () => {
       vi.mocked(api.deleteGroup).mockResolvedValue({} as never);
       
       await act(async () => {
-        await result.current.mutateAsync("g1");
+        await result.current.mutateAsync(1);
       });
       
-      expect(api.deleteGroup).toHaveBeenCalledWith("g1");
+      expect(api.deleteGroup).toHaveBeenCalledWith(1);
     });
   });
 
@@ -152,10 +147,10 @@ describe("useCoordinatorQueries", () => {
       vi.mocked(api.deleteJury).mockResolvedValue({} as never);
       
       await act(async () => {
-        await result.current.mutateAsync("j1");
+        await result.current.mutateAsync(1);
       });
       
-      expect(api.deleteJury).toHaveBeenCalledWith("j1");
+      expect(api.deleteJury).toHaveBeenCalledWith(1);
     });
   });
 
@@ -165,10 +160,10 @@ describe("useCoordinatorQueries", () => {
       vi.mocked(api.transitionDefenseSession).mockResolvedValue({} as never);
       
       await act(async () => {
-        await result.current.mutateAsync({ id: "s1", toStatus: "active" });
+        await result.current.mutateAsync({ id: 1, toStatus: "active" });
       });
       
-      expect(api.transitionDefenseSession).toHaveBeenCalledWith("s1", "active");
+      expect(api.transitionDefenseSession).toHaveBeenCalledWith(1, "active");
     });
   });
 
@@ -180,42 +175,42 @@ describe("useCoordinatorQueries", () => {
     });
 
     it("useEvaluationSheet is enabled when projectId is provided", async () => {
-      renderHook(() => queries.useEvaluationSheet("p1"), { wrapper: createWrapper() });
-      await waitFor(() => expect(api.getEvaluationSheet).toHaveBeenCalledWith("p1"));
+      renderHook(() => queries.useEvaluationSheet(1), { wrapper: createWrapper() });
+      await waitFor(() => expect(api.getEvaluationSheet).toHaveBeenCalledWith(1));
     });
 
     it("useAttendanceList is enabled when defenseSessionId is provided", async () => {
-      renderHook(() => queries.useAttendanceList("s1"), { wrapper: createWrapper() });
-      await waitFor(() => expect(api.getAttendanceList).toHaveBeenCalledWith("s1"));
+      renderHook(() => queries.useAttendanceList(1), { wrapper: createWrapper() });
+      await waitFor(() => expect(api.getAttendanceList).toHaveBeenCalledWith(1));
     });
 
     it("useJuryConvocations is enabled when projectId is provided", async () => {
-      renderHook(() => queries.useJuryConvocations("p1"), { wrapper: createWrapper() });
-      await waitFor(() => expect(api.getJuryConvocations).toHaveBeenCalledWith("p1"));
+      renderHook(() => queries.useJuryConvocations(1), { wrapper: createWrapper() });
+      await waitFor(() => expect(api.getJuryConvocations).toHaveBeenCalledWith(1));
     });
 
     it("useDefenseScheduleDoc is enabled when defenseSessionId is provided", async () => {
-      renderHook(() => queries.useDefenseScheduleDoc("s1"), { wrapper: createWrapper() });
-      await waitFor(() => expect(api.getDefenseScheduleDoc).toHaveBeenCalledWith("s1"));
+      renderHook(() => queries.useDefenseScheduleDoc(1), { wrapper: createWrapper() });
+      await waitFor(() => expect(api.getDefenseScheduleDoc).toHaveBeenCalledWith(1));
     });
 
     it("useProcesVerbal is enabled when projectId is provided", async () => {
-      renderHook(() => queries.useProcesVerbal("p1"), { wrapper: createWrapper() });
-      await waitFor(() => expect(api.getProcesVerbal).toHaveBeenCalledWith("p1"));
+      renderHook(() => queries.useProcesVerbal(1), { wrapper: createWrapper() });
+      await waitFor(() => expect(api.getProcesVerbal).toHaveBeenCalledWith(1));
     });
   });
 
   describe("Schedule management", () => {
-    it("useSaveDefenseSchedule calls API and invalidates stats and schedule", async () => {
-      const { result } = renderHook(() => queries.useSaveDefenseSchedule(), { wrapper: createWrapper() });
-      vi.mocked(api.saveDefenseSchedule).mockResolvedValue({} as never);
+    it("useSaveSchedules calls API and invalidates stats and schedule", async () => {
+      const { result } = renderHook(() => queries.useSaveSchedules(), { wrapper: createWrapper() });
+      vi.mocked(api.saveSchedules).mockResolvedValue({} as never);
       
-      const schedule = { "j1": { id: "j1", title: "AI in Health", roomId: "r1", date: "2026-01-01", time: "08:00" } };
+      const slots = [{ title: "AI in Health", roomId: 1, date: "2026-01-01", time: "08:00", projectId: 1 }];
       await act(async () => {
-        await result.current.mutateAsync(schedule);
+        await result.current.mutateAsync({ defenseSessionId: 1, slots });
       });
       
-      expect(api.saveDefenseSchedule).toHaveBeenCalledWith(schedule);
+      expect(api.saveSchedules).toHaveBeenCalledWith(1, slots);
     });
   });
 });

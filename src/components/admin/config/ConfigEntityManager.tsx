@@ -23,10 +23,10 @@ interface ConfigEntityManagerProps {
   icon: ReactNode;
   entityLabel: string;
   entityLabelPlural: string;
-  data: { id: string; name: string }[] | undefined;
+  data: { id: number; name: string }[] | undefined;
   createMut: UseMutationResult<unknown, Error, { name: string }, unknown>;
-  updateMut: UseMutationResult<unknown, Error, { id: string; data: { name: string } }, unknown>;
-  deleteMut: UseMutationResult<unknown, Error, string, unknown>;
+  updateMut: UseMutationResult<unknown, Error, { id: number; data: { name: string } }, unknown>;
+  deleteMut: UseMutationResult<unknown, Error, number, unknown>;
 }
 
 export function ConfigEntityManager({
@@ -43,12 +43,12 @@ export function ConfigEntityManager({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [selectedItem, setSelectedItem] = useState<{ id: string; name: string } | null>(null);
+  const [selectedItem, setSelectedItem] = useState<{ id: number; name: string } | null>(null);
   const [formData, setFormData] = useState({ name: "" });
 
   const isSubmitting = selectedItem ? updateMut.isPending : createMut.isPending;
 
-  const handleOpenDialog = (item: { id: string; name: string } | null = null) => {
+  const handleOpenDialog = (item: { id: number; name: string } | null = null) => {
     setSelectedItem(item);
     setFormData({ name: item?.name || "" });
     setFieldErrors({});

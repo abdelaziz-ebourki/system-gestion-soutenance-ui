@@ -1,11 +1,7 @@
-import { api, type PaginatedResponse, type UserCreateParams, type RoomImportData, type GeneralSettings, type EmailConfig } from "./api-core";
-import type { DashboardStats, JuryRoleTemplate } from "@/types";
+import { api, type PaginatedResponse, type GeneralSettings, type EmailConfig, type DefenseSettings, type DocumentConfig } from "./api-core";
+import type { DashboardStats, JuryRoleTemplate, User, Department, Room, Major, Level, Faculty, Grade } from "@/types";
 import { MAX_TEACHER_FETCH_LIMIT, AUDIT_LOG_PAGE_SIZE, DEFAULT_API_LIMIT } from "@/lib/constants";
 import type { AuditLog } from "@/types/audit-log";
-import type {
-  User, Student, Teacher, Coordinator,
-  Department, Room, Major, Level,
-} from "@/types";
 
 export const getAdminStats = () => api<DashboardStats>("/admin/stats");
 
@@ -27,37 +23,38 @@ export const getUsers = (params: {
   return api<PaginatedResponse<User>>(`/admin/users?${query.toString()}`);
 };
 
-export const getStudents = (page = 0, limit = DEFAULT_API_LIMIT, search?: string) => {
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (search) params.append("search", search);
-  return api<PaginatedResponse<Student>>(`/admin/students?${params}`);
-};
-
-export const getTeachers = (page = 0, limit = DEFAULT_API_LIMIT, search?: string) => {
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (search) params.append("search", search);
-  return api<PaginatedResponse<Teacher>>(`/admin/teachers?${params}`);
-};
-
 export const getTeachersList = (limit = MAX_TEACHER_FETCH_LIMIT) =>
-  api<PaginatedResponse<Teacher>>(`/admin/teachers?limit=${limit}`).then(
+  api<PaginatedResponse<User>>(`/admin/users?role=TEACHER&limit=${limit}`).then(
     (res) => res.items,
   );
 
-export const getCoordinators = (page = 0, limit = DEFAULT_API_LIMIT, search?: string) => {
-  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (search) params.append("search", search);
-  return api<PaginatedResponse<Coordinator>>(`/admin/coordinators?${params}`);
-};
-
-export const createUser = (data: UserCreateParams) =>
+export const createUser = (data: {
+  lastName: string;
+  firstName: string;
+  email: string;
+  role: string;
+  cne?: string;
+  majorId?: number;
+  levelId?: number;
+  gradeId?: number;
+  departmentId?: number;
+}) =>
   api<User>("/admin/users", {
     method: "POST",
     body: JSON.stringify(data),
   });
 
 export const bulkCreateUsers = (
-  users: Record<string, string | number>[],
+  users: Array<{
+    lastName: string;
+    firstName: string;
+    email: string;
+    cne?: string;
+    majorName?: string;
+    levelName?: string;
+    gradeName?: string;
+    departmentName?: string;
+  }>,
   role: string,
 ) =>
   api<User[]>("/admin/users/bulk", {
@@ -65,81 +62,176 @@ export const bulkCreateUsers = (
     body: JSON.stringify({ users, role }),
   });
 
-export const bulkCreateRooms = (rooms: RoomImportData[]) =>
-  api<Room[]>("/admin/rooms/bulk", {
-    method: "POST",
-    body: JSON.stringify({ rooms }),
-  });
-
-export const updateUser = (id: string, data: Partial<UserCreateParams>) =>
+export const updateUser = (id: number, data: {
+  lastName: string;
+  firstName: string;
+  email: string;
+  role: string;
+  cne?: string;
+  majorId?: number;
+  levelId?: number;
+  gradeId?: number;
+  departmentId?: number;
+}) =>
   api<User>(`/admin/users/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
 
-export const deleteUser = (id: string) =>
+export const deleteUser = (id: number) =>
   api<void>(`/admin/users/${id}`, { method: "DELETE" });
 
-export const getDepartments = () => api<Department[]>("/admin/departments");
-export const createDepartment = (data: Omit<Department, "id">) =>
-  api<Department>("/admin/departments", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-export const updateDepartment = (id: string, data: Omit<Department, "id">) =>
-  api<Department>(`/admin/departments/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-export const deleteDepartment = (id: string) =>
-  api<void>(`/admin/departments/${id}`, { method: "DELETE" });
+export const getRooms = (page = 0, limit = DEFAULT_API_LIMIT) => {
+  const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+  return api<PaginatedResponse<Room>>(`/admin/rooms?${params}`);
+};
 
-export const getRooms = () => api<Room[]>("/admin/rooms");
-export const createRoom = (data: Omit<Room, "id">) =>
+export const createRoom = (data: { name: string; capacity: number; departmentId: number }) =>
   api<Room>("/admin/rooms", {
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateRoom = (id: string, data: Omit<Room, "id">) =>
+
+export const bulkCreateRooms = (rooms: Array<{ name: string; capacity: number; departmentId: number }>) =>
+  api<Room[]>("/admin/rooms/bulk", {
+    method: "POST",
+    body: JSON.stringify({ rooms }),
+  });
+
+export const updateRoom = (id: number, data: { name: string; capacity: number; departmentId: number }) =>
   api<Room>(`/admin/rooms/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
-export const deleteRoom = (id: string) =>
+
+export const deleteRoom = (id: number) =>
   api<void>(`/admin/rooms/${id}`, { method: "DELETE" });
 
+export const getDepartments = () => api<Department[]>("/admin/departments");
+export const createDepartment = (data: { name: string; code: string; headId?: number; facultyId?: number }) =>
+  api<Department>("/admin/departments", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+export const updateDepartment = (id: number, data: { name: string; code: string; headId?: number; facultyId?: number }) =>
+  api<Department>(`/admin/departments/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+export const deleteDepartment = (id: number) =>
+  api<void>(`/admin/departments/${id}`, { method: "DELETE" });
+
+export const getFaculties = () => api<Faculty[]>("/admin/faculties");
+export const createFaculty = (data: { name: string; code: string; deanId?: number; logoUrl?: string }) =>
+  api<Faculty>("/admin/faculties", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+export const updateFaculty = (id: number, data: { name: string; code: string; deanId?: number; logoUrl?: string }) =>
+  api<Faculty>(`/admin/faculties/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+export const deleteFaculty = (id: number) =>
+  api<void>(`/admin/faculties/${id}`, { method: "DELETE" });
+
 export const getMajors = () => api<Major[]>("/admin/config/majors");
-export const createMajor = (data: Omit<Major, "id">) =>
+export const createMajor = (data: { name: string }) =>
   api<Major>("/admin/config/majors", {
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateMajor = (id: string, data: Omit<Major, "id">) =>
+export const updateMajor = (id: number, data: { name: string }) =>
   api<Major>(`/admin/config/majors/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
-export const deleteMajor = (id: string) =>
+export const deleteMajor = (id: number) =>
   api<void>(`/admin/config/majors/${id}`, { method: "DELETE" });
 
 export const getLevels = () => api<Level[]>("/admin/config/levels");
-export const createLevel = (data: Omit<Level, "id">) =>
+export const createLevel = (data: { name: string }) =>
   api<Level>("/admin/config/levels", {
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateLevel = (id: string, data: Omit<Level, "id">) =>
+export const updateLevel = (id: number, data: { name: string }) =>
   api<Level>(`/admin/config/levels/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
-export const deleteLevel = (id: string) =>
+export const deleteLevel = (id: number) =>
   api<void>(`/admin/config/levels/${id}`, { method: "DELETE" });
 
+export const getGrades = () => api<Grade[]>("/admin/config/grades");
+export const createGrade = (data: { name: string }) =>
+  api<Grade>("/admin/config/grades", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+export const updateGrade = (id: number, data: { name: string }) =>
+  api<Grade>(`/admin/config/grades/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+export const deleteGrade = (id: number) =>
+  api<void>(`/admin/config/grades/${id}`, { method: "DELETE" });
+
 export const getJuryRoleTemplates = () => api<JuryRoleTemplate[]>("/admin/config/jury-role-templates");
+export const createJuryRoleTemplate = (data: { name: string; defenseType: string; roles: Array<{ name: string; count: number; coefficient: number }> }) =>
+  api<JuryRoleTemplate>("/admin/config/jury-role-templates", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+export const updateJuryRoleTemplate = (id: number, data: { name: string; defenseType: string; roles: Array<{ name: string; count: number; coefficient: number }> }) =>
+  api<JuryRoleTemplate>(`/admin/config/jury-role-templates/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+export const deleteJuryRoleTemplate = (id: number) =>
+  api<void>(`/admin/config/jury-role-templates/${id}`, { method: "DELETE" });
 
 export const getGeneralSettings = () =>
   api<GeneralSettings>("/admin/config/general");
+export const updateGeneralSettings = (data: {
+  institutionName: string;
+  institutionLogoUrl: string;
+  timezone: string;
+  dateFormat: string;
+  setupCompleted: boolean;
+}) =>
+  api<GeneralSettings>("/admin/config/general", {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+
+export const getDefenseSettings = () =>
+  api<DefenseSettings>("/admin/config/settings");
+export const updateDefenseSettings = (data: {
+  startTime: string;
+  endTime: string;
+  defenseDuration: number;
+  breakDuration: number;
+  groupCreationStartDate: string;
+  groupCreationEndDate: string;
+}) =>
+  api<DefenseSettings>("/admin/config/settings", {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+
+export const getDocumentConfig = () =>
+  api<DocumentConfig>("/admin/config/documents");
+export const updateDocumentConfig = (data: {
+  maxFileSizeMb: number;
+  allowedExtensions: string;
+  versionLimit: number;
+}) =>
+  api<DocumentConfig>("/admin/config/documents", {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+
 export const getEmailConfig = () =>
   api<EmailConfig>("/admin/config/email");
 export const updateEmailConfig = (data: EmailConfig) =>
@@ -147,4 +239,3 @@ export const updateEmailConfig = (data: EmailConfig) =>
     method: "PUT",
     body: JSON.stringify(data),
   });
-

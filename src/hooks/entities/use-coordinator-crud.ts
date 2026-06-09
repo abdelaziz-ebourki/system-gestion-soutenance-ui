@@ -51,11 +51,17 @@ export function useCoordinatorCrud() {
     e.preventDefault();
     if (!form.validateForm()) return;
     try {
+      const payload = {
+        lastName: form.formData.lastName,
+        firstName: form.formData.firstName,
+        email: form.formData.email,
+        role: "COORDINATOR" as const,
+      };
       if (selected) {
-        await update.mutateAsync({ id: selected.id, data: { ...form.formData, role: "coordinator" as const } });
+        await update.mutateAsync({ id: selected.id, data: payload });
         toast.success("Coordinateur modifié avec succès");
       } else {
-        await create.mutateAsync({ ...form.formData, role: "coordinator", isActive: false });
+        await create.mutateAsync(payload);
         toast.success("Coordinateur ajouté avec succès");
       }
       setIsDialogOpen(false);
@@ -78,10 +84,10 @@ export function useCoordinatorCrud() {
     }
   };
 
-  const updateMutation = (id: string, data: Partial<CoordinatorFormData> & { role: "coordinator" }) =>
+  const updateMutation = (id: number, data: Parameters<typeof update.mutateAsync>[0]["data"]) =>
     update.mutateAsync({ id, data });
 
-  const deleteMutation = (id: string) => del.mutateAsync(id);
+  const deleteMutation = (id: number) => del.mutateAsync(id);
 
   const handleClose = () => setIsDialogOpen(false);
   const handleCloseDelete = () => setIsDeleteDialogOpen(false);

@@ -99,7 +99,7 @@ export default function CoordinatorDefenseSessions() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<DefenseSession | null>(null);
   const [editing, setEditing] = useState<DefenseSession | null>(null);
-  const [transitioningId, setTransitioningId] = useState<string | null>(null);
+  const [transitioningId, setTransitioningId] = useState<number | null>(null);
 
   const openCreate = () => {
     form.resetForm();
@@ -111,13 +111,13 @@ export default function CoordinatorDefenseSessions() {
     setEditing(ds);
     form.setFormData({
       name: ds.name,
-      defenseType: ds.defenseType,
-      status: ds.status,
+      defenseType: ds.defenseType as DefenseType,
+      status: ds.status as DefenseSession["status"],
       maxGroupSize: ds.maxGroupSize,
       defenseDuration: ds.defenseDuration,
       breakDuration: ds.breakDuration,
       submissionDeadline: ds.submissionDeadline,
-      juryRoleTemplateId: ds.juryRoleTemplateId,
+      juryRoleTemplateId: String(ds.juryRoleTemplateId),
       startDate: ds.startDate,
       endDate: ds.endDate,
       evaluationCoefficients: ds.evaluationCoefficients,
@@ -130,10 +130,23 @@ export default function CoordinatorDefenseSessions() {
     if (!form.validateForm()) return;
     try {
       if (editing) {
-        await updateMutation.mutateAsync({ id: editing.id, data: form.formData });
+        await updateMutation.mutateAsync({
+          id: editing.id,
+          data: {
+            ...form.formData,
+            defenseType: form.formData.defenseType as string,
+            status: form.formData.status as string,
+            juryRoleTemplateId: Number(form.formData.juryRoleTemplateId),
+          },
+        });
         toast.success("Session de soutenance modifiée");
       } else {
-        await createMutation.mutateAsync(form.formData);
+        await createMutation.mutateAsync({
+          ...form.formData,
+          defenseType: form.formData.defenseType as string,
+          status: form.formData.status as string,
+          juryRoleTemplateId: Number(form.formData.juryRoleTemplateId),
+        });
         toast.success("Session de soutenance créée");
       }
       setDialogOpen(false);
@@ -143,7 +156,7 @@ export default function CoordinatorDefenseSessions() {
     }
   };
 
-  const handleTransition = async (id: string, toStatus: DefenseSessionStatus) => {
+  const handleTransition = async (id: number, toStatus: DefenseSessionStatus) => {
     setTransitioningId(id);
     try {
       await transitionMutation.mutateAsync({ id, toStatus });
@@ -206,7 +219,7 @@ export default function CoordinatorDefenseSessions() {
                       </CardTitle>
                       <CardDescription>
                         <Badge variant="outline" className="mr-2">
-                          {DEFENSE_TYPE_SHORT_LABELS[session.defenseType] ?? session.defenseType}
+                          {DEFENSE_TYPE_SHORT_LABELS[session.defenseType as DefenseType] ?? session.defenseType}
                         </Badge>
                         {session.defenseDuration} min par passage · {session.breakDuration} min de pause
                       </CardDescription>
@@ -378,26 +391,26 @@ export default function CoordinatorDefenseSessions() {
                </div>
                <Field>
                  <FieldLabel>Modèle de jury</FieldLabel>
-                 <Select
-                   value={form.formData.juryRoleTemplateId}
-                   onValueChange={(v) => {
-                     const tpl = templates.find((t) => t.id === v);
-                     const coeffs: Record<string, number> = {};
-                     if (tpl) {
-                       for (const role of tpl.roles) {
-                         coeffs[role.name] = role.coefficient;
-                       }
-                     }
-                     form.setFormData({ ...form.formData, juryRoleTemplateId: v ?? "", evaluationCoefficients: coeffs });
-                   }}
-                 >
-                   <SelectTrigger data-testid="coord-sessions-input-template"><SelectValue placeholder="Choisir un modèle" /></SelectTrigger>
-                   <SelectContent>
-                     {templates.map((t) => (
-                       <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                     ))}
-                   </SelectContent>
-                 </Select>
+                  <Select
+                    value={form.formData.juryRoleTemplateId}
+                    onValueChange={(v) => {
+                      const tpl = templates.find((t) => String(t.id) === v);
+                      const coeffs: Record<string, number> = {};
+                      if (tpl) {
+                        for (const role of tpl.roles) {
+                          coeffs[role.name] = role.coefficient;
+                        }
+                      }
+                      form.setFormData({ ...form.formData, juryRoleTemplateId: v, evaluationCoefficients: coeffs });
+                    }}
+                  >
+                    <SelectTrigger data-testid="coord-sessions-input-template"><SelectValue placeholder="Choisir un modèle" /></SelectTrigger>
+                    <SelectContent>
+                      {templates.map((t) => (
+                        <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                  {form.fieldErrors?.juryRoleTemplateId && (
                    <p className="text-sm font-medium text-destructive">{form.fieldErrors.juryRoleTemplateId}</p>
                  )}

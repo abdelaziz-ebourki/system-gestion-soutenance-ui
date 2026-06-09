@@ -7,7 +7,6 @@ import { useJuries, useProjects, useDeleteJury } from "@/hooks/use-queries";
 import type { Jury } from "@/types";
 import { getErrorMessage } from "@/lib/utils";
 import {
-  Badge,
   Button,
   Card,
   CardContent,
@@ -37,26 +36,13 @@ export default function Jurys() {
       ),
     },
     {
-      accessorKey: "studentNames",
-      header: "Étudiants",
-      cell: ({ row }) => (
-        <div className="flex flex-wrap gap-1">
-          {row.original.studentNames.map((name) => (
-            <Badge key={name} variant="secondary" className="text-[10px]">
-              {name}
-            </Badge>
-          ))}
-        </div>
-      ),
-    },
-    {
       accessorKey: "members",
       header: "Jury",
       cell: ({ row }) => (
         <div className="space-y-1">
           {row.original.members.map((m) => (
             <div key={m.teacherId} className="text-xs">
-              <span className="font-bold text-muted-foreground mr-1 uppercase">{m.role}:</span>
+              <span className="font-bold text-muted-foreground mr-1 uppercase">{m.roleName}:</span>
               {m.teacherName}
             </div>
           ))}

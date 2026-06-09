@@ -27,30 +27,30 @@ vi.mock("@/components/admin/DeleteAlert", () => ({
 
 const mockJuries = [
   {
-    id: "j1",
-    projectId: "p1",
+    id: 1,
+    projectId: 1,
     projectTitle: "Application CI/CD",
     studentNames: ["Ahmed Benali", "Fatima Amrani"],
     members: [
-      { teacherId: "t1", teacherName: "Dr. Alami", role: "Président" },
-      { teacherId: "t2", teacherName: "Pr. Bennani", role: "Examinateur" },
+      { teacherId: 1, teacherName: "Dr. Alami", roleName: "Président" },
+      { teacherId: 1, teacherName: "Pr. Bennani", roleName: "Examinateur" },
     ],
   },
   {
-    id: "j2",
-    projectId: "p2",
+    id: 2,
+    projectId: 2,
     projectTitle: "IA pour la santé",
     studentNames: ["Mohammed"],
     members: [
-      { teacherId: "t3", teacherName: "Dr. Chafik", role: "Président" },
+      { teacherId: 1, teacherName: "Dr. Chafik", roleName: "Président" },
     ],
   },
 ];
 
 const mockProjects = [
-  { id: "p1", title: "Application CI/CD" },
-  { id: "p2", title: "IA pour la santé" },
-  { id: "p3", title: "Site e-commerce" },
+  { id: 1, title: "Application CI/CD" },
+  { id: 2, title: "IA pour la santé" },
+  { id: 3, title: "Site e-commerce" },
 ];
 
 const { mockUseJuries, mockUseProjects, mockUseDeleteJury } = vi.hoisted(() => ({
@@ -103,7 +103,7 @@ describe("Jurys (Coordinator)", () => {
   it("displays juries data from API", async () => {
     renderJurys();
     expect(await screen.findByText("Application CI/CD")).toBeInTheDocument();
-    expect(await screen.findByText("Ahmed Benali")).toBeInTheDocument();
+    expect(await screen.findByText("Dr. Alami")).toBeInTheDocument();
   });
 
   it("shows the add jury button", () => {
@@ -160,7 +160,7 @@ describe("Jurys (Coordinator)", () => {
     await user.click(deleteBtns[0]);
     await user.click(screen.getByTestId("delete-alert-confirm"));
     await waitFor(() => {
-      expect(deleteMutate).toHaveBeenCalledWith("j1");
+      expect(deleteMutate).toHaveBeenCalledWith(1);
     });
   });
 });

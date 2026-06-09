@@ -6,7 +6,7 @@ import { server } from "@/test/mocks/server";
 import { http, HttpResponse } from "msw";
 
 const coordUser = {
-  id: "2",
+  id: 2,
   email: "coord@univh2c.ma",
   firstName: "Coord",
   lastName: "User",
@@ -24,7 +24,7 @@ describe("PrintEvaluationSheet", () => {
       http.post("*/api/coordinator/documents/evaluation-sheets", () => new Promise(() => {})),
     );
     renderWithProviders(<PrintEvaluationSheet />, {
-      initialEntries: ["/coordinator/print/evaluation?projectId=p1"],
+      initialEntries: ["/coordinator/print/evaluation?projectId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(screen.getByTestId("print-evaluation-loading")).toBeInTheDocument();
@@ -32,7 +32,7 @@ describe("PrintEvaluationSheet", () => {
 
   it("renders evaluation sheet on success", async () => {
     renderWithProviders(<PrintEvaluationSheet />, {
-      initialEntries: ["/coordinator/print/evaluation?projectId=p1"],
+      initialEntries: ["/coordinator/print/evaluation?projectId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-evaluation-root")).toBeInTheDocument();
@@ -45,7 +45,7 @@ describe("PrintEvaluationSheet", () => {
       ),
     );
     renderWithProviders(<PrintEvaluationSheet />, {
-      initialEntries: ["/coordinator/print/evaluation?projectId=p1"],
+      initialEntries: ["/coordinator/print/evaluation?projectId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-evaluation-error")).toBeInTheDocument();
@@ -54,15 +54,11 @@ describe("PrintEvaluationSheet", () => {
   it("shows empty state when no grade data", async () => {
     server.use(
       http.post("*/api/coordinator/documents/evaluation-sheets", () =>
-        HttpResponse.json({
-          settings: { institutionName: "Test" },
-          grade: null,
-          studentNames: [],
-        }),
+        HttpResponse.json([]),
       ),
     );
     renderWithProviders(<PrintEvaluationSheet />, {
-      initialEntries: ["/coordinator/print/evaluation?projectId=p1"],
+      initialEntries: ["/coordinator/print/evaluation?projectId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-evaluation-empty")).toBeInTheDocument();

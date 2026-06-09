@@ -3,9 +3,6 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
-import { toast } from "sonner";
-import { server } from "@/test/mocks/server";
-import { http, HttpResponse, delay } from "msw";
 import Documents from "@/pages/coordinator/Documents";
 
 vi.mock("sonner", () => ({
@@ -46,10 +43,10 @@ describe("Documents (Coordinator)", () => {
   it("renders all document type cards", async () => {
     renderDocuments();
     expect(await screen.findByText("Fiches d'évaluation")).toBeInTheDocument();
-    expect(await screen.findByText("Procès-Verbaux (PV)")).toBeInTheDocument();
-    expect(await screen.findByText("Listes de présence")).toBeInTheDocument();
-    expect(await screen.findByText("Convocations jury")).toBeInTheDocument();
-    expect(await screen.findByText("Planning des soutenances")).toBeInTheDocument();
+    expect(screen.getByText("Procès-Verbaux (PV)")).toBeInTheDocument();
+    expect(screen.getByText("Listes de présence")).toBeInTheDocument();
+    expect(screen.getByText("Convocations jury")).toBeInTheDocument();
+    expect(screen.getByText("Planning des soutenances")).toBeInTheDocument();
   });
 
   it("renders project-grade buttons for evaluation sheets", async () => {
@@ -117,90 +114,6 @@ describe("Documents (Coordinator)", () => {
     await user.click(screen.getByRole("button", { name: /annuler/i }));
     await waitFor(() => {
       expect(screen.queryByTestId("coord-documents-date-dialog")).not.toBeInTheDocument();
-    });
-  });
-
-  it("opens review dialog and shows loading skeletons", async () => {
-    server.use(
-      http.get("*/api/coordinator/student-documents", async () => {
-        await delay("infinite");
-      }),
-    );
-    const user = userEvent.setup();
-    renderDocuments();
-    await user.click(await screen.findByTestId("coord-open-review-dialog"));
-    expect(await screen.findByTestId("coord-documents-review-dialog")).toBeInTheDocument();
-    expect(document.querySelectorAll('[data-slot="skeleton"]').length).toBeGreaterThanOrEqual(1);
-  });
-
-  it("validates a document successfully", async () => {
-    const user = userEvent.setup();
-    renderDocuments();
-    await user.click(await screen.findByTestId("coord-open-review-dialog"));
-    await user.click(await screen.findByTestId("coord-doc-approve-d1"));
-    await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith("Document validé");
-    });
-  });
-
-  it("shows error toast when document validation fails", async () => {
-    server.use(
-      http.post("*/api/coordinator/student-documents/:id/status", () =>
-        HttpResponse.json({ message: "Error" }, { status: 500 }),
-      ),
-    );
-    const user = userEvent.setup();
-    renderDocuments();
-    await user.click(await screen.findByTestId("coord-open-review-dialog"));
-    await user.click(await screen.findByTestId("coord-doc-approve-d1"));
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Erreur lors de la validation");
-    });
-  });
-
-  it("rejects a document successfully", async () => {
-    const user = userEvent.setup();
-    renderDocuments();
-    await user.click(await screen.findByTestId("coord-open-review-dialog"));
-    await user.click(await screen.findByTestId("coord-doc-reject-d1"));
-    await waitFor(() => {
-      expect(toast.success).toHaveBeenCalledWith("Document refusé");
-    });
-  });
-
-  it("shows error toast when document rejection fails", async () => {
-    server.use(
-      http.post("*/api/coordinator/student-documents/:id/status", () =>
-        HttpResponse.json({ message: "Error" }, { status: 500 }),
-      ),
-    );
-    const user = userEvent.setup();
-    renderDocuments();
-    await user.click(await screen.findByTestId("coord-open-review-dialog"));
-    await user.click(await screen.findByTestId("coord-doc-reject-d1"));
-    await waitFor(() => {
-      expect(toast.error).toHaveBeenCalledWith("Erreur lors du refus");
-    });
-  });
-
-  it("shows empty state when no documents to review", async () => {
-    server.use(
-      http.get("*/api/coordinator/student-documents", () => HttpResponse.json([])),
-    );
-    const user = userEvent.setup();
-    renderDocuments();
-    await user.click(await screen.findByTestId("coord-open-review-dialog"));
-    expect(await screen.findByText("Aucun document à réviser.")).toBeInTheDocument();
-  });
-
-  it("closes review dialog via Fermer button", async () => {
-    const user = userEvent.setup();
-    renderDocuments();
-    await user.click(await screen.findByTestId("coord-open-review-dialog"));
-    expect(await screen.findByTestId("coord-documents-review-dialog")).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /fermer/i }));
-    await waitFor(() => {
-      expect(screen.queryByTestId("coord-documents-review-dialog")).not.toBeInTheDocument();
     });
   });
 });

@@ -148,13 +148,13 @@ export default function StudentDashboard() {
             {defense?.juryMembers && defense.juryMembers.length > 0 ? (
               defense.juryMembers.map((member) => (
               <div
-                key={`${member.role}-${member.name}`}
+                key={`${member.roleName}-${member.teacherName}`}
                 className="rounded-lg border p-4"
-                data-testid={`student-dashboard-jury-member-${member.role}-${member.name}`}
+                data-testid={`student-dashboard-jury-member-${member.roleName}-${member.teacherName}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="font-medium">{member.name}</p>
-                  <Badge variant="outline">{member.role}</Badge>
+                  <p className="font-medium">{member.teacherName}</p>
+                  <Badge variant="outline">{member.roleName}</Badge>
                 </div>
               </div>
             ))
@@ -166,12 +166,7 @@ export default function StudentDashboard() {
             {defense?.result && (
               <div className="rounded-lg border bg-secondary p-4" data-testid="student-dashboard-result">
                 <p className="text-sm text-muted-foreground">Résultat</p>
-                <p className="mt-2 font-semibold">{defense.result.decision}</p>
-                {defense.result.score !== undefined && (
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Note finale: {defense.result.score}/20
-                  </p>
-                )}
+                <p className="mt-2 font-semibold">{defense.result}</p>
               </div>
             )}
           </CardContent>

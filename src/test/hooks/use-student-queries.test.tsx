@@ -57,7 +57,7 @@ describe("useCreateStudentGroup", () => {
 describe("useJoinStudentGroup", () => {
   it("joins a student group", async () => {
     const { result } = renderHook(() => useJoinStudentGroup(), { wrapper: createWrapper() });
-    act(() => { result.current.mutate("g2"); });
+    act(() => { result.current.mutate(2); });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
   });
 });
@@ -74,7 +74,7 @@ describe("useUploadStudentDocument", () => {
   it("uploads a document", async () => {
     const { result } = renderHook(() => useUploadStudentDocument(), { wrapper: createWrapper() });
     const file = new File(["test"], "test.pdf", { type: "application/pdf" });
-    act(() => { result.current.mutate({ documentId: "d1", file }); });
+    act(() => { result.current.mutate({ documentId: 1, file }); });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
   });
 });

@@ -4,7 +4,7 @@ import { RoomSearchSelect } from "@/components/coordinator/RoomSearchSelect";
 import type { Room } from "@/types";
 
 vi.mock("@/components/ui", () => ({
-  SimpleSelect: ({ label, options, value, onChange }: { label: string; options: Array<{ label: string; value: string }>; value: string | null; onChange: (val: string) => void }) => (
+  SimpleSelect: ({ label, options, value, onChange }: { label: string; options: Array<{ label: string; value: string }>; value: string | undefined; onChange: (val: string) => void }) => (
     <div>
       <label>{label}</label>
       <select 
@@ -21,8 +21,8 @@ vi.mock("@/components/ui", () => ({
 }));
 
 const mockRooms: Room[] = [
-  { id: "r1", name: "Salle A01", capacity: 30, departmentId: "d1" },
-  { id: "r2", name: "Salle B02", capacity: 20, departmentId: "d1" },
+  { id: 1, name: "Salle A01", capacity: 30, departmentId: 1 },
+  { id: 2, name: "Salle B02", capacity: 20, departmentId: 1 },
 ];
 
 describe("RoomSearchSelect", () => {
@@ -41,7 +41,7 @@ describe("RoomSearchSelect", () => {
     const onChange = vi.fn();
     render(<RoomSearchSelect rooms={mockRooms} value={null} onChange={onChange} />);
     const select = screen.getByTestId("mock-simple-select");
-    fireEvent.change(select, { target: { value: "r1" } });
-    expect(onChange).toHaveBeenCalledWith("r1");
+    fireEvent.change(select, { target: { value: "1" } });
+    expect(onChange).toHaveBeenCalledWith("1");
   });
 });

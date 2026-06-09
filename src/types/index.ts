@@ -5,46 +5,54 @@ export interface DashboardStats {
   totalTeachers: number;
   totalDepartments: number;
   totalRooms: number;
-  activeSessions: number;
-  upcomingDefenses: number;
+  totalDefenseSessions: number;
 }
 
 export interface Project {
-  id: string;
+  id: number;
   title: string;
-  description?: string;
-  studentIds: string[];
-  studentNames?: string[];
-  supervisorId: string;
+  description: string;
+  defenseType: string;
+  groupId: number;
   supervisorName: string;
-  defenseType: DefenseType;
-  status: "pending" | "approved" | "rejected";
+  studentNames: string[];
 }
 
 export interface Group {
-  id: string;
-  projectId: string;
-  studentIds: string[];
-  sessionId: string;
+  id: number;
+  groupName: string;
+  projectId: number;
+  memberCount: number;
+  studentNames: string[];
 }
 
 export interface Jury {
-  id: string;
-  projectId: string;
+  id: number;
+  projectId: number;
   projectTitle: string;
-  studentNames: string[];
-  defenseType: DefenseType;
-  templateId: string;
-  templateName: string;
+  defenseType: string;
   members: JuryMember[];
 }
 
-export interface DefenseSlot {
-  id: string;
-  projectId: string;
-  slot: string;
-  date: string;
-  roomId: string;
+export interface JuryMember {
+  roleName: string;
+  teacherId: number;
+  teacherName: string;
+}
+
+export interface DefenseSession {
+  id: number;
+  name: string;
+  defenseType: string;
+  status: string;
+  maxGroupSize: number;
+  defenseDuration: number;
+  breakDuration: number;
+  submissionDeadline: string;
+  evaluationCoefficients: Record<string, number>;
+  juryRoleTemplateId: number;
+  startDate: string;
+  endDate: string;
 }
 
 export interface TeacherStats {
@@ -55,28 +63,20 @@ export interface TeacherStats {
 }
 
 export interface TeacherDefense {
-  id: string;
-  projectId: string;
+  date: string;
+  time: string;
+  roomName: string;
   projectTitle: string;
   studentNames: string[];
-  date: string;
-  startTime: string;
-  endTime: string;
-  roomName: string;
-  role: "president" | "reporter" | "examiner" | "supervisor";
-  status: "scheduled" | "completed";
 }
 
 export interface TeacherEvaluation {
-  id: string;
-  defenseId: string;
+  id: number;
+  projectId: number;
   projectTitle: string;
-  studentNames: string[];
-  role: "president" | "reporter" | "examiner" | "supervisor";
-  score?: number;
-  comment?: string;
-  status: "pending" | "submitted";
-  submittedAt?: string;
+  finalGrade: number;
+  comment: string;
+  status: string;
 }
 
 export interface TeacherUnavailability {
@@ -87,49 +87,48 @@ export interface StudentStats {
   documentCount: number;
   missingDocuments: number;
   groupMembers: number;
-  defenseStatus: "scheduled" | "pending";
+  defenseStatus: string;
 }
 
 export interface StudentDefenseDetails {
   projectTitle: string;
-  projectDescription?: string;
+  projectDescription: string;
   supervisorName: string;
   juryMembers: Array<{
-    name: string;
-    role: string;
+    roleName: string;
+    teacherName: string;
   }>;
-  date?: string;
-  startTime?: string;
-  endTime?: string;
-  roomName?: string;
-  status: "scheduled" | "pending";
-  convocationUrl?: string;
-  result?: {
-    decision: string;
-    score?: number;
-  };
+  date: string;
+  startTime: string;
+  endTime: string;
+  roomName: string;
+  status: string;
+  convocationUrl: string;
+  result: string;
 }
 
 export interface StudentGroupDetails {
-  id: string;
+  id: number;
   groupName: string;
-  projectTitle?: string;
-  supervisorName?: string;
+  projectTitle: string;
+  supervisorName: string;
   members: Array<{
-    id: string;
+    id: number;
     fullName: string;
     email: string;
-    role: "leader" | "member";
+    role: string;
   }>;
 }
 
 export interface StudentDocument {
-  id: string;
+  id: number;
+  studentId: number;
   name: string;
   type: string;
   deadline: string;
-  status: "submitted" | "missing" | "validated" | "rejected";
-  submittedAt?: string;
+  status: string;
+  submittedAt: string;
+  filePath: string;
 }
 
 export type DefenseType = "pfe" | "memoire" | "these";
@@ -139,14 +138,14 @@ export type DefenseSessionStatus = "draft" | "active" | "scheduled" | "completed
 export type SlotKey = string & { __brand: 'SlotKey' };
 
 export interface AppNotification {
-  id: string;
-  type: "info" | "warning" | "success" | "error";
+  id: number;
+  type: string;
   title: string;
   message: string;
   timestamp: string;
   read: boolean;
-  actionLink?: string;
-  actor?: string;
+  actionLink: string;
+  actor: string;
 }
 
 export interface JuryRole {
@@ -156,44 +155,28 @@ export interface JuryRole {
 }
 
 export interface JuryRoleTemplate {
-  id: string;
+  id: number;
   name: string;
   defenseType: string;
   roles: JuryRole[];
 }
 
-export interface JuryMember {
-  roleName: string;
-  role?: string;
-  teacherId: string;
-  teacherName: string;
-}
-
-export interface DefenseSession {
-  id: string;
-  name: string;
-  defenseType: DefenseType;
-  status: DefenseSessionStatus;
-  maxGroupSize: number;
-  defenseDuration: number;
-  breakDuration: number;
-  submissionDeadline: string;
-  evaluationCoefficients: Record<string, number>;
-  juryRoleTemplateId: string;
-  startDate: string;
-  endDate: string;
-  startTime: string;
-  endTime: string;
-}
-
 export interface StudentGroupWorkspace {
   currentGroup: StudentGroupDetails | null;
   availableGroups: Array<{
-    id: string;
+    id: number;
     groupName: string;
     memberCount: number;
   }>;
   groupCreationStartDate: string;
   groupCreationEndDate: string;
   isGroupCreationOpen: boolean;
+}
+
+export interface DefenseSlot {
+  id: number;
+  projectId: number;
+  slot: string;
+  date: string;
+  roomId: number;
 }

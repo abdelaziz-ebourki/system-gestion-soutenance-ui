@@ -13,7 +13,7 @@ describe("Profile", () => {
     renderWithProviders(<Profile />, {
       initialAuthState: {
         user: {
-          id: "1",
+          id: 1,
           email: "admin@univh2c.ma",
           firstName: "Admin",
           lastName: "User",
@@ -32,7 +32,7 @@ describe("Profile", () => {
     renderWithProviders(<Profile />, {
       initialAuthState: {
         user: {
-          id: "2",
+          id: 2,
           email: "teacher@univh2c.ma",
           firstName: "Teacher",
           lastName: "User",
@@ -48,7 +48,7 @@ describe("Profile", () => {
     renderWithProviders(<Profile />, {
       initialAuthState: {
         user: {
-          id: "3",
+          id: 3,
           email: "coord@univh2c.ma",
           firstName: "Coord",
           lastName: "User",

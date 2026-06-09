@@ -5,7 +5,7 @@ import { renderWithProviders } from "@/test/utils";
 import { server } from "@/test/mocks/server";
 
 const adminUser = {
-  id: "1",
+  id: 1,
   email: "admin@univh2c.ma",
   firstName: "Admin",
   lastName: "User",

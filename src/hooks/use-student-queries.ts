@@ -33,7 +33,7 @@ export function useCreateStudentGroup() {
 export function useJoinStudentGroup() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (groupId: string) => api.joinStudentGroup(groupId),
+    mutationFn: (groupId: number) => api.joinStudentGroup(groupId),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "group"], refetchType: "active" }),
   });
 }
@@ -48,7 +48,7 @@ export function useStudentDocuments() {
 export function useUploadStudentDocument() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ documentId, file }: { documentId: string; file: File }) =>
+    mutationFn: ({ documentId, file }: { documentId: number; file: File }) =>
       api.uploadStudentDocument(documentId, file),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "documents"], refetchType: "active" }),
   });

@@ -17,13 +17,13 @@ function createWrapper() {
 }
 
 const mockStudent = {
-  id: "s1",
+  id: 1,
   lastName: "Dupont",
   firstName: "Jean",
   email: "jean.dupont@example.com",
   cne: "CNE123",
-  majorId: "m1",
-  levelId: "l1",
+  majorId: 1,
+  levelId: 1,
   isActive: true,
   role: "student" as const,
 };
@@ -46,7 +46,7 @@ describe("useStudentCrud", () => {
 
   it("openCreate resets form and opens dialog", () => {
     const { result } = renderHook(() => useStudentCrud(), { wrapper: createWrapper() });
-    act(() => result.current.setFormData({ lastName: "test", firstName: "test", email: "t@t.com", cne: "X", majorId: "m1", levelId: "l1" }));
+    act(() => result.current.setFormData({ lastName: "test", firstName: "test", email: "t@t.com", cne: "X", majorId: "1", levelId: "1" }));
     act(() => result.current.openCreate());
     expect(result.current.selected).toBeNull();
     expect(result.current.isDialogOpen).toBe(true);
@@ -85,7 +85,7 @@ describe("useStudentCrud", () => {
     const { result } = renderHook(() => useStudentCrud(), { wrapper: createWrapper() });
     act(() => result.current.setFormData({
       lastName: "New", firstName: "Student", email: "new@example.com",
-      cne: "CNE999", majorId: "m1", levelId: "l1",
+      cne: "CNE999", majorId: "1", levelId: "1",
     }));
     const fakeEvent = { preventDefault: vi.fn() };
     await act(async () => {
@@ -141,4 +141,3 @@ describe("useStudentCrud", () => {
     expect(result.current.isDeleteDialogOpen).toBe(false);
   });
 });
-

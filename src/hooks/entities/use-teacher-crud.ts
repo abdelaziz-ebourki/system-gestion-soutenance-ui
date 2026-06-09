@@ -38,7 +38,7 @@ export function useTeacherCrud() {
       lastName: entity.lastName,
       firstName: entity.firstName,
       email: entity.email,
-      departmentId: entity.departmentId,
+      departmentId: entity.departmentId != null ? String(entity.departmentId) : "",
     });
     setSelected(entity);
     setIsDialogOpen(true);
@@ -53,11 +53,18 @@ export function useTeacherCrud() {
     e.preventDefault();
     if (!form.validateForm()) return;
     try {
+      const payload = {
+        lastName: form.formData.lastName,
+        firstName: form.formData.firstName,
+        email: form.formData.email,
+        departmentId: form.formData.departmentId ? Number(form.formData.departmentId) : undefined,
+        role: "TEACHER" as const,
+      };
       if (selected) {
-        await update.mutateAsync({ id: selected.id, data: { ...form.formData, role: "teacher" as const } });
+        await update.mutateAsync({ id: selected.id, data: payload });
         toast.success("Enseignant modifié avec succès");
       } else {
-        await create.mutateAsync({ ...form.formData, role: "teacher", isActive: false });
+        await create.mutateAsync(payload);
         toast.success("Enseignant créé avec succès");
       }
       setIsDialogOpen(false);
@@ -80,10 +87,10 @@ export function useTeacherCrud() {
     }
   };
 
-  const updateMutation = (id: string, data: Partial<TeacherFormData> & { role: "teacher" }) =>
+  const updateMutation = (id: number, data: Parameters<typeof update.mutateAsync>[0]["data"]) =>
     update.mutateAsync({ id, data });
 
-  const deleteMutation = (id: string) => del.mutateAsync(id);
+  const deleteMutation = (id: number) => del.mutateAsync(id);
 
   const handleClose = () => setIsDialogOpen(false);
   const handleCloseDelete = () => setIsDeleteDialogOpen(false);

@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
-import type { TeacherEvaluation, TeacherUnavailability } from "@/types";
 
 export function useTeacherStats() {
   return useQuery({
@@ -30,8 +29,8 @@ export function useSubmitTeacherEvaluation() {
       id,
       data,
     }: {
-      id: string;
-      data: Pick<TeacherEvaluation, "score" | "comment">;
+      id: number;
+      data: { score: number; comment: string };
     }) => api.submitTeacherEvaluation(id, data),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["teacher", "evaluations"], refetchType: "active" }),
@@ -48,7 +47,7 @@ export function useTeacherUnavailability() {
 export function useSaveTeacherUnavailability() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: TeacherUnavailability) =>
+    mutationFn: (data: { slots: Array<{ date: string; slots: string[] }> }) =>
       api.saveTeacherUnavailability(data),
     onSuccess: () =>
       qc.invalidateQueries({ queryKey: ["teacher", "unavailability"], refetchType: "active" }),

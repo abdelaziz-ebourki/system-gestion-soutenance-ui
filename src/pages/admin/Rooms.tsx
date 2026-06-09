@@ -31,13 +31,15 @@ import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 
 export default function Rooms() {
-  const { data, isLoading, refetch } = useRooms();
+  const { data: roomsData, isLoading, refetch } = useRooms();
   const [selectedRooms, setSelectedRooms] = useState<Room[]>([]);
   const { data: departments = [] } = useDepartments();
   const crud = useRoomCrud();
 
+  const data = roomsData?.items ?? [];
+
   const columns = useMemo<ColumnDef<Room>[]>(() => {
-    const getDepartmentName = (id: string) =>
+    const getDepartmentName = (id: number) =>
       departments.find((d) => d.id === id)?.name || id;
 
     return [
@@ -135,12 +137,12 @@ export default function Rooms() {
               </Field>
               <Field>
                 <FieldLabel>Département</FieldLabel>
-                <Select value={crud.formData.departmentId}
+                <Select value={crud.formData.departmentId ? String(crud.formData.departmentId) : ""}
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, departmentId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un département" /></SelectTrigger>
                   <SelectContent>
                     {departments.map((d) => (
-                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                      <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

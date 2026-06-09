@@ -5,8 +5,8 @@ import { GraduationCap } from "lucide-react";
 import { ConfigCard } from "@/components/admin/config/ConfigCard";
 
 const items = [
-  { id: "1", name: "Génie Informatique" },
-  { id: "2", name: "Génie Civil" },
+  { id: 1, name: "Génie Informatique" },
+  { id: 2, name: "Génie Civil" },
 ];
 
 describe("ConfigCard", () => {

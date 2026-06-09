@@ -48,7 +48,7 @@ export default function Departments() {
       accessorKey: "headId",
       header: "Chef de Département",
       cell: ({ row }) => {
-        const id = row.getValue("headId") as string | undefined;
+        const id = row.getValue("headId") as number | undefined;
         if (!id) return <span className="text-muted-foreground italic">Non assigné</span>;
         const teacher = teachers.find((t) => t.id === id);
         return teacher ? `${teacher.lastName} ${teacher.firstName}` : id;
@@ -138,7 +138,7 @@ export default function Departments() {
               <Field>
                 <FieldLabel>Chef de Département</FieldLabel>
                 <Select
-                  value={crud.formData.headId || "none"}
+                  value={crud.formData.headId ? String(crud.formData.headId) : "none"}
                   onValueChange={(v) =>
                     crud.setFormData({ ...crud.formData, headId: v === "none" ? "" : v })
                   }
@@ -149,7 +149,7 @@ export default function Departments() {
                   <SelectContent>
                     <SelectItem value="none">Aucun</SelectItem>
                     {teachers.map((t) => (
-                      <SelectItem key={t.id} value={t.id}>
+                      <SelectItem key={t.id} value={String(t.id)}>
                         {t.lastName} {t.firstName}
                       </SelectItem>
                     ))}

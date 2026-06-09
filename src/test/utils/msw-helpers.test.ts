@@ -18,7 +18,7 @@ describe("errorResponse", () => {
 });
 
 describe("paginatedResponse", () => {
-  const items = [{ id: "1" }, { id: "2" }, { id: "3" }];
+  const items = [{ id: 1 }, { id: 2 }, { id: 3 }];
 
   it("returns all items when total matches length", async () => {
     const res = paginatedResponse(items);

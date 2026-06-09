@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui";
-import { bulkCreateUsers, bulkCreateRooms, type RoomImportData } from "@/lib/api";
+import { bulkCreateUsers, bulkCreateRooms } from "@/lib/api";
 
 interface BulkImportDialogProps {
   entity: "student" | "teacher" | "coordinator" | "room";
@@ -146,9 +146,9 @@ export function BulkImportDialog({
     setIsSubmitting(true);
     try {
       if (entity === "room") {
-        await bulkCreateRooms(data as RoomImportData[]);
+        await bulkCreateRooms(data as Array<{ name: string; capacity: number; departmentId: number }>);
       } else {
-        await bulkCreateUsers(data, entity);
+        await bulkCreateUsers(data as Array<{ lastName: string; firstName: string; email: string; cne?: string; majorName?: string; levelName?: string; gradeName?: string; departmentName?: string }>, entity);
       }
       toast.success(
         `${data.length} ${ENTITY_LABELS[entity].toLowerCase()} importés avec succès.`,

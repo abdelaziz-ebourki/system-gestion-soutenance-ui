@@ -6,7 +6,7 @@ import { server } from "@/test/mocks/server";
 import { http, HttpResponse } from "msw";
 
 const coordUser = {
-  id: "2",
+  id: 2,
   email: "coord@univh2c.ma",
   firstName: "Coord",
   lastName: "User",
@@ -32,7 +32,7 @@ describe("PrintAttendanceList", () => {
       http.post("*/api/coordinator/documents/attendance-lists", () => new Promise(() => {})),
     );
     renderWithProviders(<PrintAttendanceList />, {
-      initialEntries: ["/coordinator/print/attendance?date=2026-06-15&sessionId=ds1"],
+      initialEntries: ["/coordinator/print/attendance?date=2026-06-15&sessionId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(screen.getByTestId("print-attendance-loading")).toBeInTheDocument();
@@ -40,7 +40,7 @@ describe("PrintAttendanceList", () => {
 
   it("renders attendance list on success", async () => {
     renderWithProviders(<PrintAttendanceList />, {
-      initialEntries: ["/coordinator/print/attendance?date=2026-06-15&sessionId=ds1"],
+      initialEntries: ["/coordinator/print/attendance?date=2026-06-15&sessionId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-attendance-root")).toBeInTheDocument();
@@ -53,7 +53,7 @@ describe("PrintAttendanceList", () => {
       ),
     );
     renderWithProviders(<PrintAttendanceList />, {
-      initialEntries: ["/coordinator/print/attendance?date=2026-06-15&sessionId=ds1"],
+      initialEntries: ["/coordinator/print/attendance?date=2026-06-15&sessionId=1"],
       initialAuthState: { user: coordUser },
     });
     expect(await screen.findByTestId("print-attendance-error")).toBeInTheDocument();
