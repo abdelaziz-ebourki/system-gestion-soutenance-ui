@@ -22,6 +22,7 @@ vi.mock("@/hooks/queries", () => ({
   useCoordinatorDefenseSessions: vi.fn(),
   useCoordinatorUnavailability: vi.fn(),
   useTransitionDefenseSession: vi.fn(),
+  useDefenseSettings: vi.fn(),
 }));
 
 vi.mock("@/hooks/defense/use-schedule-draft", () => ({
@@ -95,6 +96,7 @@ describe("useDefenseSchedule", () => {
     vi.mocked(queries.useProjects).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Project[], Error>);
     vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
     vi.mocked(queries.useCoordinatorUnavailability).mockReturnValue({ data: mockUnavailabilities, isLoading: false } as unknown as UseQueryResult<UnavailabilityEntry[], Error>);
+    vi.mocked(queries.useDefenseSettings).mockReturnValue({ data: { id: 1, startTime: "08:00", endTime: "18:00", defenseDuration: 60, breakDuration: 15, groupCreationStartDate: "", groupCreationEndDate: "" }, isLoading: false } as unknown as UseQueryResult<{ id: number; startTime: string; endTime: string; defenseDuration: number; breakDuration: number; groupCreationStartDate: string; groupCreationEndDate: string }, Error>);
     vi.mocked(queries.useSaveSchedules).mockReturnValue({ mutateAsync: mockSaveMutate } as unknown as UseMutationResult<ScheduleResponse[], Error, { defenseSessionId: number; slots: ScheduleSlot[] }>);
     vi.mocked(queries.useTransitionDefenseSession).mockReturnValue({ mutateAsync: mockTransitionMutate } as unknown as UseMutationResult<DefenseSession, Error, { id: number; toStatus: string }>);
   });

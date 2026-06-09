@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Clock, Users, DoorOpen, UserX } from "lucide-react";
 
-import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useSchedules, useCoordinatorUnavailability } from "@/hooks/queries";
-import { getAllConflicts } from "@/lib/conflict-engine";
-import type { ConflictIssue, ConflictContext } from "@/lib/conflict-engine";
+import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useSchedules, useCoordinatorUnavailability, useTeachersList } from "@/hooks/queries";
+import { buildConflictContext, getAllConflicts } from "@/lib/conflict-engine";
+import type { ConflictIssue } from "@/lib/conflict-engine";
 import { createSlotKey } from "@/lib/utils";
 import {
   Badge,
@@ -48,8 +48,9 @@ export default function ConflictDashboard() {
   const sessionsQuery = useCoordinatorDefenseSessions();
   const scheduleQuery = useSchedules();
   const unavailabilityQuery = useCoordinatorUnavailability();
+  const teachersQuery = useTeachersList();
 
-  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || groupsQuery.isLoading || sessionsQuery.isLoading || scheduleQuery.isLoading || unavailabilityQuery.isLoading;
+  const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || groupsQuery.isLoading || sessionsQuery.isLoading || scheduleQuery.isLoading || unavailabilityQuery.isLoading || teachersQuery.isLoading;
 
   const currentSession = sessionsQuery.data?.[0];
 
@@ -66,22 +67,22 @@ export default function ConflictDashboard() {
         },
       ])
     );
-    const context: ConflictContext = {
-      schedule: scheduleMap,
-      rooms: Object.fromEntries((roomsQuery.data?.items ?? []).map((r) => [String(r.id), { id: r.id, name: r.name, capacity: r.capacity }])),
-      groups: {},
-      projects: Object.fromEntries((projectsQuery.data ?? []).map((p) => [String(p.id), { id: p.id, studentIds: [], supervisorId: 0 }])),
-      teachers: {},
-      juries: Object.fromEntries((juriesQuery.data ?? []).map((j) => [String(j.projectId), { id: j.id, projectId: j.projectId, teacherIds: j.members.map((m) => m.teacherId) }])),
-      unavailability: { all: (unavailabilityQuery.data ?? []).map((u) => ({ date: u.date, slots: u.slots, teacherId: u.teacherId })) },
-      defenseSession: currentSession ? {
+    const context = buildConflictContext(
+      scheduleMap,
+      juriesQuery.data ?? [],
+      roomsQuery.data?.items ?? [],
+      projectsQuery.data ?? [],
+      teachersQuery.data ?? [],
+      unavailabilityQuery.data ?? [],
+      currentSession ? {
         startDate: currentSession.startDate,
         endDate: currentSession.endDate,
         breakDuration: currentSession.breakDuration,
       } : undefined,
-    };
+      [],
+    );
     return getAllConflicts(scheduleMap, context);
-  }, [scheduleQuery.data, projectsQuery.data, roomsQuery.data, juriesQuery.data, groupsQuery.data, currentSession, unavailabilityQuery.data]);
+  }, [scheduleQuery.data, projectsQuery.data, roomsQuery.data, juriesQuery.data, currentSession, unavailabilityQuery.data, teachersQuery.data]);
 
   const groupedConflicts = useMemo(() => {
     const groups: Record<string, ConflictIssue[]> = {};

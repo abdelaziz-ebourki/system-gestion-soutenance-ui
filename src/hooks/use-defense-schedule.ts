@@ -8,6 +8,7 @@ import {
   useCoordinatorDefenseSessions,
   useCoordinatorUnavailability,
   useTransitionDefenseSession,
+  useDefenseSettings,
 } from "@/hooks/queries";
 import type { ScheduleSlot } from "@/lib/api-coordinator";
 
@@ -34,6 +35,7 @@ export function useDefenseSchedule() {
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
   const { data: teachers = [], isLoading: teachersLoading } = useTeachersList();
   const { data: unavailabilities = [], isLoading: unavailLoading } = useCoordinatorUnavailability();
+  const { data: defenseSettings, isLoading: settingsLoading } = useDefenseSettings();
   const saveSchedule = useSaveSchedules();
   const transitionSession = useTransitionDefenseSession();
 
@@ -57,9 +59,23 @@ export function useDefenseSchedule() {
   }, [currentSession]);
 
   const timeSlots = useMemo(() => {
-    if (!currentSession) return [];
-    return [];
-  }, [currentSession]);
+    if (!currentSession || !defenseSettings) return [];
+    const { startTime, endTime } = defenseSettings;
+    const duration = currentSession.defenseDuration;
+    const slots: string[] = [];
+    let [h, m] = startTime.split(":").map(Number);
+    const [endH, endM] = endTime.split(":").map(Number);
+    const endMinutes = endH * 60 + endM;
+    while (h * 60 + m < endMinutes) {
+      slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+      m += duration;
+      if (m >= 60) {
+        h += Math.floor(m / 60);
+        m = m % 60;
+      }
+    }
+    return slots;
+  }, [currentSession, defenseSettings]);
 
   const { schedule, setSchedule, updateSlot, removeSlot } = useScheduleDraft();
 
@@ -81,9 +97,16 @@ export function useDefenseSchedule() {
       juries.filter(
         (j) =>
           !schedule[j.id] &&
-          j.projectTitle.toLowerCase().includes(searchQuery.toLowerCase()),
+          (j.projectTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            projects.some(
+              (p) =>
+                p.id === j.projectId &&
+                p.studentNames.some((n) =>
+                  n.toLowerCase().includes(searchQuery.toLowerCase()),
+                ),
+            )),
       ),
-    [juries, searchQuery, schedule],
+    [juries, searchQuery, schedule, projects],
   );
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -170,7 +193,7 @@ export function useDefenseSchedule() {
     sessions,
     juries,
     rooms,
-    allLoading: sessionsLoading || juriesLoading || roomsLoading || unavailLoading || projectsLoading || teachersLoading,
+    allLoading: sessionsLoading || juriesLoading || roomsLoading || unavailLoading || projectsLoading || teachersLoading || settingsLoading,
     selectedSessionId,
     setSelectedSessionId,
     currentSession,
