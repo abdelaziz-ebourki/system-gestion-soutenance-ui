@@ -42,14 +42,6 @@ export const ROUTES = {
     PROFILE: "/profile",
     NOTIFICATIONS: "/notifications",
   },
-  PRINT: {
-    EVALUATION_SHEET: "/print/evaluation-sheet",
-    ATTENDANCE_LIST: "/print/attendance-list",
-    JURY_CONVOCATION: "/print/jury-convocation",
-    SCHEDULE: "/print/schedule",
-    PROCES_VERBAL: "/print/proces-verbal",
-    STUDENT_CONVOCATION: "/print/student-convocation",
-  },
 } as const;
 
 export const VALID_DASHBOARD_ROUTES = new Set([

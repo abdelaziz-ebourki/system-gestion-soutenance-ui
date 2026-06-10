@@ -1,7 +1,9 @@
 
-import { CalendarDays, GraduationCap, Users, Printer, Download } from "lucide-react";
+import { useState } from "react";
+import { CalendarDays, GraduationCap, Users, Loader2, Download } from "lucide-react";
 
 import { useStudentStats, useStudentDefense } from "@/hooks/queries";
+import { getStudentConvocation } from "@/lib/api";
 import {
   Badge,
   Button,
@@ -15,11 +17,26 @@ import {
   StatsCard,
 } from "@/components/ui";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function StudentDashboard() {
   const { data: stats } = useStudentStats();
   const { data: defense, isLoading: isDefenseLoading } = useStudentDefense();
+  const [convocationLoading, setConvocationLoading] = useState(false);
   const isLoading = isDefenseLoading;
+
+  const handleDownloadConvocation = async () => {
+    setConvocationLoading(true);
+    try {
+      const blob = await getStudentConvocation();
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch {
+      toast.error("Erreur lors du téléchargement de la convocation.");
+    } finally {
+      setConvocationLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -119,11 +136,16 @@ export default function StudentDashboard() {
               <Button
                 variant="outline"
                 className="w-fit"
-                onClick={() => window.print()}
+                disabled={convocationLoading}
+                onClick={handleDownloadConvocation}
                 data-testid="student-dashboard-print-btn"
               >
-                <Printer className="mr-2 size-4" />
-                Imprimer la convocation
+                {convocationLoading ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : (
+                  <Download className="mr-2 size-4" />
+                )}
+                Télécharger la convocation
               </Button>
             ) : (
               <Link

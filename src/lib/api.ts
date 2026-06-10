@@ -7,10 +7,9 @@ export {
   getCoordinatorDefenseSessions, createCoordinatorDefenseSession, updateCoordinatorDefenseSession, deleteCoordinatorDefenseSession,
   transitionDefenseSession, getSchedules, saveSchedules, autoGenerateSchedules, publishSchedule,
   cancelDefense, validateConflicts, getCoordinatorUnavailability, getCoordinatorUsers, assignProjectToGroup,
-  getEvaluationSheet, getAttendanceList, getJuryConvocations, getDefenseScheduleDoc, getProcesVerbal,
+  getEvaluationSheetPdf, getAttendanceListPdf, getJuryConvocationsPdf, getDefenseScheduleDocPdf, getProcesVerbalPdf,
   type CreateProjectPayload, type UpdateProjectPayload, type MemberEntry, type CreateJuryPayload, type UpdateJuryPayload,
-  type ScheduleSlot, type ScheduleResponse, type ConflictDetail, type EvaluationSheetResponse,
-  type AttendanceListResponse, type JuryConvocationResponse, type ScheduleDocResponse, type MinutesResponse,
+  type ScheduleSlot, type ScheduleResponse, type ConflictDetail, type GradeWeightedAverageResponse,
   type CoordinatorStats, type UnavailabilityEntry,
 } from "./api-coordinator";
 export { getGrades as getCoordinatorGrades } from "./api-coordinator";

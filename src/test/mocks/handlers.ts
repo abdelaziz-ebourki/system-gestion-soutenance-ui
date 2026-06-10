@@ -240,25 +240,25 @@ export const handlers = [
     return HttpResponse.json([]);
   }),
 
-  // Coordinator — documents
-  http.post("*/api/coordinator/documents/evaluation-sheets", () =>
-    HttpResponse.json({ settings: { institutionName: "Université Hassan II", institutionLogoUrl: "", timezone: "Africa/Casablanca", dateFormat: "DD/MM/YYYY", setupCompleted: true }, projectId: 1, projectTitle: "Application CI/CD", date: "2026-06-15", evaluationCoefficients: { President: 0.3, Rapporteur: 0.3 }, studentNames: ["Jean Dupont", "Sophie Martin"], juryMembers: [{ roleName: "President", teacherName: "Ahmed Benali" }, { roleName: "Rapporteur", teacherName: "Fatima Amrani" }] }),
+  // Coordinator — documents (PDF blob responses)
+  http.post("*/api/coordinator/documents/pdf/evaluation-sheets", () =>
+    new HttpResponse("mock-evaluation-sheet-pdf", { status: 200, headers: { "Content-Type": "application/pdf" } }),
   ),
 
-  http.post("*/api/coordinator/documents/attendance-lists", () =>
-    HttpResponse.json({ defenseSessionName: "Session PFE 2026", slots: [{ date: "2026-06-15", time: "08:00", roomName: "Salle 101", projectTitle: "Application CI/CD", studentNames: ["Jean Dupont", "Sophie Martin"] }] }),
+  http.post("*/api/coordinator/documents/pdf/attendance-lists", () =>
+    new HttpResponse("mock-attendance-list-pdf", { status: 200, headers: { "Content-Type": "application/pdf" } }),
   ),
 
-  http.post("*/api/coordinator/documents/jury-convocations", () =>
-    HttpResponse.json([{ teacherName: "Ahmed Benali", role: "President", projectTitle: "Application CI/CD", studentNames: ["Jean Dupont", "Sophie Martin"], date: "2026-06-15", time: "08:00", roomName: "Salle 101", defenseSessionName: "Session PFE 2026" }]),
+  http.post("*/api/coordinator/documents/pdf/jury-convocations", () =>
+    new HttpResponse("mock-jury-convocation-pdf", { status: 200, headers: { "Content-Type": "application/pdf" } }),
   ),
 
-  http.post("*/api/coordinator/documents/schedule", () =>
-    HttpResponse.json({ defenseSessionName: "Session PFE 2026", slots: [{ date: "2026-06-15", time: "08:00", roomName: "Salle 101", projectTitle: "Application CI/CD", studentNames: ["Jean Dupont", "Sophie Martin"] }, { date: "2026-06-15", time: "09:00", roomName: "Salle 102", projectTitle: "Analyse des données", studentNames: ["Amine El Idrissi"] }] }),
+  http.post("*/api/coordinator/documents/pdf/schedule", () =>
+    new HttpResponse("mock-schedule-pdf", { status: 200, headers: { "Content-Type": "application/pdf" } }),
   ),
 
-  http.post("*/api/coordinator/documents/proces-verbal", () =>
-    HttpResponse.json({ settings: { institutionName: "Université Hassan II", institutionLogoUrl: "", timezone: "Africa/Casablanca", dateFormat: "DD/MM/YYYY", setupCompleted: true }, grade: { projectId: 1, projectTitle: "Application CI/CD", status: "completed", finalScore: 16.5, evaluationCoefficients: {}, individualScores: [] }, studentNames: ["Jean Dupont", "Sophie Martin"], supervisorName: "Ahmed Benali", juryMembers: [{ roleName: "President", teacherName: "Ahmed Benali" }, { roleName: "Rapporteur", teacherName: "Fatima Amrani" }] }),
+  http.post("*/api/coordinator/documents/pdf/proces-verbal", () =>
+    new HttpResponse("mock-proces-verbal-pdf", { status: 200, headers: { "Content-Type": "application/pdf" } }),
   ),
 
   // Teacher

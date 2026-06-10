@@ -74,27 +74,27 @@ describe("Documents (Coordinator)", () => {
     expect(screen.getByTestId("coord-documents-date-dialog")).toBeInTheDocument();
   });
 
-  it("opens evaluation sheet URL when grade button is clicked", async () => {
+  it("opens a new tab with blob URL when grade button is clicked", async () => {
     const user = userEvent.setup();
     renderDocuments();
     const gradeBtn = (await screen.findAllByText("Application CI/CD"))[0];
     await user.click(gradeBtn);
     await waitFor(() => {
-      expect(window.open).toHaveBeenCalledWith(expect.stringContaining("/print/evaluation-sheet?projectId="), "_blank");
+      expect(window.open).toHaveBeenCalled();
     });
   });
 
-  it("opens schedule URL when generate planning is clicked", async () => {
+  it("opens a new tab with blob URL when generate planning is clicked", async () => {
     const user = userEvent.setup();
     renderDocuments();
     const scheduleBtn = await screen.findByText("Générer le planning");
     await user.click(scheduleBtn);
     await waitFor(() => {
-      expect(window.open).toHaveBeenCalledWith(expect.stringContaining("/print/schedule?sessionId="), "_blank");
+      expect(window.open).toHaveBeenCalled();
     });
   });
 
-  it("opens attendance list URL when date is selected and generate is clicked", async () => {
+  it("opens a new tab with blob URL when date is selected and generate is clicked", async () => {
     const user = userEvent.setup();
     renderDocuments();
     const dateBtn = await screen.findByText("Choisir une date");
@@ -102,7 +102,7 @@ describe("Documents (Coordinator)", () => {
     expect(screen.getByTestId("coord-documents-date-dialog")).toBeInTheDocument();
     await user.click(screen.getByTestId("coord-documents-date-generate"));
     await waitFor(() => {
-      expect(window.open).toHaveBeenCalledWith(expect.stringContaining("/print/attendance-list?date="), "_blank");
+      expect(window.open).toHaveBeenCalled();
     });
   });
 

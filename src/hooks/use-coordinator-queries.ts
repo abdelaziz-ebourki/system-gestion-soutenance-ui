@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
-import { DOC_STALE_TIME } from "@/lib/constants";
 import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload, ScheduleSlot } from "@/lib/api-coordinator";
 
 export function useCoordinatorStats() {
@@ -238,50 +237,5 @@ export function useProjectGrades() {
   return useQuery({
     queryKey: ["coordinator", "grades"],
     queryFn: () => api.getCoordinatorGrades(),
-  });
-}
-
-export function useEvaluationSheet(projectId: number | null) {
-  return useQuery({
-    queryKey: ["coordinator", "documents", "evaluation-sheet", projectId],
-    queryFn: () => api.getEvaluationSheet(projectId!),
-    enabled: !!projectId,
-    staleTime: DOC_STALE_TIME,
-  });
-}
-
-export function useAttendanceList(defenseSessionId: number | null) {
-  return useQuery({
-    queryKey: ["coordinator", "documents", "attendance-list", defenseSessionId],
-    queryFn: () => api.getAttendanceList(defenseSessionId!),
-    enabled: !!defenseSessionId,
-    staleTime: DOC_STALE_TIME,
-  });
-}
-
-export function useJuryConvocations(projectId: number | null) {
-  return useQuery({
-    queryKey: ["coordinator", "documents", "jury-convocations", projectId],
-    queryFn: () => api.getJuryConvocations(projectId!),
-    enabled: !!projectId,
-    staleTime: DOC_STALE_TIME,
-  });
-}
-
-export function useDefenseScheduleDoc(defenseSessionId: number | null) {
-  return useQuery({
-    queryKey: ["coordinator", "documents", "schedule", defenseSessionId],
-    queryFn: () => api.getDefenseScheduleDoc(defenseSessionId!),
-    enabled: !!defenseSessionId,
-    staleTime: DOC_STALE_TIME,
-  });
-}
-
-export function useProcesVerbal(projectId: number | null) {
-  return useQuery({
-    queryKey: ["coordinator", "documents", "proces-verbal", projectId],
-    queryFn: () => api.getProcesVerbal(projectId!),
-    enabled: !!projectId,
-    staleTime: DOC_STALE_TIME,
   });
 }

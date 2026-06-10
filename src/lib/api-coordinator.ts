@@ -1,4 +1,4 @@
-import { api, type GeneralSettings } from "./api-core";
+import { api } from "./api-core";
 import type { Project, Group, Jury, DefenseSession, User } from "@/types";
 
 export interface CoordinatorStats {
@@ -65,47 +65,6 @@ export interface ConflictDetail {
   message: string;
   slot: string;
   suggestedResolution: string;
-}
-
-export interface EvaluationSheetResponse {
-  projectId: number;
-  projectTitle: string;
-  studentNames: string[];
-  supervisorName: string;
-  date: string;
-  time: string;
-  roomName: string;
-  juryMembers: Array<{ roleName: string; teacherName: string; coefficient: number }>;
-  evaluationCoefficients: Record<string, number>;
-}
-
-export interface AttendanceListResponse {
-  defenseSessionName: string;
-  slots: Array<{ date: string; time: string; roomName: string; projectTitle: string; studentNames: string[] }>;
-}
-
-export interface JuryConvocationResponse {
-  teacherName: string;
-  role: string;
-  projectTitle: string;
-  studentNames: string[];
-  date: string;
-  time: string;
-  roomName: string;
-  defenseSessionName: string;
-}
-
-export interface ScheduleDocResponse {
-  defenseSessionName: string;
-  slots: Array<{ date: string; time: string; roomName: string; projectTitle: string; studentNames: string[] }>;
-}
-
-export interface MinutesResponse {
-  settings: GeneralSettings;
-  grade: { projectId: number; projectTitle: string; finalScore: number; decision: string };
-  studentNames: string[];
-  supervisorName: string;
-  juryMembers: Array<{ roleName: string; teacherName: string }>;
 }
 
 export interface GradeWeightedAverageResponse {
@@ -260,32 +219,37 @@ export const getCoordinatorUsers = (role: string, page = 0, limit = 5000, search
 export const getGrades = () =>
   api<GradeWeightedAverageResponse[]>("/coordinator/grades");
 
-export const getEvaluationSheet = (projectId: number) =>
-  api<EvaluationSheetResponse[]>("/coordinator/documents/evaluation-sheets", {
+export const getEvaluationSheetPdf = (projectId: number) =>
+  api<Blob>("/coordinator/documents/pdf/evaluation-sheets", {
     method: "POST",
     body: JSON.stringify({ projectId }),
+    responseType: "blob",
   });
 
-export const getAttendanceList = (defenseSessionId: number) =>
-  api<AttendanceListResponse>("/coordinator/documents/attendance-lists", {
+export const getAttendanceListPdf = (defenseSessionId: number) =>
+  api<Blob>("/coordinator/documents/pdf/attendance-lists", {
     method: "POST",
     body: JSON.stringify({ defenseSessionId }),
+    responseType: "blob",
   });
 
-export const getJuryConvocations = (projectId: number) =>
-  api<JuryConvocationResponse[]>("/coordinator/documents/jury-convocations", {
+export const getJuryConvocationsPdf = (projectId: number) =>
+  api<Blob>("/coordinator/documents/pdf/jury-convocations", {
     method: "POST",
     body: JSON.stringify({ projectId }),
+    responseType: "blob",
   });
 
-export const getDefenseScheduleDoc = (defenseSessionId: number) =>
-  api<ScheduleDocResponse>("/coordinator/documents/schedule", {
+export const getDefenseScheduleDocPdf = (defenseSessionId: number) =>
+  api<Blob>("/coordinator/documents/pdf/schedule", {
     method: "POST",
     body: JSON.stringify({ defenseSessionId }),
+    responseType: "blob",
   });
 
-export const getProcesVerbal = (projectId: number) =>
-  api<MinutesResponse>("/coordinator/documents/proces-verbal", {
+export const getProcesVerbalPdf = (projectId: number) =>
+  api<Blob>("/coordinator/documents/pdf/proces-verbal", {
     method: "POST",
     body: JSON.stringify({ projectId }),
+    responseType: "blob",
   });

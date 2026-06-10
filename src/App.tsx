@@ -36,11 +36,6 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const AuditLogs = lazy(() => import("./pages/admin/AuditLogs"));
 const CoordinatorDocuments = lazy(() => import("./pages/coordinator/Documents"));
-const PrintEvaluationSheet = lazy(() => import("./pages/print/PrintEvaluationSheet"));
-const PrintAttendanceList = lazy(() => import("./pages/print/PrintAttendanceList"));
-const PrintJuryConvocation = lazy(() => import("./pages/print/PrintJuryConvocation"));
-const PrintDefenseSchedule = lazy(() => import("./pages/print/PrintDefenseSchedule"));
-const PrintProcesVerbal = lazy(() => import("./pages/print/PrintProcesVerbal"));
 
 function PageLoader() {
   return (
@@ -59,11 +54,6 @@ export default function App() {
         <Route path={ROUTES.AUTH.VERIFY_ACCOUNT} element={<VerifyAccount />} />
         <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<ForgotPassword />} />
         <Route path={ROUTES.AUTH.RESET_PASSWORD} element={<ResetPassword />} />
-        <Route path={ROUTES.PRINT.EVALUATION_SHEET} element={<PrintEvaluationSheet />} />
-        <Route path={ROUTES.PRINT.ATTENDANCE_LIST} element={<PrintAttendanceList />} />
-        <Route path={ROUTES.PRINT.JURY_CONVOCATION} element={<PrintJuryConvocation />} />
-        <Route path={ROUTES.PRINT.SCHEDULE} element={<PrintDefenseSchedule />} />
-        <Route path={ROUTES.PRINT.PROCES_VERBAL} element={<PrintProcesVerbal />} />
 
         <Route element={<DashboardLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
