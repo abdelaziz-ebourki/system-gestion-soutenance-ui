@@ -108,7 +108,7 @@ export default function DefenseDesigner() {
           <Button className="gap-2" onClick={handleSave} isLoading={saveSchedule.isPending} data-testid="coord-designer-save">
             <Save className="size-4" /> Enregistrer
           </Button>
-          <Button variant="default" className="gap-2 bg-green-600 hover:bg-green-700"
+          <Button variant="default" className="gap-2"
             onClick={() => setIsPublishDialogOpen(true)} data-testid="coord-designer-publish">
             <Send className="size-4" /> Publier
           </Button>

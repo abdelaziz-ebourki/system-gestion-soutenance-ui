@@ -49,21 +49,40 @@ describe("Documents (Coordinator)", () => {
     expect(screen.getByText("Planning des soutenances")).toBeInTheDocument();
   });
 
-  it("renders project-grade buttons for evaluation sheets", async () => {
+  it("opens picker dialog and shows projects for evaluation sheets", async () => {
+    const user = userEvent.setup();
     renderDocuments();
-    const buttons = await screen.findAllByText("Application CI/CD");
-    expect(buttons.length).toBeGreaterThanOrEqual(1);
+    const generateBtns = await screen.findAllByText("Générer");
+    await user.click(generateBtns[0]);
+    expect(await screen.findByTestId("coord-documents-picker-dialog")).toBeInTheDocument();
+    expect(await screen.findByText("Application CI/CD")).toBeInTheDocument();
+    expect(screen.getByText("Analyse des données")).toBeInTheDocument();
   });
 
-  it("renders jury buttons for convocations with same project title", async () => {
+  it("opens picker dialog and shows juries for convocations", async () => {
+    const user = userEvent.setup();
     renderDocuments();
-    const buttons = await screen.findAllByText("Application CI/CD");
-    expect(buttons.length).toBeGreaterThanOrEqual(2);
+    const convBtns = await screen.findAllByText("Générer");
+    await user.click(convBtns[2]);
+    expect(await screen.findByTestId("coord-documents-picker-dialog")).toBeInTheDocument();
+    expect(await screen.findByText("Application CI/CD")).toBeInTheDocument();
+  });
+
+  it("filters projects in picker dialog", async () => {
+    const user = userEvent.setup();
+    renderDocuments();
+    const generateBtns = await screen.findAllByText("Générer");
+    await user.click(generateBtns[0]);
+    await screen.findByTestId("coord-documents-picker-dialog");
+    await user.type(screen.getByTestId("coord-documents-picker-search"), "CI/CD");
+    expect(screen.getByText("Application CI/CD")).toBeInTheDocument();
+    expect(screen.queryByText("Analyse des données")).not.toBeInTheDocument();
   });
 
   it("shows generate planning button when sessions exist", async () => {
     renderDocuments();
-    expect(await screen.findByText("Générer le planning")).toBeInTheDocument();
+    const btns = await screen.findAllByText("Générer");
+    expect(btns.length).toBeGreaterThanOrEqual(3);
   });
 
   it("shows date picker dialog when attendance list is clicked", async () => {
@@ -74,11 +93,13 @@ describe("Documents (Coordinator)", () => {
     expect(screen.getByTestId("coord-documents-date-dialog")).toBeInTheDocument();
   });
 
-  it("opens a new tab with blob URL when grade button is clicked", async () => {
+  it("opens a new tab with blob URL when project is selected in picker", async () => {
     const user = userEvent.setup();
     renderDocuments();
-    const gradeBtn = (await screen.findAllByText("Application CI/CD"))[0];
-    await user.click(gradeBtn);
+    const generateBtns = await screen.findAllByText("Générer");
+    await user.click(generateBtns[0]);
+    const projectBtn = await screen.findByText("Application CI/CD");
+    await user.click(projectBtn);
     await waitFor(() => {
       expect(window.open).toHaveBeenCalled();
     });
@@ -87,7 +108,8 @@ describe("Documents (Coordinator)", () => {
   it("opens a new tab with blob URL when generate planning is clicked", async () => {
     const user = userEvent.setup();
     renderDocuments();
-    const scheduleBtn = await screen.findByText("Générer le planning");
+    const btns = await screen.findAllByText("Générer");
+    const scheduleBtn = btns[btns.length - 1];
     await user.click(scheduleBtn);
     await waitFor(() => {
       expect(window.open).toHaveBeenCalled();
@@ -114,6 +136,18 @@ describe("Documents (Coordinator)", () => {
     await user.click(screen.getByRole("button", { name: /annuler/i }));
     await waitFor(() => {
       expect(screen.queryByTestId("coord-documents-date-dialog")).not.toBeInTheDocument();
+    });
+  });
+
+  it("cancels picker dialog without generating", async () => {
+    const user = userEvent.setup();
+    renderDocuments();
+    const generateBtns = await screen.findAllByText("Générer");
+    await user.click(generateBtns[0]);
+    await screen.findByTestId("coord-documents-picker-dialog");
+    await user.click(screen.getByTestId("coord-documents-picker-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("coord-documents-picker-dialog")).not.toBeInTheDocument();
     });
   });
 });

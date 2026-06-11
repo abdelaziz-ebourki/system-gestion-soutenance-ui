@@ -25,9 +25,9 @@ const typeIcons: Record<string, typeof Info> = {
 };
 
 const typeColors: Record<string, string> = {
-  info: "bg-blue-500/10 text-blue-500",
-  warning: "bg-amber-500/10 text-amber-500",
-  success: "bg-green-500/10 text-green-500",
+  info: "bg-primary/10 text-primary",
+  warning: "bg-primary/10 text-primary",
+  success: "bg-primary/10 text-primary",
   error: "bg-destructive/10 text-destructive",
 };
 

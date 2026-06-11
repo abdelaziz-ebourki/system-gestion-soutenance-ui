@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import { FileText, Users, Calendar, ClipboardList, ScrollText, Loader2 } from "lucide-react";
+import { useState, useCallback, useMemo } from "react";
+import { FileText, Users, Calendar, ClipboardList, ScrollText, Loader2, Search } from "lucide-react";
 import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades } from "@/hooks/queries";
 import * as api from "@/lib/api";
 import {
@@ -17,7 +17,6 @@ import {
   DialogTitle,
   Input,
   Skeleton,
-  EmptyState,
 } from "@/components/ui";
 
 import { toast } from "sonner";
@@ -27,42 +26,48 @@ const DOC_TYPES: {
   title: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
-  color: string;
+  actionLabel: string;
+  needsPicker: boolean;
 }[] = [
   {
     id: "evaluation-sheet",
     title: "Fiches d'évaluation",
-    description: "Générer les fiches d'évaluation individuelles par projet avec grille de notation et signatures.",
+    description: "Fiches d'évaluation individuelles par projet avec grille de notation et signatures.",
     icon: ClipboardList,
-    color: "bg-blue-500/10 text-blue-600",
+    actionLabel: "Générer",
+    needsPicker: true,
   },
   {
     id: "proces-verbal",
     title: "Procès-Verbaux (PV)",
-    description: "Générer les PV de soutenance avec notes, décisions et signatures du jury.",
+    description: "PV de soutenance avec notes, décisions et signatures du jury.",
     icon: ScrollText,
-    color: "bg-purple-500/10 text-purple-600",
+    actionLabel: "Générer",
+    needsPicker: true,
   },
   {
     id: "attendance-list",
     title: "Listes de présence",
-    description: "Générer les listes d'émargement par date avec créneaux et signatures.",
+    description: "Listes d'émargement par date avec créneaux et signatures.",
     icon: Users,
-    color: "bg-green-500/10 text-green-600",
+    actionLabel: "Choisir une date",
+    needsPicker: false,
   },
   {
     id: "jury-convocation",
     title: "Convocations jury",
-    description: "Générer les convocations individuelles pour chaque membre du jury.",
+    description: "Convocations individuelles pour chaque membre du jury.",
     icon: FileText,
-    color: "bg-orange-500/10 text-orange-600",
+    actionLabel: "Générer",
+    needsPicker: true,
   },
   {
     id: "schedule",
     title: "Planning des soutenances",
-    description: "Générer le planning complet des soutenances par session avec salles et jurys.",
+    description: "Planning complet des soutenances par session avec salles et jurys.",
     icon: Calendar,
-    color: "bg-rose-500/10 text-rose-600",
+    actionLabel: "Générer",
+    needsPicker: false,
   },
 ];
 
@@ -75,17 +80,32 @@ export default function Documents() {
   const [isDateDialogOpen, setIsDateDialogOpen] = useState(false);
   const [dateInput, setDateInput] = useState(() => new Date().toISOString().split("T")[0]);
   const [loadingPdf, setLoadingPdf] = useState<string | null>(null);
+  const [pickerDocId, setPickerDocId] = useState<string | null>(null);
+  const [pickerSearch, setPickerSearch] = useState("");
 
   const projectsQuery = useProjects();
   const juriesQuery = useJuries();
   const sessionsQuery = useCoordinatorDefenseSessions();
   const gradesQuery = useProjectGrades();
 
-  const juries = juriesQuery.data ?? [];
-  const sessions = sessionsQuery.data ?? [];
-  const grades = gradesQuery.data ?? [];
+  const juries = useMemo(() => juriesQuery.data ?? [], [juriesQuery.data]);
+  const sessions = useMemo(() => sessionsQuery.data ?? [], [sessionsQuery.data]);
+  const grades = useMemo(() => gradesQuery.data ?? [], [gradesQuery.data]);
 
   const isLoading = projectsQuery.isLoading || juriesQuery.isLoading || sessionsQuery.isLoading;
+
+  const pickerItems = useMemo(() => {
+    if (pickerDocId === "jury-convocation") {
+      return juries.map((j) => ({ id: j.projectId, label: j.projectTitle }));
+    }
+    return grades.map((g) => ({ id: g.projectId, label: g.projectTitle }));
+  }, [pickerDocId, juries, grades]);
+
+  const filteredPickerItems = useMemo(() => {
+    if (!pickerSearch) return pickerItems;
+    const q = pickerSearch.toLowerCase();
+    return pickerItems.filter((item) => item.label.toLowerCase().includes(q));
+  }, [pickerItems, pickerSearch]);
 
   const handleOpenDateDialog = () => {
     setDateInput(new Date().toISOString().split("T")[0]);
@@ -104,26 +124,36 @@ export default function Documents() {
     }
   }, []);
 
-  const handleOpen = (doc: (typeof DOC_TYPES)[number], projectId?: number | string) => {
-    const pid = projectId != null ? Number(projectId) : undefined;
-
-    if (doc.id === "attendance-list") {
+  const handleGenerate = (doc: (typeof DOC_TYPES)[number]) => {
+    if (doc.needsPicker) {
+      setPickerDocId(doc.id);
+      setPickerSearch("");
       return;
     }
 
-    if (doc.id === "evaluation-sheet" && pid != null) {
-      fetchAndOpenPdf(() => api.getEvaluationSheetPdf(pid), `evaluation-sheet-${pid}`);
-    } else if (doc.id === "proces-verbal" && pid != null) {
-      fetchAndOpenPdf(() => api.getProcesVerbalPdf(pid), `proces-verbal-${pid}`);
-    } else if (doc.id === "jury-convocation" && pid != null) {
-      const jury = juries.find((j) => j.projectId === pid);
-      if (!jury) { toast.error("Aucun jury pour ce projet."); return; }
-      if (jury.members.length === 0) { toast.error("Aucun membre dans ce jury."); return; }
-      fetchAndOpenPdf(() => api.getJuryConvocationsPdf(pid), `jury-convocation-${pid}`);
-    } else if (doc.id === "schedule") {
+    if (doc.id === "schedule") {
       if (sessions.length === 0) { toast.error("Aucune session disponible."); return; }
       fetchAndOpenPdf(() => api.getDefenseScheduleDocPdf(sessions[0].id), `schedule-${sessions[0].id}`);
+    } else if (doc.id === "attendance-list") {
+      handleOpenDateDialog();
     }
+  };
+
+  const handlePickerSelect = (projectId: number) => {
+    if (!pickerDocId) return;
+
+    if (pickerDocId === "jury-convocation") {
+      const jury = juries.find((j) => j.projectId === projectId);
+      if (!jury) { toast.error("Aucun jury pour ce projet."); return; }
+      if (jury.members.length === 0) { toast.error("Aucun membre dans ce jury."); return; }
+      fetchAndOpenPdf(() => api.getJuryConvocationsPdf(projectId), `jury-convocation-${projectId}`);
+    } else if (pickerDocId === "evaluation-sheet") {
+      fetchAndOpenPdf(() => api.getEvaluationSheetPdf(projectId), `evaluation-sheet-${projectId}`);
+    } else if (pickerDocId === "proces-verbal") {
+      fetchAndOpenPdf(() => api.getProcesVerbalPdf(projectId), `proces-verbal-${projectId}`);
+    }
+
+    setPickerDocId(null);
   };
 
   const handleAttendanceGenerate = () => {
@@ -135,12 +165,14 @@ export default function Documents() {
     setIsDateDialogOpen(false);
   };
 
+  const pickerTitle = DOC_TYPES.find((d) => d.id === pickerDocId)?.title ?? "";
+
   if (isLoading) {
     return (
       <div className="space-y-6">
         <div><h1 className="text-3xl font-bold tracking-tight">Génération de documents</h1></div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map((i) => <Skeleton key={i} className="h-44 rounded-xl" />)}
+          {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-44 rounded-xl" />)}
         </div>
       </div>
     );
@@ -159,95 +191,78 @@ export default function Documents() {
         {DOC_TYPES.map((doc) => (
           <Card key={doc.id} className="flex flex-col" data-testid={`coord-documents-card-${doc.id}`}>
             <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className={`rounded-lg p-2.5 ${doc.color}`}>
-                  <doc.icon className="size-5" />
-                </div>
+              <div className="rounded-lg bg-primary/10 p-2.5 text-primary w-fit">
+                <doc.icon className="size-5" />
               </div>
               <CardTitle className="mt-3 text-base">{doc.title}</CardTitle>
               <CardDescription>{doc.description}</CardDescription>
             </CardHeader>
             <CardContent className="mt-auto">
-              {doc.id === "evaluation-sheet" || doc.id === "proces-verbal" ? (
-                <div className="space-y-1">
-                  {grades.length === 0 ? (
-                    <EmptyState variant="dashed" description="Aucune note disponible" />
-                  ) : (
-                    grades.map((g) => (
-                      <Button
-                        key={g.projectId}
-                        variant="outline"
-                        size="sm"
-                        className="w-full justify-start text-xs"
-                        disabled={loadingPdf !== null}
-                        onClick={() => handleOpen(doc, g.projectId)}
-                      >
-                        {loadingPdf === `${doc.id}-${g.projectId}` ? (
-                          <Loader2 className="mr-2 size-3 animate-spin" />
-                        ) : null}
-                        {g.projectTitle}
-                      </Button>
-                    ))
-                  )}
-                </div>
-              ) : doc.id === "jury-convocation" ? (
-                <div className="space-y-1">
-                  {juries.length === 0 ? (
-                    <EmptyState variant="dashed" description="Aucun jury configuré" />
-                  ) : (
-                    juries.map((j) => (
-                      <Button
-                        key={j.id}
-                        variant="outline"
-                        size="sm"
-                        className="w-full justify-start text-xs"
-                        disabled={loadingPdf !== null}
-                        onClick={() => handleOpen(doc, j.projectId)}
-                      >
-                        {loadingPdf === `jury-convocation-${j.projectId}` ? (
-                          <Loader2 className="mr-2 size-3 animate-spin" />
-                        ) : null}
-                        {j.projectTitle}
-                      </Button>
-                    ))
-                  )}
-                </div>
-              ) : doc.id === "schedule" ? (
-                sessions.length === 0 ? (
-                  <EmptyState variant="dashed" description="Aucune session" />
-                ) : (
-                  <Button
-                    className="w-full"
-                    disabled={loadingPdf !== null}
-                    onClick={() => handleOpen(doc)}
-                  >
-                    {loadingPdf?.startsWith("schedule-") ? (
-                      <Loader2 className="mr-2 size-4 animate-spin" />
-                    ) : (
-                      <Calendar className="mr-2 size-4" />
-                    )}
-                    Générer le planning
-                  </Button>
-                )
-              ) : doc.id === "attendance-list" ? (
-                <Button
-                  className="w-full"
-                  variant="secondary"
-                  disabled={loadingPdf !== null}
-                  onClick={handleOpenDateDialog}
-                >
-                  {loadingPdf?.startsWith("attendance-list-") ? (
-                    <Loader2 className="mr-2 size-4 animate-spin" />
-                  ) : (
-                    <Users className="mr-2 size-4" />
-                  )}
-                  Choisir une date
-                </Button>
-              ) : null}
+              <Button
+                className="w-full"
+                disabled={loadingPdf !== null}
+                onClick={() => handleGenerate(doc)}
+              >
+                {loadingPdf?.startsWith(doc.id) ? (
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                ) : null}
+                {doc.actionLabel}
+              </Button>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <Dialog open={pickerDocId !== null} onOpenChange={(open) => { if (!open) setPickerDocId(null); }}>
+        <DialogContent className="sm:max-w-md" data-testid="coord-documents-picker-dialog">
+          <DialogHeader>
+            <DialogTitle>{pickerTitle}</DialogTitle>
+          </DialogHeader>
+          <DialogDescription className="sr-only">
+            Sélectionnez un projet pour générer le document.
+          </DialogDescription>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher un projet..."
+              value={pickerSearch}
+              onChange={(e) => setPickerSearch(e.target.value)}
+              className="pl-9"
+              data-testid="coord-documents-picker-search"
+            />
+          </div>
+          <div className="max-h-80 overflow-y-auto" data-testid="coord-documents-picker-list">
+            {filteredPickerItems.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                {pickerItems.length === 0 ? "Aucun élément disponible" : "Aucun résultat"}
+              </p>
+            ) : (
+              <div className="space-y-1">
+                {filteredPickerItems.map((item) => (
+                  <Button
+                    key={item.id}
+                    variant="ghost"
+                    className="w-full justify-start text-sm"
+                    disabled={loadingPdf !== null}
+                    onClick={() => handlePickerSelect(item.id)}
+                    data-testid={`coord-documents-picker-item-${item.id}`}
+                  >
+                    {loadingPdf === `${pickerDocId}-${item.id}` ? (
+                      <Loader2 className="mr-2 size-4 animate-spin" />
+                    ) : null}
+                    {item.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPickerDocId(null)} data-testid="coord-documents-picker-cancel">
+              Annuler
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isDateDialogOpen} onOpenChange={setIsDateDialogOpen}>
         <DialogContent className="sm:max-w-sm" data-testid="coord-documents-date-dialog">

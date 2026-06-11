@@ -149,7 +149,7 @@ export default function ConflictDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-bold text-amber-500">{totalWarnings}</p>
+            <p className="text-3xl font-bold text-primary">{totalWarnings}</p>
             <p className="text-sm text-muted-foreground">non-bloquants</p>
           </CardContent>
         </Card>
@@ -187,7 +187,7 @@ export default function ConflictDashboard() {
                       className={`rounded-lg border p-4 ${
                         conflict.severity === "error"
                           ? "border-destructive/30 bg-destructive/5"
-                          : "border-amber-500/30 bg-amber-500/5"
+                          : "border-primary/30 bg-primary/5"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-4">
