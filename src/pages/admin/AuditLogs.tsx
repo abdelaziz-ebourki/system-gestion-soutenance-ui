@@ -2,6 +2,7 @@ import { useAuditLogs } from "@/hooks/queries";
 import type { AuditLog } from "@/types/audit-log";
 import type { ColumnDef, PaginationState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
+import { PageHeader } from "@/components/ui/page-header";
 import { useState } from "react";
 import { AUDIT_LOG_PAGE_SIZE } from "@/lib/constants";
 
@@ -18,12 +19,7 @@ export default function AuditLogs() {
 
   return (
     <div className="space-y-6" data-testid="admin-audit-logs-page">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Journal d'audit</h1>
-        <p className="text-muted-foreground">
-          Consultez l'historique des actions administratives.
-        </p>
-      </div>
+      <PageHeader title="Journal d'audit" subtitle="Consultez l'historique des actions administratives." />
 
       <DataTable
         columns={columns}

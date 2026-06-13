@@ -93,9 +93,10 @@ export default function Rooms() {
   return (
     <div className="space-y-6 pb-20" data-testid="admin-rooms-page">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Salles</h1>
-          <p className="text-muted-foreground">Gérez les espaces physiques pour les soutenances.</p>
+        <div className="relative pb-4">
+          <h1 className="text-4xl font-bold tracking-tight">Salles</h1>
+          <div className="absolute bottom-0 left-0 h-1 w-20 bg-primary rounded-full" />
+          <p className="text-muted-foreground mt-2">Gérez les espaces physiques pour les soutenances.</p>
         </div>
         <div className="flex gap-2">
           <BulkImportDialog entity="room" triggerButtonText="Importation en masse" onSuccess={refetch} />

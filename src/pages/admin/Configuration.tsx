@@ -96,8 +96,11 @@ export default function Configuration() {
   return (
     <div className="space-y-6 pb-20" data-testid="admin-configuration-page">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Configuration</h1>
-        <p className="text-muted-foreground">
+        <div className="relative pb-4">
+          <h1 className="text-4xl font-bold tracking-tight">Configuration</h1>
+          <div className="absolute bottom-0 left-0 h-1 w-20 bg-primary rounded-full" />
+        </div>
+        <p className="text-muted-foreground mt-2">
           Gérez les entités fondamentales du système.
         </p>
       </div>

@@ -36,6 +36,7 @@ import {
   Checkbox,
 } from "@/components/ui";
 import { RotateCcw, ArrowUpDown, ArrowUp, ArrowDown, Columns } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DataTableContextValue {
   table: TanStackTable<unknown>;
@@ -369,7 +370,7 @@ function DataTableToolbar() {
 function DataTableHeader() {
   const { table } = useDataTable();
   return (
-    <TableHeader>
+    <TableHeader className="bg-muted/30">
       {table.getHeaderGroups().map((headerGroup) => (
         <TableRow key={headerGroup.id}>
           {headerGroup.headers.map((header) => (
@@ -383,7 +384,10 @@ function DataTableHeader() {
                     ? "descending"
                     : undefined
               }
-              className={header.column.getCanSort() ? "cursor-pointer select-none" : ""}
+              className={cn(
+                "font-heading text-sm uppercase tracking-wider",
+                header.column.getCanSort() ? "cursor-pointer select-none" : ""
+              )}
             >
               {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
               {header.column.getCanSort() && !header.column.getIsSorted() ? (
@@ -429,7 +433,10 @@ function DataTableBody() {
           <TableRow
             key={row.id}
             onClick={() => onRowClick?.(row.original)}
-            className={onRowClick ? "cursor-pointer" : ""}
+            className={cn(
+              "even:bg-muted/10 transition-colors hover:bg-muted/40",
+              onRowClick ? "cursor-pointer" : ""
+            )}
             data-state={row.getIsSelected() && "selected"}
           >
             {row.getVisibleCells().map((cell) => (

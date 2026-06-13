@@ -77,9 +77,10 @@ export default function Coordinators() {
   return (
     <div className="space-y-6 pb-20" data-testid="admin-coordinators-page">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Coordinateurs</h1>
-          <p className="text-muted-foreground">Gestion des responsables des soutenances.</p>
+        <div className="relative pb-4">
+          <h1 className="text-4xl font-bold tracking-tight">Coordinateurs</h1>
+          <div className="absolute bottom-0 left-0 h-1 w-20 bg-primary rounded-full" />
+          <p className="text-muted-foreground mt-2">Gestion des coordinateurs de filières.</p>
         </div>
         <div className="flex gap-2">
           <BulkImportDialog entity="coordinator" triggerButtonText="Importation en masse" onSuccess={refetch} />

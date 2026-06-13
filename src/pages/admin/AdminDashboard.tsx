@@ -15,6 +15,7 @@ import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import type { User } from "@/types";
 import type { AuditLog } from "@/types/audit-log";
 import { DataTable } from "@/components/ui/data-table";
+import { PageHeader } from "@/components/ui/page-header";
 import {
   Badge,
   Card,
@@ -117,12 +118,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6 pb-20">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Tableau de Bord</h1>
-        <p className="text-muted-foreground">
-          Aperçu global de l'activité du système.
-        </p>
-      </div>
+      <PageHeader title="Tableau de Bord" subtitle="Aperçu global de l'activité du système." />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard label="Étudiants" value={stats?.totalStudents} icon={Users} />
