@@ -1,4 +1,4 @@
-import { api, type PaginatedResponse, type GeneralSettings, type EmailConfig, type DefenseSettings, type DocumentConfig } from "./api-core";
+import { api, type PaginatedResponse, type GeneralSettings, type DefenseSettings, type DocumentConfig } from "./api-core";
 import type { DashboardStats, JuryRoleTemplate, User, Department, Room, Major, Level, Faculty, Grade } from "@/types";
 import { MAX_TEACHER_FETCH_LIMIT, AUDIT_LOG_PAGE_SIZE, DEFAULT_API_LIMIT } from "@/lib/constants";
 import type { AuditLog } from "@/types/audit-log";
@@ -232,10 +232,3 @@ export const updateDocumentConfig = (data: {
     body: JSON.stringify(data),
   });
 
-export const getEmailConfig = () =>
-  api<EmailConfig>("/admin/config/email");
-export const updateEmailConfig = (data: EmailConfig) =>
-  api<EmailConfig>("/admin/config/email", {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });

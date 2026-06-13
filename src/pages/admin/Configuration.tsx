@@ -1,7 +1,6 @@
 import { BookOpen, Layers } from "lucide-react";
 import { useMajors, useCreateMajor, useUpdateMajor, useDeleteMajor, useLevels, useCreateLevel, useUpdateLevel, useDeleteLevel } from "@/hooks/queries";
 import { ConfigEntityManager } from "@/components/admin/config/ConfigEntityManager";
-import { EmailConfigForm } from "@/components/admin/config/EmailConfigForm";
 
 export default function Configuration() {
   const majors = useMajors();
@@ -45,7 +44,6 @@ export default function Configuration() {
           updateMut={updateLevel}
           deleteMut={deleteLevel}
         />
-        <EmailConfigForm />
       </div>
     </div>
   );

@@ -185,13 +185,4 @@ export interface DocumentConfig {
   versionLimit: number;
 }
 
-export interface EmailConfig {
-  id: number;
-  host: string;
-  port: number;
-  username: string;
-  password: string;
-  senderName: string;
-  senderEmail: string;
-  encryption: string;
-}
+

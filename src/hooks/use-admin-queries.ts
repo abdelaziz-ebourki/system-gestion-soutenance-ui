@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import { CONFIG_STALE_TIME, AUDIT_LOG_PAGE_SIZE, DEFAULT_API_LIMIT } from "@/lib/constants";
-import type { EmailConfig } from "@/lib/api";
 
 export function useAdminStats() {
   return useQuery({ queryKey: ["admin", "stats"], queryFn: api.getAdminStats });
@@ -355,18 +354,3 @@ export function useUpdateDocumentConfig() {
   });
 }
 
-export function useEmailConfig() {
-  return useQuery({
-    queryKey: ["admin", "config", "email"],
-    queryFn: api.getEmailConfig,
-    staleTime: CONFIG_STALE_TIME,
-  });
-}
-
-export function useUpdateEmailConfig() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: EmailConfig) => api.updateEmailConfig(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "email"], refetchType: "active" }),
-  });
-}

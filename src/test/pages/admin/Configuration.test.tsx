@@ -26,7 +26,7 @@ describe("Configuration", () => {
     expect(await screen.findByTestId("admin-configuration-page")).toBeInTheDocument();
     expect(screen.getByText("Filières")).toBeInTheDocument();
     expect(screen.getByText("Niveaux")).toBeInTheDocument();
-    expect(await screen.findByText("Configuration Email")).toBeInTheDocument();
+
   });
 
   it("renders major and level entities", async () => {
@@ -37,11 +37,4 @@ describe("Configuration", () => {
     expect(screen.getByText("L3")).toBeInTheDocument();
   });
 
-  it("renders email config form fields", async () => {
-    renderWithProviders(<Configuration />, {
-      initialAuthState: { user: adminUser },
-    });
-    expect(await screen.findByDisplayValue("smtp.example.com")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("587")).toBeInTheDocument();
-  });
 });

@@ -68,7 +68,6 @@ export const GRACE_PERIOD_DAYS = 2;
 export const TOAST_DURATION_MS = 5000;
 export const MAX_SCORE = 20;
 export const MIN_PASSWORD_LENGTH = 8;
-export const DEFAULT_SMTP_PORT = 587;
 export const MAX_SUGGESTIONS = 3;
 export const MAX_STUDENT_FETCH_LIMIT = 5000;
 export const PAGE_SIZE_OPTIONS = [10, 20, 50];

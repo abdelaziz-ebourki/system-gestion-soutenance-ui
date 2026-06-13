@@ -30,8 +30,6 @@ import {
   useUpdateUser,
   useDeleteUser,
   useGeneralSettings,
-  useEmailConfig,
-  useUpdateEmailConfig,
 } from "@/hooks/use-admin-queries";
 import type { ReactNode } from "react";
 
@@ -153,14 +151,6 @@ describe("useGeneralSettings", () => {
   });
 });
 
-describe("useEmailConfig", () => {
-  it("returns email config", async () => {
-    const { result } = renderHook(() => useEmailConfig(), { wrapper: createWrapper() });
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toHaveProperty("host");
-  });
-});
-
 describe("Admin mutations", () => {
   it("useCreateRoom creates a room", async () => {
     const { result } = renderHook(() => useCreateRoom(), { wrapper: createWrapper() });
@@ -252,9 +242,4 @@ describe("Admin mutations", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
   });
 
-  it("useUpdateEmailConfig updates email config", async () => {
-    const { result } = renderHook(() => useUpdateEmailConfig(), { wrapper: createWrapper() });
-    act(() => { result.current.mutate({ id: 1, host: "smtp.test.com", port: 587, username: "u", password: "p", senderName: "Test", senderEmail: "test@test.com", encryption: "tls" }); });
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-  });
 });

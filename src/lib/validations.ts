@@ -212,17 +212,6 @@ export const jurySchema = z.object({
     ),
 });
 
-// --- Admin: Email Configuration ---
-
-export const emailConfigSchema = z.object({
-  host: z.string().min(1, "L'hôte SMTP est requis"),
-  port: z.coerce.number().min(1, "Le port est requis").max(65535, "Port invalide"),
-  username: z.string().optional(),
-  password: z.string().optional(),
-  senderName: z.string().min(1, "Le nom de l'expéditeur est requis"),
-  senderEmail: z.string().min(1, "L'email de l'expéditeur est requis").email("Email invalide"),
-  encryption: z.enum(["tls", "ssl", "none"]),
-});
 
 // --- Teacher: Unavailability ---
 
