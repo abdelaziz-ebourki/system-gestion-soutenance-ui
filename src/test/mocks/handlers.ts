@@ -18,8 +18,8 @@ const DEPARTMENTS = [
 ];
 
 const MAJORS = [
-  { id: 1, name: "Génie Informatique" },
-  { id: 2, name: "Génie Civil" },
+  { id: 1, name: "Génie Informatique", departmentId: 1, departmentName: "Informatique", studentCount: 12 },
+  { id: 2, name: "Génie Civil", departmentId: 2, departmentName: "Mathématiques", studentCount: 8 },
 ];
 
 const LEVELS = [

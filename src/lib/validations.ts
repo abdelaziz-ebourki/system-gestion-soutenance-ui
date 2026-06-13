@@ -119,6 +119,11 @@ export const configNameSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
 });
 
+export const majorSchema = z.object({
+  name: z.string().min(1, "Le nom est requis"),
+  departmentId: z.string().optional(),
+});
+
 export const defenseSettingsSchema = z
   .object({
     startTime: z.string().min(1, "L'heure de début est requise"),

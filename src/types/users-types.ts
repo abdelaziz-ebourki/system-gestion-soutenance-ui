@@ -26,6 +26,9 @@ export type Coordinator = User;
 export interface Major {
   id: number;
   name: string;
+  departmentId?: number;
+  departmentName?: string;
+  studentCount?: number;
 }
 
 export interface Level {

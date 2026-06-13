@@ -136,12 +136,12 @@ export const deleteFaculty = (id: number) =>
   api<void>(`/admin/faculties/${id}`, { method: "DELETE" });
 
 export const getMajors = () => api<Major[]>("/admin/config/majors");
-export const createMajor = (data: { name: string }) =>
+export const createMajor = (data: { name: string; departmentId?: number }) =>
   api<Major>("/admin/config/majors", {
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateMajor = (id: number, data: { name: string }) =>
+export const updateMajor = (id: number, data: { name: string; departmentId?: number }) =>
   api<Major>(`/admin/config/majors/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),

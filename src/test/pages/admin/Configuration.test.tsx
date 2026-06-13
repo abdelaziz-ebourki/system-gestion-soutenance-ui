@@ -26,15 +26,22 @@ describe("Configuration", () => {
     expect(await screen.findByTestId("admin-configuration-page")).toBeInTheDocument();
     expect(screen.getByText("Filières")).toBeInTheDocument();
     expect(screen.getByText("Niveaux")).toBeInTheDocument();
-
   });
 
-  it("renders major and level entities", async () => {
+  it("renders major and level entities in data tables", async () => {
     renderWithProviders(<Configuration />, {
       initialAuthState: { user: adminUser },
     });
     expect(await screen.findByText("Génie Informatique")).toBeInTheDocument();
+    expect(screen.getByText("Génie Civil")).toBeInTheDocument();
     expect(screen.getByText("L3")).toBeInTheDocument();
+    expect(screen.getByText("M1")).toBeInTheDocument();
   });
 
+  it("renders department name for majors", async () => {
+    renderWithProviders(<Configuration />, {
+      initialAuthState: { user: adminUser },
+    });
+    expect(await screen.findByText("Informatique")).toBeInTheDocument();
+  });
 });

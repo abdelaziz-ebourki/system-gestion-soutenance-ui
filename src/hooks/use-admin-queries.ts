@@ -111,7 +111,7 @@ export function useMajors() {
 export function useCreateMajor() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: { name: string }) => api.createMajor(data),
+    mutationFn: (data: { name: string; departmentId?: number }) => api.createMajor(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"], refetchType: "active" }),
   });
 }
@@ -119,7 +119,7 @@ export function useCreateMajor() {
 export function useUpdateMajor() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: { name: string } }) =>
+    mutationFn: ({ id, data }: { id: number; data: { name: string; departmentId?: number } }) =>
       api.updateMajor(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["majors"], refetchType: "active" }),
   });
