@@ -154,6 +154,6 @@ describe("Teachers (Admin)", () => {
 
   it("shows description text on page", async () => {
     renderPage();
-    expect(await screen.findByText("Gérez les comptes et affectations des enseignants.")).toBeInTheDocument();
+    expect(await screen.findByText("Gestion du corps enseignant.")).toBeInTheDocument();
   });
 });
