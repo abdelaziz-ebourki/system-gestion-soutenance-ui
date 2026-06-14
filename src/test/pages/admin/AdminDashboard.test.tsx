@@ -65,9 +65,9 @@ describe("AdminDashboard", () => {
     expect(await screen.findByText("ahmed.benali@example.com")).toBeInTheDocument();
   });
 
-  it("renders defense sessions count", async () => {
+  it("renders the notifications card", async () => {
     renderDashboard();
-    expect(await screen.findByText(/3 Sessions de Défense/)).toBeInTheDocument();
+    expect(await screen.findByText("Notifications")).toBeInTheDocument();
   });
 
   it("shows batch bar when users are selected", async () => {

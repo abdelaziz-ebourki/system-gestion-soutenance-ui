@@ -5,17 +5,25 @@ import {
   GraduationCap,
   Building2,
   DoorOpen,
-  CalendarCheck,
+  Info,
+  AlertTriangle,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { format, parseISO } from "date-fns";
+import { fr } from "date-fns/locale";
+import { Link } from "react-router-dom";
 
-import { useAdminStats, useUsers, useUpdateUser, useDeleteUser } from "@/hooks/queries";
+import { useAdminStats, useUsers, useUpdateUser, useDeleteUser, useNotifications } from "@/hooks/queries";
+import { ROUTES } from "@/config/routes";
 import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import type { User } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   Badge,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -30,6 +38,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { cn } from "@/lib/utils";
 
 const userColumns: ColumnDef<User>[] = [
   {
@@ -55,6 +64,28 @@ const userColumns: ColumnDef<User>[] = [
   },
 ];
 
+const typeIcons: Record<string, typeof Info> = {
+  info: Info,
+  warning: AlertTriangle,
+  success: CheckCircle,
+  error: XCircle,
+};
+
+const typeColors: Record<string, string> = {
+  info: "bg-primary/10 text-primary",
+  warning: "bg-primary/10 text-primary",
+  success: "bg-primary/10 text-primary",
+  error: "bg-destructive/10 text-destructive",
+};
+
+const formatTimestamp = (ts: string) => {
+  try {
+    return format(parseISO(ts), "dd MMM 'à' HH:mm", { locale: fr });
+  } catch {
+    return ts;
+  }
+};
+
 export default function AdminDashboard() {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -63,6 +94,7 @@ export default function AdminDashboard() {
   const [isFiltering, setIsFiltering] = React.useState(false);
 
   const { data: stats } = useAdminStats();
+  const { data: notifications = [] } = useNotifications();
   const { data: usersData, isLoading: isLoading } = useUsers({
     page: isFiltering ? 0 : pagination.pageIndex,
     limit: isFiltering ? MAX_TEACHER_FETCH_LIMIT : pagination.pageSize,
@@ -124,25 +156,42 @@ export default function AdminDashboard() {
         </Card>
 
         <Card className="col-span-3">
-          <CardHeader>
-            <CardTitle>Activités Système</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Notifications</CardTitle>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to={ROUTES.SHARED.NOTIFICATIONS}>Voir tout</Link>
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded bg-primary/10">
-                  <CalendarCheck className="size-5 text-primary" />
-                </div>
-                <div className="ml-4">
-                  <div className="text-sm font-medium">
-                    {stats?.totalDefenseSessions ?? (
-                      <Skeleton className="inline-block h-4 w-12" />
-                    )}{" "}
-                    Sessions de Défense
-                  </div>
-                </div>
+            {notifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 text-center">
+                <Info className="mb-2 size-8 text-muted-foreground/50" />
+                <p className="text-sm text-muted-foreground">Aucune notification</p>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-3">
+                {notifications.slice(0, 4).map((notification) => {
+                  const Icon = typeIcons[notification.type] || Info;
+                  return (
+                    <div key={notification.id} className="flex items-start gap-3">
+                      <div className={cn("mt-0.5 rounded-full p-1.5", typeColors[notification.type])}>
+                        <Icon className="size-3.5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <p className="truncate text-sm font-medium">{notification.title}</p>
+                          {!notification.read && (
+                            <Badge variant="default" className="size-1.5 rounded-full p-0" />
+                          )}
+                        </div>
+                        <p className="truncate text-xs text-muted-foreground">{notification.message}</p>
+                        <span className="text-xs text-muted-foreground">{formatTimestamp(notification.timestamp)}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
