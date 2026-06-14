@@ -51,6 +51,26 @@ export const resetPasswordSchema = z
     path: ["confirmPassword"],
   });
 
+// --- Profile ---
+
+export const profileEditSchema = z.object({
+  firstName: z.string().min(1, "Le prénom est requis"),
+  lastName: z.string().min(1, "Le nom est requis"),
+});
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Le mot de passe actuel est requis"),
+    newPassword: z
+      .string()
+      .min(MIN_PASSWORD_LENGTH, "Le mot de passe doit contenir au moins 8 caractères"),
+    confirmPassword: z.string().min(1, "Confirmez le mot de passe"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Les mots de passe ne correspondent pas",
+    path: ["confirmPassword"],
+  });
+
 // --- Coordinator: Defense Sessions ---
 
 export const defenseSessionSchema = z

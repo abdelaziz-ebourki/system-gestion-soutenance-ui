@@ -38,6 +38,7 @@ interface AuthContextValue {
   login: (user: User, token: string, expiresAt: number) => void;
   logout: () => void;
   clearExpired: () => void;
+  updateUser: (partial: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -89,6 +90,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setWasExpired(false);
   }, []);
 
+  const updateUser = useCallback((partial: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...partial };
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   useEffect(() => {
     const handleExpired = () => {
       setWasExpired(true);
@@ -110,6 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         clearExpired,
+        updateUser,
       }}
     >
       {children}

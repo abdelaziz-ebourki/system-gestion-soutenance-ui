@@ -1,5 +1,27 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, Skeleton } from "@/components/ui";
+import { useState } from "react";
+import { User as UserIcon, Lock } from "lucide-react";
+
 import { useAuth } from "@/contexts/auth-context";
+import { updateProfile, changePassword } from "@/lib/api-auth";
+import {
+  profileEditSchema,
+  changePasswordSchema,
+  validate,
+} from "@/lib/validations";
+import { getErrorMessage } from "@/lib/utils";
+import { toast } from "sonner";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  Input,
+  PasswordInput,
+  Skeleton,
+} from "@/components/ui";
+import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field";
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Administrateur",
@@ -9,7 +31,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
 
   if (!user) return <Skeleton className="h-48 rounded-xl" data-testid="profile-skeleton" />;
 
@@ -20,26 +42,181 @@ export default function Profile() {
         <p className="text-muted-foreground" data-testid="profile-description">Informations personnelles de votre compte.</p>
       </div>
 
-      <Card data-testid="profile-card">
-        <CardHeader>
-          <CardTitle>Identité</CardTitle>
-          <CardDescription>Les informations associées à votre compte.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-2" data-testid="profile-field-name">
-            <p className="text-sm font-medium">Nom complet</p>
-            <p className="text-sm text-muted-foreground">{user.firstName} {user.lastName}</p>
-          </div>
-          <div className="grid gap-2" data-testid="profile-field-email">
-            <p className="text-sm font-medium">Email</p>
-            <p className="text-sm text-muted-foreground">{user.email}</p>
-          </div>
-          <div className="grid gap-2" data-testid="profile-field-role">
-            <p className="text-sm font-medium">Rôle</p>
-            <p className="text-sm text-muted-foreground">{ROLE_LABELS[user.role] ?? user.role}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <ProfileEditCard user={user} onUpdate={updateUser} />
+      <ChangePasswordCard />
     </div>
+  );
+}
+
+function ProfileEditCard({
+  user,
+  onUpdate,
+}: {
+  user: { firstName: string; lastName: string; email: string; role: string };
+  onUpdate: (partial: { firstName: string; lastName: string }) => void;
+}) {
+  const [firstName, setFirstName] = useState(user.firstName);
+  const [lastName, setLastName] = useState(user.lastName);
+  const [fieldErrors, setFieldErrors] = useState<{ firstName?: string; lastName?: string } | null>(null);
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = { firstName, lastName };
+    const errors = validate(profileEditSchema, data);
+    if (errors) {
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors(null);
+    setIsPending(true);
+    try {
+      const updated = await updateProfile(data);
+      onUpdate({ firstName: updated.firstName, lastName: updated.lastName });
+      toast.success("Profil mis à jour avec succès");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Erreur lors de la mise à jour du profil"));
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return (
+    <Card data-testid="profile-edit-card">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <UserIcon className="size-5" />
+          Informations personnelles
+        </CardTitle>
+        <CardDescription>Modifiez votre nom et prénom.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit}>
+          <FieldGroup>
+            <Field data-testid="profile-field-email">
+              <FieldLabel>Email</FieldLabel>
+              <Input value={user.email} disabled />
+            </Field>
+            <Field data-testid="profile-field-role">
+              <FieldLabel>Rôle</FieldLabel>
+              <Input value={ROLE_LABELS[user.role] ?? user.role} disabled />
+            </Field>
+            <Field data-testid="profile-field-firstName">
+              <FieldLabel htmlFor="profile-firstName">Prénom</FieldLabel>
+              <Input
+                id="profile-firstName"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                error={fieldErrors?.firstName}
+              />
+              {fieldErrors?.firstName && <FieldError>{fieldErrors.firstName}</FieldError>}
+            </Field>
+            <Field data-testid="profile-field-lastName">
+              <FieldLabel htmlFor="profile-lastName">Nom</FieldLabel>
+              <Input
+                id="profile-lastName"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                error={fieldErrors?.lastName}
+              />
+              {fieldErrors?.lastName && <FieldError>{fieldErrors.lastName}</FieldError>}
+            </Field>
+            <div>
+              <Button type="submit" isLoading={isPending} loadingText="Enregistrement..." data-testid="profile-save-btn">
+                Enregistrer
+              </Button>
+            </div>
+          </FieldGroup>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
+function ChangePasswordCard() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<{
+    currentPassword?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+  } | null>(null);
+  const [isPending, setIsPending] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = { currentPassword, newPassword, confirmPassword };
+    const errors = validate(changePasswordSchema, data);
+    if (errors) {
+      setFieldErrors(errors);
+      return;
+    }
+    setFieldErrors(null);
+    setIsPending(true);
+    try {
+      await changePassword({ currentPassword, newPassword });
+      toast.success("Mot de passe modifié avec succès");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Erreur lors de la modification du mot de passe"));
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return (
+    <Card data-testid="password-card">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Lock className="size-5" />
+          Changer le mot de passe
+        </CardTitle>
+        <CardDescription>Assurez-vous d'utiliser un mot de passe fort.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit}>
+          <FieldGroup>
+            <Field data-testid="password-field-current">
+              <FieldLabel htmlFor="password-current">Mot de passe actuel</FieldLabel>
+              <PasswordInput
+                id="password-current"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                error={fieldErrors?.currentPassword}
+              />
+              {fieldErrors?.currentPassword && <FieldError>{fieldErrors.currentPassword}</FieldError>}
+            </Field>
+            <Field data-testid="password-field-new">
+              <FieldLabel htmlFor="password-new">Nouveau mot de passe</FieldLabel>
+              <PasswordInput
+                id="password-new"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                error={fieldErrors?.newPassword}
+              />
+              {fieldErrors?.newPassword && <FieldError>{fieldErrors.newPassword}</FieldError>}
+            </Field>
+            <Field data-testid="password-field-confirm">
+              <FieldLabel htmlFor="password-confirm">Confirmer le mot de passe</FieldLabel>
+              <PasswordInput
+                id="password-confirm"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                error={fieldErrors?.confirmPassword}
+              />
+              {fieldErrors?.confirmPassword && <FieldError>{fieldErrors.confirmPassword}</FieldError>}
+            </Field>
+            <div>
+              <Button type="submit" isLoading={isPending} loadingText="Mise à jour..." data-testid="password-save-btn">
+                Mettre à jour
+              </Button>
+            </div>
+          </FieldGroup>
+        </form>
+      </CardContent>
+    </Card>
   );
 }

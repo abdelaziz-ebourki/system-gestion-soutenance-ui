@@ -37,3 +37,18 @@ export const verifyAccount = (token: string, password: string) =>
     body: JSON.stringify({ token, password }),
     requiresAuth: false,
   });
+
+export const updateProfile = (data: { firstName: string; lastName: string }) =>
+  api<User>("/auth/profile", {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+
+export const changePassword = (data: {
+  currentPassword: string;
+  newPassword: string;
+}) =>
+  api<void>("/auth/change-password", {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
