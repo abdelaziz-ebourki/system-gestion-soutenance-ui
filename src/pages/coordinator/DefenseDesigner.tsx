@@ -42,8 +42,6 @@ export default function DefenseDesigner() {
     timeSlots,
     searchQuery,
     setSearchQuery,
-    selectedRoomId,
-    setSelectedRoomId,
     filteredJuries,
     activeJuryId,
     schedule,
@@ -128,10 +126,8 @@ export default function DefenseDesigner() {
               timeSlots={timeSlots}
               schedule={schedule}
               juries={juries}
-              selectedRoomId={selectedRoomId}
               onRemove={handleRemove}
               rooms={rooms}
-              onRoomChange={setSelectedRoomId}
             />
           </div>
         </div>

@@ -20,7 +20,6 @@ import { toast } from "sonner";
 export function useDefenseSchedule() {
   const [activeJuryId, setActiveJuryId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
 
   const { data: juries = [], isLoading: juriesLoading } = useJuries();
   const { data: roomsPage, isLoading: roomsLoading } = useRooms();
@@ -88,14 +87,15 @@ export function useDefenseSchedule() {
     const { active, over } = event;
     setActiveJuryId(null);
 
-    if (over && selectedRoomId) {
-      const juryId = active.id as number;
-      const { date, time } = parseSlotKey(over.id as string);
+    if (over) {
+      const { date, room, time } = parseSlotKey(over.id as string);
+      const roomId = Number(room);
 
+      const juryId = active.id as number;
       const jury = juries.find((j) => j.id === juryId);
       if (!jury) return;
 
-      const slotKey = createSlotKey(date, String(selectedRoomId), time);
+      const slotKey = createSlotKey(date, room, time);
       const result = validateSlot(jury.projectId, slotKey);
 
       if (!result.isValid) {
@@ -108,7 +108,7 @@ export function useDefenseSchedule() {
         return;
       }
 
-      updateSlot(String(juryId), { roomId: selectedRoomId, date, time });
+      updateSlot(String(juryId), { roomId, date, time });
       toast.success("Positionné avec succès");
     }
   };
@@ -130,8 +130,6 @@ export function useDefenseSchedule() {
     timeSlots,
     searchQuery,
     setSearchQuery,
-    selectedRoomId,
-    setSelectedRoomId,
     filteredJuries,
     activeJuryId,
     schedule,

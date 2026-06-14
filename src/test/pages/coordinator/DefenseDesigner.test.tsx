@@ -26,8 +26,6 @@ function createMockHook(overrides = {}): unknown {
     timeSlots: mockTimeSlots,
     searchQuery: "",
     setSearchQuery: vi.fn(),
-    selectedRoomId: "all",
-    setSelectedRoomId: vi.fn(),
     filteredJuries: mockJuries,
     activeJuryId: null,
     schedule: mockSchedule,
