@@ -55,22 +55,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             icon: <BuildingIcon />,
           },
           {
-            title: "Utilisateurs",
+            title: "Étudiants",
+            url: ROUTES.ADMIN.USERS.STUDENTS,
+            icon: <GraduationCapIcon />,
+          },
+          {
+            title: "Enseignants",
+            url: ROUTES.ADMIN.USERS.TEACHERS,
+            icon: <BookOpenIcon />,
+          },
+          {
+            title: "Coordinateurs",
+            url: ROUTES.ADMIN.USERS.COORDINATORS,
             icon: <UsersIcon />,
-            items: [
-              {
-                title: "Étudiants",
-                url: ROUTES.ADMIN.USERS.STUDENTS,
-              },
-              {
-                title: "Enseignants",
-                url: ROUTES.ADMIN.USERS.TEACHERS,
-              },
-              {
-                title: "Coordinateurs",
-                url: ROUTES.ADMIN.USERS.COORDINATORS,
-              },
-            ],
           },
           {
             title: "Filières & Niveaux",
