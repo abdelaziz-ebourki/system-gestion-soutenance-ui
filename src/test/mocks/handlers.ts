@@ -149,12 +149,16 @@ export const handlers = [
     return HttpResponse.json({ message: "Account verified successfully" });
   }),
 
-  http.put("*/api/auth/profile", async ({ request }) => {
+  http.get("*/api/me", () => {
+    return HttpResponse.json({ id: 1, email: "admin@univh2c.ma", role: "admin", firstName: "Admin", lastName: "System", isActive: true });
+  }),
+
+  http.patch("*/api/me", async ({ request }) => {
     const body = (await request.json()) as { firstName?: string; lastName?: string };
     return HttpResponse.json({ id: 1, email: "admin@univh2c.ma", role: "admin", firstName: body.firstName, lastName: body.lastName, isActive: true });
   }),
 
-  http.put("*/api/auth/change-password", async ({ request }) => {
+  http.put("*/api/me/password", async ({ request }) => {
     const body = (await request.json()) as { currentPassword?: string; newPassword?: string };
     if (body.currentPassword === "wrong") {
       return HttpResponse.json({ message: "Mot de passe actuel incorrect" }, { status: 400 });
