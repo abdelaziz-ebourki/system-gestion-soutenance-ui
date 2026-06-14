@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Plus, GraduationCap } from "lucide-react";
 
 import {
-  useStudents, useMajors, useLevels,
+  useStudents, useMajors, useLevels, useDepartments,
 } from "@/hooks/queries";
 import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import { type Student } from "@/types";
@@ -47,6 +47,7 @@ export default function Students() {
   });
   const { data: majors = [] } = useMajors();
   const { data: levels = [] } = useLevels();
+  const { data: departments = [] } = useDepartments();
   const crud = useStudentCrud();
 
   const data = studentsData?.items ?? [];
@@ -54,6 +55,7 @@ export default function Students() {
 
   const columns = useMemo<ColumnDef<Student>[]>(() => [
     { accessorKey: "cne", header: "CNE", cell: ({ row }) => <code className="font-bold">{row.getValue("cne")}</code> },
+    { accessorKey: "codeApogee", header: "Code Apogée", cell: ({ row }) => <code className="text-muted-foreground">{row.getValue("codeApogee") || "—"}</code> },
     { accessorKey: "lastName", header: "Nom", cell: ({ row }) => <div className="font-medium">{row.original.lastName}</div> },
     { accessorKey: "firstName", header: "Prénom", cell: ({ row }) => <div className="font-medium">{row.original.firstName}</div> },
     { accessorKey: "email", header: "Email" },
@@ -64,6 +66,17 @@ export default function Students() {
       cell: ({ row }) => {
         const id = row.getValue("majorId") as number;
         return majors.find((f) => f.id === id)?.name || id;
+      },
+    },
+    {
+      accessorKey: "departmentId",
+      header: "Département",
+      filterFn: "equalsString",
+      cell: ({ row }) => {
+        const id = row.getValue("departmentId") as number;
+        if (!id) return "—";
+        const name = departments.find((d) => d.id === id)?.name || row.original.departmentName;
+        return name || "—";
       },
     },
     {
@@ -94,7 +107,7 @@ export default function Students() {
         </div>
       ),
     },
-  ], [crud, majors, levels]);
+  ], [crud, majors, levels, departments]);
 
   if (majors.length === 0 || levels.length === 0) {
     const parts: string[] = [];
@@ -132,10 +145,11 @@ export default function Students() {
           manualPagination={!isFiltering} pageCount={!isFiltering ? pageCount : undefined}
           pagination={!isFiltering ? pagination : undefined} onPaginationChange={!isFiltering ? setPagination : undefined}
           onFiltering={setIsFiltering}
-          filterColumns={["lastName", "firstName", "email"]} filterPlaceholder="Rechercher par nom, prénom ou email..."
+          filterColumns={["lastName", "firstName", "email", "cne"]} filterPlaceholder="Rechercher par nom, prénom, email ou CNE..."
           filters={[
             { column: "majorId", label: "Filière", options: majors.map(f => ({ value: String(f.id), label: f.name })) },
             { column: "levelId", label: "Niveau", options: levels.map(l => ({ value: String(l.id), label: l.name })) },
+            { column: "departmentId", label: "Département", options: departments.map(d => ({ value: String(d.id), label: d.name })) },
           ]} />
 
       <BatchActionsBar

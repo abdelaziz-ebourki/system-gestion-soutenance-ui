@@ -74,7 +74,7 @@ export const VALID_DASHBOARD_ROUTES = new Set([
 
 export const BREADCRUMB_LABELS: Record<string, string> = {
   [ROUTES.ADMIN.DASHBOARD]: "Admin",
-  [ROUTES.ADMIN.CONFIG]: "Configuration",
+  [ROUTES.ADMIN.CONFIG]: "Filières & Niveaux",
   [ROUTES.ADMIN.DEPARTMENTS]: "Départements",
   [ROUTES.ADMIN.ROOMS]: "Salles",
   "/admin/users": "Utilisateurs",

@@ -28,8 +28,8 @@ const LEVELS = [
 ];
 
 const STUDENTS = [
-  { id: 1, cne: "CNE001", lastName: "Dupont", firstName: "Jean", email: "jean.dupont@example.com", majorId: 1, levelId: 1, isActive: true, role: "student" },
-  { id: 2, cne: "CNE002", lastName: "Martin", firstName: "Sophie", email: "sophie.martin@example.com", majorId: 2, levelId: 2, isActive: false, role: "student" },
+  { id: 1, cne: "CNE001", codeApogee: "APG001", lastName: "Dupont", firstName: "Jean", email: "jean.dupont@example.com", majorId: 1, majorName: "Génie Informatique", levelId: 1, levelName: "L3", departmentId: 1, departmentName: "Informatique", isActive: true, role: "student" },
+  { id: 2, cne: "CNE002", codeApogee: "APG002", lastName: "Martin", firstName: "Sophie", email: "sophie.martin@example.com", majorId: 2, majorName: "Génie Civil", levelId: 2, levelName: "M1", departmentId: 2, departmentName: "Mathématiques", isActive: false, role: "student" },
 ];
 
 const TEACHERS = [

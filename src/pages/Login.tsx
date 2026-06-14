@@ -62,7 +62,7 @@ export default function Login() {
       <div className="w-full max-w-4xl grid md:grid-cols-2 gap-8 items-center z-10">
         <div className="space-y-6 text-center md:text-left">
           <div className="flex items-center justify-center md:justify-start gap-4 mb-8">
-            <img src="/logo.svg" alt="Logo" className="h-16 w-16" />
+            <img src={siteConfig.logo} alt="Logo" className="h-16 w-16" />
             <div>
               <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground">
                 {siteConfig.name}
@@ -79,8 +79,7 @@ export default function Login() {
           </h2>
 
           <p className="text-lg text-muted-foreground max-w-md">
-            Une plateforme moderne pour la gestion, la planification et le suivi
-            des soutenances universitaires.
+            {siteConfig.description}
           </p>
 
           <div className="flex flex-wrap gap-4 pt-4 justify-center md:justify-start">
@@ -125,7 +124,7 @@ export default function Login() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="nom.prenom@univh2c.ma"
+                    placeholder={`nom.prenom@${siteConfig.emailDomain}`}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -175,12 +174,9 @@ export default function Login() {
 
       <footer className="md:absolute pt-10 bottom-8 text-sm text-muted-foreground flex gap-6">
         <span>&copy; {new Date().getFullYear()} Copyright</span>
-        <span className="hover:text-primary cursor-pointer transition-colors">
+        <a href={`mailto:${siteConfig.supportEmail}`} className="hover:text-primary transition-colors">
           Assistance
-        </span>
-        <span className="hover:text-primary cursor-pointer transition-colors">
-          Mentions Légales
-        </span>
+        </a>
       </footer>
     </div>
   );

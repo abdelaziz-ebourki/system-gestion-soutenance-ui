@@ -73,7 +73,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             ],
           },
           {
-            title: "Configuration",
+            title: "Filières & Niveaux",
             url: ROUTES.ADMIN.CONFIG,
             icon: <Settings2Icon />,
           },

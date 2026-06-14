@@ -9,6 +9,7 @@ export interface User {
   isActive: boolean;
   password?: string;
   cne?: string;
+  codeApogee?: string;
   majorId?: number;
   majorName?: string;
   levelId?: number;

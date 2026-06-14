@@ -8,12 +8,10 @@ import {
   CalendarCheck,
 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import { format } from "date-fns";
 
-import { useAdminStats, useUsers, useAuditLogs, useUpdateUser, useDeleteUser } from "@/hooks/queries";
+import { useAdminStats, useUsers, useUpdateUser, useDeleteUser } from "@/hooks/queries";
 import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import type { User } from "@/types";
-import type { AuditLog } from "@/types/audit-log";
 import { DataTable } from "@/components/ui/data-table";
 import { PageHeader } from "@/components/ui/page-header";
 import {
@@ -57,32 +55,6 @@ const userColumns: ColumnDef<User>[] = [
   },
 ];
 
-const logColumns: ColumnDef<AuditLog>[] = [
-  {
-    accessorKey: "timestamp",
-    header: "Date",
-    cell: ({ row }) =>
-      format(new Date(row.original.timestamp), "dd/MM/yyyy HH:mm"),
-  },
-  {
-    accessorKey: "adminEmail",
-    header: "Admin",
-  },
-  {
-    accessorKey: "action",
-    header: "Action",
-    cell: ({ row }) => (
-      <Badge variant="outline" className="font-mono">
-        {row.original.action}
-      </Badge>
-    ),
-  },
-  {
-    accessorKey: "details",
-    header: "Détails",
-  },
-];
-
 export default function AdminDashboard() {
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -95,14 +67,12 @@ export default function AdminDashboard() {
     page: isFiltering ? 0 : pagination.pageIndex,
     limit: isFiltering ? MAX_TEACHER_FETCH_LIMIT : pagination.pageSize,
   });
-  const { data: logs, isLoading: isLogsLoading } = useAuditLogs();
   const updateUser = useUpdateUser();
   const deleteUser = useDeleteUser();
   const [selectedUsers, setSelectedUsers] = React.useState<User[]>([]);
 
   const users = usersData?.items ?? [];
   const pageCount = usersData?.pageCount ?? 0;
-  const auditLogs = logs?.items ?? [];
 
 
   const chartData = React.useMemo(() => [
@@ -177,68 +147,51 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Utilisateurs</CardTitle>
-          </CardHeader>
-          <CardContent>
-               <DataTable
-                 columns={userColumns}
-                 data={users}
-                 loading={isLoading}
-                 getRowId={(row) => row.id}
-                 enableRowSelection
-                 onSelectedRowsChange={setSelectedUsers}
-                 manualPagination={!isFiltering}
-                 pageCount={!isFiltering ? pageCount : undefined}
-                 pagination={!isFiltering ? pagination : undefined}
-                 onPaginationChange={!isFiltering ? setPagination : undefined}
-                 onFiltering={setIsFiltering}
-                 filterColumns={["lastName", "firstName", "email"]}
-                 filterPlaceholder="Rechercher par nom, prénom ou email..."
-                 filters={[
-                   { column: "role", label: "Rôle", options: [{ value: "admin", label: "Admin" }, { value: "coordinator", label: "Coordinateur" }, { value: "teacher", label: "Enseignant" }, { value: "student", label: "Étudiant" }] },
-                 ]}
-               />
-               
-               <BatchActionsBar
-                 selectedCount={selectedUsers.length}
-                 entityLabel="utilisateur(s)"
-                 actions={[{ key: "role", label: "Changer le rôle" }, { key: "delete", label: "Supprimer" }]}
-                 fieldOptionsMap={{
-                   role: [{ value: "coordinator", label: "Coordinateur" }, { value: "teacher", label: "Enseignant" }, { value: "student", label: "Étudiant" }],
-                 }}
-                  onUpdateField={async (field, value) => {
-                    if (field === "role") {
-                      await Promise.all(selectedUsers.map((u) => updateUser.mutateAsync({ id: u.id, data: { lastName: u.lastName, firstName: u.firstName, email: u.email, role: value } })));
-                    }
-                  }}
-                 onDeleteSelected={async () => {
-                   await Promise.all(selectedUsers.map((u) => deleteUser.mutateAsync(u.id)));
-                 }}
-                 isPending={updateUser.isPending || deleteUser.isPending}
-                 onClearSelection={() => setSelectedUsers([])}
-               />
-               
-           </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Journal d'audit</CardTitle>
-          </CardHeader>
-          <CardContent>
-              <DataTable
-                  columns={logColumns}
-                  data={auditLogs}
-                  loading={isLogsLoading}
-                  getRowId={(row) => row.id}
-                filterColumns="action"
-                filterPlaceholder="Rechercher par action..."
-              />
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Utilisateurs</CardTitle>
+        </CardHeader>
+        <CardContent>
+             <DataTable
+               columns={userColumns}
+               data={users}
+               loading={isLoading}
+               getRowId={(row) => row.id}
+               enableRowSelection
+               onSelectedRowsChange={setSelectedUsers}
+               manualPagination={!isFiltering}
+               pageCount={!isFiltering ? pageCount : undefined}
+               pagination={!isFiltering ? pagination : undefined}
+               onPaginationChange={!isFiltering ? setPagination : undefined}
+               onFiltering={setIsFiltering}
+               filterColumns={["lastName", "firstName", "email"]}
+               filterPlaceholder="Rechercher par nom, prénom ou email..."
+               filters={[
+                 { column: "role", label: "Rôle", options: [{ value: "admin", label: "Admin" }, { value: "coordinator", label: "Coordinateur" }, { value: "teacher", label: "Enseignant" }, { value: "student", label: "Étudiant" }] },
+               ]}
+             />
+             
+             <BatchActionsBar
+               selectedCount={selectedUsers.length}
+               entityLabel="utilisateur(s)"
+               actions={[{ key: "role", label: "Changer le rôle" }, { key: "delete", label: "Supprimer" }]}
+               fieldOptionsMap={{
+                 role: [{ value: "coordinator", label: "Coordinateur" }, { value: "teacher", label: "Enseignant" }, { value: "student", label: "Étudiant" }],
+               }}
+                onUpdateField={async (field, value) => {
+                  if (field === "role") {
+                    await Promise.all(selectedUsers.map((u) => updateUser.mutateAsync({ id: u.id, data: { lastName: u.lastName, firstName: u.firstName, email: u.email, role: value } })));
+                  }
+                }}
+               onDeleteSelected={async () => {
+                 await Promise.all(selectedUsers.map((u) => deleteUser.mutateAsync(u.id)));
+               }}
+               isPending={updateUser.isPending || deleteUser.isPending}
+               onClearSelection={() => setSelectedUsers([])}
+             />
+             
+         </CardContent>
+      </Card>
     </div>
   );
 }
