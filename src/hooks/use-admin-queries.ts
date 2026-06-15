@@ -162,32 +162,32 @@ export function useDeleteLevel() {
   });
 }
 
-export function useGrades() {
-  return useQuery({ queryKey: ["grades"], queryFn: api.getGrades, staleTime: CONFIG_STALE_TIME });
+export function useTeacherRanks() {
+  return useQuery({ queryKey: ["teacher-ranks"], queryFn: api.getTeacherRanks, staleTime: CONFIG_STALE_TIME });
 }
 
-export function useCreateGrade() {
+export function useCreateTeacherRank() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: { name: string }) => api.createGrade(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"], refetchType: "active" }),
+    mutationFn: (data: { name: string }) => api.createTeacherRank(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["teacher-ranks"], refetchType: "active" }),
   });
 }
 
-export function useUpdateGrade() {
+export function useUpdateTeacherRank() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: { name: string } }) =>
-      api.updateGrade(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"], refetchType: "active" }),
+      api.updateTeacherRank(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["teacher-ranks"], refetchType: "active" }),
   });
 }
 
-export function useDeleteGrade() {
+export function useDeleteTeacherRank() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => api.deleteGrade(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["grades"], refetchType: "active" }),
+    mutationFn: (id: number) => api.deleteTeacherRank(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["teacher-ranks"], refetchType: "active" }),
   });
 }
 
@@ -245,7 +245,7 @@ export function useCreateUser() {
       cne?: string;
       majorId?: number;
       levelId?: number;
-      gradeId?: number;
+      teacherRankId?: number;
       departmentId?: number;
     }) => api.createUser(data),
     onSuccess: (user) => {
@@ -269,7 +269,7 @@ export function useUpdateUser() {
         cne?: string;
         majorId?: number;
         levelId?: number;
-        gradeId?: number;
+        teacherRankId?: number;
         departmentId?: number;
       };
     }) => api.updateUser(id, data),
@@ -286,28 +286,6 @@ export function useDeleteUser() {
   return useMutation({
     mutationFn: (id: number) => api.deleteUser(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["users"], refetchType: "active" }),
-  });
-}
-
-export function useGeneralSettings() {
-  return useQuery({
-    queryKey: ["admin", "config", "general"],
-    queryFn: api.getGeneralSettings,
-    staleTime: CONFIG_STALE_TIME,
-  });
-}
-
-export function useUpdateGeneralSettings() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: {
-      institutionName: string;
-      institutionLogoUrl: string;
-      timezone: string;
-      dateFormat: string;
-      setupCompleted: boolean;
-    }) => api.updateGeneralSettings(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "general"], refetchType: "active" }),
   });
 }
 
@@ -331,26 +309,6 @@ export function useUpdateDefenseSettings() {
       groupCreationEndDate: string;
     }) => api.updateDefenseSettings(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "settings"], refetchType: "active" }),
-  });
-}
-
-export function useDocumentConfig() {
-  return useQuery({
-    queryKey: ["admin", "config", "documents"],
-    queryFn: api.getDocumentConfig,
-    staleTime: CONFIG_STALE_TIME,
-  });
-}
-
-export function useUpdateDocumentConfig() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: {
-      maxFileSizeMb: number;
-      allowedExtensions: string;
-      versionLimit: number;
-    }) => api.updateDocumentConfig(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin", "config", "documents"], refetchType: "active" }),
   });
 }
 

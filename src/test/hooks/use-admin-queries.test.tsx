@@ -29,7 +29,6 @@ import {
   useCreateUser,
   useUpdateUser,
   useDeleteUser,
-  useGeneralSettings,
 } from "@/hooks/use-admin-queries";
 import type { ReactNode } from "react";
 
@@ -140,14 +139,6 @@ describe("useTeachersList", () => {
     const { result } = renderHook(() => useTeachersList(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(Array.isArray(result.current.data?.items)).toBe(true);
-  });
-});
-
-describe("useGeneralSettings", () => {
-  it("returns general settings", async () => {
-    const { result } = renderHook(() => useGeneralSettings(), { wrapper: createWrapper() });
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(result.current.data).toHaveProperty("institutionName");
   });
 });
 

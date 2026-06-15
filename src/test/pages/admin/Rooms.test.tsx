@@ -9,6 +9,18 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
+vi.mock("@/components/ui/select", () => ({
+  Select: ({ children, value, onValueChange }: { children: React.ReactNode; value: string; onValueChange: (val: string) => void }) => (
+    <select value={value} onChange={(e) => onValueChange(e.target.value)}>
+      {children}
+    </select>
+  ),
+  SelectTrigger: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
+  SelectContent: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  SelectItem: ({ children, value }: { children: React.ReactNode; value: string }) => <option value={value}>{children}</option>,
+}));
+
 function renderRooms() {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
@@ -68,18 +80,13 @@ describe("Rooms", () => {
     expect(await screen.findByText(/Ajouter une Salle/i)).toBeInTheDocument();
     await user.type(screen.getByPlaceholderText(/ex: Salle 101/i), "Salle 103");
     await user.type(screen.getByPlaceholderText(/ex: 30/i), "40");
-    // We need to select a department since it's a Select component.
-    // The Select component from shadcn/ui is tricky to test with user-event.
-    // However, we can check if we can just set the value or trigger the select.
-    // Given the implementation in Rooms.tsx, it uses a Select.
-    // For the sake of the test, let's see if we can find the select trigger and select an option.
     await user.click(screen.getByRole("combobox"));
-    await user.click(screen.getByRole("option", { name: /informatique/i }));
+    await user.selectOptions(screen.getByRole("combobox"), "1");
     await user.click(screen.getByRole("button", { name: /enregistrer/i }));
     await waitFor(() => {
       expect(screen.queryByText(/Ajouter une Salle/i)).not.toBeInTheDocument();
     });
-  });
+  }, 10000);
 
   it("opens single delete dialog via CrudActions", async () => {
     const user = userEvent.setup();

@@ -26,7 +26,7 @@ const STATUS_BADGE: Record<string, "default" | "secondary" | "outline"> = {
 
 export default function Grades() {
   const { data: gradesData, isLoading } = useProjectGrades();
-  const grades = gradesData?.items ?? [];
+  const grades = gradesData ?? [];
 
   const completed = grades.filter((g) => g.status === "completed").length;
 

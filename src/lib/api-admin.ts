@@ -1,5 +1,5 @@
-import { api, type GeneralSettings, type DefenseSettings, type DocumentConfig } from "./api-core";
-import type { DashboardStats, JuryRoleTemplate, User, Department, Room, Major, Level, Faculty, Grade, PaginatedResponse } from "@/types";
+import { api, type DefenseSettings } from "./api-core";
+import type { DashboardStats, JuryRoleTemplate, User, Department, Room, Major, Level, Faculty, TeacherRank, PaginatedResponse } from "@/types";
 import { MAX_TEACHER_FETCH_LIMIT, AUDIT_LOG_PAGE_SIZE, DEFAULT_API_LIMIT } from "@/lib/constants";
 import type { AuditLog } from "@/types/audit-log";
 
@@ -34,7 +34,7 @@ export const createUser = (data: {
   cne?: string;
   majorId?: number;
   levelId?: number;
-  gradeId?: number;
+  teacherRankId?: number;
   departmentId?: number;
 }) =>
   api<User>("/admin/users", {
@@ -50,7 +50,7 @@ export const bulkCreateUsers = (
     cne?: string;
     majorName?: string;
     levelName?: string;
-    gradeName?: string;
+    teacherRankName?: string;
     departmentName?: string;
   }>,
   role: string,
@@ -68,7 +68,7 @@ export const updateUser = (id: number, data: {
   cne?: string;
   majorId?: number;
   levelId?: number;
-  gradeId?: number;
+  teacherRankId?: number;
   departmentId?: number;
 }) =>
   api<User>(`/admin/users/${id}`, {
@@ -161,19 +161,19 @@ export const updateLevel = (id: number, data: { name: string }) =>
 export const deleteLevel = (id: number) =>
   api<void>(`/admin/config/levels/${id}`, { method: "DELETE" });
 
-export const getGrades = () => api<Grade[]>("/admin/config/grades");
-export const createGrade = (data: { name: string }) =>
-  api<Grade>("/admin/config/grades", {
+export const getTeacherRanks = () => api<TeacherRank[]>("/admin/config/teacher-ranks");
+export const createTeacherRank = (data: { name: string }) =>
+  api<TeacherRank>("/admin/config/teacher-ranks", {
     method: "POST",
     body: JSON.stringify(data),
   });
-export const updateGrade = (id: number, data: { name: string }) =>
-  api<Grade>(`/admin/config/grades/${id}`, {
+export const updateTeacherRank = (id: number, data: { name: string }) =>
+  api<TeacherRank>(`/admin/config/teacher-ranks/${id}`, {
     method: "PUT",
     body: JSON.stringify(data),
   });
-export const deleteGrade = (id: number) =>
-  api<void>(`/admin/config/grades/${id}`, { method: "DELETE" });
+export const deleteTeacherRank = (id: number) =>
+  api<void>(`/admin/config/teacher-ranks/${id}`, { method: "DELETE" });
 
 export const getJuryRoleTemplates = () => api<PaginatedResponse<JuryRoleTemplate>>("/admin/config/jury-role-templates");
 export const createJuryRoleTemplate = (data: { name: string; defenseType: string; roles: Array<{ name: string; count: number; coefficient: number }> }) =>
@@ -189,20 +189,6 @@ export const updateJuryRoleTemplate = (id: number, data: { name: string; defense
 export const deleteJuryRoleTemplate = (id: number) =>
   api<void>(`/admin/config/jury-role-templates/${id}`, { method: "DELETE" });
 
-export const getGeneralSettings = () =>
-  api<GeneralSettings>("/admin/config/general");
-export const updateGeneralSettings = (data: {
-  institutionName: string;
-  institutionLogoUrl: string;
-  timezone: string;
-  dateFormat: string;
-  setupCompleted: boolean;
-}) =>
-  api<GeneralSettings>("/admin/config/general", {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-
 export const getDefenseSettings = () =>
   api<DefenseSettings>("/admin/config/settings");
 export const updateDefenseSettings = (data: {
@@ -214,18 +200,6 @@ export const updateDefenseSettings = (data: {
   groupCreationEndDate: string;
 }) =>
   api<DefenseSettings>("/admin/config/settings", {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-
-export const getDocumentConfig = () =>
-  api<DocumentConfig>("/admin/config/documents");
-export const updateDocumentConfig = (data: {
-  maxFileSizeMb: number;
-  allowedExtensions: string;
-  versionLimit: number;
-}) =>
-  api<DocumentConfig>("/admin/config/documents", {
     method: "PUT",
     body: JSON.stringify(data),
   });

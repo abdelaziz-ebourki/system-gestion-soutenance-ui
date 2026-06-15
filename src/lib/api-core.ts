@@ -167,20 +167,3 @@ export interface DefenseSettings {
   groupCreationEndDate: string;
 }
 
-export interface GeneralSettings {
-  id: number;
-  institutionName: string;
-  institutionLogoUrl: string;
-  timezone: string;
-  dateFormat: string;
-  setupCompleted: boolean;
-}
-
-export interface DocumentConfig {
-  id: number;
-  maxFileSizeMb: number;
-  allowedExtensions: string;
-  versionLimit: number;
-}
-
-

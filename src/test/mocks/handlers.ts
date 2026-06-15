@@ -33,8 +33,8 @@ const STUDENTS = [
 ];
 
 const TEACHERS = [
-  { id: 1, lastName: "Benali", firstName: "Ahmed", email: "ahmed.benali@example.com", departmentId: 1, gradeId: 1, isActive: true, role: "teacher" },
-  { id: 2, lastName: "Amrani", firstName: "Fatima", email: "fatima.amrani@example.com", departmentId: 2, gradeId: 2, isActive: false, role: "teacher" },
+  { id: 1, lastName: "Benali", firstName: "Ahmed", email: "ahmed.benali@example.com", departmentId: 1, teacherRankId: 1, isActive: true, role: "teacher" },
+  { id: 2, lastName: "Amrani", firstName: "Fatima", email: "fatima.amrani@example.com", departmentId: 2, teacherRankId: 2, isActive: false, role: "teacher" },
 ];
 
 const COORDINATORS = [
@@ -79,8 +79,6 @@ const STUDENT_DOCUMENTS = [
   { id: 3, studentId: 1, name: "Déclaration sur l'honneur", type: "declaration", deadline: "2027-06-01", status: "validated", submittedAt: "2027-05-25T14:00:00Z", filePath: "/uploads/decl.pdf" },
   { id: 4, studentId: 1, name: "Attestation de stage", type: "internship", deadline: "2027-06-01", status: "rejected", submittedAt: "2027-05-20T09:00:00Z", filePath: "/uploads/att.pdf" },
 ];
-
-const GENERAL_SETTINGS = { id: 1, setupCompleted: true, institutionName: "Université Hassan II", institutionLogoUrl: "", timezone: "Africa/Casablanca", dateFormat: "DD/MM/YYYY" };
 
 const GROUPS = [
   { id: 1, groupName: "Groupe Alpha", projectId: 1, memberCount: 2, studentNames: ["Jean Dupont", "Sophie Martin"] },
@@ -176,9 +174,7 @@ export const handlers = [
   mockJson("patch", "*/api/notifications/read-all", { message: "All marked as read" }),
 
   // Admin — simple GETs
-  mockJson("get", "*/api/admin/config/general", GENERAL_SETTINGS),
   mockJson("get", "*/api/admin/config/settings", { id: 1, startTime: "08:00", endTime: "18:00", defenseDuration: 60, breakDuration: 15, groupCreationStartDate: "2026-01-01", groupCreationEndDate: "2026-06-01" }),
-  mockJson("get", "*/api/admin/config/documents", { id: 1, maxFileSizeMb: 10, allowedExtensions: "pdf,doc,docx", versionLimit: 5 }),
   mockJson("get", "*/api/admin/stats", { totalStudents: 100, totalTeachers: 20, totalDepartments: 5, totalRooms: 15, totalDefenseSessions: 3 }),
   ...mockPaginated("*/api/admin/departments", DEPARTMENTS),
   ...mockPaginated("*/api/admin/faculties", []),
@@ -215,7 +211,7 @@ export const handlers = [
   ...mockPaginated("*/api/coordinator/projects", PROJECTS),
   ...mockPaginated("*/api/coordinator/juries", JURIES),
   ...mockPaginated("*/api/coordinator/defense-sessions", DEFENSE_SESSIONS),
-  ...mockPaginated("*/api/coordinator/grades", GRADES),
+  mockJson("get", "*/api/coordinator/grades", GRADES),
   ...mockPaginated("*/api/coordinator/groups", GROUPS),
   mockJson("get", "*/api/coordinator/schedules", SCHEDULES),
   mockJson("get", "*/api/coordinator/unavailability", UNAVAILABILITY),
@@ -247,6 +243,15 @@ export const handlers = [
   http.post("*/api/coordinator/groups/assign", async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json({ id: 1, ...(body as Record<string, unknown>) });
+  }),
+
+  http.post("*/api/coordinator/projects/bulk", async ({ request }) => {
+    const body = (await request.json()) as { projects: Array<{ title: string; description: string; supervisorEmail: string; defenseType: string }> };
+    const created = body.projects.map((p, i) => ({ id: 1000 + i, title: p.title }));
+    return HttpResponse.json(
+      { success: true, message: "Projets importés", data: { total: body.projects.length, imported: created.length, created, errors: [] }, timestamp: new Date().toISOString(), errors: [] },
+      { status: 201 },
+    );
   }),
 
   http.post("*/api/coordinator/defenses/:id/cancel", async () => {

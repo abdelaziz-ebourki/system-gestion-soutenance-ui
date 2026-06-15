@@ -2,7 +2,6 @@ import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-import SetupGuard from "./components/auth/SetupGuard";
 import DashboardLayout from "./components/layout/DashboardLayout";
 import { ROUTES } from "./config/routes";
 
@@ -58,15 +57,13 @@ export default function App() {
         <Route element={<DashboardLayout />}>
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route path={ROUTES.ADMIN.CONFIG} element={<Configuration />} />
-            <Route element={<SetupGuard />}>
-              <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
-              <Route path={ROUTES.ADMIN.DEPARTMENTS} element={<Departments />} />
-              <Route path={ROUTES.ADMIN.ROOMS} element={<Rooms />} />
-              <Route path={ROUTES.ADMIN.USERS.STUDENTS} element={<Students />} />
-              <Route path={ROUTES.ADMIN.USERS.TEACHERS} element={<Teachers />} />
-              <Route path={ROUTES.ADMIN.USERS.COORDINATORS} element={<Coordinators />} />
-              <Route path={ROUTES.ADMIN.AUDIT_LOGS} element={<AuditLogs />} />
-            </Route>
+            <Route path={ROUTES.ADMIN.DASHBOARD} element={<AdminDashboard />} />
+            <Route path={ROUTES.ADMIN.DEPARTMENTS} element={<Departments />} />
+            <Route path={ROUTES.ADMIN.ROOMS} element={<Rooms />} />
+            <Route path={ROUTES.ADMIN.USERS.STUDENTS} element={<Students />} />
+            <Route path={ROUTES.ADMIN.USERS.TEACHERS} element={<Teachers />} />
+            <Route path={ROUTES.ADMIN.USERS.COORDINATORS} element={<Coordinators />} />
+            <Route path={ROUTES.ADMIN.AUDIT_LOGS} element={<AuditLogs />} />
           </Route>
 
           <Route element={<ProtectedRoute allowedRoles={["coordinator"]} />}>

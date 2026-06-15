@@ -9,9 +9,23 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
 
+const mockWriteFile = vi.hoisted(() => vi.fn());
+
+vi.mock("xlsx", async (importOriginal) => {
+  const original = await importOriginal<typeof import("xlsx")>();
+  return {
+    ...original,
+    writeFile: mockWriteFile,
+  };
+});
+
 vi.mock("@/lib/api", () => ({
   bulkCreateUsers: vi.fn().mockResolvedValue(undefined),
   bulkCreateRooms: vi.fn().mockResolvedValue(undefined),
+}));
+
+vi.mock("@/lib/api-coordinator", () => ({
+  bulkCreateProjects: vi.fn().mockResolvedValue({ total: 1, imported: 1, created: [{ id: 1, title: "Test" }], errors: [] }),
 }));
 
 const fileDataMap = new Map<string, ArrayBuffer>();
@@ -197,5 +211,80 @@ describe("BulkImportDialog", () => {
     await screen.findByText(/1 enregistrements trouvés/i);
     await user.click(screen.getByRole("button", { name: /importer/i }));
     await vi.waitFor(() => expect(toast.error).toHaveBeenCalled());
+  });
+
+  it("shows download template button", async () => {
+    const user = userEvent.setup();
+    renderBulk();
+    await user.click(screen.getByRole("button", { name: /importation en masse/i }));
+    expect(screen.getByTestId("download-template")).toBeInTheDocument();
+    expect(screen.getByText(/télécharger le modèle/i)).toBeInTheDocument();
+  });
+
+  it("generates template file on download click", async () => {
+    mockWriteFile.mockClear();
+    const user = userEvent.setup();
+    renderBulk();
+    await user.click(screen.getByRole("button", { name: /importation en masse/i }));
+    await user.click(screen.getByTestId("download-template"));
+    expect(mockWriteFile).toHaveBeenCalled();
+    const [wb, filename] = mockWriteFile.mock.calls[0];
+    expect(filename).toBe("modele_import_student.xlsx");
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const headers = XLSX.utils.sheet_to_json(sheet, { header: 1 })[0] as string[];
+    expect(headers).toEqual(["prénom", "nom", "email", "cne", "major", "niveau"]);
+  });
+
+  it("parses project Excel correctly", async () => {
+    const user = userEvent.setup();
+    function renderProjectBulk(props = {}) {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+      });
+      return render(
+        <QueryClientProvider client={queryClient}>
+          <BulkImportDialog entity="project" {...props} />
+        </QueryClientProvider>,
+      );
+    }
+    renderProjectBulk();
+    await user.click(screen.getByRole("button", { name: /importation en masse/i }));
+    await screen.findByText(/Téléchargez un fichier Excel/i);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const projectData = createMockFile([
+      { titre: "App Web", description: "Gestion des soutenances", encadrant: "prof@univh2c.ma", type: "pfe" },
+    ]);
+    await user.upload(fileInput, projectData);
+    expect(await screen.findByText(/1 enregistrements trouvés/i)).toBeInTheDocument();
+  });
+
+  it("imports projects on submit", async () => {
+    const { bulkCreateProjects } = await import("@/lib/api-coordinator");
+    const { toast } = await import("sonner");
+    const user = userEvent.setup();
+    function renderProjectBulk(props = {}) {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+      });
+      return render(
+        <QueryClientProvider client={queryClient}>
+          <BulkImportDialog entity="project" {...props} />
+        </QueryClientProvider>,
+      );
+    }
+    renderProjectBulk();
+    await user.click(screen.getByRole("button", { name: /importation en masse/i }));
+    await screen.findByText(/Téléchargez un fichier Excel/i);
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const projectData = createMockFile([
+      { titre: "App Web", description: "Gestion des soutenances", encadrant: "prof@univh2c.ma", type: "pfe" },
+    ]);
+    await user.upload(fileInput, projectData);
+    await screen.findByText(/1 enregistrements trouvés/i);
+    await user.click(screen.getByRole("button", { name: /importer/i }));
+    await vi.waitFor(() => {
+      expect(bulkCreateProjects).toHaveBeenCalled();
+      expect(toast.success).toHaveBeenCalled();
+    });
   });
 });

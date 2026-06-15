@@ -1,4 +1,4 @@
-export { api, getNotifications, markNotificationRead, markAllNotificationsRead, sendNotificationEmail, type ApiResponse, type DefenseSettings, type GeneralSettings, type DocumentConfig } from "./api-core";
+export { api, getNotifications, markNotificationRead, markAllNotificationsRead, sendNotificationEmail, type ApiResponse, type DefenseSettings } from "./api-core";
 export * from "./api-admin";
 export {
   getCoordinatorStats, getProjects, createProject, updateProject, deleteProject,

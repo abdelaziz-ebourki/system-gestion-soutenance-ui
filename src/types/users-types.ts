@@ -14,8 +14,8 @@ export interface User {
   majorName?: string;
   levelId?: number;
   levelName?: string;
-  gradeId?: number;
-  gradeName?: string;
+  teacherRankId?: number;
+  teacherRankName?: string;
   departmentId?: number;
   departmentName?: string;
 }
@@ -37,7 +37,7 @@ export interface Level {
   name: string;
 }
 
-export interface Grade {
+export interface TeacherRank {
   id: number;
   name: string;
 }

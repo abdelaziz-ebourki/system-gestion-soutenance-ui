@@ -101,6 +101,26 @@ export const updateProject = (id: number, data: UpdateProjectPayload) =>
 export const deleteProject = (id: number) =>
   api<void>(`/coordinator/projects/${id}`, { method: "DELETE" });
 
+export interface BulkProjectPayload {
+  title: string;
+  description: string;
+  supervisorEmail: string;
+  defenseType: string;
+}
+
+export interface BulkImportResult {
+  total: number;
+  imported: number;
+  created: Array<{ id: number; title: string }>;
+  errors: Array<{ line: number; message: string }>;
+}
+
+export const bulkCreateProjects = (projects: BulkProjectPayload[]) =>
+  api<BulkImportResult>("/coordinator/projects/bulk", {
+    method: "POST",
+    body: JSON.stringify({ projects }),
+  });
+
 export const getGroups = () => api<PaginatedResponse<Group>>("/coordinator/groups");
 export const createGroup = (data: { groupName: string; projectId: number; studentIds: number[]; sessionId?: number; leaderId?: number }) =>
   api<Group>("/coordinator/groups", {
@@ -109,6 +129,9 @@ export const createGroup = (data: { groupName: string; projectId: number; studen
   });
 export const deleteGroup = (id: number) =>
   api<void>(`/coordinator/groups/${id}`, { method: "DELETE" });
+// TODO: backend does not have POST /coordinator/groups/assign yet.
+// Track: https://github.com/abdelaziz-ebourki/system-gestion-soutenance-api/issues
+// Once implemented, the endpoint should accept { projectId, groupId } to assign a project to an existing group.
 export const assignProjectToGroup = (data: { projectId: number; groupId: number }) =>
   api<Group>("/coordinator/groups/assign", {
     method: "POST",
@@ -217,7 +240,7 @@ export const getCoordinatorUsers = (role: string, page = 0, limit = 5000, search
 };
 
 export const getGrades = () =>
-  api<PaginatedResponse<GradeWeightedAverageResponse>>("/coordinator/grades");
+  api<GradeWeightedAverageResponse[]>("/coordinator/grades");
 
 export const getEvaluationSheetPdf = (projectId: number) =>
   api<Blob>("/coordinator/documents/pdf/evaluation-sheets", {

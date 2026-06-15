@@ -29,6 +29,7 @@ import { CrudActions } from "@/components/admin/CrudActions";
 import { DataTable } from "@/components/ui/data-table";
 import { ProjectDialog } from "@/components/coordinator/ProjectDialog";
 import { AssignProjectDialog } from "@/components/coordinator/AssignProjectDialog";
+import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 
 export default function CoordinatorProjects() {
   const projectsQuery = useProjects();
@@ -102,6 +103,7 @@ export default function CoordinatorProjects() {
           <Plus className="mr-2 size-4" />
           Ajouter un projet
         </Button>
+        <BulkImportDialog entity="project" onSuccess={() => projectsQuery.refetch()} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

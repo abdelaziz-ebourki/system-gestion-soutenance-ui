@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import { Upload, FileUp, AlertCircle, LoaderCircle } from "lucide-react";
+import { Upload, FileUp, AlertCircle, LoaderCircle, Download } from "lucide-react";
 import {
   Alert,
   AlertDescription,
@@ -16,9 +16,10 @@ import {
   DialogTrigger,
 } from "@/components/ui";
 import { bulkCreateUsers, bulkCreateRooms } from "@/lib/api";
+import { bulkCreateProjects } from "@/lib/api-coordinator";
 
 interface BulkImportDialogProps {
-  entity: "student" | "teacher" | "coordinator" | "room";
+  entity: "student" | "teacher" | "coordinator" | "room" | "project";
   triggerButtonText?: string;
   onSuccess?: () => void;
 }
@@ -28,6 +29,15 @@ const ENTITY_HEADERS: Record<string, string[]> = {
   teacher: ["prénom", "nom", "email", "département"],
   coordinator: ["prénom", "nom", "email"],
   room: ["nom", "département", "capacité"],
+  project: ["titre", "description", "encadrant", "type"],
+};
+
+const ENTITY_SAMPLE_DATA: Record<string, Record<string, string>> = {
+  student: { prénom: "Jean", nom: "Dupont", email: "jean@univh2c.ma", cne: "CNE001", major: "Génie Informatique", niveau: "L3" },
+  teacher: { prénom: "Marie", nom: "Curie", email: "marie@univh2c.ma", département: "Informatique" },
+  coordinator: { prénom: "Ahmed", nom: "Benani", email: "ahmed@univh2c.ma" },
+  room: { nom: "Salle 101", département: "Informatique", capacité: "30" },
+  project: { titre: "Application web de gestion", description: "Système de gestion...", encadrant: "prof@univh2c.ma", type: "pfe" },
 };
 
 export function BulkImportDialog({
@@ -97,23 +107,31 @@ export function BulkImportDialog({
         const newItem: Record<string, string | number> = {};
         Object.keys(item).forEach((key) => {
           const normalizedKey = key.toLowerCase().trim();
-          if (normalizedKey.includes("prénom")) newItem.firstName = item[key];
-          else if (normalizedKey.includes("nom")) {
-            if (entity === "room") newItem.name = item[key];
-            else newItem.lastName = item[key];
-          } else if (normalizedKey.includes("email")) newItem.email = item[key];
-          else if (normalizedKey.includes("cne")) newItem.cne = item[key];
-          else if (normalizedKey.includes("major"))
-            newItem.majorName = item[key];
-          else if (normalizedKey.includes("niveau"))
-            newItem.levelName = item[key];
-          else if (normalizedKey.includes("département")) {
-            if (entity === "room") newItem.departmentId = item[key];
-            else newItem.departmentName = item[key];
+          if (entity === "project") {
+            if (normalizedKey.includes("titre")) newItem.title = item[key];
+            else if (normalizedKey.includes("description")) newItem.description = item[key];
+            else if (normalizedKey.includes("encadrant")) newItem.supervisorEmail = item[key];
+            else if (normalizedKey.includes("type")) newItem.defenseType = item[key];
+            else newItem[normalizedKey] = item[key];
+          } else {
+            if (normalizedKey.includes("prénom")) newItem.firstName = item[key];
+            else if (normalizedKey.includes("nom")) {
+              if (entity === "room") newItem.name = item[key];
+              else newItem.lastName = item[key];
+            } else if (normalizedKey.includes("email")) newItem.email = item[key];
+            else if (normalizedKey.includes("cne")) newItem.cne = item[key];
+            else if (normalizedKey.includes("major"))
+              newItem.majorName = item[key];
+            else if (normalizedKey.includes("niveau"))
+              newItem.levelName = item[key];
+            else if (normalizedKey.includes("département")) {
+              if (entity === "room") newItem.departmentId = item[key];
+              else newItem.departmentName = item[key];
+            }
+            else if (normalizedKey.includes("capacité"))
+              newItem.capacity = item[key];
+            else newItem[normalizedKey] = item[key];
           }
-          else if (normalizedKey.includes("capacité"))
-            newItem.capacity = item[key];
-          else newItem[normalizedKey] = item[key];
         });
         return newItem;
       });
@@ -146,17 +164,27 @@ export function BulkImportDialog({
     teacher: "Enseignants",
     coordinator: "Coordinateurs",
     room: "Salles",
+    project: "Projets",
   };
 
-  // ... inside BulkImportDialog component
+  const downloadTemplate = () => {
+    const headers = ENTITY_HEADERS[entity];
+    const sample = ENTITY_SAMPLE_DATA[entity];
+    const ws = XLSX.utils.json_to_sheet([sample], { header: headers });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Modèle");
+    XLSX.writeFile(wb, `modele_import_${entity}.xlsx`);
+  };
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
       if (entity === "room") {
         await bulkCreateRooms(data as Array<{ name: string; capacity: number; departmentId: number }>);
+      } else if (entity === "project") {
+        await bulkCreateProjects(data as Array<{ title: string; description: string; supervisorEmail: string; defenseType: string }>);
       } else {
-        await bulkCreateUsers(data as Array<{ lastName: string; firstName: string; email: string; cne?: string; majorName?: string; levelName?: string; gradeName?: string; departmentName?: string }>, entity);
+        await bulkCreateUsers(data as Array<{ lastName: string; firstName: string; email: string; cne?: string; majorName?: string; levelName?: string; teacherRankName?: string; departmentName?: string }>, entity);
       }
       toast.success(
         `${data.length} ${ENTITY_LABELS[entity].toLowerCase()} importés avec succès.`,
@@ -198,6 +226,11 @@ export function BulkImportDialog({
             </span>
           </AlertDescription>
         </Alert>
+
+        <Button variant="ghost" size="sm" onClick={downloadTemplate} className="self-start mb-2" data-testid="download-template">
+          <Download className="mr-2 size-4" />
+          Télécharger le modèle
+        </Button>
 
         <div className="grid gap-4">
           <div

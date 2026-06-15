@@ -90,7 +90,7 @@ export default function Documents() {
 
   const juries = useMemo(() => juriesQuery.data?.items ?? [], [juriesQuery.data]);
   const sessions = useMemo(() => sessionsQuery.data?.items ?? [], [sessionsQuery.data]);
-  const grades = useMemo(() => gradesQuery.data?.items ?? [], [gradesQuery.data]);
+  const grades = useMemo(() => gradesQuery.data ?? [], [gradesQuery.data]);
 
   const isLoading = projectsQuery.isLoading || juriesQuery.isLoading || sessionsQuery.isLoading;
 
