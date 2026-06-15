@@ -26,7 +26,7 @@ describe("DroppableCalendarCell", () => {
       <table>
         <tbody>
           <tr>
-            <DroppableCalendarCell id="cell-1" jury={null} onRemove={vi.fn()} />
+            <DroppableCalendarCell id="cell-1" jury={null} studentNames={[]} onRemove={vi.fn()} />
           </tr>
         </tbody>
       </table>
@@ -40,7 +40,7 @@ describe("DroppableCalendarCell", () => {
       <table>
         <tbody>
           <tr>
-            <DroppableCalendarCell id="cell-1" jury={mockJury} onRemove={vi.fn()} />
+            <DroppableCalendarCell id="cell-1" jury={mockJury} studentNames={[]} onRemove={vi.fn()} />
           </tr>
         </tbody>
       </table>
@@ -55,7 +55,7 @@ describe("DroppableCalendarCell", () => {
       <table>
         <tbody>
           <tr>
-            <DroppableCalendarCell id="cell-1" jury={mockJury} onRemove={onRemove} />
+            <DroppableCalendarCell id="cell-1" jury={mockJury} studentNames={[]} onRemove={onRemove} />
           </tr>
         </tbody>
       </table>
@@ -75,7 +75,7 @@ describe("DroppableCalendarCell", () => {
       <table>
         <tbody>
           <tr>
-            <DroppableCalendarCell id="cell-1" jury={null} onRemove={vi.fn()} />
+            <DroppableCalendarCell id="cell-1" jury={null} studentNames={[]} onRemove={vi.fn()} />
           </tr>
         </tbody>
       </table>

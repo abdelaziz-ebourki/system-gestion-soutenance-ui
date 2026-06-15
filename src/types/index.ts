@@ -139,6 +139,19 @@ export interface StudentDocument {
   filePath: string;
 }
 
+export type GroupDocumentType = "REPORT" | "PRESENTATION" | "DIVERSE";
+
+export interface GroupDocument {
+  id: number;
+  groupId: number;
+  type: GroupDocumentType;
+  name: string;
+  deadline: string;
+  status: "missing" | "submitted" | "validated" | "rejected";
+  submittedAt: string | null;
+  filePath: string;
+}
+
 export type DefenseType = "pfe" | "memoire" | "these";
 
 export type DefenseSessionStatus = "draft" | "active" | "scheduled" | "completed" | "archived";

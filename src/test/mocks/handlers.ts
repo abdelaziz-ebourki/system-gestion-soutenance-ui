@@ -80,6 +80,12 @@ const STUDENT_DOCUMENTS = [
   { id: 4, studentId: 1, name: "Attestation de stage", type: "internship", deadline: "2027-06-01", status: "rejected", submittedAt: "2027-05-20T09:00:00Z", filePath: "/uploads/att.pdf" },
 ];
 
+const GROUP_DOCUMENTS = [
+  { id: 1, groupId: 1, type: "REPORT", name: "Rapport PFE", deadline: "2027-06-01", status: "submitted", submittedAt: "2027-05-28T10:00:00Z", filePath: "/uploads/rapport.pdf" },
+  { id: 2, groupId: 1, type: "PRESENTATION", name: "Fiche de présentation", deadline: "2027-06-05", status: "missing", submittedAt: null, filePath: "" },
+  { id: 3, groupId: 1, type: "DIVERSE", name: "Divers", deadline: "2027-06-10", status: "missing", submittedAt: null, filePath: "" },
+];
+
 const GROUPS = [
   { id: 1, groupName: "Groupe Alpha", projectId: 1, memberCount: 2, studentNames: ["Jean Dupont", "Sophie Martin"] },
   { id: 2, groupName: "Groupe Beta", projectId: 0, memberCount: 1, studentNames: ["Sarah Benali"] },
@@ -332,5 +338,20 @@ export const handlers = [
     const body = await request.formData();
     const file = body.get("file") as File | null;
     return HttpResponse.json({ id: 1, name: file?.name ?? "uploaded-file", type: "upload", deadline: "2027-06-01", status: "submitted", submittedAt: new Date().toISOString(), studentId: 1, filePath: "" }, { status: 201 });
+  }),
+
+  // Group documents
+  http.get("*/api/student/groups/:groupId/documents", () =>
+    HttpResponse.json(GROUP_DOCUMENTS),
+  ),
+
+  http.post("*/api/student/groups/:groupId/documents/:type/attachments", async ({ params }) => {
+    const { groupId, type } = params;
+    return HttpResponse.json({
+      id: Date.now(), groupId: Number(groupId), type,
+      name: type === "REPORT" ? "Rapport PFE" : type === "PRESENTATION" ? "Fiche de présentation" : "Divers",
+      deadline: "2027-06-01", status: "submitted",
+      submittedAt: new Date().toISOString(), filePath: "",
+    }, { status: 201 });
   }),
 ];

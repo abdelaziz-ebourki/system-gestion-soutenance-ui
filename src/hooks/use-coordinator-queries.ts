@@ -39,7 +39,11 @@ export function useDeleteProject() {
 }
 
 export function useJuries() {
-  return useQuery({ queryKey: ["juries"], queryFn: api.getJuries });
+  return useQuery({
+    queryKey: ["juries"],
+    queryFn: api.getJuries,
+    staleTime: 30_000,
+  });
 }
 
 export function useCreateJury() {

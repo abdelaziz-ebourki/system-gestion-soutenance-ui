@@ -34,12 +34,14 @@ export default function DefenseDesigner() {
     sessions,
     juries,
     rooms,
+    projects,
     allLoading,
     selectedSessionId,
     setSelectedSessionId,
     currentSession,
     days,
     timeSlots,
+    defenseDuration,
     searchQuery,
     setSearchQuery,
     filteredJuries,
@@ -114,13 +116,13 @@ export default function DefenseDesigner() {
       </div>
 
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-12 gap-6">
+        <div className="grid grid-cols-12 gap-6 min-h-[calc(100vh-12rem)]">
           <JurySidebar
             juries={filteredJuries}
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
           />
-          <div className="col-span-9" data-testid="coord-designer-calendar">
+           <div className="col-span-9 min-w-0 h-full flex flex-col" data-testid="coord-designer-calendar">
             <DefenseCalendar
               days={days}
               timeSlots={timeSlots}
@@ -128,6 +130,8 @@ export default function DefenseDesigner() {
               juries={juries}
               onRemove={handleRemove}
               rooms={rooms}
+              defenseDuration={defenseDuration}
+              projects={projects}
             />
           </div>
         </div>

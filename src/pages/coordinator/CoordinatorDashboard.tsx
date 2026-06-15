@@ -4,9 +4,9 @@ import {
   ArrowRight,
   BookOpen,
   CalendarDays,
-  ClipboardCheck,
+  // FIXME: restore with Jurys stat card
+  // ClipboardCheck,
   Clock3,
-  Sparkles,
   Users,
 } from "lucide-react";
 
@@ -51,9 +51,10 @@ export default function CoordinatorDashboard() {
   const projectsQuery = useProjects();
   const juriesQuery = useJuries();
   const stats = statsQuery.data;
+  const statsLoading = statsQuery.isLoading;
   const projects = useMemo(() => projectsQuery.data?.items ?? [], [projectsQuery.data]);
   const juries = useMemo(() => juriesQuery.data?.items ?? [], [juriesQuery.data]);
-  const isLoading = statsQuery.isLoading || projectsQuery.isLoading || juriesQuery.isLoading;
+  const contentLoading = projectsQuery.isLoading || juriesQuery.isLoading;
 
   const projectsWithJury = useMemo(() => projects.filter(
     (project) => juries.some((jury) => jury.projectId === project.id),
@@ -66,17 +67,6 @@ export default function CoordinatorDashboard() {
       ? Math.round((juries.length / projects.length) * 100)
       : 0,
   [projects.length, juries.length]);
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-48 w-full rounded-3xl" />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {[1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-28 rounded-xl" />)}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6" data-testid="coord-dashboard-page">
@@ -117,8 +107,7 @@ export default function CoordinatorDashboard() {
           <Card className="bg-secondary/40 shadow-none">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Sparkles className="size-4 text-primary" />
-                Etat de preparation
+                État de preparation
               </CardTitle>
               <CardDescription>
                 Les points qui demandent encore une intervention.
@@ -128,11 +117,11 @@ export default function CoordinatorDashboard() {
               <div className="rounded-lg border bg-background/80 p-4">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Couverture des jurys</span>
-                  <span>{juryCoverage}%</span>
+                  <span>{contentLoading ? <Skeleton className="h-4 w-8 inline-block" /> : `${juryCoverage}%`}</span>
                 </div>
                 <div className="mt-3 h-2 rounded-full bg-secondary">
                     <div
-                      className="h-2 rounded-full bg-primary"
+                      className="h-2 rounded-full bg-primary transition-all"
                       style={{ width: `${Math.min(juryCoverage, 100)}%` }}
                       data-testid="coord-dashboard-jury-coverage"
                     />
@@ -143,20 +132,20 @@ export default function CoordinatorDashboard() {
                   <p className="text-xs uppercase tracking-widest text-muted-foreground">
                     Prêts
                   </p>
-                  <p className="mt-2 text-2xl font-semibold">
-                    {projectsWithJury.length}
-                  </p>
+                  <div className="mt-2 text-2xl font-semibold">
+                    {contentLoading ? <Skeleton className="h-7 w-8" /> : projectsWithJury.length}
+                  </div>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Projets avec jury
                   </p>
                 </div>
                 <div className="rounded-lg border bg-background/80 p-4">
                   <p className="text-xs uppercase tracking-widest text-muted-foreground">
-                    A completer
+                    À completer
                   </p>
-                  <p className="mt-2 text-2xl font-semibold">
-                    {projectsWithoutJury.length}
-                  </p>
+                  <div className="mt-2 text-2xl font-semibold">
+                    {contentLoading ? <Skeleton className="h-7 w-8" /> : projectsWithoutJury.length}
+                  </div>
                   <p className="mt-1 text-sm text-muted-foreground">
                     Projets sans jury
                   </p>
@@ -168,10 +157,13 @@ export default function CoordinatorDashboard() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-testid="coord-dashboard-stats">
-        <StatsCard label="Projets" value={stats?.totalProjects} icon={BookOpen} />
-        <StatsCard label="Groupes" value={stats?.totalGroups} icon={Users} />
-        <StatsCard label="Jurys" value={stats?.totalJuries} icon={ClipboardCheck} />
-        <StatsCard label="Créneaux planifiés" value={stats?.scheduledDefenses} icon={Clock3} />
+        <StatsCard label="Projets" value={stats?.totalProjects} icon={BookOpen} loading={statsLoading} />
+        <StatsCard label="Groupes" value={stats?.totalGroups} icon={Users} loading={statsLoading} />
+        {/*
+        FIXME: restore when /coordinator/juries endpoint is stable
+        <StatsCard label="Jurys" value={stats?.totalJuries} icon={ClipboardCheck} loading={statsLoading} />
+        */}
+        <StatsCard label="Créneaux planifiés" value={stats?.scheduledDefenses} icon={Clock3} loading={statsLoading} />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
@@ -215,7 +207,16 @@ export default function CoordinatorDashboard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {projectsWithoutJury.slice(0, 4).map((project) => (
+            {contentLoading ? (
+              <>
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="rounded-lg border border-dashed p-4">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2 mt-2" />
+                  </div>
+                ))}
+              </>
+            ) : projectsWithoutJury.slice(0, 4).map((project) => (
               <div
                 key={project.id}
                 className="rounded-lg border border-dashed p-4"
@@ -226,7 +227,7 @@ export default function CoordinatorDashboard() {
                 </p>
               </div>
             ))}
-            {!isLoading && projectsWithoutJury.length === 0 && (
+            {!contentLoading && projectsWithoutJury.length === 0 && (
               <EmptyState variant="card" description="Tous les projets disposent déjà d'un jury." />
             )}
           </CardContent>

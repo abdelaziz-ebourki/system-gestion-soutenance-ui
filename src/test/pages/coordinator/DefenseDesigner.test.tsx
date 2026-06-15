@@ -18,6 +18,7 @@ function createMockHook(overrides = {}): unknown {
     sessions: mockSessions,
     juries: mockJuries,
     rooms: mockRooms,
+    projects: [],
     allLoading: false,
     selectedSessionId: "s1",
     setSelectedSessionId: vi.fn(),

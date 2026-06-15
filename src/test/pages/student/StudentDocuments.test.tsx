@@ -11,11 +11,29 @@ vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn(), warning: vi.fn() },
 }));
 
-const studentUser = {
-  id: 4,
-  email: "student@univh2c.ma",
-  firstName: "Student",
-  lastName: "User",
+const groupLeaderUser = {
+  id: 1,
+  email: "jean.dupont@example.com",
+  firstName: "Jean",
+  lastName: "Dupont",
+  role: "student" as const,
+  isActive: true,
+};
+
+const groupMemberUser = {
+  id: 2,
+  email: "sophie.martin@example.com",
+  firstName: "Sophie",
+  lastName: "Martin",
+  role: "student" as const,
+  isActive: true,
+};
+
+const soloUser = {
+  id: 5,
+  email: "solo@example.com",
+  firstName: "Solo",
+  lastName: "Student",
   role: "student" as const,
   isActive: true,
 };
@@ -26,44 +44,66 @@ describe("StudentDocuments", () => {
     server.resetHandlers();
   });
 
-  it("renders document list with status badges", async () => {
+  it("shows no-group message when student has no group", async () => {
+    server.use(
+      http.get("*/api/student/groups", () => HttpResponse.json({ currentGroup: null })),
+    );
     renderWithProviders(<StudentDocuments />, {
-      initialAuthState: { user: studentUser },
+      initialAuthState: { user: soloUser },
     });
-    expect(await screen.findByText("Rapport PFE")).toBeInTheDocument();
-    expect(screen.getByText("Déposé")).toBeInTheDocument();
-    expect(screen.getByText("Validé")).toBeInTheDocument();
-    expect(screen.getByText("Manquant")).toBeInTheDocument();
-    expect(screen.getByText("Refusé")).toBeInTheDocument();
+    expect(await screen.findByText(/Vous devez faire partie d'un groupe/i)).toBeInTheDocument();
+  });
+
+  it("renders three document cards for group leader", async () => {
+    renderWithProviders(<StudentDocuments />, {
+      initialAuthState: { user: groupLeaderUser },
+    });
+    expect(await screen.findByTestId("group-document-card-REPORT")).toBeInTheDocument();
+    expect(screen.getByTestId("group-document-card-PRESENTATION")).toBeInTheDocument();
+    expect(screen.getByTestId("group-document-card-DIVERSE")).toBeInTheDocument();
   });
 
   it("renders stats cards", async () => {
     renderWithProviders(<StudentDocuments />, {
-      initialAuthState: { user: studentUser },
+      initialAuthState: { user: groupLeaderUser },
     });
     expect(await screen.findByTestId("student-documents-stats-total")).toBeInTheDocument();
     expect(screen.getByTestId("student-documents-stats-validated")).toBeInTheDocument();
     expect(screen.getByTestId("student-documents-stats-missing")).toBeInTheDocument();
   });
 
-  it("shows upload controls only for missing documents", async () => {
+  it("shows upload controls for missing documents when user is group leader", async () => {
     renderWithProviders(<StudentDocuments />, {
-      initialAuthState: { user: studentUser },
+      initialAuthState: { user: groupLeaderUser },
     });
-    expect(await screen.findByTestId("student-documents-file-input-2")).toBeInTheDocument();
-    expect(screen.queryByTestId("student-documents-file-input-1")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("student-documents-file-input-3")).not.toBeInTheDocument();
+    expect(await screen.findByTestId("group-document-file-input-PRESENTATION")).toBeInTheDocument();
+    expect(screen.getByTestId("group-document-file-input-DIVERSE")).toBeInTheDocument();
   });
 
-  it("uploads a document successfully", async () => {
+  it("does not show upload controls for submitted documents", async () => {
+    renderWithProviders(<StudentDocuments />, {
+      initialAuthState: { user: groupLeaderUser },
+    });
+    expect(await screen.findByTestId("group-document-card-REPORT")).toBeInTheDocument();
+    expect(screen.queryByTestId("group-document-file-input-REPORT")).not.toBeInTheDocument();
+  });
+
+  it("shows blocked message for non-leader group member", async () => {
+    renderWithProviders(<StudentDocuments />, {
+      initialAuthState: { user: groupMemberUser },
+    });
+    expect(await screen.findAllByText(/Seul le chef de groupe peut déposer/i)).toHaveLength(2);
+  });
+
+  it("uploads a document successfully as group leader", async () => {
     const user = userEvent.setup();
     renderWithProviders(<StudentDocuments />, {
-      initialAuthState: { user: studentUser },
+      initialAuthState: { user: groupLeaderUser },
     });
-    const fileInput = await screen.findByTestId("student-documents-file-input-2");
-    const file = new File(["dummy content"], "fiche.pdf", { type: "application/pdf" });
+    const fileInput = await screen.findByTestId("group-document-file-input-PRESENTATION");
+    const file = new File(["dummy content"], "presentation.pdf", { type: "application/pdf" });
     await user.upload(fileInput, file);
-    await user.click(screen.getByTestId("student-documents-upload-btn-2"));
+    await user.click(screen.getByTestId("group-document-upload-btn-PRESENTATION"));
     await vi.waitFor(() => {
       expect(toast.success).toHaveBeenCalledWith("Document envoyé avec succès");
     });
@@ -72,20 +112,10 @@ describe("StudentDocuments", () => {
   it("shows error when uploading without selecting a file", async () => {
     const user = userEvent.setup();
     renderWithProviders(<StudentDocuments />, {
-      initialAuthState: { user: studentUser },
+      initialAuthState: { user: groupLeaderUser },
     });
-    const uploadBtn = await screen.findByTestId("student-documents-upload-btn-2");
+    const uploadBtn = await screen.findByTestId("group-document-upload-btn-PRESENTATION");
     await user.click(uploadBtn);
     expect(toast.error).toHaveBeenCalledWith("Veuillez sélectionner un fichier.");
-  });
-
-  it("shows empty state when no documents", async () => {
-    server.use(
-      http.get("*/api/student/documents", () => HttpResponse.json([])),
-    );
-    renderWithProviders(<StudentDocuments />, {
-      initialAuthState: { user: studentUser },
-    });
-    expect(await screen.findByText("Aucun document trouvé.")).toBeInTheDocument();
   });
 });

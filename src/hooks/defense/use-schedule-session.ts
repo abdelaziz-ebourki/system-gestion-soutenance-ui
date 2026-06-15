@@ -29,16 +29,19 @@ export function useScheduleSession() {
   }, [currentSession]);
 
   const timeSlots = useMemo(() => {
-    if (!currentSession || !defenseSettings) return [];
-    const { startTime, endTime } = defenseSettings;
-    const duration = currentSession.defenseDuration;
+    if (!currentSession) return [];
+    const { startTime = "08:00", endTime = "18:00" } = defenseSettings ?? {};
+    // FIXME: temporary compensation until backend serves correct values
+    const duration = (currentSession.defenseDuration ?? 0) + 30;
+    const breakDuration = (currentSession.breakDuration ?? 0) + 20;
+    const step = duration + breakDuration;
     const slots: string[] = [];
     let [h, m] = startTime.split(":").map(Number);
     const [endH, endM] = endTime.split(":").map(Number);
     const endMinutes = endH * 60 + endM;
-    while (h * 60 + m < endMinutes) {
+    while (h * 60 + m + duration <= endMinutes) {
       slots.push(`${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
-      m += duration;
+      m += step;
       if (m >= 60) {
         h += Math.floor(m / 60);
         m = m % 60;
@@ -55,5 +58,7 @@ export function useScheduleSession() {
     currentSession,
     days,
     timeSlots,
+    // FIXME: matches the +30 compensation above — remove together
+    defenseDuration: (currentSession?.defenseDuration ?? 0) + 30,
   };
 }

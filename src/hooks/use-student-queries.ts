@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
+import type { GroupDocumentType } from "@/types";
 
 export function useStudentStats() {
   return useQuery({
@@ -51,5 +52,24 @@ export function useUploadStudentDocument() {
     mutationFn: ({ documentId, file }: { documentId: number; file: File }) =>
       api.uploadStudentDocument(documentId, file),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["student", "documents"], refetchType: "active" }),
+  });
+}
+
+export function useGroupDocuments(groupId: number | null) {
+  return useQuery({
+    queryKey: ["student", "group", "documents", groupId],
+    queryFn: () => api.getGroupDocuments(groupId!),
+    enabled: groupId != null,
+  });
+}
+
+export function useUploadGroupDocument() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ groupId, type, file }: { groupId: number; type: GroupDocumentType; file: File }) =>
+      api.uploadGroupDocument(groupId, type, file),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["student", "group", "documents"], refetchType: "active" });
+    },
   });
 }

@@ -51,7 +51,7 @@ describe("CoordinatorDashboard", () => {
 
   it("renders the preparation status section", async () => {
     renderDashboard();
-    expect(await screen.findByText("Etat de preparation")).toBeInTheDocument();
+    expect(await screen.findByText(/État de preparation/)).toBeInTheDocument();
     expect(await screen.findByText("Couverture des jurys")).toBeInTheDocument();
   });
 
@@ -73,7 +73,7 @@ describe("CoordinatorDashboard", () => {
   it("shows ready projects and projects without jury", async () => {
     renderDashboard();
     expect(await screen.findByText("Prêts")).toBeInTheDocument();
-    expect(await screen.findByText("A completer")).toBeInTheDocument();
+    expect(await screen.findByText(/À completer/)).toBeInTheDocument();
   });
 
   it("shows projects without jury in attention points", async () => {

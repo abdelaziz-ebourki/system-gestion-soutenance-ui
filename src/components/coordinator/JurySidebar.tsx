@@ -22,7 +22,7 @@ export default function JurySidebar({
   onSearchChange,
 }: JurySidebarProps) {
   return (
-    <Card className="col-span-3 h-[calc(100vh-12rem)] flex flex-col" data-testid="coord-designer-jury-sidebar">
+    <Card className="col-span-3     h-[calc(100vh-10.4rem)] flex flex-col" data-testid="coord-designer-jury-sidebar">
       <CardHeader className="pb-3">
 <CardTitle className="text-lg flex items-center gap-2">
   <Users className="size-5" /> À positionner

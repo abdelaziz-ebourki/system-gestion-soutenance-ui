@@ -41,6 +41,7 @@ export function useDefenseSchedule() {
     currentSession,
     days,
     timeSlots,
+    defenseDuration,
   } = useScheduleSession();
 
   const { schedule, setSchedule, updateSlot, removeSlot } = useScheduleDraft();
@@ -126,12 +127,14 @@ export function useDefenseSchedule() {
     sessions,
     juries,
     rooms,
+    projects,
     allLoading: sessionsLoading || juriesLoading || roomsLoading || unavailLoading || projectsLoading || teachersLoading || settingsLoading,
     selectedSessionId,
     setSelectedSessionId,
     currentSession,
     days,
     timeSlots,
+    defenseDuration,
     searchQuery,
     setSearchQuery,
     filteredJuries,

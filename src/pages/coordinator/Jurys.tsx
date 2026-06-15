@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
+import { AlertCircle, ShieldCheck, UserPlus, Users, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 
 import { useJuries, useProjects, useDeleteJury } from "@/hooks/queries";
@@ -13,6 +13,9 @@ import {
   CardHeader,
   CardTitle,
   DataTable,
+  Skeleton,
+  Alert,
+  AlertDescription,
 } from "@/components/ui";
 import { CreateJuryDialog } from "@/components/coordinator/CreateJuryDialog";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
@@ -21,7 +24,7 @@ export default function Jurys() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [juryToDelete, setJuryToDelete] = useState<Jury | null>(null);
 
-  const { data: juriesData, isLoading } = useJuries();
+  const { data: juriesData, isLoading, isError, error } = useJuries();
   const juries = juriesData?.items ?? [];
   const { data: projectsData } = useProjects();
   const projects = projectsData?.items ?? [];
@@ -87,7 +90,9 @@ export default function Jurys() {
             <Users className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{juries.length}</div>
+            <div className="text-2xl font-bold">
+              {isLoading ? <Skeleton className="h-7 w-8" /> : juries.length}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -97,7 +102,7 @@ export default function Jurys() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {projects.filter((p) => !juries.find((j) => j.projectId === p.id)).length}
+              {isLoading ? <Skeleton className="h-7 w-8" /> : projects.filter((p) => !juries.find((j) => j.projectId === p.id)).length}
             </div>
           </CardContent>
         </Card>
@@ -111,6 +116,15 @@ export default function Jurys() {
           </CardContent>
         </Card>
       </div>
+
+      {isError && (
+        <Alert variant="destructive" data-testid="coord-juries-error">
+          <AlertCircle className="size-4" />
+          <AlertDescription>
+            {getErrorMessage(error, "Impossible de charger les jurys.")}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <Card>
         <CardHeader>
