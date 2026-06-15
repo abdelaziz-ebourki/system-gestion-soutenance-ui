@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Plus, Users } from "lucide-react";
 
 import { useTeachers, useDepartments } from "@/hooks/queries";
-import type { Teacher } from "@/types";
+import type { Teacher, Department } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Badge,
@@ -43,7 +43,8 @@ export default function Teachers() {
     page: isFiltering ? 0 : pagination.pageIndex,
     limit: isFiltering ? MAX_TEACHER_FETCH_LIMIT : pagination.pageSize,
   });
-  const { data: departments = [] } = useDepartments();
+  const { data: departmentsData } = useDepartments();
+  const departments = departmentsData?.items ?? [];
   const crud = useTeacherCrud();
 
   const data = teachersData?.items ?? [];
@@ -57,10 +58,10 @@ export default function Teachers() {
       accessorKey: "departmentId",
       header: "Département",
       filterFn: "equalsString",
-      cell: ({ row }) => {
-        const id = row.getValue("departmentId") as number;
-        return departments.find((d) => d.id === id)?.name || id;
-      },
+       cell: ({ row }) => {
+         const id = row.getValue("departmentId") as number;
+         return departments.find((d: Department) => d.id === id)?.name || id;
+       },
     },
     {
       accessorKey: "isActive",
@@ -117,7 +118,7 @@ export default function Teachers() {
           onFiltering={setIsFiltering}
           filterColumns={["lastName", "firstName", "email"]} filterPlaceholder="Rechercher par nom, prénom ou email..."
           filters={[
-            { column: "departmentId", label: "Département", options: departments.map(d => ({ value: String(d.id), label: d.name })) },
+            { column: "departmentId", label: "Département", options: departments.map((d: Department) => ({ value: String(d.id), label: d.name })) },
           ]} />
 
       <BatchActionsBar
@@ -125,7 +126,7 @@ export default function Teachers() {
         entityLabel="enseignant(s)"
         actions={[{ key: "department", label: "Modifier le département" }, { key: "delete", label: "Supprimer" }]}
         fieldOptionsMap={{
-          department: departments.map((d) => ({ value: String(d.id), label: d.name })),
+          department: departments.map((d: Department) => ({ value: String(d.id), label: d.name })),
         }}
         onUpdateField={async (_field, value) => {
           await Promise.all(selectedTeachers.map((t) => crud.updateMutation(t.id, { lastName: t.lastName, firstName: t.firstName, email: t.email, departmentId: Number(value), role: "TEACHER" })));
@@ -171,7 +172,7 @@ export default function Teachers() {
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, departmentId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un département" /></SelectTrigger>
                   <SelectContent>
-                    {departments.map((d) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
+                     {departments.map((d: Department) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.departmentId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.departmentId}</p>}

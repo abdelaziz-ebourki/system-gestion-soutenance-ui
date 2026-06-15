@@ -27,10 +27,13 @@ import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 
 export default function Departments() {
-  const { data, isLoading } = useDepartments();
+  const { data: departmentsData, isLoading } = useDepartments();
   const [selectedDepartments, setSelectedDepartments] = useState<Department[]>([]);
-  const { data: teachers = [] } = useTeachersList();
+  const { data: teachersData } = useTeachersList();
+  const teachers = teachersData?.items ?? [];
   const crud = useDepartmentCrud();
+
+  const data = departmentsData?.items ?? [];
 
   const columns = useMemo<ColumnDef<Department>[]>(() => [
     {
@@ -78,16 +81,16 @@ export default function Departments() {
         </Button>
       </div>
 
-        <DataTable
-          columns={columns}
-          data={data ?? []}
-          loading={isLoading}
-          getRowId={(row) => row.id}
-          enableRowSelection
-          onSelectedRowsChange={setSelectedDepartments}
-          filterColumns="name"
-          filterPlaceholder="Rechercher par nom..."
-        />
+         <DataTable
+           columns={columns}
+           data={data}
+           loading={isLoading}
+           getRowId={(row) => row.id}
+           enableRowSelection
+           onSelectedRowsChange={setSelectedDepartments}
+           filterColumns="name"
+           filterPlaceholder="Rechercher par nom..."
+         />
 
       <BatchActionsBar
         selectedCount={selectedDepartments.length}

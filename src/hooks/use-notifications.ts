@@ -12,7 +12,7 @@ export function useNotifications() {
 
 export function useUnreadCount() {
   const { data } = useNotifications();
-  return data?.filter((n) => !n.read).length ?? 0;
+    return data?.items?.filter((n) => !n.read).length ?? 0;
 }
 
 export function useMarkNotificationRead() {

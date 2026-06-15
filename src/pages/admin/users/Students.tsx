@@ -6,7 +6,7 @@ import {
   useStudents, useMajors, useLevels, useDepartments,
 } from "@/hooks/queries";
 import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
-import { type Student } from "@/types";
+import { type Student, type Major, type Department, type Level } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import {
   Badge,
@@ -45,9 +45,12 @@ export default function Students() {
     page: isFiltering ? 0 : pagination.pageIndex,
     limit: isFiltering ? MAX_TEACHER_FETCH_LIMIT : pagination.pageSize,
   });
-  const { data: majors = [] } = useMajors();
-  const { data: levels = [] } = useLevels();
-  const { data: departments = [] } = useDepartments();
+  const { data: majorsData } = useMajors();
+  const { data: levelsData } = useLevels();
+  const { data: departmentsData } = useDepartments();
+  const majors = majorsData?.items ?? [];
+  const levels = levelsData?.items ?? [];
+  const departments = departmentsData?.items ?? [];
   const crud = useStudentCrud();
 
   const data = studentsData?.items ?? [];
@@ -63,31 +66,31 @@ export default function Students() {
       accessorKey: "majorId",
       header: "Filière",
       filterFn: "equalsString",
-      cell: ({ row }) => {
-        const id = row.getValue("majorId") as number;
-        return majors.find((f) => f.id === id)?.name || id;
-      },
+       cell: ({ row }) => {
+         const id = row.getValue("majorId") as number;
+         return majors.find((f: Major) => f.id === id)?.name || id;
+       },
     },
     {
       accessorKey: "departmentId",
       header: "Département",
       filterFn: "equalsString",
-      cell: ({ row }) => {
-        const id = row.getValue("departmentId") as number;
-        if (!id) return "—";
-        const name = departments.find((d) => d.id === id)?.name || row.original.departmentName;
-        return name || "—";
-      },
+       cell: ({ row }) => {
+         const id = row.getValue("departmentId") as number;
+         if (!id) return "—";
+         const name = departments.find((d: Department) => d.id === id)?.name || row.original.departmentName;
+         return name || "—";
+       },
     },
     {
       accessorKey: "levelId",
       header: "Niveau",
       filterFn: "equalsString",
-      cell: ({ row }) => {
-        const id = row.getValue("levelId") as number;
-        const name = levels.find((l) => l.id === id)?.name || id;
-        return <Badge variant="secondary">{name}</Badge>;
-      },
+       cell: ({ row }) => {
+         const id = row.getValue("levelId") as number;
+         const name = levels.find((l: Level) => l.id === id)?.name || id;
+         return <Badge variant="secondary">{name}</Badge>;
+       },
     },
     {
       accessorKey: "isActive",
@@ -147,9 +150,9 @@ export default function Students() {
           onFiltering={setIsFiltering}
           filterColumns={["lastName", "firstName", "email", "cne"]} filterPlaceholder="Rechercher par nom, prénom, email ou CNE..."
           filters={[
-            { column: "majorId", label: "Filière", options: majors.map(f => ({ value: String(f.id), label: f.name })) },
-            { column: "levelId", label: "Niveau", options: levels.map(l => ({ value: String(l.id), label: l.name })) },
-            { column: "departmentId", label: "Département", options: departments.map(d => ({ value: String(d.id), label: d.name })) },
+             { column: "majorId", label: "Filière", options: majors.map((f: Major) => ({ value: String(f.id), label: f.name })) },
+             { column: "levelId", label: "Niveau", options: levels.map((l: Level) => ({ value: String(l.id), label: l.name })) },
+             { column: "departmentId", label: "Département", options: departments.map((d: Department) => ({ value: String(d.id), label: d.name })) },
           ]} />
 
       <BatchActionsBar
@@ -157,8 +160,8 @@ export default function Students() {
         entityLabel="étudiant(s)"
         actions={[{ key: "major", label: "Modifier la filière" }, { key: "level", label: "Modifier le niveau" }, { key: "delete", label: "Supprimer" }]}
         fieldOptionsMap={{
-          major: majors.map((f) => ({ value: String(f.id), label: f.name })),
-          level: levels.map((l) => ({ value: String(l.id), label: l.name })),
+           major: majors.map((f: Major) => ({ value: String(f.id), label: f.name })),
+           level: levels.map((l: Level) => ({ value: String(l.id), label: l.name })),
         }}
         onUpdateField={async (field, value) => {
           if (field === "major") {
@@ -212,7 +215,7 @@ export default function Students() {
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, levelId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un niveau" /></SelectTrigger>
                   <SelectContent>
-                    {levels.map((n) => <SelectItem key={n.id} value={String(n.id)}>{n.name}</SelectItem>)}
+                    {levels.map((n: Level) => <SelectItem key={n.id} value={String(n.id)}>{n.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.levelId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.levelId}</p>}
@@ -223,7 +226,7 @@ export default function Students() {
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, majorId: v || "" })}>
               <SelectTrigger><SelectValue placeholder="Choisir une filière" /></SelectTrigger>
                   <SelectContent>
-                    {majors.map((f) => <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>)}
+                      {majors.map((f: Major) => <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.majorId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.majorId}</p>}

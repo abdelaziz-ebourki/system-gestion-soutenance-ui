@@ -51,7 +51,7 @@ export function ProjectDialog({
   const teachersQuery = useTeachersList();
   const createProjectMutation = useCreateProject();
   const updateProjectMutation = useUpdateProject();
-  const teachers = teachersQuery.data ?? [];
+  const teachers = teachersQuery.data?.items ?? [];
   const studentsQuery = useStudents({ limit: MAX_STUDENT_FETCH_LIMIT });
   const studentOptions = React.useMemo(() => 
     (studentsQuery.data?.items ?? []).map((s) => ({

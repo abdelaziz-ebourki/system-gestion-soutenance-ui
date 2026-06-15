@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { STORAGE_KEYS } from "@/lib/constants";
+import { logout as logoutApi } from "@/lib/api-auth";
 import type { UserRole } from "@/types";
 
 interface User {
@@ -35,7 +36,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   wasExpired: boolean;
-  login: (user: User, token: string, expiresAt: number) => void;
+  login: (user: User) => void;
   logout: () => void;
   clearExpired: () => void;
   updateUser: (partial: Partial<User>) => void;
@@ -50,40 +51,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedUser = localStorage.getItem(STORAGE_KEYS.USER);
-    const storedToken = localStorage.getItem(STORAGE_KEYS.TOKEN);
 
-    if (storedUser && storedToken) {
+    if (storedUser) {
       try {
         const parsed = JSON.parse(storedUser);
         if (isValidUser(parsed)) {
           setUser(parsed);
         } else {
           localStorage.removeItem(STORAGE_KEYS.USER);
-          localStorage.removeItem(STORAGE_KEYS.TOKEN);
         }
       } catch {
         localStorage.removeItem(STORAGE_KEYS.USER);
-        localStorage.removeItem(STORAGE_KEYS.TOKEN);
       }
     }
     setIsLoading(false);
   }, []);
 
   const login = useCallback(
-    (newUser: User, token: string, expiresAt: number) => {
+    (newUser: User) => {
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(newUser));
-      localStorage.setItem(STORAGE_KEYS.TOKEN, token);
-      localStorage.setItem(STORAGE_KEYS.EXPIRES_AT, String(expiresAt));
       setUser(newUser);
     },
     [],
   );
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
     localStorage.removeItem(STORAGE_KEYS.USER);
-    localStorage.removeItem(STORAGE_KEYS.TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.EXPIRES_AT);
     setUser(null);
+    try {
+      await logoutApi();
+    } catch {
+      // Best-effort: cookie may already be expired
+    }
   }, []);
 
   const clearExpired = useCallback(() => {

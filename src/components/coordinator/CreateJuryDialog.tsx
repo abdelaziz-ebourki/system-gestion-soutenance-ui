@@ -50,9 +50,9 @@ export function CreateJuryDialog({
   const createJuryMutation = useCreateJury();
   const updateJuryMutation = useUpdateJury();
 
-  const teachers = React.useMemo(() => teachersQuery.data ?? [], [teachersQuery.data]);
-  const projects = React.useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
-  const templates = React.useMemo(() => templatesQuery.data ?? [], [templatesQuery.data]);
+  const teachers = React.useMemo(() => teachersQuery.data?.items ?? [], [teachersQuery.data]);
+  const projects = React.useMemo(() => projectsQuery.data?.items ?? [], [projectsQuery.data]);
+  const templates = React.useMemo(() => templatesQuery.data?.items ?? [], [templatesQuery.data]);
   const isLoadingOptions = teachersQuery.isLoading || projectsQuery.isLoading || templatesQuery.isLoading;
   const isEdit = !!jury;
 

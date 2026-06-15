@@ -75,7 +75,7 @@ describe("useDepartments", () => {
   it("returns departments data", async () => {
     const { result } = renderHook(() => useDepartments(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(Array.isArray(result.current.data)).toBe(true);
+    expect(Array.isArray(result.current.data?.items)).toBe(true);
   });
 });
 
@@ -83,7 +83,7 @@ describe("useMajors", () => {
   it("returns majors data", async () => {
     const { result } = renderHook(() => useMajors(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(Array.isArray(result.current.data)).toBe(true);
+    expect(Array.isArray(result.current.data?.items)).toBe(true);
   });
 });
 
@@ -91,7 +91,7 @@ describe("useLevels", () => {
   it("returns levels data", async () => {
     const { result } = renderHook(() => useLevels(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(Array.isArray(result.current.data)).toBe(true);
+    expect(Array.isArray(result.current.data?.items)).toBe(true);
   });
 });
 
@@ -99,7 +99,7 @@ describe("useJuryRoleTemplates", () => {
   it("returns jury role templates data", async () => {
     const { result } = renderHook(() => useJuryRoleTemplates(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(Array.isArray(result.current.data)).toBe(true);
+    expect(Array.isArray(result.current.data?.items)).toBe(true);
   });
 });
 
@@ -139,7 +139,7 @@ describe("useTeachersList", () => {
   it("returns flat teachers array", async () => {
     const { result } = renderHook(() => useTeachersList(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(Array.isArray(result.current.data)).toBe(true);
+    expect(Array.isArray(result.current.data?.items)).toBe(true);
   });
 });
 

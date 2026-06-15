@@ -52,7 +52,7 @@ export default function ConflictDashboard() {
 
   const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || groupsQuery.isLoading || sessionsQuery.isLoading || scheduleQuery.isLoading || unavailabilityQuery.isLoading || teachersQuery.isLoading;
 
-  const currentSession = sessionsQuery.data?.[0];
+  const currentSession = sessionsQuery.data?.items?.[0];
 
   const conflicts = useMemo(() => {
     const scheduleMap = Object.fromEntries(
@@ -69,11 +69,11 @@ export default function ConflictDashboard() {
     );
     const context = buildConflictContext(
       scheduleMap,
-      juriesQuery.data ?? [],
-      roomsQuery.data?.items ?? [],
-      projectsQuery.data ?? [],
-      teachersQuery.data ?? [],
-      unavailabilityQuery.data ?? [],
+       juriesQuery.data?.items ?? [],
+       roomsQuery.data?.items ?? [],
+       projectsQuery.data?.items ?? [],
+       teachersQuery.data?.items ?? [],
+       unavailabilityQuery.data ?? [],
       currentSession ? {
         startDate: currentSession.startDate,
         endDate: currentSession.endDate,

@@ -94,7 +94,8 @@ export default function AdminDashboard() {
   const [isFiltering, setIsFiltering] = React.useState(false);
 
   const { data: stats } = useAdminStats();
-  const { data: notifications = [] } = useNotifications();
+  const { data: notificationsData } = useNotifications();
+  const notifications = notificationsData?.items ?? [];
   const { data: usersData, isLoading: isLoading } = useUsers({
     page: isFiltering ? 0 : pagination.pageIndex,
     limit: isFiltering ? MAX_TEACHER_FETCH_LIMIT : pagination.pageSize,

@@ -22,7 +22,7 @@ describe("useNotifications", () => {
   it("returns notifications data", async () => {
     const { result } = renderHook(() => useNotifications(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(Array.isArray(result.current.data)).toBe(true);
+    expect(Array.isArray(result.current.data?.items)).toBe(true);
   });
 });
 

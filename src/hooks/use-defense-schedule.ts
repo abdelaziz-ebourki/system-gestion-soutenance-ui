@@ -21,12 +21,16 @@ export function useDefenseSchedule() {
   const [activeJuryId, setActiveJuryId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: juries = [], isLoading: juriesLoading } = useJuries();
+  const { data: juriesData, isLoading: juriesLoading } = useJuries();
+  const juries = juriesData?.items ?? [];
   const { data: roomsPage, isLoading: roomsLoading } = useRooms();
   const rooms = roomsPage?.items ?? [];
-  const { data: projects = [], isLoading: projectsLoading } = useProjects();
-  const { data: teachers = [], isLoading: teachersLoading } = useTeachersList();
-  const { data: unavailabilities = [], isLoading: unavailLoading } = useCoordinatorUnavailability();
+  const { data: projectsData, isLoading: projectsLoading } = useProjects();
+  const projects = projectsData?.items ?? [];
+  const { data: teachersData, isLoading: teachersLoading } = useTeachersList();
+  const teachers = teachersData?.items ?? [];
+  const { data: unavailabilitiesData, isLoading: unavailLoading } = useCoordinatorUnavailability();
+  const unavailabilities = unavailabilitiesData ?? [];
   const { isLoading: settingsLoading } = useDefenseSettings();
 
   const {

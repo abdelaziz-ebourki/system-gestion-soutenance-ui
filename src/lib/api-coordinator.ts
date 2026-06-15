@@ -1,5 +1,5 @@
 import { api } from "./api-core";
-import type { Project, Group, Jury, DefenseSession, User } from "@/types";
+import type { Project, Group, Jury, DefenseSession, User, PaginatedResponse } from "@/types";
 
 export interface CoordinatorStats {
   totalProjects: number;
@@ -87,7 +87,7 @@ export interface UnavailabilityEntry {
 export const getCoordinatorStats = () =>
   api<CoordinatorStats>("/coordinator/stats");
 
-export const getProjects = () => api<Project[]>("/coordinator/projects");
+export const getProjects = () => api<PaginatedResponse<Project>>("/coordinator/projects");
 export const createProject = (data: CreateProjectPayload) =>
   api<Project>("/coordinator/projects", {
     method: "POST",
@@ -101,7 +101,7 @@ export const updateProject = (id: number, data: UpdateProjectPayload) =>
 export const deleteProject = (id: number) =>
   api<void>(`/coordinator/projects/${id}`, { method: "DELETE" });
 
-export const getGroups = () => api<Group[]>("/coordinator/groups");
+export const getGroups = () => api<PaginatedResponse<Group>>("/coordinator/groups");
 export const createGroup = (data: { groupName: string; projectId: number; studentIds: number[]; sessionId?: number; leaderId?: number }) =>
   api<Group>("/coordinator/groups", {
     method: "POST",
@@ -115,7 +115,7 @@ export const assignProjectToGroup = (data: { projectId: number; groupId: number 
     body: JSON.stringify(data),
   });
 
-export const getJuries = () => api<Jury[]>("/coordinator/juries");
+export const getJuries = () => api<PaginatedResponse<Jury>>("/coordinator/juries");
 export const createJury = (data: CreateJuryPayload) =>
   api<Jury>("/coordinator/juries", {
     method: "POST",
@@ -130,7 +130,7 @@ export const deleteJury = (id: number) =>
   api<void>(`/coordinator/juries/${id}`, { method: "DELETE" });
 
 export const getCoordinatorDefenseSessions = () =>
-  api<DefenseSession[]>("/coordinator/defense-sessions");
+  api<PaginatedResponse<DefenseSession>>("/coordinator/defense-sessions");
 
 export const createCoordinatorDefenseSession = (data: {
   name: string;
@@ -217,7 +217,7 @@ export const getCoordinatorUsers = (role: string, page = 0, limit = 5000, search
 };
 
 export const getGrades = () =>
-  api<GradeWeightedAverageResponse[]>("/coordinator/grades");
+  api<PaginatedResponse<GradeWeightedAverageResponse>>("/coordinator/grades");
 
 export const getEvaluationSheetPdf = (projectId: number) =>
   api<Blob>("/coordinator/documents/pdf/evaluation-sheets", {

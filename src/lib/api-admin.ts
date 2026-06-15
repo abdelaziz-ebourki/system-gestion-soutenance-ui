@@ -1,5 +1,5 @@
-import { api, type PaginatedResponse, type GeneralSettings, type DefenseSettings, type DocumentConfig } from "./api-core";
-import type { DashboardStats, JuryRoleTemplate, User, Department, Room, Major, Level, Faculty, Grade } from "@/types";
+import { api, type GeneralSettings, type DefenseSettings, type DocumentConfig } from "./api-core";
+import type { DashboardStats, JuryRoleTemplate, User, Department, Room, Major, Level, Faculty, Grade, PaginatedResponse } from "@/types";
 import { MAX_TEACHER_FETCH_LIMIT, AUDIT_LOG_PAGE_SIZE, DEFAULT_API_LIMIT } from "@/lib/constants";
 import type { AuditLog } from "@/types/audit-log";
 
@@ -24,9 +24,7 @@ export const getUsers = (params: {
 };
 
 export const getTeachersList = (limit = MAX_TEACHER_FETCH_LIMIT) =>
-  api<PaginatedResponse<User>>(`/admin/users?role=TEACHER&limit=${limit}`).then(
-    (res) => res.items,
-  );
+  api<PaginatedResponse<User>>(`/admin/users?role=TEACHER&limit=${limit}`);
 
 export const createUser = (data: {
   lastName: string;
@@ -107,7 +105,7 @@ export const updateRoom = (id: number, data: { name: string; capacity: number; d
 export const deleteRoom = (id: number) =>
   api<void>(`/admin/rooms/${id}`, { method: "DELETE" });
 
-export const getDepartments = () => api<Department[]>("/admin/departments");
+export const getDepartments = () => api<PaginatedResponse<Department>>("/admin/departments");
 export const createDepartment = (data: { name: string; code: string; headId?: number; facultyId?: number }) =>
   api<Department>("/admin/departments", {
     method: "POST",
@@ -121,7 +119,7 @@ export const updateDepartment = (id: number, data: { name: string; code: string;
 export const deleteDepartment = (id: number) =>
   api<void>(`/admin/departments/${id}`, { method: "DELETE" });
 
-export const getFaculties = () => api<Faculty[]>("/admin/faculties");
+export const getFaculties = () => api<PaginatedResponse<Faculty>>("/admin/faculties");
 export const createFaculty = (data: { name: string; code: string; deanId?: number; logoUrl?: string }) =>
   api<Faculty>("/admin/faculties", {
     method: "POST",
@@ -135,7 +133,7 @@ export const updateFaculty = (id: number, data: { name: string; code: string; de
 export const deleteFaculty = (id: number) =>
   api<void>(`/admin/faculties/${id}`, { method: "DELETE" });
 
-export const getMajors = () => api<Major[]>("/admin/config/majors");
+export const getMajors = () => api<PaginatedResponse<Major>>("/admin/config/majors");
 export const createMajor = (data: { name: string; departmentId?: number }) =>
   api<Major>("/admin/config/majors", {
     method: "POST",
@@ -149,7 +147,7 @@ export const updateMajor = (id: number, data: { name: string; departmentId?: num
 export const deleteMajor = (id: number) =>
   api<void>(`/admin/config/majors/${id}`, { method: "DELETE" });
 
-export const getLevels = () => api<Level[]>("/admin/config/levels");
+export const getLevels = () => api<PaginatedResponse<Level>>("/admin/config/levels");
 export const createLevel = (data: { name: string }) =>
   api<Level>("/admin/config/levels", {
     method: "POST",
@@ -177,7 +175,7 @@ export const updateGrade = (id: number, data: { name: string }) =>
 export const deleteGrade = (id: number) =>
   api<void>(`/admin/config/grades/${id}`, { method: "DELETE" });
 
-export const getJuryRoleTemplates = () => api<JuryRoleTemplate[]>("/admin/config/jury-role-templates");
+export const getJuryRoleTemplates = () => api<PaginatedResponse<JuryRoleTemplate>>("/admin/config/jury-role-templates");
 export const createJuryRoleTemplate = (data: { name: string; defenseType: string; roles: Array<{ name: string; count: number; coefficient: number }> }) =>
   api<JuryRoleTemplate>("/admin/config/jury-role-templates", {
     method: "POST",

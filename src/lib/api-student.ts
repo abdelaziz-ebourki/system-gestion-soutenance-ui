@@ -1,7 +1,7 @@
 import { api } from "./api-core";
 import type {
   StudentStats, StudentDefenseDetails, StudentGroupWorkspace,
-  StudentGroupDetails, StudentDocument,
+  StudentGroupDetails, StudentDocument, PaginatedResponse,
 } from "@/types";
 
 export const getStudentStats = () => api<StudentStats>("/student/stats");
@@ -13,7 +13,7 @@ export const getStudentGroup = () =>
   api<StudentGroupWorkspace>("/student/groups");
 
 export const getStudentDocuments = () =>
-  api<StudentDocument[]>("/student/documents");
+  api<PaginatedResponse<StudentDocument>>("/student/documents");
 
 export const createStudentGroup = () =>
   api<StudentGroupDetails>("/student/groups", {

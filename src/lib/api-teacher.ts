@@ -1,6 +1,6 @@
 import { api } from "./api-core";
 import type {
-  TeacherStats, TeacherDefense, TeacherEvaluation, TeacherUnavailability,
+  TeacherStats, TeacherDefense, TeacherEvaluation, TeacherUnavailability, PaginatedResponse,
 } from "@/types";
 
 export const getTeacherStats = () => api<TeacherStats>("/teacher/stats");
@@ -9,7 +9,7 @@ export const getTeacherSchedule = () =>
   api<{ slots: TeacherDefense[] }>("/teacher/schedules");
 
 export const getTeacherEvaluations = () =>
-  api<TeacherEvaluation[]>("/teacher/evaluations");
+  api<PaginatedResponse<TeacherEvaluation>>("/teacher/evaluations");
 
 export const submitTeacherEvaluation = (
   id: number,

@@ -1,10 +1,13 @@
 import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
 import { STORAGE_KEYS } from "@/lib/constants";
 import { MemoryRouter } from "react-router-dom";
 
+vi.mock("@/lib/api-auth", () => ({
+  logout: vi.fn().mockResolvedValue(undefined),
+}));
 
 function TestConsumer() {
   const { user, isAuthenticated, isLoading, wasExpired, login, logout } = useAuth();
@@ -17,10 +20,10 @@ function TestConsumer() {
       <button
         data-testid="login-btn"
         onClick={() =>
-          login({ id: 1, email: "test@test.com", firstName: "Test", lastName: "User", role: "admin", isActive: true }, "mock-token", Date.now() + 3600000)
+          login({ id: 1, email: "test@test.com", firstName: "Test", lastName: "User", role: "admin", isActive: true })
         }
       />
-      <button data-testid="logout-btn" onClick={logout} />
+      <button data-testid="logout-btn" onClick={() => logout()} />
     </div>
   );
 }
@@ -58,7 +61,6 @@ describe("AuthProvider", () => {
         isActive: true,
       }),
     );
-    localStorage.setItem(STORAGE_KEYS.TOKEN, "mock-token");
 
     renderWithAuth();
 
@@ -79,7 +81,6 @@ describe("AuthProvider", () => {
 
   it("clears invalid stored user data", async () => {
     localStorage.setItem(STORAGE_KEYS.USER, '"not a valid user object"');
-    localStorage.setItem(STORAGE_KEYS.TOKEN, "mock-token");
 
     renderWithAuth();
 

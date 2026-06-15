@@ -121,12 +121,16 @@ export const handlers = [
   http.post("*/api/auth/login", async ({ request }) => {
     const body = (await request.json()) as { email?: string; password?: string };
     if (body.email === "admin@univh2c.ma" && body.password === "1234") {
-      return HttpResponse.json({ token: "mock-jwt-token", user: { id: 1, email: "admin@univh2c.ma", role: "admin", lastName: "Admin", firstName: "User", isActive: true }, expiresAt: Date.now() + 7200000 });
+      return HttpResponse.json({ user: { id: 1, email: "admin@univh2c.ma", role: "admin", lastName: "Admin", firstName: "User", isActive: true }, expiresAt: Date.now() + 7200000 });
     }
     if (body.email === "teacher@univh2c.ma" && body.password === "1234") {
-      return HttpResponse.json({ token: "mock-jwt-token", user: { id: 3, email: "teacher@univh2c.ma", role: "teacher", lastName: "Teacher", firstName: "User", isActive: true }, expiresAt: Date.now() + 7200000 });
+      return HttpResponse.json({ user: { id: 3, email: "teacher@univh2c.ma", role: "teacher", lastName: "Teacher", firstName: "User", isActive: true }, expiresAt: Date.now() + 7200000 });
     }
     return HttpResponse.json({ message: "Identifiants invalides" }, { status: 401 });
+  }),
+
+  http.post("*/api/auth/logout", () => {
+    return HttpResponse.json(undefined, { status: 204 });
   }),
 
   http.post("*/api/auth/forgot-password", () =>
@@ -167,7 +171,7 @@ export const handlers = [
   }),
 
   // Notifications
-  mockJson("get", "*/api/notifications", NOTIFICATIONS),
+  ...mockPaginated("*/api/notifications", NOTIFICATIONS),
   mockJson("patch", "*/api/notifications/:id/read", { message: "Marked as read" }),
   mockJson("patch", "*/api/notifications/read-all", { message: "All marked as read" }),
 
@@ -176,13 +180,13 @@ export const handlers = [
   mockJson("get", "*/api/admin/config/settings", { id: 1, startTime: "08:00", endTime: "18:00", defenseDuration: 60, breakDuration: 15, groupCreationStartDate: "2026-01-01", groupCreationEndDate: "2026-06-01" }),
   mockJson("get", "*/api/admin/config/documents", { id: 1, maxFileSizeMb: 10, allowedExtensions: "pdf,doc,docx", versionLimit: 5 }),
   mockJson("get", "*/api/admin/stats", { totalStudents: 100, totalTeachers: 20, totalDepartments: 5, totalRooms: 15, totalDefenseSessions: 3 }),
-  mockJson("get", "*/api/admin/departments", DEPARTMENTS),
-  mockJson("get", "*/api/admin/faculties", []),
+  ...mockPaginated("*/api/admin/departments", DEPARTMENTS),
+  ...mockPaginated("*/api/admin/faculties", []),
   ...mockPaginated("*/api/admin/rooms", ROOMS, 2),
-  mockJson("get", "*/api/admin/config/majors", MAJORS),
-  mockJson("get", "*/api/admin/config/levels", LEVELS),
+  ...mockPaginated("*/api/admin/config/majors", MAJORS),
+  ...mockPaginated("*/api/admin/config/levels", LEVELS),
   mockJson("get", "*/api/admin/config/grades", []),
-  mockJson("get", "*/api/admin/config/jury-role-templates", JURY_ROLE_TEMPLATES),
+  ...mockPaginated("*/api/admin/config/jury-role-templates", JURY_ROLE_TEMPLATES),
 
   // Admin — paginated GETs (role-filtered /admin/users)
   http.get("*/api/admin/users", ({ request }) => filterByRole(new URL(request.url), ALL_USERS)),
@@ -208,11 +212,11 @@ export const handlers = [
 
   // Coordinator — simple GETs
   mockJson("get", "*/api/coordinator/stats", { totalProjects: 12, totalGroups: 8, totalJuries: 6, scheduledDefenses: 4 }),
-  mockJson("get", "*/api/coordinator/projects", PROJECTS),
-  mockJson("get", "*/api/coordinator/juries", JURIES),
-  mockJson("get", "*/api/coordinator/defense-sessions", DEFENSE_SESSIONS),
-  mockJson("get", "*/api/coordinator/grades", GRADES),
-  mockJson("get", "*/api/coordinator/groups", GROUPS),
+  ...mockPaginated("*/api/coordinator/projects", PROJECTS),
+  ...mockPaginated("*/api/coordinator/juries", JURIES),
+  ...mockPaginated("*/api/coordinator/defense-sessions", DEFENSE_SESSIONS),
+  ...mockPaginated("*/api/coordinator/grades", GRADES),
+  ...mockPaginated("*/api/coordinator/groups", GROUPS),
   mockJson("get", "*/api/coordinator/schedules", SCHEDULES),
   mockJson("get", "*/api/coordinator/unavailability", UNAVAILABILITY),
 
@@ -277,7 +281,7 @@ export const handlers = [
   // Teacher
   mockJson("get", "*/api/teacher/stats", { upcomingDefenses: 5, pendingEvaluations: 3, declaredUnavailabilitySlots: 2, juryAssignments: 4 }),
   mockJson("get", "*/api/teacher/schedules", { slots: TEACHER_SCHEDULE }),
-  mockJson("get", "*/api/teacher/evaluations", TEACHER_EVALUATIONS),
+  ...mockPaginated("*/api/teacher/evaluations", TEACHER_EVALUATIONS),
   mockJson("get", "*/api/teacher/unavailability", { slotsByDate: { "2026-06-10": ["08:00-09:00", "09:00-10:00"], "2026-06-11": ["14:00-15:00"] } }),
   mockEcho("post", "*/api/teacher/unavailabilities"),
 
@@ -289,7 +293,7 @@ export const handlers = [
   // Student
   mockJson("get", "*/api/student/stats", { documentCount: 4, missingDocuments: 1, groupMembers: 3, defenseStatus: "scheduled" }),
   mockJson("get", "*/api/student/defenses", { projectTitle: "Application CI/CD", projectDescription: "Pipeline d'intégration continue", supervisorName: "Ahmed Benali", juryMembers: [{ teacherName: "Ahmed Benali", roleName: "President" }, { teacherName: "Fatima Amrani", roleName: "Rapporteur" }], date: "2026-06-15", startTime: "08:00", endTime: "09:00", roomName: "Salle 101", status: "scheduled", convocationUrl: "", result: null }),
-  mockJson("get", "*/api/student/documents", STUDENT_DOCUMENTS),
+  ...mockPaginated("*/api/student/documents", STUDENT_DOCUMENTS),
 
   http.get("*/api/student/convocations", () =>
     HttpResponse.json(new Blob(["mock-pdf-content"], { type: "application/pdf" })),

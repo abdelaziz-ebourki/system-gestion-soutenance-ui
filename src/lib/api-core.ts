@@ -1,8 +1,14 @@
 import { ApiError } from "@/lib/api-error";
-import { STORAGE_KEYS } from "@/lib/constants";
-import type { AppNotification } from "@/types";
+import type { AppNotification, PaginatedResponse } from "@/types";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+
+function getCookie(name: string) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift();
+  return undefined;
+}
 
 export const DEFAULT_TIMEOUT = 15_000;
 
@@ -15,7 +21,6 @@ export interface ApiResponse<T> {
 }
 
 interface ApiOptions extends RequestInit {
-  requiresAuth?: boolean;
   responseType?: "json" | "blob";
   timeout?: number;
 }
@@ -24,7 +29,7 @@ export async function api<T>(
   endpoint: string,
   options: ApiOptions = {},
 ): Promise<T> {
-  const { responseType = "json", timeout = DEFAULT_TIMEOUT, requiresAuth = true, ...customConfig } = options;
+  const { responseType = "json", timeout = DEFAULT_TIMEOUT, ...customConfig } = options;
 
   const headers: Record<string, string> = {
     ...customConfig.headers as Record<string, string> | undefined,
@@ -32,10 +37,10 @@ export async function api<T>(
 
   const method = (customConfig.method || "GET").toUpperCase();
 
-  if (requiresAuth) {
-    const token = localStorage.getItem(STORAGE_KEYS.TOKEN);
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    const csrfToken = getCookie("XSRF-TOKEN");
+    if (csrfToken) {
+      headers["X-XSRF-TOKEN"] = csrfToken;
     }
   }
 
@@ -50,6 +55,7 @@ export async function api<T>(
     ...customConfig,
     method,
     headers,
+    credentials: "include",
     signal: controller.signal,
   };
 
@@ -140,15 +146,7 @@ export async function api<T>(
   }
 }
 
-export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
-  pageCount: number;
-  currentPage: number;
-  size: number;
-}
-
-export const getNotifications = () => api<AppNotification[]>("/notifications");
+export const getNotifications = () => api<PaginatedResponse<AppNotification>>("/notifications");
 
 export const markNotificationRead = (id: number) =>
   api<void>(`/notifications/${id}/read`, { method: "PATCH" });

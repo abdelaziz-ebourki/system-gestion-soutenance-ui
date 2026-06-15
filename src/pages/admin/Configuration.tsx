@@ -31,11 +31,13 @@ import { useLevels } from "@/hooks/queries";
 export default function Configuration() {
   const { data: majorsData, isLoading: majorsLoading } = useMajors();
   const { data: levelsData, isLoading: levelsLoading } = useLevels();
-  const { data: departments = [] } = useDepartments();
+  const { data: departmentsData } = useDepartments();
   const [selectedMajors, setSelectedMajors] = useState<Major[]>([]);
   const [selectedLevels, setSelectedLevels] = useState<Level[]>([]);
   const majorCrud = useMajorCrud();
   const levelCrud = useLevelCrud();
+
+  const departments = departmentsData?.items ?? [];
 
   const majorColumns = useMemo<ColumnDef<Major>[]>(() => [
     {
@@ -115,16 +117,16 @@ export default function Configuration() {
               <Plus className="size-4" /> Ajouter
             </Button>
           </div>
-          <DataTable
-            columns={majorColumns}
-            data={majorsData ?? []}
-            loading={majorsLoading}
-            getRowId={(row) => row.id}
-            enableRowSelection
-            onSelectedRowsChange={setSelectedMajors}
-            filterColumns="name"
-            filterPlaceholder="Rechercher une filière..."
-          />
+            <DataTable
+              columns={majorColumns}
+              data={majorsData?.items ?? []}
+              loading={majorsLoading}
+              getRowId={(row) => row.id}
+              enableRowSelection
+              onSelectedRowsChange={setSelectedMajors}
+              filterColumns="name"
+              filterPlaceholder="Rechercher une filière..."
+            />
         </div>
 
         <div className="space-y-4">
@@ -136,16 +138,16 @@ export default function Configuration() {
               <Plus className="size-4" /> Ajouter
             </Button>
           </div>
-          <DataTable
-            columns={levelColumns}
-            data={levelsData ?? []}
-            loading={levelsLoading}
-            getRowId={(row) => row.id}
-            enableRowSelection
-            onSelectedRowsChange={setSelectedLevels}
-            filterColumns="name"
-            filterPlaceholder="Rechercher un niveau..."
-          />
+            <DataTable
+              columns={levelColumns}
+              data={levelsData?.items ?? []}
+              loading={levelsLoading}
+              getRowId={(row) => row.id}
+              enableRowSelection
+              onSelectedRowsChange={setSelectedLevels}
+              filterColumns="name"
+              filterPlaceholder="Rechercher un niveau..."
+            />
         </div>
       </div>
 

@@ -66,7 +66,7 @@ describe("useStudentDocuments", () => {
   it("returns documents data", async () => {
     const { result } = renderHook(() => useStudentDocuments(), { wrapper: createWrapper() });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(Array.isArray(result.current.data)).toBe(true);
+    expect(Array.isArray(result.current.data?.items)).toBe(true);
   });
 });
 

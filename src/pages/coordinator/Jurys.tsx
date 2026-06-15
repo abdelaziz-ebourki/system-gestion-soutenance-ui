@@ -21,8 +21,10 @@ export default function Jurys() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [juryToDelete, setJuryToDelete] = useState<Jury | null>(null);
 
-  const { data: juries = [], isLoading } = useJuries();
-  const { data: projects = [] } = useProjects();
+  const { data: juriesData, isLoading } = useJuries();
+  const juries = juriesData?.items ?? [];
+  const { data: projectsData } = useProjects();
+  const projects = projectsData?.items ?? [];
   const deleteJury = useDeleteJury();
 
   const columns: ColumnDef<Jury>[] = [

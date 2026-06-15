@@ -47,15 +47,30 @@ const mockJuries = [
   },
 ];
 
+const mockJuriesResponse = {
+  items: mockJuries,
+  total: mockJuries.length,
+  pageCount: 1,
+  currentPage: 0,
+  size: 10,
+};
 const mockProjects = [
   { id: 1, title: "Application CI/CD" },
   { id: 2, title: "IA pour la santé" },
   { id: 3, title: "Site e-commerce" },
 ];
 
+const mockProjectsResponse = {
+  items: mockProjects,
+  total: mockProjects.length,
+  pageCount: 1,
+  currentPage: 0,
+  size: 10,
+};
+
 const { mockUseJuries, mockUseProjects, mockUseDeleteJury } = vi.hoisted(() => ({
-  mockUseJuries: vi.fn(() => ({ data: mockJuries, isLoading: false })),
-  mockUseProjects: vi.fn(() => ({ data: mockProjects, isLoading: false })),
+  mockUseJuries: vi.fn(() => ({ data: mockJuriesResponse, isLoading: false })),
+  mockUseProjects: vi.fn(() => ({ data: mockProjectsResponse, isLoading: false })),
   mockUseDeleteJury: vi.fn(() => ({ isPending: false, mutateAsync: vi.fn() })),
 }));
 
@@ -83,8 +98,8 @@ describe("Jurys (Coordinator)", () => {
     mockUseJuries.mockReset();
     mockUseProjects.mockReset();
     mockUseDeleteJury.mockReset();
-    mockUseJuries.mockReturnValue({ data: mockJuries, isLoading: false });
-    mockUseProjects.mockReturnValue({ data: mockProjects, isLoading: false });
+    mockUseJuries.mockReturnValue({ data: mockJuriesResponse, isLoading: false });
+    mockUseProjects.mockReturnValue({ data: mockProjectsResponse, isLoading: false });
     mockUseDeleteJury.mockReturnValue({ isPending: false, mutateAsync: vi.fn() });
   });
 
@@ -117,8 +132,8 @@ describe("Jurys (Coordinator)", () => {
   });
 
   it("renders loading skeleton when data is loading", async () => {
-    mockUseJuries.mockReturnValue({ data: [], isLoading: true });
-    mockUseProjects.mockReturnValue({ data: [], isLoading: true });
+    mockUseJuries.mockReturnValue({ data: { items: [], total: 0, pageCount: 1, currentPage: 0, size: 10 }, isLoading: true });
+    mockUseProjects.mockReturnValue({ data: { items: [], total: 0, pageCount: 1, currentPage: 0, size: 10 }, isLoading: true });
     renderJurys();
     expect(screen.getByTestId("coord-juries-page")).toBeInTheDocument();
     const skeleton = document.querySelector('[data-slot="skeleton"]');
@@ -126,8 +141,8 @@ describe("Jurys (Coordinator)", () => {
   });
 
   it("shows empty state when no juries exist", async () => {
-    mockUseJuries.mockReturnValue({ data: [], isLoading: false });
-    mockUseProjects.mockReturnValue({ data: [], isLoading: false });
+    mockUseJuries.mockReturnValue({ data: { items: [], total: 0, pageCount: 1, currentPage: 0, size: 10 }, isLoading: false });
+    mockUseProjects.mockReturnValue({ data: { items: [], total: 0, pageCount: 1, currentPage: 0, size: 10 }, isLoading: false });
     renderJurys();
     expect(await screen.findByText("Total Jurys")).toBeInTheDocument();
     const zeros = screen.getAllByText("0");

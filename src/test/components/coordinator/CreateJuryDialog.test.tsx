@@ -5,7 +5,7 @@ import { useTeachersList, useProjects, useJuryRoleTemplates, useCreateJury, useU
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate } from "@/lib/validations";
 import { toast } from "sonner";
-import type { Teacher, Project, JuryRoleTemplate, Jury } from "@/types";
+import type { Teacher, Project, JuryRoleTemplate, Jury, PaginatedResponse } from "@/types";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import type { CreateJuryPayload, UpdateJuryPayload } from "@/lib/api-coordinator";
 
@@ -33,25 +33,43 @@ vi.mock("sonner", () => ({
   },
 }));
 
-const mockTeachers: Teacher[] = [
-  { id: 1, role: "teacher", departmentId: 1, firstName: "Teacher", lastName: "1", email: "t1@univ.ma", isActive: true },
-  { id: 2, role: "teacher", departmentId: 1, firstName: "Teacher", lastName: "2", email: "t2@univ.ma", isActive: true },
-  { id: 3, role: "teacher", departmentId: 1, firstName: "Teacher", lastName: "3", email: "t3@univ.ma", isActive: true },
-];
-const mockProjects: Project[] = [
-  { id: 1, title: "Project 1", description: "", defenseType: "pfe", groupId: 0, supervisorName: "T1", studentNames: [] },
-];
-const mockTemplates: JuryRoleTemplate[] = [
-  {
-    id: 1,
-    name: "Standard Jury",
-    defenseType: "pfe",
-    roles: [
-      { name: "Président", count: 1, coefficient: 1 },
-      { name: "Examinateur", count: 1, coefficient: 1 },
-    ],
-  },
-];
+const mockTeachers: PaginatedResponse<Teacher> = {
+  items: [
+    { id: 1, role: "teacher", departmentId: 1, firstName: "Teacher", lastName: "1", email: "t1@univ.ma", isActive: true },
+    { id: 2, role: "teacher", departmentId: 1, firstName: "Teacher", lastName: "2", email: "t2@univ.ma", isActive: true },
+    { id: 3, role: "teacher", departmentId: 1, firstName: "Teacher", lastName: "3", email: "t3@univ.ma", isActive: true },
+  ],
+  total: 3,
+  pageCount: 1,
+  currentPage: 0,
+  size: 10,
+};
+const mockProjects: PaginatedResponse<Project> = {
+  items: [
+    { id: 1, title: "Project 1", description: "", defenseType: "pfe", groupId: 0, supervisorName: "T1", studentNames: [] },
+  ],
+  total: 1,
+  pageCount: 1,
+  currentPage: 0,
+  size: 10,
+};
+const mockTemplates: PaginatedResponse<JuryRoleTemplate> = {
+  items: [
+    {
+      id: 1,
+      name: "Standard Jury",
+      defenseType: "pfe",
+      roles: [
+        { name: "Président", count: 1, coefficient: 1 },
+        { name: "Examinateur", count: 1, coefficient: 1 },
+      ],
+    },
+  ],
+  total: 1,
+  pageCount: 1,
+  currentPage: 0,
+  size: 10,
+};
 
 describe("CreateJuryDialog", () => {
   const defaultProps = {
@@ -72,9 +90,9 @@ describe("CreateJuryDialog", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useTeachersList).mockReturnValue({ data: mockTeachers, isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
-    vi.mocked(useProjects).mockReturnValue({ data: mockProjects, isLoading: false } as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(useJuryRoleTemplates).mockReturnValue({ data: mockTemplates, isLoading: false } as unknown as UseQueryResult<JuryRoleTemplate[], Error>);
+    vi.mocked(useTeachersList).mockReturnValue({ data: mockTeachers, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
+    vi.mocked(useProjects).mockReturnValue({ data: mockProjects, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Project>, Error>);
+    vi.mocked(useJuryRoleTemplates).mockReturnValue({ data: mockTemplates, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<JuryRoleTemplate>, Error>);
     vi.mocked(useEntityForm).mockReturnValue(mockForm as unknown as ReturnType<typeof useEntityForm>);
     vi.mocked(validate).mockReturnValue(null);
     vi.mocked(useCreateJury).mockReturnValue({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false } as unknown as UseMutationResult<Jury, Error, CreateJuryPayload, unknown>);

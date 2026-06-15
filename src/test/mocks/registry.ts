@@ -16,7 +16,7 @@ export function mockPaginated(url: string, items: unknown[], total?: number): Ht
   const pageCount = actualTotal > 0 ? Math.ceil(actualTotal / DEFAULT_API_LIMIT) : 1;
   return [
     http.get(url, () =>
-      HttpResponse.json({ items, total: actualTotal, pageCount } as never),
+      HttpResponse.json({ items, total: actualTotal, pageCount, currentPage: 0, size: DEFAULT_API_LIMIT } as never),
     ),
   ];
 }

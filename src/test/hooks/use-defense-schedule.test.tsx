@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import type { DefenseSession, Jury, Room, Project, Teacher } from "@/types";
 import type { UnavailabilityEntry, ScheduleSlot, ScheduleResponse } from "@/lib/api-coordinator";
+import type { PaginatedResponse } from "@/types";
 import { useDefenseSchedule } from "@/hooks/use-defense-schedule";
 import * as queries from "@/hooks/queries";
 import { toast } from "sonner";
@@ -90,11 +91,11 @@ const mockTransitionMutate = vi.fn().mockResolvedValue({});
 describe("useDefenseSchedule", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: mockSessions, isLoading: false } as unknown as UseQueryResult<DefenseSession[], Error>);
-    vi.mocked(queries.useJuries).mockReturnValue({ data: mockJuries, isLoading: false } as unknown as UseQueryResult<Jury[], Error>);
-    vi.mocked(queries.useRooms).mockReturnValue({ data: { items: mockRooms, total: 2, pageCount: 1, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<{ items: Room[]; total: number; pageCount: number; currentPage: number; size: number }, Error>);
-    vi.mocked(queries.useProjects).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
+    vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue({ data: { items: mockSessions, total: 1, pageCount: 1, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<DefenseSession>, Error>);
+    vi.mocked(queries.useJuries).mockReturnValue({ data: { items: mockJuries, total: 2, pageCount: 1, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Jury>, Error>);
+    vi.mocked(queries.useRooms).mockReturnValue({ data: { items: mockRooms, total: 2, pageCount: 1, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Room>, Error>);
+    vi.mocked(queries.useProjects).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Project>, Error>);
+    vi.mocked(queries.useTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
     vi.mocked(queries.useCoordinatorUnavailability).mockReturnValue({ data: mockUnavailabilities, isLoading: false } as unknown as UseQueryResult<UnavailabilityEntry[], Error>);
     vi.mocked(queries.useDefenseSettings).mockReturnValue({ data: { id: 1, startTime: "08:00", endTime: "18:00", defenseDuration: 60, breakDuration: 15, groupCreationStartDate: "", groupCreationEndDate: "" }, isLoading: false } as unknown as UseQueryResult<{ id: number; startTime: string; endTime: string; defenseDuration: number; breakDuration: number; groupCreationStartDate: string; groupCreationEndDate: string }, Error>);
     vi.mocked(queries.useSaveSchedules).mockReturnValue({ mutateAsync: mockSaveMutate } as unknown as UseMutationResult<ScheduleResponse[], Error, { defenseSessionId: number; slots: ScheduleSlot[] }>);

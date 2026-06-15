@@ -4,7 +4,7 @@ import { getErrorMessage } from "@/lib/utils";
 import { ArrowRight, Calendar, ShieldCheck, Clock, FileText, CheckCircle2, Plus } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-import type { DefenseSession, DefenseSessionStatus, DefenseType } from "@/types";
+import type { DefenseSession, DefenseSessionStatus, DefenseType, JuryRoleTemplate } from "@/types";
 import {
   useCoordinatorDefenseSessions,
   useTransitionDefenseSession,
@@ -86,9 +86,10 @@ const statusIcons: Record<string, typeof ShieldCheck> = {
 };
 
 export default function CoordinatorDefenseSessions() {
-  const { data: sessions = [], isLoading } = useCoordinatorDefenseSessions();
+  const { data: sessionsData, isLoading } = useCoordinatorDefenseSessions();
+  const sessions = sessionsData?.items ?? [];
   const templatesQuery = useJuryRoleTemplates();
-  const templates = templatesQuery.data ?? [];
+  const templates = templatesQuery.data?.items ?? [];
   const createMutation = useCreateDefenseSession();
   const updateMutation = useUpdateDefenseSession();
   const deleteMutation = useDeleteDefenseSession();
@@ -394,7 +395,7 @@ export default function CoordinatorDefenseSessions() {
                   <Select
                     value={form.formData.juryRoleTemplateId}
                     onValueChange={(v) => {
-                      const tpl = templates.find((t) => String(t.id) === v);
+                       const tpl = templates.find((t: JuryRoleTemplate) => String(t.id) === v);
                       const coeffs: Record<string, number> = {};
                       if (tpl) {
                         for (const role of tpl.roles) {
@@ -406,7 +407,7 @@ export default function CoordinatorDefenseSessions() {
                   >
                     <SelectTrigger data-testid="coord-sessions-input-template"><SelectValue placeholder="Choisir un modèle" /></SelectTrigger>
                     <SelectContent>
-                      {templates.map((t) => (
+                       {templates.map((t: JuryRoleTemplate) => (
                         <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
                       ))}
                     </SelectContent>

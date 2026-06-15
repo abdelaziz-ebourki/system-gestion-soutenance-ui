@@ -51,8 +51,8 @@ export default function CoordinatorDashboard() {
   const projectsQuery = useProjects();
   const juriesQuery = useJuries();
   const stats = statsQuery.data;
-  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
-  const juries = useMemo(() => juriesQuery.data ?? [], [juriesQuery.data]);
+  const projects = useMemo(() => projectsQuery.data?.items ?? [], [projectsQuery.data]);
+  const juries = useMemo(() => juriesQuery.data?.items ?? [], [juriesQuery.data]);
   const isLoading = statsQuery.isLoading || projectsQuery.isLoading || juriesQuery.isLoading;
 
   const projectsWithJury = useMemo(() => projects.filter(

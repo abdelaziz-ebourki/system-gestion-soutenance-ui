@@ -1,9 +1,7 @@
 import type { DefenseType } from "@/types";
 
 export const STORAGE_KEYS = {
-  TOKEN: "token",
   USER: "user",
-  EXPIRES_AT: "expiresAt",
 } as const;
 
 export const DEFENSE_TYPE_LABELS: Record<DefenseType, string> = {

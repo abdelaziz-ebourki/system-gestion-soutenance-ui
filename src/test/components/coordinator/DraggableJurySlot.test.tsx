@@ -28,9 +28,15 @@ vi.mock("@dnd-kit/utilities", () => ({
 
 vi.mock("@/hooks/queries", () => ({
   useProjects: vi.fn(() => ({
-    data: [
-      { id: 1, title: "Project 1", description: "", defenseType: "pfe", groupId: 1, supervisorName: "Supervisor", studentNames: ["Student A", "Student B"] },
-    ],
+    data: {
+      items: [
+        { id: 1, title: "Project 1", description: "", defenseType: "pfe", groupId: 1, supervisorName: "Supervisor", studentNames: ["Student A", "Student B"] },
+      ],
+      total: 1,
+      pageCount: 1,
+      currentPage: 0,
+      size: 10,
+    },
     isLoading: false,
   })),
 }));

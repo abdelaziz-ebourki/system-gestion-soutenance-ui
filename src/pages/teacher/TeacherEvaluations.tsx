@@ -25,7 +25,7 @@ import {
 
 export default function TeacherEvaluations() {
   const evaluationsQuery = useTeacherEvaluations();
-  const evaluations = useMemo(() => evaluationsQuery.data ?? [], [evaluationsQuery.data]);
+  const evaluations = useMemo(() => evaluationsQuery.data?.items ?? [], [evaluationsQuery.data]);
   const isLoading = evaluationsQuery.isLoading;
 
   const form = useEvaluationForm();

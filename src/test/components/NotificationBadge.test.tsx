@@ -12,13 +12,19 @@ describe("NotificationBadge", () => {
   });
 
   it("shows unread count badge", async () => {
-    server.use(
-      http.get("*/api/notifications", () =>
-        HttpResponse.json([
-          { id: 1, type: "info", title: "Test", message: "msg", timestamp: new Date().toISOString(), read: false },
-        ]),
-      ),
-    );
+      server.use(
+        http.get("*/api/notifications", () =>
+          HttpResponse.json({
+            items: [
+              { id: 1, type: "info", title: "Test", message: "msg", timestamp: new Date().toISOString(), read: false },
+            ],
+            total: 1,
+            pageCount: 1,
+            currentPage: 0,
+            size: 10,
+          }),
+        ),
+      );
     renderWithProviders(<NotificationBadge />);
     expect(await screen.findByText("1")).toBeInTheDocument();
   });
@@ -28,9 +34,15 @@ describe("NotificationBadge", () => {
       id: String(i + 1), type: "info", title: `N${i}`, message: `msg${i}`,
       timestamp: new Date().toISOString(), read: false,
     }));
-    server.use(
-      http.get("*/api/notifications", () => HttpResponse.json(items)),
-    );
+      server.use(
+        http.get("*/api/notifications", () => HttpResponse.json({
+          items,
+          total: items.length,
+          pageCount: 1,
+          currentPage: 0,
+          size: 10,
+        })),
+      );
     renderWithProviders(<NotificationBadge />);
     expect(await screen.findByText("9+")).toBeInTheDocument();
   });

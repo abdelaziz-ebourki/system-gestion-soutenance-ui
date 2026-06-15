@@ -32,8 +32,8 @@ export function AssignProjectDialog({
   const projectsQuery = useProjects();
   const groupsQuery = useGroups();
   const assignMutation = useAssignProjectToGroup();
-  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
-  const groups = useMemo(() => groupsQuery.data ?? [], [groupsQuery.data]);
+  const projects = useMemo(() => projectsQuery.data?.items ?? [], [projectsQuery.data]);
+  const groups = useMemo(() => groupsQuery.data?.items ?? [], [groupsQuery.data]);
   const [selectedProjectId, setSelectedProjectId] = useState("");
 
   useEffect(() => {

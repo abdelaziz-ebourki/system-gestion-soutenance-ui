@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -67,7 +67,18 @@ describe("Rooms", () => {
     await user.click(screen.getByRole("button", { name: /nouvelle salle/i }));
     expect(await screen.findByText(/Ajouter une Salle/i)).toBeInTheDocument();
     await user.type(screen.getByPlaceholderText(/ex: Salle 101/i), "Salle 103");
+    await user.type(screen.getByPlaceholderText(/ex: 30/i), "40");
+    // We need to select a department since it's a Select component.
+    // The Select component from shadcn/ui is tricky to test with user-event.
+    // However, we can check if we can just set the value or trigger the select.
+    // Given the implementation in Rooms.tsx, it uses a Select.
+    // For the sake of the test, let's see if we can find the select trigger and select an option.
+    await user.click(screen.getByRole("combobox"));
+    await user.click(screen.getByRole("option", { name: /informatique/i }));
     await user.click(screen.getByRole("button", { name: /enregistrer/i }));
+    await waitFor(() => {
+      expect(screen.queryByText(/Ajouter une Salle/i)).not.toBeInTheDocument();
+    });
   });
 
   it("opens single delete dialog via CrudActions", async () => {

@@ -14,7 +14,8 @@ export default function DraggableJurySlot({ jury, isOverlay }: DraggableJurySlot
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: jury.id,
   });
-  const { data: projects = [] } = useProjects();
+  const { data: projectsData } = useProjects();
+  const projects = projectsData?.items ?? [];
   const project = projects.find((p) => p.id === jury.projectId);
   const studentNames = project?.studentNames ?? [];
 

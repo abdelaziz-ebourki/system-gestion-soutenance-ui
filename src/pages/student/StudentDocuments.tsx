@@ -59,7 +59,8 @@ const formatDate = (dateStr: string | null | undefined) => {
 };
 
 export default function StudentDocuments() {
-  const { data: documents = [], isLoading } = useStudentDocuments();
+  const { data: documentsData, isLoading } = useStudentDocuments();
+  const documents = documentsData?.items ?? [];
   const uploadMutation = useUploadStudentDocument();
   const [files, setFiles] = useState<Record<number, File | null>>({});
   const [uploadingId, setUploadingId] = useState<number | null>(null);

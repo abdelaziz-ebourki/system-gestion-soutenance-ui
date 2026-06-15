@@ -33,7 +33,8 @@ import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 export default function Rooms() {
   const { data: roomsData, isLoading, refetch } = useRooms();
   const [selectedRooms, setSelectedRooms] = useState<Room[]>([]);
-  const { data: departments = [] } = useDepartments();
+  const { data: departmentsData } = useDepartments();
+  const departments = departmentsData?.items ?? [];
   const crud = useRoomCrud();
 
   const data = roomsData?.items ?? [];

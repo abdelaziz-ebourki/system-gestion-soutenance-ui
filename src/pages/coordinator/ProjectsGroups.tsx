@@ -34,7 +34,7 @@ export default function CoordinatorProjects() {
   const projectsQuery = useProjects();
   const updateProjectMutation = useUpdateProject();
   const deleteProjectMutation = useDeleteProject();
-  const projects = useMemo(() => projectsQuery.data ?? [], [projectsQuery.data]);
+  const projects = useMemo(() => projectsQuery.data?.items ?? [], [projectsQuery.data]);
   const isLoading = projectsQuery.isLoading;
   const [selectedProjects, setSelectedProjects] = useState<Project[]>([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -79,7 +79,7 @@ export default function CoordinatorProjects() {
   ], []);
 
   const groupsQuery = useGroups();
-  const studentGroups = groupsQuery.data ?? [];
+  const studentGroups = groupsQuery.data?.items ?? [];
   const [assignTarget, setAssignTarget] = useState<Group | null>(null);
 
   const multiMemberGroups = useMemo(() => projects.filter(

@@ -13,9 +13,8 @@ describe("Infrastructure Validation", () => {
       },
     });
 
-    // Use findByText to wait for lazy loading
-    const loginHeading = await screen.findByText(/connexion/i);
-    expect(loginHeading).toBeInTheDocument();
+    // Wait for the login page heading to appear
+    expect(await screen.findByText(/connexion/i)).toBeInTheDocument();
   });
 
   it("should allow admin user to access admin dashboard", async () => {

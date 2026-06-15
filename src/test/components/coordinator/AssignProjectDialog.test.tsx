@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { AssignProjectDialog } from "@/components/coordinator/AssignProjectDialog";
 import { useProjects, useGroups, useAssignProjectToGroup } from "@/hooks/queries";
 import { toast } from "sonner";
-import type { Project, Group } from "@/types";
+import type { Project, Group, PaginatedResponse } from "@/types";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 
 vi.mock("@/hooks/queries", () => ({
@@ -47,14 +47,26 @@ const mockGroup: Group = {
   studentNames: ["Student A", "Student B"],
 };
 
-const mockProjects: Project[] = [
-  { id: 1, title: "Project 1", description: "", defenseType: "pfe", groupId: 2, supervisorName: "T1", studentNames: [] },
-  { id: 2, title: "Project 2", description: "", defenseType: "pfe", groupId: 0, supervisorName: "T1", studentNames: [] },
-];
+const mockProjects: PaginatedResponse<Project> = {
+  items: [
+    { id: 1, title: "Project 1", description: "", defenseType: "pfe", groupId: 2, supervisorName: "T1", studentNames: [] },
+    { id: 2, title: "Project 2", description: "", defenseType: "pfe", groupId: 0, supervisorName: "T1", studentNames: [] },
+  ],
+  total: 2,
+  pageCount: 1,
+  currentPage: 0,
+  size: 10,
+};
 
-const mockGroups: Group[] = [
-  { id: 2, projectId: 1, groupName: "Group 2", memberCount: 0, studentNames: [] },
-];
+const mockGroups: PaginatedResponse<Group> = {
+  items: [
+    { id: 2, projectId: 1, groupName: "Group 2", memberCount: 0, studentNames: [] },
+  ],
+  total: 1,
+  pageCount: 1,
+  currentPage: 0,
+  size: 10,
+};
 
 describe("AssignProjectDialog", () => {
   const defaultProps = {
@@ -65,8 +77,8 @@ describe("AssignProjectDialog", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useProjects).mockReturnValue({ data: mockProjects, isLoading: false } as unknown as UseQueryResult<Project[], Error>);
-    vi.mocked(useGroups).mockReturnValue({ data: mockGroups, isLoading: false } as unknown as UseQueryResult<Group[], Error>);
+    vi.mocked(useProjects).mockReturnValue({ data: mockProjects, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Project>, Error>);
+    vi.mocked(useGroups).mockReturnValue({ data: mockGroups, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Group>, Error>);
     vi.mocked(useAssignProjectToGroup).mockReturnValue({ 
       mutateAsync: vi.fn().mockResolvedValue({}), 
       isPending: false,
@@ -87,7 +99,7 @@ describe("AssignProjectDialog", () => {
   });
 
   it("shows empty state when no projects are available", () => {
-    vi.mocked(useProjects).mockReturnValue({ data: [], isLoading: false } as unknown as UseQueryResult<Project[], Error>);
+    vi.mocked(useProjects).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Project>, Error>);
     render(<AssignProjectDialog {...defaultProps} />);
     expect(screen.getByText("Aucun projet disponible. Créez d'abord un projet.")).toBeInTheDocument();
   });

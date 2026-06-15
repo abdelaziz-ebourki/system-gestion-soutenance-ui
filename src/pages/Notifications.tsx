@@ -40,12 +40,13 @@ const formatTimestamp = (ts: string) => {
 };
 
 export default function NotificationsPage() {
-  const { data: notifications = [], isLoading } = useNotifications();
+  const { data: notificationsData, isLoading } = useNotifications();
+  const notifications = notificationsData?.items ?? [];
   const markReadMutation = useMarkNotificationRead();
   const markAllReadMutation = useMarkAllNotificationsRead();
   const navigate = useNavigate();
   const [readingId, setReadingId] = useState<number | null>(null);
-
+ 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
     [notifications],

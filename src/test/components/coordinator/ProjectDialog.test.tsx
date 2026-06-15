@@ -7,7 +7,7 @@ import { validate } from "@/lib/validations";
 import { toast } from "sonner";
 import type { Teacher, Project, Student } from "@/types";
 import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
-import type { PaginatedResponse } from "@/lib/api";
+import type { PaginatedResponse } from "@/types";
 import type { CreateProjectPayload, UpdateProjectPayload } from "@/lib/api-coordinator";
 
 vi.mock("@/hooks/queries", () => ({
@@ -33,9 +33,15 @@ vi.mock("sonner", () => ({
   },
 }));
 
-const mockTeachers: Teacher[] = [
-  { id: 1, role: "teacher", departmentId: 1, firstName: "Teacher", lastName: "1", email: "t1@univ.ma", isActive: true },
-];
+const mockTeachersResponse = {
+  items: [
+    { id: 1, role: "teacher", departmentId: 1, firstName: "Teacher", lastName: "1", email: "t1@univ.ma", isActive: true },
+  ],
+  total: 1,
+  pageCount: 1,
+  currentPage: 0,
+  size: 10,
+};
 const mockStudents = {
   items: [{ id: 1, firstName: "Student", lastName: "A", email: "s1@univ.ma", cne: "CNE1", majorId: 1, levelId: 1, isActive: true, role: "student" as const }],
   total: 1,
@@ -63,7 +69,7 @@ describe("ProjectDialog", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useTeachersList).mockReturnValue({ data: mockTeachers, isLoading: false } as unknown as UseQueryResult<Teacher[], Error>);
+    vi.mocked(useTeachersList).mockReturnValue({ data: mockTeachersResponse, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
     vi.mocked(useStudents).mockReturnValue({ data: mockStudents, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
     vi.mocked(useEntityForm).mockReturnValue(mockForm as unknown as ReturnType<typeof useEntityForm>);
     vi.mocked(validate).mockReturnValue(null);

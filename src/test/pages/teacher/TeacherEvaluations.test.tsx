@@ -6,7 +6,7 @@ import TeacherEvaluations from "@/pages/teacher/TeacherEvaluations";
 import { useTeacherEvaluations } from "@/hooks/queries";
 import { useEvaluationForm } from "@/hooks/use-evaluation-form";
 import type { UseQueryResult } from "@tanstack/react-query";
-import type { TeacherEvaluation } from "@/types";
+import type { TeacherEvaluation, PaginatedResponse } from "@/types";
 
 vi.mock("@/hooks/queries", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/hooks/queries")>();
@@ -20,24 +20,30 @@ vi.mock("@/hooks/use-evaluation-form", () => ({
   useEvaluationForm: vi.fn(),
 }));
 
-const mockEvaluations: TeacherEvaluation[] = [
-  {
-    id: 1,
-    projectId: 1,
-    projectTitle: "Application CI/CD",
-    finalGrade: 0,
-    comment: "",
-    status: "pending",
-  },
-  {
-    id: 2,
-    projectId: 2,
-    projectTitle: "IA pour la santé",
-    finalGrade: 15,
-    comment: "Bon travail",
-    status: "submitted",
-  },
-];
+const mockEvaluations: PaginatedResponse<TeacherEvaluation> = {
+  items: [
+    {
+      id: 1,
+      projectId: 1,
+      projectTitle: "Application CI/CD",
+      finalGrade: 0,
+      comment: "",
+      status: "pending",
+    },
+    {
+      id: 2,
+      projectId: 2,
+      projectTitle: "IA pour la santé",
+      finalGrade: 15,
+      comment: "Bon travail",
+      status: "submitted",
+    },
+  ],
+  total: 2,
+  pageCount: 1,
+  currentPage: 0,
+  size: 10,
+};
 
 function renderEvaluations() {
   const queryClient = new QueryClient({
@@ -71,21 +77,21 @@ describe("TeacherEvaluations", () => {
   });
 
   it("renders loading state", async () => {
-    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: null, isLoading: true } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
+    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: null, isLoading: true } as unknown as UseQueryResult<PaginatedResponse<TeacherEvaluation>, Error>);
     renderEvaluations();
     expect(screen.getByTestId("teacher-evaluations-header")).toBeInTheDocument();
     expect(screen.queryByTestId(/teacher-evaluations-pending-item-/)).not.toBeInTheDocument();
   });
 
   it("renders header and description", async () => {
-    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
+    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<TeacherEvaluation>, Error>);
     renderEvaluations();
     expect(screen.getByTestId("teacher-evaluations-header")).toHaveTextContent("Évaluations");
     expect(screen.getByTestId("teacher-evaluations-description")).toHaveTextContent("Gérez les notes et les appréciations des soutenances.");
   });
 
   it("calculates and renders stats correctly", async () => {
-    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
+    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<TeacherEvaluation>, Error>);
     renderEvaluations();
     
     expect(screen.getByTestId("teacher-evaluations-stats-pending")).toHaveTextContent("1");
@@ -94,7 +100,7 @@ describe("TeacherEvaluations", () => {
   });
 
   it("renders pending evaluations list", async () => {
-    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
+    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<TeacherEvaluation>, Error>);
     renderEvaluations();
     
     expect(screen.getByTestId("teacher-evaluations-pending-item-1")).toBeInTheDocument();
@@ -106,7 +112,7 @@ describe("TeacherEvaluations", () => {
   });
 
   it("renders submitted evaluations list", async () => {
-    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
+    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<TeacherEvaluation>, Error>);
     renderEvaluations();
     
     expect(screen.getByTestId("teacher-evaluations-submitted-item-2")).toBeInTheDocument();
@@ -116,8 +122,8 @@ describe("TeacherEvaluations", () => {
   });
 
   it("shows empty state for submitted evaluations", async () => {
-    const onlyPending = [mockEvaluations[0]];
-    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: onlyPending, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
+    const onlyPending = { ...mockEvaluations, items: [mockEvaluations.items[0]] };
+    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: onlyPending, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<TeacherEvaluation>, Error>);
     renderEvaluations();
     
     expect(screen.getByText("Aucune évaluation soumise.")).toBeInTheDocument();
@@ -127,10 +133,10 @@ describe("TeacherEvaluations", () => {
     vi.mocked(useEvaluationForm).mockReturnValue({
       ...mockForm,
       isDialogOpen: true,
-      selected: mockEvaluations[0],
+       selected: mockEvaluations.items[0],
     } as unknown as ReturnType<typeof useEvaluationForm>);
     
-    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
+    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<TeacherEvaluation>, Error>);
     
     renderEvaluations();
     
@@ -144,10 +150,10 @@ describe("TeacherEvaluations", () => {
     vi.mocked(useEvaluationForm).mockReturnValue({
       ...mockForm,
       isDialogOpen: true,
-      selected: mockEvaluations[0],
+       selected: mockEvaluations.items[0],
     } as unknown as ReturnType<typeof useEvaluationForm>);
     
-    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<TeacherEvaluation[], Error>);
+    vi.mocked(useTeacherEvaluations).mockReturnValue({ data: mockEvaluations, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<TeacherEvaluation>, Error>);
     
     renderEvaluations();
     

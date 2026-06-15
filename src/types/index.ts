@@ -1,3 +1,11 @@
+export interface PaginatedResponse<T> {
+  items: T[];
+  total: number;
+  pageCount: number;
+  currentPage: number;
+  size: number;
+}
+
 export * from "./users-types";
 
 export interface DashboardStats {

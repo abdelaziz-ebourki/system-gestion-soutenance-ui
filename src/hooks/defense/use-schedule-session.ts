@@ -5,17 +5,18 @@ import { addDays, differenceInDays } from "date-fns";
 export function useScheduleSession() {
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
 
-  const { data: sessions, isLoading: sessionsLoading } = useCoordinatorDefenseSessions();
+  const { data: sessionsData, isLoading: sessionsLoading } = useCoordinatorDefenseSessions();
+  const sessions = sessionsData?.items ?? [];
   const { data: defenseSettings } = useDefenseSettings();
-
+ 
   useEffect(() => {
-    if (sessions?.length && !selectedSessionId) {
+    if (sessions.length && !selectedSessionId) {
       setSelectedSessionId(sessions[0].id);
     }
   }, [sessions, selectedSessionId]);
-
+ 
   const currentSession = useMemo(
-    () => sessions?.find((s) => s.id === selectedSessionId),
+    () => sessions.find((s) => s.id === selectedSessionId),
     [sessions, selectedSessionId],
   );
 
