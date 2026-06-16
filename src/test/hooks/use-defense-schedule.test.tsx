@@ -9,6 +9,11 @@ import { useDefenseSchedule } from "@/hooks/use-defense-schedule";
 import * as queries from "@/hooks/queries";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
+import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core";
+
+const updateSlot = vi.hoisted(() => vi.fn());
+const removeSlot = vi.hoisted(() => vi.fn());
+const validateSlot = vi.hoisted(() => vi.fn().mockReturnValue({ isValid: true, issues: [] }));
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
@@ -30,8 +35,8 @@ vi.mock("@/hooks/defense/use-schedule-draft", () => ({
   useScheduleDraft: vi.fn(() => ({
     schedule: {},
     setSchedule: vi.fn(),
-    updateSlot: vi.fn(),
-    removeSlot: vi.fn(),
+    updateSlot,
+    removeSlot,
   })),
 }));
 
@@ -43,7 +48,7 @@ vi.mock("@/hooks/defense/use-schedule-auto-generator", () => ({
 
 vi.mock("@/hooks/defense/use-schedule-conflict-validator", () => ({
   useScheduleConflictValidator: vi.fn(() => ({
-    validateSlot: vi.fn(() => ({ isValid: true, issues: [] })),
+    validateSlot,
   })),
 }));
 
@@ -128,6 +133,87 @@ describe("useDefenseSchedule", () => {
     
     expect(mockTransitionMutate).toHaveBeenCalledWith({ id: 1, toStatus: "active" });
     expect(toast.success).toHaveBeenCalledWith("Session publiée avec succès");
+  });
+
+  it("handleDragStart sets activeJuryId", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.handleDragStart({ active: { id: 2 } } as DragStartEvent));
+    expect(result.current.activeJuryId).toBe(2);
+  });
+
+  it("handleDragEnd on valid slot calls updateSlot and shows success", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.handleDragStart({ active: { id: 1 } } as DragStartEvent));
+    act(() =>
+      result.current.handleDragEnd({
+        active: { id: 1 },
+        over: { id: "2026-06-01|1|08:00" },
+      } as DragEndEvent),
+    );
+    expect(result.current.activeJuryId).toBeNull();
+    expect(updateSlot).toHaveBeenCalledWith("1", { roomId: 1, date: "2026-06-01", time: "08:00" });
+    expect(toast.success).toHaveBeenCalledWith("Positionné avec succès");
+  });
+
+  it("handleDragEnd without over just clears activeJuryId", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.handleDragStart({ active: { id: 1 } } as DragStartEvent));
+    act(() =>
+      result.current.handleDragEnd({ active: { id: 1 }, over: null } as DragEndEvent),
+    );
+    expect(result.current.activeJuryId).toBeNull();
+    expect(updateSlot).not.toHaveBeenCalled();
+  });
+
+  it("handleDragEnd with unknown jury does not crash", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() =>
+      result.current.handleDragEnd({
+        active: { id: 999 },
+        over: { id: "2026-06-01|1|08:00" },
+      } as DragEndEvent),
+    );
+    expect(updateSlot).not.toHaveBeenCalled();
+  });
+
+  it("handleDragEnd on slot with conflict shows error toast", () => {
+    validateSlot.mockReturnValue({
+      isValid: false,
+      issues: [
+        { severity: "error", type: "teacher_double_booked", message: "Conflit enseignant", slot: "2026-06-01|1|08:00" },
+      ],
+    });
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() =>
+      result.current.handleDragEnd({
+        active: { id: 1 },
+        over: { id: "2026-06-01|1|08:00" },
+      } as DragEndEvent),
+    );
+    expect(toast.error).toHaveBeenCalledWith("Conflit enseignant");
+  });
+
+  it("handleDragEnd with conflict that has suggestedResolution includes it in toast", () => {
+    validateSlot.mockReturnValue({
+      isValid: false,
+      issues: [
+        { severity: "error", type: "room_capacity", message: "Salle pleine", slot: "x", suggestedResolution: "Essayez la salle B" },
+      ],
+    });
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() =>
+      result.current.handleDragEnd({
+        active: { id: 1 },
+        over: { id: "2026-06-01|1|08:00" },
+      } as DragEndEvent),
+    );
+    expect(toast.error).toHaveBeenCalledWith("Salle pleine Essayez la salle B", expect.any(Object));
+  });
+
+  it("handleRemove calls removeSlot", () => {
+    const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });
+    act(() => result.current.handleRemove(1));
+    expect(removeSlot).toHaveBeenCalledWith("1");
   });
 });
 
