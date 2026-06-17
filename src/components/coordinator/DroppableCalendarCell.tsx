@@ -29,7 +29,7 @@ export default function DroppableCalendarCell({ id, jury, studentNames, onRemove
   return (
     <td
       ref={setNodeRef}
-      className={cn("relative h-25 w-[180px] border p-1 transition-all duration-200", isOver && "bg-primary/10 ring-2 ring-primary/60 scale-[1.02] z-10", jury ? "bg-primary/5" : "bg-white/[0.02]")}
+      className={cn("relative h-25 w-[180px] border p-1 transition-all duration-200", jury ? "bg-primary/5" : "bg-white/[0.02]", isOver && "bg-primary/10 ring-2 ring-primary/60 scale-[1.02] z-10")}
       data-testid={`coord-cell-${id}`}
     >
       <div className="h-full w-full overflow-hidden">

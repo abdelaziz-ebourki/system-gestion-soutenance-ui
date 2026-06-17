@@ -19,25 +19,22 @@ vi.mock("sonner", () => ({
   },
 }));
 
-vi.mock("@/components/ui", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/components/ui")>();
-  return {
-    ...actual,
-    Select: ({ children, value, onValueChange }: { children: React.ReactNode; value: string; onValueChange: (val: string) => void }) => (
-      <select 
-        data-testid="mock-assign-project-select" 
-        value={value} 
-        onChange={(e) => onValueChange(e.target.value)}
-      >
-        {children}
-      </select>
-    ),
-    SelectTrigger: () => null,
-    SelectValue: () => null,
-    SelectContent: ({ children }: { children: React.ReactNode }) => children,
-    SelectItem: ({ children, value }: { children: React.ReactNode; value: string }) => <option value={value}>{children}</option>,
-  };
-});
+vi.mock("@/components/ui/select", () => ({
+  Select: ({ children, value, onValueChange }: { children: React.ReactNode; value: string; onValueChange: (val: string) => void }) => (
+    <select 
+      data-testid="mock-assign-project-select" 
+      value={value} 
+      onChange={(e) => onValueChange(e.target.value)}
+    >
+      {children}
+    </select>
+  ),
+  SelectTrigger: () => null,
+  SelectValue: () => null,
+  SelectContent: ({ children }: { children: React.ReactNode }) => children,
+  SelectGroup: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  SelectItem: ({ children, value }: { children: React.ReactNode; value: string }) => <option value={value}>{children}</option>,
+}));
 
 const mockGroup: Group = {
   id: 1,

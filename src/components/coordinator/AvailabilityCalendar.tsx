@@ -186,8 +186,7 @@ export default function AvailabilityCalendar({
                     "relative aspect-square rounded-lg border transition-all cursor-pointer p-3 group",
                     day === 0 && "invisible",
                     isActive ? "ring-2 ring-primary ring-offset-2 z-10 shadow-sm" : "hover:border-primary/30",
-                    status === "full-unavailable" ? "bg-destructive/10 border-destructive/30" : status === "partial" ? "bg-destructive/5 border-destructive/20" : "bg-card border-border",
-                    session && "bg-primary/5 border-primary/20"
+                    session ? "bg-primary/5 border-primary/20" : status === "full-unavailable" ? "bg-destructive/10 border-destructive/30" : status === "partial" ? "bg-destructive/5 border-destructive/20" : "bg-card border-border"
                   )}
                 >
                   <span
