@@ -18,7 +18,7 @@ export default function AuditLogs() {
   ];
 
   return (
-    <div className="space-y-6" data-testid="admin-audit-logs-page">
+    <div className="flex flex-col gap-6" data-testid="admin-audit-logs-page">
       <PageHeader title="Journal d'audit" subtitle="Consultez l'historique des actions administratives." />
 
       <DataTable

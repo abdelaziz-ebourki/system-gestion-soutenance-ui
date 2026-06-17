@@ -6,7 +6,7 @@ export function useScheduleSession() {
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
 
   const { data: sessionsData, isLoading: sessionsLoading } = useCoordinatorDefenseSessions();
-  const sessions = sessionsData?.items ?? [];
+  const sessions = useMemo(() => sessionsData?.items ?? [], [sessionsData]);
   const { data: defenseSettings } = useDefenseSettings();
  
   useEffect(() => {

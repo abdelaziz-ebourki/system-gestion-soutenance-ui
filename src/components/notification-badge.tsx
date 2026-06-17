@@ -14,7 +14,7 @@ export function NotificationBadge() {
       className="relative"
       onClick={() => navigate("/notifications")}
     >
-      <BellIcon className="size-5" />
+      <BellIcon />
       {unreadCount > 0 && (
         <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
           {unreadCount > 9 ? "9+" : unreadCount}

@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { cn } from "@/lib/utils";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -10,7 +11,9 @@ import {
   Plus,
   X,
 } from "lucide-react";
-import { Badge, Button, Card } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 interface Session {
   dateKey: string;
@@ -136,11 +139,11 @@ export default function AvailabilityCalendar({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-full hover:bg-muted"
+                className="size-10 rounded-full hover:bg-muted"
                 onClick={() => changeMonth(-1)}
                 data-testid="teacher-availability-prev-month"
               >
-                <ChevronLeft className="size-6 text-muted-foreground" />
+                <ChevronLeft className="text-muted-foreground" />
               </Button>
               <span className="font-heading font-bold text-xl px-4 text-foreground min-w-37 text-center" data-testid="teacher-availability-month-label">
                 {monthNames[viewMonth]} {viewYear}
@@ -148,11 +151,11 @@ export default function AvailabilityCalendar({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-full hover:bg-muted"
+                className="size-10 rounded-full hover:bg-muted"
                 onClick={() => changeMonth(1)}
                 data-testid="teacher-availability-next-month"
               >
-                <ChevronRight className="size-6 text-muted-foreground" />
+                <ChevronRight className="text-muted-foreground" />
               </Button>
             </div>
           </div>
@@ -179,16 +182,16 @@ export default function AvailabilityCalendar({
                   key={`${day || 0}-${i}`}
                   onClick={() => day !== 0 && setActiveDay(day)}
                   data-testid={day !== 0 ? `teacher-availability-day-${dateKey}` : undefined}
-                  className={`
-                    relative aspect-square rounded-lg border transition-all cursor-pointer p-3 group
-                    ${day === 0 ? "invisible" : ""}
-                    ${isActive ? "ring-2 ring-primary ring-offset-2 z-10 shadow-sm" : "hover:border-primary/30"}
-                    ${status === "full-unavailable" ? "bg-destructive/10 border-destructive/30" : status === "partial" ? "bg-destructive/5 border-destructive/20" : "bg-card border-border"}
-                    ${session ? "bg-primary/5 border-primary/20" : ""}
-                  `}
+                  className={cn(
+                    "relative aspect-square rounded-lg border transition-all cursor-pointer p-3 group",
+                    day === 0 && "invisible",
+                    isActive ? "ring-2 ring-primary ring-offset-2 z-10 shadow-sm" : "hover:border-primary/30",
+                    status === "full-unavailable" ? "bg-destructive/10 border-destructive/30" : status === "partial" ? "bg-destructive/5 border-destructive/20" : "bg-card border-border",
+                    session && "bg-primary/5 border-primary/20"
+                  )}
                 >
                   <span
-                    className={`text-base font-bold ${status !== "available" && status !== "none" ? "text-destructive" : session ? "text-primary" : "text-foreground"}`}
+                    className={cn("text-base font-bold", status !== "available" && status !== "none" ? "text-destructive" : session ? "text-primary" : "text-foreground")}
                   >
                     {day !== 0 ? day : ""}
                   </span>
@@ -205,14 +208,14 @@ export default function AvailabilityCalendar({
                   {session && (
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-56 p-4 bg-popover text-popover-foreground rounded-lg text-xs opacity-0 group-hover:opacity-100 transition-all pointer-events-none z-20 shadow-xl scale-95 group-hover:scale-100 origin-bottom">
                       <p className="font-bold mb-2 border-b border-border pb-2 flex items-center gap-2">
-                        <Clock className="size-3 text-primary" />{" "}
+                        <Clock className="text-primary" />{" "}
                         {session.time}
                       </p>
                       <p className="font-medium mb-1 truncate">
                         {session.student}
                       </p>
                       <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <MapPin className="size-3" /> {session.room}
+                        <MapPin /> {session.room}
                       </p>
                       <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-popover" />
                     </div>
@@ -224,8 +227,8 @@ export default function AvailabilityCalendar({
         </div>
 
         {/* Side Panel */}
-        <div className="bg-muted/30 p-8 space-y-8 border-l border-border flex flex-col h-full" data-testid="teacher-availability-side-panel">
-          <div className="space-y-1">
+        <div className="bg-muted/30 p-8 gap-8 border-l border-border flex flex-col h-full" data-testid="teacher-availability-side-panel">
+          <div className="flex flex-col gap-1">
             <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
               Détails : {activeDay} {monthNames[viewMonth]}
             </h3>
@@ -234,7 +237,7 @@ export default function AvailabilityCalendar({
             </p>
           </div>
 
-          <div className="flex-1 space-y-2 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar">
             {slots.map((slot) => {
               const isUnavailable = (
                 unavailableSlots[activeDateKey] || []
@@ -253,22 +256,20 @@ export default function AvailabilityCalendar({
                   }
                   disabled={hasSession}
                   data-testid={`teacher-availability-slot-${slot.replace(/:/g, "h").replace(/[\s-]+/g, "-")}`}
-                  className={`
-										w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left
-										${
-                      hasSession
-                        ? "bg-primary/5 border-primary/10 opacity-60 cursor-not-allowed"
-                        : isUnavailable
-                          ? "bg-destructive/10 border-destructive/20 text-destructive ring-2 ring-destructive/10"
-                          : "bg-card border-border hover:border-primary/40"
-                    }
-									`}
+                  className={cn(
+                    "w-full flex items-center justify-between p-4 rounded-lg border transition-all text-left",
+                    hasSession
+                      ? "bg-primary/5 border-primary/10 opacity-60 cursor-not-allowed"
+                      : isUnavailable
+                        ? "bg-destructive/10 border-destructive/20 text-destructive ring-2 ring-destructive/10"
+                        : "bg-card border-border hover:border-primary/40"
+                  )}
                 >
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-lg ${isUnavailable ? "bg-destructive/20 text-destructive" : hasSession ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}
+                      className={cn("p-2 rounded-lg", isUnavailable ? "bg-destructive/20 text-destructive" : hasSession ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground")}
                     >
-                      <Clock className="h-4 w-4" />
+                      <Clock />
                     </div>
                     <span className="text-sm font-bold">{slot}</span>
                   </div>
@@ -277,19 +278,19 @@ export default function AvailabilityCalendar({
                       Jury
                     </Badge>
                   ) : isUnavailable ? (
-                    <X className="h-4 w-4 text-destructive" />
+                    <X className="text-destructive" />
                   ) : (
-                    <Plus className="h-4 w-4 text-muted-foreground" />
+                    <Plus className="text-muted-foreground" />
                   )}
                 </button>
               );
             })}
           </div>
 
-          <div className="pt-6 space-y-4">
-            <div className="p-4 bg-card rounded-lg border border-border space-y-3">
+          <div className="pt-6 flex flex-col gap-4">
+            <div className="p-4 bg-card rounded-lg border border-border flex flex-col gap-3">
               <div className="flex items-center gap-2 text-primary">
-                <Info className="h-4 w-4" />
+                <Info />
                 <span className="text-xs font-bold uppercase tracking-tighter">
                   Information Créneau
                 </span>
@@ -306,7 +307,7 @@ export default function AvailabilityCalendar({
                 className="w-full rounded-lg h-14 font-bold shadow transition-all hover:scale-105 active:scale-95 gap-2"
                 data-testid="teacher-availability-save"
               >
-                <CheckCircle2 className="size-5" />
+                <CheckCircle2 data-icon="inline-start" />
                 Valider mes choix
               </Button>
             )}

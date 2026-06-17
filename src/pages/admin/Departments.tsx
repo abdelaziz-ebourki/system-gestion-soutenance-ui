@@ -1,25 +1,14 @@
 import { useMemo, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 import { useDepartments, useTeachersList } from "@/hooks/queries";
 import { type Department } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useDepartmentCrud } from "@/hooks/entities/use-department-crud";
 import { CrudActions } from "@/components/admin/CrudActions";
@@ -30,7 +19,7 @@ export default function Departments() {
   const { data: departmentsData, isLoading } = useDepartments();
   const [selectedDepartments, setSelectedDepartments] = useState<Department[]>([]);
   const { data: teachersData } = useTeachersList();
-  const teachers = teachersData?.items ?? [];
+  const teachers = useMemo(() => teachersData?.items ?? [], [teachersData]);
   const crud = useDepartmentCrud();
 
   const data = departmentsData?.items ?? [];
@@ -69,7 +58,7 @@ export default function Departments() {
   ], [crud, teachers]);
 
   return (
-    <div className="space-y-6 pb-20" data-testid="admin-departments-page">
+    <div className="flex flex-col gap-6 pb-20" data-testid="admin-departments-page">
       <div className="flex items-center justify-between">
         <div className="relative pb-4">
           <h1 className="text-4xl font-bold tracking-tight">Départements</h1>
@@ -77,7 +66,7 @@ export default function Departments() {
           <p className="text-muted-foreground mt-2">Structure académique.</p>
         </div>
         <Button onClick={crud.openCreate} data-testid="admin-departments-add-button">
-          <Plus className="size-4" /> Nouveau Département
+          <Plus data-icon="inline-start" /> Nouveau Département
         </Button>
       </div>
 
@@ -151,12 +140,14 @@ export default function Departments() {
                     <SelectValue placeholder="Choisir un enseignant" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Aucun</SelectItem>
-                    {teachers.map((t) => (
-                      <SelectItem key={t.id} value={String(t.id)}>
-                        {t.lastName} {t.firstName}
-                      </SelectItem>
-                    ))}
+                    <SelectGroup>
+                      <SelectItem value="none">Aucun</SelectItem>
+                      {teachers.map((t) => (
+                        <SelectItem key={t.id} value={String(t.id)}>
+                          {t.lastName} {t.firstName}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </Field>
@@ -164,10 +155,10 @@ export default function Departments() {
             <DialogFooter>
               <Button
                 type="submit"
-                isLoading={crud.isCreatePending || crud.isUpdatePending}
-                loadingText="Enregistrement..."
+                disabled={crud.isCreatePending || crud.isUpdatePending}
               >
-                Enregistrer
+                {(crud.isCreatePending || crud.isUpdatePending) && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {(crud.isCreatePending || crud.isUpdatePending) ? "Enregistrement..." : "Enregistrer"}
               </Button>
             </DialogFooter>
           </form>

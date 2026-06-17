@@ -5,6 +5,7 @@ import {
   FileText,
   Upload,
   Ban,
+  Loader2,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -15,19 +16,13 @@ import type { GroupDocument, GroupDocumentType } from "@/types";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import { GRACE_PERIOD_DAYS, MS_PER_DAY } from "@/lib/constants";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  Label,
-  Skeleton,
-  StatsCard,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatsCard } from "@/components/ui/stats-card";
 
 const DOCUMENT_CONFIG: Record<GroupDocumentType, { label: string; description: string; icon: typeof FileText }> = {
   REPORT: { label: "Rapport", description: "Rapport de stage / PFE", icon: FileText },
@@ -130,7 +125,7 @@ export default function StudentDocuments() {
 
   if (!currentGroup) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight" data-testid="student-documents-header">Documents</h1>
           <p className="text-muted-foreground">Vous devez faire partie d'un groupe pour accéder aux livrables.</p>
@@ -140,7 +135,7 @@ export default function StudentDocuments() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight" data-testid="student-documents-header">Livrables du groupe</h1>
         <p className="text-muted-foreground" data-testid="student-documents-description">
@@ -156,12 +151,12 @@ export default function StudentDocuments() {
       </div>
 
       {docsLoading ? (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="rounded-lg border p-4">
               <div className="flex items-center gap-3">
                 <Skeleton className="size-10 rounded-lg" />
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Skeleton className="h-4 w-48" />
                   <Skeleton className="h-3 w-32" />
                 </div>
@@ -182,7 +177,7 @@ export default function StudentDocuments() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className="rounded-lg bg-secondary p-3 text-primary">
-                        <Icon className="size-5" />
+                        <Icon />
                       </div>
                       <div>
                         <CardTitle className="text-base">{config.label}</CardTitle>
@@ -199,7 +194,7 @@ export default function StudentDocuments() {
                 <CardContent className="flex-1 flex flex-col justify-between gap-4">
                   {document ? (
                     <>
-                      <div className="space-y-1 text-sm text-muted-foreground">
+                      <div className="flex flex-col gap-1 text-sm text-muted-foreground">
                         <p suppressHydrationWarning>Échéance : {formatDate(document.deadline)}</p>
                         {document.submittedAt && (
                           <p suppressHydrationWarning>Dépôt : {formatDate(document.submittedAt)}</p>
@@ -208,7 +203,7 @@ export default function StudentDocuments() {
 
                       {document.status === "missing" ? (
                         isGroupLeader ? (
-                          <div className="space-y-2">
+                          <div className="flex flex-col gap-2">
                             <div className="grid w-full items-center gap-1.5">
                               <Label htmlFor={`file-${type}`} className="sr-only">Fichier</Label>
                               <Input
@@ -229,17 +224,16 @@ export default function StudentDocuments() {
                             <Button
                               className="w-full"
                               onClick={() => handleUpload(type)}
-                              isLoading={uploadingType === type}
-                              loadingText="Envoi..."
+                              disabled={uploadingType === type}
                               data-testid={`group-document-upload-btn-${type}`}
                             >
-                              <Upload className="mr-2 size-4" />
-                              Déposer
+                              {uploadingType === type && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                              {uploadingType === type ? "Envoi..." : <><Upload data-icon="inline-start" /> Déposer</>}
                             </Button>
                           </div>
                         ) : (
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Ban className="size-4" />
+                            <Ban data-icon="inline-start" />
                             Seul le chef de groupe peut déposer
                           </div>
                         )

@@ -1,27 +1,17 @@
 import { useMemo } from "react";
-import { FileCheck2, MessageSquareText, PencilLine } from "lucide-react";
+import { FileCheck2, MessageSquareText, PencilLine, Loader2 } from "lucide-react";
 
 import { useTeacherEvaluations } from "@/hooks/queries";
 import { useEvaluationForm } from "@/hooks/use-evaluation-form";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Label,
-  Skeleton,
-  Textarea,
-  StatsCard,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatsCard } from "@/components/ui/stats-card";
 
 export default function TeacherEvaluations() {
   const evaluationsQuery = useTeacherEvaluations();
@@ -38,7 +28,7 @@ export default function TeacherEvaluations() {
   ), [evaluations]);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight" data-testid="teacher-evaluations-header">Évaluations</h1>
         <p className="text-muted-foreground" data-testid="teacher-evaluations-description">
@@ -60,12 +50,12 @@ export default function TeacherEvaluations() {
               Saisissez une note et une appréciation pour chaque dossier.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="flex flex-col gap-3">
             {isLoading ? (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="rounded-lg border p-4">
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Skeleton className="h-4 w-56" />
                       <Skeleton className="h-3 w-40" />
                     </div>
@@ -98,7 +88,7 @@ export default function TeacherEvaluations() {
               Les évaluations déjà transmises au système.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="flex flex-col gap-3">
             {submittedEvaluations.length > 0 ? (
               submittedEvaluations.map((evaluation) => (
               <div key={evaluation.id} className="rounded-lg border p-4" data-testid={`teacher-evaluations-submitted-item-${evaluation.id}`}>
@@ -118,9 +108,7 @@ export default function TeacherEvaluations() {
               </div>
             ))
             ) : (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                Aucune évaluation soumise.
-              </div>
+              <EmptyState description="Aucune évaluation soumise." />
             )}
           </CardContent>
         </Card>
@@ -139,49 +127,50 @@ export default function TeacherEvaluations() {
           </DialogHeader>
           <form
             id="teacher-evaluation-form"
-            className="grid gap-4"
             onSubmit={form.handleSubmit}
             data-testid="teacher-evaluations-form"
           >
-            <div className="rounded-lg border bg-secondary/40 p-4">
-              <p className="font-medium">{form.selected?.projectTitle}</p>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="teacher-score">Note / 20</Label>
-              <Input
-                id="teacher-score"
-                type="number"
-                min="0"
-                max="20"
-                step="0.5"
-                value={String(form.formData.score)}
-                onChange={(event) => form.setFormData({ ...form.formData, score: Number(event.target.value) })}
-                required
-                error={form.fieldErrors?.score}
-                data-testid="teacher-evaluations-score"
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="teacher-comment">Appréciation</Label>
-              <Textarea
-                id="teacher-comment"
-                value={form.formData.comment}
-                onChange={(event) => form.setFormData({ ...form.formData, comment: event.target.value })}
-                className="min-h-28"
-                required
-                data-testid="teacher-evaluations-comment"
-              />
-            </div>
+            <FieldGroup>
+              <div className="rounded-lg border bg-secondary/40 p-4">
+                <p className="font-medium">{form.selected?.projectTitle}</p>
+              </div>
+              <Field>
+                <FieldLabel htmlFor="teacher-score">Note / 20</FieldLabel>
+                <Input
+                  id="teacher-score"
+                  type="number"
+                  min="0"
+                  max="20"
+                  step="0.5"
+                  value={String(form.formData.score)}
+                  onChange={(event) => form.setFormData({ ...form.formData, score: Number(event.target.value) })}
+                  required
+                  error={form.fieldErrors?.score}
+                  data-testid="teacher-evaluations-score"
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="teacher-comment">Appréciation</FieldLabel>
+                <Textarea
+                  id="teacher-comment"
+                  value={form.formData.comment}
+                  onChange={(event) => form.setFormData({ ...form.formData, comment: event.target.value })}
+                  className="min-h-28"
+                  required
+                  data-testid="teacher-evaluations-comment"
+                />
+              </Field>
+            </FieldGroup>
           </form>
           <DialogFooter>
             <Button
               type="submit"
               form="teacher-evaluation-form"
-              isLoading={form.isPending}
-              loadingText="Enregistrement..."
+              disabled={form.isPending}
               data-testid="teacher-evaluations-save"
             >
-              Enregistrer
+              {form.isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+              {form.isPending ? "Enregistrement..." : "Enregistrer"}
             </Button>
           </DialogFooter>
         </DialogContent>

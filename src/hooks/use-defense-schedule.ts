@@ -22,11 +22,11 @@ export function useDefenseSchedule() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data: juriesData, isLoading: juriesLoading } = useJuries();
-  const juries = juriesData?.items ?? [];
+  const juries = useMemo(() => juriesData?.items ?? [], [juriesData]);
   const { data: roomsPage, isLoading: roomsLoading } = useRooms();
   const rooms = roomsPage?.items ?? [];
   const { data: projectsData, isLoading: projectsLoading } = useProjects();
-  const projects = projectsData?.items ?? [];
+  const projects = useMemo(() => projectsData?.items ?? [], [projectsData]);
   const { data: teachersData, isLoading: teachersLoading } = useTeachersList();
   const teachers = teachersData?.items ?? [];
   const { data: unavailabilitiesData, isLoading: unavailLoading } = useCoordinatorUnavailability();

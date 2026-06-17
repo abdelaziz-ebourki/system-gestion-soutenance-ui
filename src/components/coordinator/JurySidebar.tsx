@@ -1,12 +1,8 @@
 import { Search, Users } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Badge,
-  Input,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
 import DraggableJurySlot from "@/components/coordinator/DraggableJurySlot";
 import type { Jury } from "@/types";
 
@@ -25,11 +21,11 @@ export default function JurySidebar({
     <Card className="col-span-3     h-[calc(100vh-10.4rem)] flex flex-col" data-testid="coord-designer-jury-sidebar">
       <CardHeader className="pb-3">
 <CardTitle className="text-lg flex items-center gap-2">
-  <Users className="size-5" /> À positionner
+  <Users data-icon="inline-start" /> À positionner
   <Badge variant="secondary" className="ml-auto" data-testid="coord-designer-jury-count">{juries.length}</Badge>
 </CardTitle>
         <div className="relative mt-2">
-          <Search className="absolute left-2 top-2.5 size-4 text-muted-foreground" />
+          <Search className="absolute left-2 top-2.5 text-muted-foreground" />
           <Input
             placeholder="Rechercher un jury..."
             className="pl-8"
@@ -39,14 +35,12 @@ export default function JurySidebar({
           />
         </div>
       </CardHeader>
-       <CardContent className="flex-1 overflow-y-auto space-y-3 pt-0" data-testid="coord-designer-jury-list">
+       <CardContent className="flex-1 overflow-y-auto flex flex-col gap-3 pt-0" data-testid="coord-designer-jury-list">
          {juries?.map((jury) => (
            <DraggableJurySlot key={jury.id} jury={jury} />
          ))}
          {juries?.length === 0 && (
-           <div className="text-center py-10 text-muted-foreground italic text-sm">
-             Aucun jury en attente
-           </div>
+           <EmptyState description="Aucun jury en attente" />
          )}
        </CardContent>
     </Card>

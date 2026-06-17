@@ -91,11 +91,11 @@ export function SlotRow({
               className="rounded-full p-1 text-primary-foreground/70 transition hover:bg-primary-foreground/10 hover:text-primary-foreground"
               data-testid={`coord-slot-remove-${slotKey}`}
             >
-              <X className="size-4" />
+              <X />
             </button>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-primary-foreground/80">
-             <Users className="size-3 shrink-0" />
+             <Users className="shrink-0" />
              {jury?.members?.map((m) => `${m.roleName}: ${m.teacherName}`).join(" | ") ?? ""}
           </div>
         </div>

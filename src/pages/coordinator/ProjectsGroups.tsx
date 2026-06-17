@@ -12,17 +12,11 @@ import { useProjects, useUpdateProject, useDeleteProject, useGroups } from "@/ho
 import type { Project, Group } from "@/types";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  StatsCard,
-  Skeleton,
-  EmptyState,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatsCard } from "@/components/ui/stats-card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 import { CrudActions } from "@/components/admin/CrudActions";
@@ -47,7 +41,7 @@ export default function CoordinatorProjects() {
       accessorKey: "title",
       header: "Projet",
       cell: ({ row }) => (
-        <div className="space-y-1">
+        <div className="flex flex-col gap-1">
           <div className="font-medium">{row.original.title}</div>
           <div className="text-xs text-muted-foreground">
             {row.original.description || "Aucune description"}
@@ -88,7 +82,7 @@ export default function CoordinatorProjects() {
   ), [projects]);
 
   return (
-    <div className="space-y-6 pb-20" data-testid="coord-projects-page">
+    <div className="flex flex-col gap-6 pb-20" data-testid="coord-projects-page">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -100,7 +94,7 @@ export default function CoordinatorProjects() {
           </p>
         </div>
         <Button onClick={() => setIsCreateOpen(true)} data-testid="coord-projects-add-button">
-          <Plus className="mr-2 size-4" />
+          <Plus data-icon="inline-start" />
           Ajouter un projet
         </Button>
         <BulkImportDialog entity="project" onSuccess={() => projectsQuery.refetch()} />
@@ -137,7 +131,7 @@ export default function CoordinatorProjects() {
       <Card data-testid="coord-projects-groups-section">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Users className="size-4" /> Groupes étudiants
+            <Users data-icon="inline-start" /> Groupes étudiants
           </CardTitle>
           <CardDescription>
             Groupes formés par les étudiants. Assignez-leur un projet pour activer la suite (jury, planning).
@@ -145,7 +139,7 @@ export default function CoordinatorProjects() {
         </CardHeader>
         <CardContent>
           {groupsQuery.isLoading ? (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {[1, 2].map((i) => (
                 <Skeleton key={i} className="h-16 w-full rounded-lg" />
               ))}
@@ -153,13 +147,13 @@ export default function CoordinatorProjects() {
           ) : studentGroups.length === 0 ? (
             <EmptyState variant="dashed" description="Aucun groupe étudiant pour le moment." />
           ) : (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {studentGroups.map((g: Group) => {
                 const hasProject = !!g.projectId;
                 const assignedProject = hasProject ? projects.find((p) => p.id === g.projectId) : null;
                 return (
                   <div key={g.id} className="flex items-center justify-between rounded-lg border p-4">
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <p className="font-medium">{g.groupName}</p>
                       <p className="text-xs text-muted-foreground">
                         {g.studentNames.join(", ")}
@@ -168,12 +162,12 @@ export default function CoordinatorProjects() {
                     <div className="flex items-center gap-3">
                       {hasProject ? (
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <CheckCircle2 className="size-4 text-primary" />
+                          <CheckCircle2 className="text-primary" />
                           {assignedProject?.title ?? `Projet #${g.projectId}`}
                         </div>
                       ) : (
                         <Button size="sm" variant="outline" onClick={() => setAssignTarget(g)} data-testid={`coord-projects-assign-${g.id}`}>
-                          <UserPlus className="mr-1 size-3" />
+                          <UserPlus data-icon="inline-start" />
                           Assigner un projet
                         </Button>
                       )}

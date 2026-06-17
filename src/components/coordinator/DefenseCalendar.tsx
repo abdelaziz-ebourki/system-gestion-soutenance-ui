@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { createSlotKey } from "@/lib/utils";
-import { Button } from "@/components/ui";
+import { Button } from "@/components/ui/button";
 import DroppableCalendarCell from "@/components/coordinator/DroppableCalendarCell";
 import type { Jury, Room, Project } from "@/types";
 
@@ -85,7 +85,7 @@ export default function DefenseCalendar({
   }
 
   return (
-    <div className="space-y-4 h-full flex flex-col" data-testid="coord-calendar">
+    <div className="gap-4 h-full flex flex-col" data-testid="coord-calendar">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <Button
@@ -96,7 +96,7 @@ export default function DefenseCalendar({
             onClick={() => setSelectedDayIndex((i) => Math.max(0, i - 1))}
             data-testid="coord-calendar-day-prev"
           >
-            <ChevronLeft className="size-4" />
+            <ChevronLeft />
           </Button>
           {selectedDay && (
             <span className="text-sm font-medium min-w-[200px] text-center tabular-nums">
@@ -111,7 +111,7 @@ export default function DefenseCalendar({
             onClick={() => setSelectedDayIndex((i) => Math.min(days.length - 1, i + 1))}
             data-testid="coord-calendar-day-next"
           >
-            <ChevronRight className="size-4" />
+            <ChevronRight />
           </Button>
         </div>
         <div className="flex items-center gap-2">
@@ -124,7 +124,7 @@ export default function DefenseCalendar({
             onClick={() => setRoomPage((p) => Math.max(0, p - 1))}
             data-testid="coord-calendar-rooms-prev"
           >
-            <ChevronLeft className="size-4" />
+            <ChevronLeft />
           </Button>
           <span className="text-xs text-muted-foreground tabular-nums min-w-[4rem] text-center">
             {startIndex + 1}–{Math.min(startIndex + ROOMS_PER_PAGE, rooms.length)} / {rooms.length}
@@ -137,7 +137,7 @@ export default function DefenseCalendar({
             onClick={() => setRoomPage((p) => Math.min(totalPages - 1, p + 1))}
             data-testid="coord-calendar-rooms-next"
           >
-            <ChevronRight className="size-4" />
+            <ChevronRight />
           </Button>
         </div>
       </div>
@@ -163,7 +163,7 @@ export default function DefenseCalendar({
                     data-testid={`coord-room-column-${room.id}`}
                   >
                     <div className="flex items-center justify-center gap-1.5">
-                      <MapPin className="size-3.5 text-muted-foreground" />
+                      <MapPin className="text-muted-foreground" />
                       {room.name}
                     </div>
                   </th>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { User as UserIcon, Lock } from "lucide-react";
+import { User as UserIcon, Lock, Loader2 } from "lucide-react";
 
 import { useAuth } from "@/contexts/auth-context";
 import { updateProfile, changePassword } from "@/lib/api-auth";
@@ -10,17 +10,11 @@ import {
 } from "@/lib/validations";
 import { getErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-  PasswordInput,
-  Skeleton,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -36,7 +30,7 @@ export default function Profile() {
   if (!user) return <Skeleton className="h-48 rounded-xl" data-testid="profile-skeleton" />;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight" data-testid="profile-header">Mon Profil</h1>
         <p className="text-muted-foreground" data-testid="profile-description">Informations personnelles de votre compte.</p>
@@ -85,7 +79,7 @@ function ProfileEditCard({
     <Card data-testid="profile-edit-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <UserIcon className="size-5" />
+          <UserIcon data-icon="inline-start" />
           Informations personnelles
         </CardTitle>
         <CardDescription>Modifiez votre nom et prénom.</CardDescription>
@@ -122,8 +116,9 @@ function ProfileEditCard({
               {fieldErrors?.lastName && <FieldError>{fieldErrors.lastName}</FieldError>}
             </Field>
             <div>
-              <Button type="submit" isLoading={isPending} loadingText="Enregistrement..." data-testid="profile-save-btn">
-                Enregistrer
+              <Button type="submit" disabled={isPending} data-testid="profile-save-btn">
+                {isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {isPending ? "Enregistrement..." : "Enregistrer"}
               </Button>
             </div>
           </FieldGroup>
@@ -171,7 +166,7 @@ function ChangePasswordCard() {
     <Card data-testid="password-card">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Lock className="size-5" />
+          <Lock data-icon="inline-start" />
           Changer le mot de passe
         </CardTitle>
         <CardDescription>Assurez-vous d'utiliser un mot de passe fort.</CardDescription>
@@ -210,8 +205,9 @@ function ChangePasswordCard() {
               {fieldErrors?.confirmPassword && <FieldError>{fieldErrors.confirmPassword}</FieldError>}
             </Field>
             <div>
-              <Button type="submit" isLoading={isPending} loadingText="Mise à jour..." data-testid="password-save-btn">
-                Mettre à jour
+              <Button type="submit" disabled={isPending} data-testid="password-save-btn">
+                {isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {isPending ? "Mise à jour..." : "Mettre à jour"}
               </Button>
             </div>
           </FieldGroup>

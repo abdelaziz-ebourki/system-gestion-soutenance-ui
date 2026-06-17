@@ -6,17 +6,11 @@ import { toast } from "sonner";
 import { useJuries, useProjects, useDeleteJury } from "@/hooks/queries";
 import type { Jury } from "@/types";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  DataTable,
-  Skeleton,
-  Alert,
-  AlertDescription,
-} from "@/components/ui";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTable } from "@/components/ui/data-table";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CreateJuryDialog } from "@/components/coordinator/CreateJuryDialog";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
@@ -44,7 +38,7 @@ export default function Jurys() {
       accessorKey: "members",
       header: "Jury",
       cell: ({ row }) => (
-        <div className="space-y-1">
+        <div className="flex flex-col gap-1">
           {row.original.members.map((m) => (
             <div key={m.teacherId} className="text-xs">
               <span className="font-bold text-muted-foreground mr-1 uppercase">{m.roleName}:</span>
@@ -70,7 +64,7 @@ export default function Jurys() {
   ];
 
   return (
-    <div className="space-y-6" data-testid="coord-juries-page">
+    <div className="flex flex-col gap-6" data-testid="coord-juries-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Gestion des Jurys</h1>
@@ -79,7 +73,7 @@ export default function Jurys() {
           </p>
         </div>
         <Button onClick={() => setIsCreateOpen(true)} className="gap-2" data-testid="coord-juries-add-button">
-          <UserPlus className="size-4" /> Nouveau Jury
+          <UserPlus data-icon="inline-start" /> Nouveau Jury
         </Button>
       </div>
 
@@ -87,7 +81,7 @@ export default function Jurys() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Jurys</CardTitle>
-            <Users className="size-4 text-muted-foreground" />
+            <Users className="text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -98,7 +92,7 @@ export default function Jurys() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Projets sans Jury</CardTitle>
-            <AlertTriangle className="size-4 text-warning" />
+            <AlertTriangle className="text-warning" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
@@ -109,7 +103,7 @@ export default function Jurys() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Vérification</CardTitle>
-            <ShieldCheck className="size-4 text-success" />
+            <ShieldCheck className="text-success" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-success">OK</div>
@@ -119,7 +113,7 @@ export default function Jurys() {
 
       {isError && (
         <Alert variant="destructive" data-testid="coord-juries-error">
-          <AlertCircle className="size-4" />
+          <AlertCircle />
           <AlertDescription>
             {getErrorMessage(error, "Impossible de charger les jurys.")}
           </AlertDescription>

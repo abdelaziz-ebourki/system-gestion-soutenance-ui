@@ -1,20 +1,10 @@
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DeleteAlert } from "@/components/admin/DeleteAlert";
 
 interface BatchAction {
@@ -96,15 +86,20 @@ export function BatchActionsBar({
               <Select value={batchValue} onValueChange={(v) => setBatchValue(v ?? "")}>
                 <SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger>
                 <SelectContent>
-                  {(fieldOptionsMap[currentAction.key] ?? []).map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                  ))}
+                  <SelectGroup>
+                    {(fieldOptionsMap[currentAction.key] ?? []).map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectGroup>
                 </SelectContent>
               </Select>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setBatchDialog(null)}>Annuler</Button>
-              <Button onClick={() => handleUpdate(currentAction.key)} isLoading={isPending}>Enregistrer</Button>
+              <Button onClick={() => handleUpdate(currentAction.key)} disabled={isPending}>
+                {isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {isPending ? "Enregistrer" : "Enregistrer"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

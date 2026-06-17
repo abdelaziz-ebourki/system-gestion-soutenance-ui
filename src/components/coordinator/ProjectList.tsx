@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { Virtuoso } from "react-virtuoso";
-import { Badge } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
 import type { Project } from "@/types";
 import type { ScheduleMode } from "./ModeToggle";
 
@@ -104,7 +104,7 @@ export function ProjectList({
   }
 
    return (
-     <div className="space-y-2">
+     <div className="flex flex-col gap-2">
        {projects?.map((project) => (
          <DraggableProjectCard
            key={project.id}

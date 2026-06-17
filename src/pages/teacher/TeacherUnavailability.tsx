@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import * as React from "react";
-import { Ban, CalendarClock, Save } from "lucide-react";
+import { Ban, CalendarClock, Save, Loader2 } from "lucide-react";
 
 import { useTeacherSchedule, useTeacherUnavailability, useSaveTeacherUnavailability } from "@/hooks/queries";
 import type { TeacherUnavailability } from "@/types";
@@ -8,15 +8,10 @@ import { unavailabilitySchema, validate } from "@/lib/validations";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import AvailabilityCalendar from "@/components/coordinator/AvailabilityCalendar";
-import {
-  Button,
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Skeleton,
-  StatsCard,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatsCard } from "@/components/ui/stats-card";
 
 type CalendarSession = {
   dateKey: string;
@@ -90,7 +85,7 @@ export default function TeacherUnavailability() {
   })), [schedule]);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight" data-testid="teacher-unavailability-header">
@@ -103,12 +98,11 @@ export default function TeacherUnavailability() {
         </div>
         <Button
           onClick={handleSave}
-          isLoading={saveMutation.isPending}
-          loadingText="Enregistrement..."
+          disabled={saveMutation.isPending}
           data-testid="teacher-unavailability-save"
         >
-          <Save className="mr-2 size-4" />
-          Enregistrer
+          {saveMutation.isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+          {saveMutation.isPending ? "Enregistrement..." : <><Save data-icon="inline-start" /> Enregistrer</>}
         </Button>
       </div>
 
@@ -126,7 +120,7 @@ export default function TeacherUnavailability() {
       </div>
 
       {isLoading ? (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <Skeleton className="h-96 w-full rounded-xl" />
         </div>
       ) : (

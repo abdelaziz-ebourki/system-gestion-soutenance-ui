@@ -1,8 +1,9 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { cn } from "@/lib/utils";
 import { GripVertical, Users } from "lucide-react";
 import type { Jury } from "@/types";
-import { Badge } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
 import { useProjects } from "@/hooks/queries";
 
 interface DraggableJurySlotProps {
@@ -27,21 +28,19 @@ export default function DraggableJurySlot({ jury, isOverlay }: DraggableJurySlot
     <div
       ref={setNodeRef}
       style={style}
-      className={`rounded-lg border bg-card p-3 ${
-        isDragging ? "opacity-30" : ""
-      } ${isOverlay ? "shadow-lg" : "cursor-grab hover:border-primary/40"}`}
+      className={cn("rounded-lg border bg-card p-3", isDragging && "opacity-30", isOverlay ? "shadow-lg" : "cursor-grab hover:border-primary/40")}
       data-testid={`coord-jury-slot-${jury.id}`}
       {...listeners}
       {...attributes}
     >
       <div className="flex items-start gap-2">
         {!isOverlay && (
-          <GripVertical className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <GripVertical className="mt-0.5 shrink-0 text-muted-foreground" />
         )}
-        <div className="min-w-0 flex-1 space-y-1">
+        <div className="min-w-0 flex-1 flex flex-col gap-1">
           <p className="truncate text-sm font-medium" data-testid={`coord-jury-slot-title-${jury.id}`}>{jury.projectTitle}</p>
           <div className="flex items-center gap-1 text-xs text-muted-foreground" data-testid={`coord-jury-slot-students-${jury.id}`}>
-            <Users className="size-3" />
+            <Users />
             <span>{studentNames.join(", ") || "—"}</span>
           </div>
         </div>

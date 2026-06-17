@@ -1,28 +1,17 @@
 import { useMemo, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Plus, BuildingIcon } from "lucide-react";
+import { Plus, BuildingIcon, Loader2 } from "lucide-react";
 
 import { Link } from "react-router-dom";
 
 import { useRooms, useDepartments } from "@/hooks/queries";
 import type { Room } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  EmptyState,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useRoomCrud } from "@/hooks/entities/use-room-crud";
@@ -34,7 +23,7 @@ export default function Rooms() {
   const { data: roomsData, isLoading, refetch } = useRooms();
   const [selectedRooms, setSelectedRooms] = useState<Room[]>([]);
   const { data: departmentsData } = useDepartments();
-  const departments = departmentsData?.items ?? [];
+  const departments = useMemo(() => departmentsData?.items ?? [], [departmentsData]);
   const crud = useRoomCrud();
 
   const data = roomsData?.items ?? [];
@@ -54,7 +43,7 @@ export default function Rooms() {
         header: "Département",
         cell: ({ row }) => (
           <div className="flex items-center text-muted-foreground">
-            <BuildingIcon className="mr-2 size-4" />
+            <BuildingIcon data-icon="inline-start" />
             {getDepartmentName(row.getValue("departmentId"))}
           </div>
         ),
@@ -80,7 +69,7 @@ export default function Rooms() {
 
   if (departments.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <EmptyState
           icon={BuildingIcon}
           title="Aucun département configuré"
@@ -92,7 +81,7 @@ export default function Rooms() {
   }
 
   return (
-    <div className="space-y-6 pb-20" data-testid="admin-rooms-page">
+    <div className="flex flex-col gap-6 pb-20" data-testid="admin-rooms-page">
       <div className="flex items-center justify-between">
         <div className="relative pb-4">
           <h1 className="text-4xl font-bold tracking-tight">Salles</h1>
@@ -101,7 +90,7 @@ export default function Rooms() {
         </div>
         <div className="flex gap-2">
           <BulkImportDialog entity="room" triggerButtonText="Importation en masse" onSuccess={refetch} />
-          <Button onClick={crud.openCreate} data-testid="admin-rooms-add-button"><Plus className="size-4" />Nouvelle Salle</Button>
+          <Button onClick={crud.openCreate} data-testid="admin-rooms-add-button"><Plus data-icon="inline-start" />Nouvelle Salle</Button>
         </div>
       </div>
 
@@ -143,9 +132,11 @@ export default function Rooms() {
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, departmentId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un département" /></SelectTrigger>
                   <SelectContent>
-                    {departments.map((d) => (
-                      <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
-                    ))}
+                    <SelectGroup>
+                      {departments.map((d) => (
+                        <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.departmentId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.departmentId}</p>}
@@ -159,7 +150,10 @@ export default function Rooms() {
             </FieldGroup>
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => crud.setIsDialogOpen(false)}>Annuler</Button>
-              <Button type="submit" isLoading={crud.isCreatePending || crud.isUpdatePending} loadingText="Enregistrement...">Enregistrer</Button>
+              <Button type="submit" disabled={crud.isCreatePending || crud.isUpdatePending}>
+                {(crud.isCreatePending || crud.isUpdatePending) && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {(crud.isCreatePending || crud.isUpdatePending) ? "Enregistrement..." : "Enregistrer"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
