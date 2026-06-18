@@ -1,0 +1,247 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e41]:
+      - generic [ref=e44]:
+        - list [ref=e46]:
+          - listitem [ref=e47]:
+            - link "Soutenance FSBM" [ref=e48] [cursor=pointer]:
+              - /url: /
+              - img [ref=e49]
+              - generic [ref=e53]: Soutenance FSBM
+        - list [ref=e57]:
+          - listitem [ref=e58]:
+            - link "Tableau de bord" [ref=e59] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e60]
+              - generic [ref=e65]: Tableau de bord
+          - listitem [ref=e66]:
+            - link "Départements" [ref=e67] [cursor=pointer]:
+              - /url: /admin/departments
+              - img [ref=e68]
+              - generic [ref=e72]: Départements
+          - listitem [ref=e73]:
+            - link "Salles" [ref=e74] [cursor=pointer]:
+              - /url: /admin/rooms
+              - img [ref=e75]
+              - generic [ref=e78]: Salles
+          - listitem [ref=e79]:
+            - link "Étudiants" [ref=e80] [cursor=pointer]:
+              - /url: /admin/users/students
+              - img [ref=e81]
+              - generic [ref=e84]: Étudiants
+          - listitem [ref=e85]:
+            - link "Enseignants" [ref=e86] [cursor=pointer]:
+              - /url: /admin/users/teachers
+              - img [ref=e87]
+              - generic [ref=e89]: Enseignants
+          - listitem [ref=e90]:
+            - link "Coordinateurs" [ref=e91] [cursor=pointer]:
+              - /url: /admin/users/coordinators
+              - img [ref=e92]
+              - generic [ref=e97]: Coordinateurs
+          - listitem [ref=e98]:
+            - link "Filières & Niveaux" [active] [ref=e99] [cursor=pointer]:
+              - /url: /admin/config
+              - img [ref=e100]
+              - generic [ref=e103]: Filières & Niveaux
+          - listitem [ref=e104]:
+            - link "Journal d'audit" [ref=e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+              - img [ref=e106]
+              - generic [ref=e110]: Journal d'audit
+        - list [ref=e112]:
+          - listitem [ref=e113]:
+            - button "A Ahmadi Mohamed admin@univh2c.ma" [ref=e114]:
+              - generic [ref=e116]: A
+              - generic [ref=e117]:
+                - generic [ref=e118]: Ahmadi Mohamed
+                - generic [ref=e119]: admin@univh2c.ma
+              - img [ref=e120]
+      - main [ref=e124]:
+        - generic [ref=e126]:
+          - button "Toggle Sidebar" [ref=e127]:
+            - img
+            - generic [ref=e128]: Toggle Sidebar
+          - navigation "breadcrumb" [ref=e129]:
+            - list [ref=e130]:
+              - listitem [ref=e131]:
+                - link "Admin" [ref=e390] [cursor=pointer]:
+                  - /url: /admin
+              - listitem [ref=e1253]:
+                - img [ref=e1254]
+              - listitem [ref=e1256]:
+                - link "Filières & Niveaux" [disabled] [ref=e1257]
+        - main [ref=e133]:
+          - generic [ref=e1258]:
+            - generic [ref=e1259]:
+              - heading "Configuration" [level=1] [ref=e1261]
+              - paragraph [ref=e1263]: Gérez les entités fondamentales du système.
+            - generic [ref=e1264]:
+              - generic [ref=e1265]:
+                - generic [ref=e1266]:
+                  - heading "Filières" [level=2] [ref=e1267]:
+                    - img [ref=e1268]
+                    - text: Filières
+                  - button "Ajouter" [ref=e1270]:
+                    - img
+                    - text: Ajouter
+                - generic [ref=e1271]:
+                  - textbox "Rechercher une filière..." [ref=e1273]
+                  - table [ref=e1276]:
+                    - rowgroup [ref=e1277]:
+                      - row "Select all Nom de la Filière Département Étudiants" [ref=e1278]:
+                        - columnheader "Select all" [ref=e1279]:
+                          - checkbox "Select all" [ref=e1280]
+                        - columnheader "Nom de la Filière" [ref=e1281] [cursor=pointer]:
+                          - text: Nom de la Filière
+                          - img [ref=e1282]
+                        - columnheader "Département" [ref=e1285] [cursor=pointer]:
+                          - text: Département
+                          - img [ref=e1286]
+                        - columnheader "Étudiants" [ref=e1289] [cursor=pointer]:
+                          - text: Étudiants
+                          - img [ref=e1290]
+                        - columnheader [ref=e1293]
+                    - rowgroup [ref=e1294]:
+                      - row "Select row Génie Informatique Informatique 20 Ouvrir le menu" [ref=e1295]:
+                        - cell "Select row" [ref=e1296]:
+                          - checkbox "Select row" [ref=e1297]
+                        - cell "Génie Informatique" [ref=e1298]:
+                          - generic [ref=e1299]: Génie Informatique
+                        - cell "Informatique" [ref=e1300]:
+                          - generic [ref=e1301]:
+                            - img [ref=e1302]
+                            - text: Informatique
+                        - cell "20" [ref=e1305]:
+                          - generic [ref=e1306]: "20"
+                        - cell "Ouvrir le menu" [ref=e1307]:
+                          - button "Ouvrir le menu" [ref=e1309]:
+                            - generic [ref=e1310]: Ouvrir le menu
+                            - img
+                      - row "Select row Génie Industriel Mathématiques 20 Ouvrir le menu" [ref=e1311]:
+                        - cell "Select row" [ref=e1312]:
+                          - checkbox "Select row" [ref=e1313]
+                        - cell "Génie Industriel" [ref=e1314]:
+                          - generic [ref=e1315]: Génie Industriel
+                        - cell "Mathématiques" [ref=e1316]:
+                          - generic [ref=e1317]:
+                            - img [ref=e1318]
+                            - text: Mathématiques
+                        - cell "20" [ref=e1321]:
+                          - generic [ref=e1322]: "20"
+                        - cell "Ouvrir le menu" [ref=e1323]:
+                          - button "Ouvrir le menu" [ref=e1325]:
+                            - generic [ref=e1326]: Ouvrir le menu
+                            - img
+                      - row "Select row Génie Civil Physique 20 Ouvrir le menu" [ref=e1327]:
+                        - cell "Select row" [ref=e1328]:
+                          - checkbox "Select row" [ref=e1329]
+                        - cell "Génie Civil" [ref=e1330]:
+                          - generic [ref=e1331]: Génie Civil
+                        - cell "Physique" [ref=e1332]:
+                          - generic [ref=e1333]:
+                            - img [ref=e1334]
+                            - text: Physique
+                        - cell "20" [ref=e1337]:
+                          - generic [ref=e1338]: "20"
+                        - cell "Ouvrir le menu" [ref=e1339]:
+                          - button "Ouvrir le menu" [ref=e1341]:
+                            - generic [ref=e1342]: Ouvrir le menu
+                            - img
+                      - row "Select row Génie Électrique Biologie 20 Ouvrir le menu" [ref=e1343]:
+                        - cell "Select row" [ref=e1344]:
+                          - checkbox "Select row" [ref=e1345]
+                        - cell "Génie Électrique" [ref=e1346]:
+                          - generic [ref=e1347]: Génie Électrique
+                        - cell "Biologie" [ref=e1348]:
+                          - generic [ref=e1349]:
+                            - img [ref=e1350]
+                            - text: Biologie
+                        - cell "20" [ref=e1353]:
+                          - generic [ref=e1354]: "20"
+                        - cell "Ouvrir le menu" [ref=e1355]:
+                          - button "Ouvrir le menu" [ref=e1357]:
+                            - generic [ref=e1358]: Ouvrir le menu
+                            - img
+                      - row "Select row Management Informatique 20 Ouvrir le menu" [ref=e1359]:
+                        - cell "Select row" [ref=e1360]:
+                          - checkbox "Select row" [ref=e1361]
+                        - cell "Management" [ref=e1362]:
+                          - generic [ref=e1363]: Management
+                        - cell "Informatique" [ref=e1364]:
+                          - generic [ref=e1365]:
+                            - img [ref=e1366]
+                            - text: Informatique
+                        - cell "20" [ref=e1369]:
+                          - generic [ref=e1370]: "20"
+                        - cell "Ouvrir le menu" [ref=e1371]:
+                          - button "Ouvrir le menu" [ref=e1373]:
+                            - generic [ref=e1374]: Ouvrir le menu
+                            - img
+                  - generic [ref=e1375]:
+                    - generic [ref=e1376]:
+                      - generic [ref=e1377]: Page 1 sur 1
+                      - combobox [ref=e1378]:
+                        - generic [ref=e1379]: 10/ page
+                        - img
+                    - generic [ref=e1380]:
+                      - button "Précédent" [disabled]
+                      - button "Suivant" [disabled]
+              - generic [ref=e1381]:
+                - generic [ref=e1382]:
+                  - heading "Niveaux" [level=2] [ref=e1383]:
+                    - img [ref=e1384]
+                    - text: Niveaux
+                  - button "Ajouter" [ref=e1388]:
+                    - img
+                    - text: Ajouter
+                - generic [ref=e1389]:
+                  - textbox "Rechercher un niveau..." [ref=e1391]
+                  - table [ref=e1394]:
+                    - rowgroup [ref=e1395]:
+                      - row "Select all Nom du Niveau" [ref=e1396]:
+                        - columnheader "Select all" [ref=e1397]:
+                          - checkbox "Select all" [ref=e1398]
+                        - columnheader "Nom du Niveau" [ref=e1399] [cursor=pointer]:
+                          - text: Nom du Niveau
+                          - img [ref=e1400]
+                        - columnheader [ref=e1403]
+                    - rowgroup [ref=e1404]:
+                      - row "Select row Licence Ouvrir le menu" [ref=e1405]:
+                        - cell "Select row" [ref=e1406]:
+                          - checkbox "Select row" [ref=e1407]
+                        - cell "Licence" [ref=e1408]:
+                          - generic [ref=e1409]: Licence
+                        - cell "Ouvrir le menu" [ref=e1410]:
+                          - button "Ouvrir le menu" [ref=e1412]:
+                            - generic [ref=e1413]: Ouvrir le menu
+                            - img
+                      - row "Select row Master Ouvrir le menu" [ref=e1414]:
+                        - cell "Select row" [ref=e1415]:
+                          - checkbox "Select row" [ref=e1416]
+                        - cell "Master" [ref=e1417]:
+                          - generic [ref=e1418]: Master
+                        - cell "Ouvrir le menu" [ref=e1419]:
+                          - button "Ouvrir le menu" [ref=e1421]:
+                            - generic [ref=e1422]: Ouvrir le menu
+                            - img
+                      - row "Select row Doctorat Ouvrir le menu" [ref=e1423]:
+                        - cell "Select row" [ref=e1424]:
+                          - checkbox "Select row" [ref=e1425]
+                        - cell "Doctorat" [ref=e1426]:
+                          - generic [ref=e1427]: Doctorat
+                        - cell "Ouvrir le menu" [ref=e1428]:
+                          - button "Ouvrir le menu" [ref=e1430]:
+                            - generic [ref=e1431]: Ouvrir le menu
+                            - img
+                  - generic [ref=e1432]:
+                    - generic [ref=e1433]:
+                      - generic [ref=e1434]: Page 1 sur 1
+                      - combobox [ref=e1435]:
+                        - generic [ref=e1436]: 10/ page
+                        - img
+                    - generic [ref=e1437]:
+                      - button "Précédent" [disabled]
+                      - button "Suivant" [disabled]
+    - region "Notifications alt+T"
+  - generic [ref=e373]: Étudiants

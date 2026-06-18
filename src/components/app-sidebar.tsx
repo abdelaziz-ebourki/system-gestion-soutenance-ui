@@ -3,29 +3,8 @@ import { siteConfig } from "@/config/site";
 import * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import {
-  LayoutDashboardIcon,
-  UsersIcon,
-  Settings2Icon,
-  CalendarIcon,
-  BookOpenIcon,
-  GraduationCapIcon,
-  FileTextIcon,
-  BuildingIcon,
-  HistoryIcon,
-  University,
-  AlertTriangle,
-  FileCheck2,
-} from "lucide-react";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { LayoutDashboardIcon, UsersIcon, Settings2Icon, CalendarIcon, BookOpenIcon, GraduationCapIcon, FileTextIcon, BuildingIcon, HistoryIcon, University, AlertTriangle, FileCheck2 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { ROUTES } from "@/config/routes";
 
@@ -170,13 +149,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:p-1.5!"
               asChild
             >
-              <a href="/">
-                <img src="/logo.svg" alt="Logo" className="size-10" />
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold text-lg tracking-tight">
-                    {siteConfig.name}
-                  </span>
-                </div>
+              <a href="/" className="flex items-center gap-3">
+                <svg viewBox="0 0 32 32" className="size-8 shrink-0 text-sidebar-primary" fill="none" aria-hidden="true">
+                  <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="1.5" />
+                  <circle cx="16" cy="16" r="9" stroke="currentColor" strokeWidth="1.25" className="text-sidebar-accent-foreground/60" />
+                  <circle cx="16" cy="16" r="4" fill="currentColor" />
+                </svg>
+                <span className="truncate font-semibold text-lg tracking-tight">
+                  {siteConfig.name}
+                </span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

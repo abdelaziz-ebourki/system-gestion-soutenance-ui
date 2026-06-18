@@ -1,25 +1,14 @@
 import { useMemo, useState } from "react";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Plus, BookOpen, Layers, BuildingIcon } from "lucide-react";
+import { Plus, BookOpen, Layers, BuildingIcon, Loader2 } from "lucide-react";
 
 import { useMajors, useDepartments } from "@/hooks/queries";
 import type { Major, Level } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { useMajorCrud } from "@/hooks/entities/use-major-crud";
 import { useLevelCrud } from "@/hooks/entities/use-level-crud";
@@ -37,7 +26,7 @@ export default function Configuration() {
   const majorCrud = useMajorCrud();
   const levelCrud = useLevelCrud();
 
-  const departments = departmentsData?.items ?? [];
+  const departments = useMemo(() => departmentsData?.items ?? [], [departmentsData]);
 
   const majorColumns = useMemo<ColumnDef<Major>[]>(() => [
     {
@@ -54,7 +43,7 @@ export default function Configuration() {
         const dept = departments.find((d) => d.id === id);
         return (
           <div className="flex items-center text-muted-foreground">
-            <BuildingIcon className="mr-2 size-4" />
+            <BuildingIcon data-icon="inline-start" />
             {dept?.name ?? id}
           </div>
         );
@@ -96,7 +85,7 @@ export default function Configuration() {
   ], [levelCrud]);
 
   return (
-    <div className="space-y-6 pb-20" data-testid="admin-configuration-page">
+    <div className="flex flex-col gap-6 pb-20" data-testid="admin-configuration-page">
       <div>
         <div className="relative pb-4">
           <h1 className="text-4xl font-bold tracking-tight">Configuration</h1>
@@ -107,14 +96,14 @@ export default function Configuration() {
         </p>
       </div>
 
-      <div className="space-y-6">
-        <div className="space-y-4">
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <BookOpen className="size-5" /> Filières
+              <BookOpen data-icon="inline-start" /> Filières
             </h2>
             <Button size="sm" onClick={majorCrud.openCreate}>
-              <Plus className="size-4" /> Ajouter
+              <Plus data-icon="inline-start" /> Ajouter
             </Button>
           </div>
             <DataTable
@@ -129,13 +118,13 @@ export default function Configuration() {
             />
         </div>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Layers className="size-5" /> Niveaux
+              <Layers data-icon="inline-start" /> Niveaux
             </h2>
             <Button size="sm" onClick={levelCrud.openCreate}>
-              <Plus className="size-4" /> Ajouter
+              <Plus data-icon="inline-start" /> Ajouter
             </Button>
           </div>
             <DataTable
@@ -214,12 +203,14 @@ export default function Configuration() {
                     <SelectValue placeholder="Choisir un département" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">Aucun</SelectItem>
-                    {departments.map((d) => (
-                      <SelectItem key={d.id} value={String(d.id)}>
-                        {d.name}
-                      </SelectItem>
-                    ))}
+                    <SelectGroup>
+                      <SelectItem value="none">Aucun</SelectItem>
+                      {departments.map((d) => (
+                        <SelectItem key={d.id} value={String(d.id)}>
+                          {d.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </Field>
@@ -227,10 +218,10 @@ export default function Configuration() {
             <DialogFooter>
               <Button
                 type="submit"
-                isLoading={majorCrud.isCreatePending || majorCrud.isUpdatePending}
-                loadingText="Enregistrement..."
+                disabled={majorCrud.isCreatePending || majorCrud.isUpdatePending}
               >
-                Enregistrer
+                {(majorCrud.isCreatePending || majorCrud.isUpdatePending) && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {(majorCrud.isCreatePending || majorCrud.isUpdatePending) ? "Enregistrement..." : "Enregistrer"}
               </Button>
             </DialogFooter>
           </form>
@@ -268,10 +259,10 @@ export default function Configuration() {
             <DialogFooter>
               <Button
                 type="submit"
-                isLoading={levelCrud.isCreatePending || levelCrud.isUpdatePending}
-                loadingText="Enregistrement..."
+                disabled={levelCrud.isCreatePending || levelCrud.isUpdatePending}
               >
-                Enregistrer
+                {(levelCrud.isCreatePending || levelCrud.isUpdatePending) && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {(levelCrud.isCreatePending || levelCrud.isUpdatePending) ? "Enregistrement..." : "Enregistrer"}
               </Button>
             </DialogFooter>
           </form>

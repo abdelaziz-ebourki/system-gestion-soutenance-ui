@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Loader2 } from "lucide-react";
 
 import {
   useTeachersList, useProjects, useCreateJury, useUpdateJury, useJuryRoleTemplates,
@@ -8,21 +9,10 @@ import { validate, jurySchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { getFullName, getErrorMessage } from "@/lib/utils";
 import type { Jury } from "@/types";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Label,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CreateJuryDialogProps {
   open: boolean;
@@ -179,89 +169,97 @@ export function CreateJuryDialog({
               : "Sélectionnez un projet, un modèle de jury, puis assignez les enseignants aux rôles."}
           </DialogDescription>
         </DialogHeader>
-        <form id="create-jury-form" className="grid gap-4" onSubmit={handleSubmit}>
-          <div className="grid gap-2">
-            <Label htmlFor="jury-project">Projet</Label>
-            <Select
-              value={form.formData.projectId}
-              onValueChange={(val) => form.setFormData({
-                ...form.formData,
-                projectId: val || "",
-                templateId: "",
-                members: [],
-              })}
-              disabled={isLoadingOptions || isEdit}
-            >
-              <SelectTrigger id="jury-project" fullWidth data-testid="coord-jury-create-project">
-                <SelectValue placeholder="Sélectionner un projet" />
-              </SelectTrigger>
-              <SelectContent>
-                {filteredProjects.map((project) => (
-                  <SelectItem key={project.id} value={String(project.id)}>
-                    {project.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {form.fieldErrors?.projectId && (
-              <p className="text-sm font-medium text-destructive">{form.fieldErrors.projectId}</p>
-            )}
-          </div>
-
-          {selectedProject && (
-            <div className="grid gap-2">
-              <Label htmlFor="jury-template">Modèle de jury</Label>
+        <form id="create-jury-form" onSubmit={handleSubmit}>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="jury-project">Projet</FieldLabel>
               <Select
-                value={form.formData.templateId}
+                value={form.formData.projectId}
                 onValueChange={(val) => form.setFormData({
                   ...form.formData,
-                  templateId: val || "",
+                  projectId: val || "",
+                  templateId: "",
                   members: [],
                 })}
                 disabled={isLoadingOptions || isEdit}
               >
-                <SelectTrigger id="jury-template" fullWidth data-testid="coord-jury-create-template">
-                  <SelectValue placeholder="Sélectionner un modèle" />
+                <SelectTrigger id="jury-project" fullWidth data-testid="coord-jury-create-project">
+                  <SelectValue placeholder="Sélectionner un projet" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availableTemplates.map((t) => (
-                  <SelectItem key={t.id} value={String(t.id)}>
-                    {t.name}
-                  </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form.fieldErrors?.templateId && (
-                <p className="text-sm font-medium text-destructive">{form.fieldErrors.templateId}</p>
-              )}
-            </div>
-          )}
-
-          {slotEntries.map((slot, idx) => {
-            const value = form.formData.members[idx]?.teacherId ?? "";
-            const filtered = filteredTeachersBySlot[idx] ?? [];
-            return (
-              <div key={`slot-${idx}`} className="grid gap-2" data-testid={`coord-jury-create-slot-${idx}`}>
-                <Label>{slot.label}</Label>
-                <Select
-                  value={value}
-                  onValueChange={(val) => updateMember(idx, val || "")}
-                  disabled={isLoadingOptions}
-                >
-                  <SelectTrigger fullWidth>
-                    <SelectValue placeholder={`Sélectionner ${slot.label.toLowerCase()}`} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {filtered.map((teacher) => (
-                      <SelectItem key={teacher.id} value={String(teacher.id)}>
-                        {getFullName(teacher)}
+                  <SelectGroup>
+                    {filteredProjects.map((project) => (
+                      <SelectItem key={project.id} value={String(project.id)}>
+                        {project.title}
                       </SelectItem>
                     ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              {form.fieldErrors?.projectId && (
+                <p className="text-sm font-medium text-destructive">{form.fieldErrors.projectId}</p>
+              )}
+            </Field>
+
+            {selectedProject && (
+              <Field>
+                <FieldLabel htmlFor="jury-template">Modèle de jury</FieldLabel>
+                <Select
+                  value={form.formData.templateId}
+                  onValueChange={(val) => form.setFormData({
+                    ...form.formData,
+                    templateId: val || "",
+                    members: [],
+                  })}
+                  disabled={isLoadingOptions || isEdit}
+                >
+                  <SelectTrigger id="jury-template" fullWidth data-testid="coord-jury-create-template">
+                    <SelectValue placeholder="Sélectionner un modèle" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {availableTemplates.map((t) => (
+                      <SelectItem key={t.id} value={String(t.id)}>
+                        {t.name}
+                      </SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
-              </div>
-            );
-          })}
+                {form.fieldErrors?.templateId && (
+                  <p className="text-sm font-medium text-destructive">{form.fieldErrors.templateId}</p>
+                )}
+              </Field>
+            )}
+
+            {slotEntries.map((slot, idx) => {
+              const value = form.formData.members[idx]?.teacherId ?? "";
+              const filtered = filteredTeachersBySlot[idx] ?? [];
+              return (
+                <Field key={`slot-${idx}`} data-testid={`coord-jury-create-slot-${idx}`}>
+                  <FieldLabel>{slot.label}</FieldLabel>
+                  <Select
+                    value={value}
+                    onValueChange={(val) => updateMember(idx, val || "")}
+                    disabled={isLoadingOptions}
+                  >
+                    <SelectTrigger fullWidth>
+                      <SelectValue placeholder={`Sélectionner ${slot.label.toLowerCase()}`} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {filtered.map((teacher) => (
+                          <SelectItem key={teacher.id} value={String(teacher.id)}>
+                            {getFullName(teacher)}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+              );
+            })}
+          </FieldGroup>
         </form>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)} data-testid="coord-jury-create-cancel">
@@ -270,11 +268,11 @@ export function CreateJuryDialog({
           <Button
             type="submit"
             form="create-jury-form"
-            isLoading={isPending}
-            disabled={isLoadingOptions}
+            disabled={isLoadingOptions || isPending}
             data-testid="coord-jury-create-submit"
           >
-            {isEdit ? "Enregistrer" : "Créer le jury"}
+            {isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+            {isPending ? (isEdit ? "Enregistrer" : "Créer le jury") : (isEdit ? "Enregistrer" : "Créer le jury")}
           </Button>
         </DialogFooter>
       </DialogContent>

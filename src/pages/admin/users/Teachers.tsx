@@ -1,27 +1,16 @@
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, Loader2 } from "lucide-react";
 
 import { useTeachers, useDepartments } from "@/hooks/queries";
 import type { Teacher, Department } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
-import {
-  Badge,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  EmptyState,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -44,7 +33,7 @@ export default function Teachers() {
     limit: isFiltering ? MAX_TEACHER_FETCH_LIMIT : pagination.pageSize,
   });
   const { data: departmentsData } = useDepartments();
-  const departments = departmentsData?.items ?? [];
+  const departments = useMemo(() => departmentsData?.items ?? [], [departmentsData]);
   const crud = useTeacherCrud();
 
   const data = teachersData?.items ?? [];
@@ -85,7 +74,7 @@ export default function Teachers() {
 
   if (departments.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <EmptyState
           icon={Users}
           title="Configuration requise"
@@ -97,7 +86,7 @@ export default function Teachers() {
   }
 
   return (
-    <div className="space-y-6 pb-20" data-testid="admin-teachers-page">
+    <div className="flex flex-col gap-6 pb-20" data-testid="admin-teachers-page">
       <div className="flex items-center justify-between">
         <div className="relative pb-4">
           <h1 className="text-4xl font-bold tracking-tight">Enseignants</h1>
@@ -107,7 +96,7 @@ export default function Teachers() {
         <div className="flex gap-2">
           <BulkImportDialog entity="teacher" triggerButtonText="Importation en masse" onSuccess={refetch} />
           <Button onClick={crud.openCreate} data-testid="admin-teachers-add-button">
-            <Plus className="size-4" /> Nouvel Enseignant
+            <Plus data-icon="inline-start" /> Nouvel Enseignant
           </Button>
         </div>
       </div>
@@ -145,7 +134,7 @@ export default function Teachers() {
             <DialogDescription>Remplissez les informations de l'enseignant.</DialogDescription>
           </DialogHeader>
           <form onSubmit={crud.handleSubmit}>
-            <FieldGroup className="py-4 space-y-4">
+            <FieldGroup className="py-4 flex flex-col gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <Field>
                   <FieldLabel>Nom</FieldLabel>
@@ -172,14 +161,19 @@ export default function Teachers() {
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, departmentId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un département" /></SelectTrigger>
                   <SelectContent>
-                     {departments.map((d: Department) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
+                    <SelectGroup>
+                      {departments.map((d: Department) => <SelectItem key={d.id} value={String(d.id)}>{d.name}</SelectItem>)}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.departmentId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.departmentId}</p>}
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <Button type="submit" isLoading={crud.isCreatePending || crud.isUpdatePending} loadingText="Enregistrement...">Enregistrer</Button>
+              <Button type="submit" disabled={crud.isCreatePending || crud.isUpdatePending}>
+                {(crud.isCreatePending || crud.isUpdatePending) && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {(crud.isCreatePending || crud.isUpdatePending) ? "Enregistrement..." : "Enregistrer"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

@@ -1,21 +1,13 @@
+import { Loader2 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { useProjects, useGroups, useAssignProjectToGroup } from "@/hooks/queries";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import type { Group } from "@/types";
 
 interface AssignProjectDialogProps {
@@ -82,36 +74,39 @@ export function AssignProjectDialog({
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="py-4">
-            {projectsQuery.isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              </div>
-            ) : availableProjects.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                Aucun projet disponible. Créez d'abord un projet.
-              </p>
-            ) : (
-              <Select value={selectedProjectId} onValueChange={(v) => setSelectedProjectId(v ?? "")} data-testid="coord-assign-project-select">
-                <SelectTrigger>
-                  <SelectValue placeholder="Choisir un projet" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableProjects.map((p) => (
-                    <SelectItem key={p.id} value={String(p.id)}>
-                      {p.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
+          <FieldGroup>
+            <Field>
+              <FieldLabel>Projet</FieldLabel>
+              {projectsQuery.isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                </div>
+              ) : availableProjects.length === 0 ? (
+                <EmptyState description="Aucun projet disponible. Créez d'abord un projet." />
+              ) : (
+                <Select value={selectedProjectId} onValueChange={(v) => setSelectedProjectId(v ?? "")} data-testid="coord-assign-project-select">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choisir un projet" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {availableProjects.map((p) => (
+                        <SelectItem key={p.id} value={String(p.id)}>
+                          {p.title}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
+            </Field>
+          </FieldGroup>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} data-testid="coord-assign-project-cancel">
               Annuler
             </Button>
-            <Button type="submit" disabled={!selectedProjectId} isLoading={assignMutation.isPending} data-testid="coord-assign-project-submit">
-              Assigner
+            <Button type="submit" disabled={!selectedProjectId || assignMutation.isPending} data-testid="coord-assign-project-submit">
+              {assignMutation.isPending ? <><Loader2 data-icon="inline-start" className="animate-spin" /> Assignation...</> : "Assigner"}
             </Button>
           </DialogFooter>
         </form>

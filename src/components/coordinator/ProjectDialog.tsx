@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Loader2 } from "lucide-react";
 
 import { useTeachersList, useStudents, useCreateProject, useUpdateProject } from "@/hooks/queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
@@ -7,31 +8,14 @@ import type { DefenseType, Project } from "@/types";
 import { DEFENSE_TYPE_OPTIONS, MAX_STUDENT_FETCH_LIMIT } from "@/lib/constants";
 import { toast } from "sonner";
 import { getFullName, getErrorMessage } from "@/lib/utils";
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Label,
-  MultiSelect,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Textarea,
-  Combobox,
-  ComboboxInput,
-  ComboboxContent,
-  ComboboxList,
-  ComboboxItem,
-  ComboboxEmpty,
-  ComboboxValue,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Combobox, ComboboxInput, ComboboxContent, ComboboxList, ComboboxItem, ComboboxEmpty, ComboboxValue } from "@/components/ui/combobox";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ProjectDialogProps {
   open: boolean;
@@ -147,95 +131,97 @@ export function ProjectDialog({
           </DialogDescription>
         </DialogHeader>
          <form
-           id={formId}
-           className="grid gap-4"
-           onSubmit={handleSubmit}
-           data-testid="coord-project-dialog-form"
-         >
-          <div className="grid gap-2">
-            <Label htmlFor={`${formId}-title`}>Titre</Label>
-            <Input
-              id={`${formId}-title`}
-              value={form.formData.title}
-              onChange={(event) => form.setFormData({ ...form.formData, title: event.target.value })}
-              required
-              error={form.fieldErrors?.title}
-              data-testid="coord-project-dialog-title"
-            />
-          </div>
+            id={formId}
+            onSubmit={handleSubmit}
+            data-testid="coord-project-dialog-form"
+          >
+           <FieldGroup>
+             <Field>
+               <FieldLabel htmlFor={`${formId}-title`}>Titre</FieldLabel>
+               <Input
+                 id={`${formId}-title`}
+                 value={form.formData.title}
+                 onChange={(event) => form.setFormData({ ...form.formData, title: event.target.value })}
+                 required
+                 error={form.fieldErrors?.title}
+                 data-testid="coord-project-dialog-title"
+               />
+             </Field>
 
-          <div className="grid gap-2">
-            <Label htmlFor={`${formId}-description`}>Description</Label>
-            <Textarea
-              id={`${formId}-description`}
-              value={form.formData.description}
-              onChange={(event) => form.setFormData({ ...form.formData, description: event.target.value })}
-              className="min-h-28"
-              data-testid="coord-project-dialog-description"
-            />
-          </div>
+             <Field>
+               <FieldLabel htmlFor={`${formId}-description`}>Description</FieldLabel>
+               <Textarea
+                 id={`${formId}-description`}
+                 value={form.formData.description}
+                 onChange={(event) => form.setFormData({ ...form.formData, description: event.target.value })}
+                 className="min-h-28"
+                 data-testid="coord-project-dialog-description"
+               />
+             </Field>
 
-          <div className="grid gap-2">
-            <Label htmlFor={`${formId}-defenseType`}>Type de soutenance</Label>
-            <Select
-              value={form.formData.defenseType}
-              onValueChange={(val) => form.setFormData({ ...form.formData, defenseType: val as DefenseType })}
-            >
-              <SelectTrigger id={`${formId}-defenseType`} fullWidth data-testid="coord-project-dialog-defense-type">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {DEFENSE_TYPE_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+             <Field>
+               <FieldLabel htmlFor={`${formId}-defenseType`}>Type de soutenance</FieldLabel>
+               <Select
+                 value={form.formData.defenseType}
+                 onValueChange={(val) => form.setFormData({ ...form.formData, defenseType: val as DefenseType })}
+               >
+                 <SelectTrigger id={`${formId}-defenseType`} fullWidth data-testid="coord-project-dialog-defense-type">
+                   <SelectValue />
+                 </SelectTrigger>
+                 <SelectContent>
+                   <SelectGroup>
+                     {DEFENSE_TYPE_OPTIONS.map((opt) => (
+                       <SelectItem key={opt.value} value={opt.value}>
+                         {opt.label}
+                       </SelectItem>
+                     ))}
+                   </SelectGroup>
+                 </SelectContent>
+               </Select>
+             </Field>
 
-          <div className="grid gap-2">
-            <Label>Encadrant</Label>
-            <Combobox
-              value={form.formData.supervisorId}
-              onValueChange={(val) => form.setFormData({ ...form.formData, supervisorId: val || "" })}
-              data-testid="coord-project-dialog-supervisor"
-            >
-              <ComboboxInput placeholder="Rechercher un encadrant..." showTrigger>
-                <ComboboxValue />
-              </ComboboxInput>
-              <ComboboxContent>
-                <ComboboxList>
-                  {teachers.map((teacher) => (
-                    <ComboboxItem key={teacher.id} value={String(teacher.id)}>
-                      {getFullName(teacher)}
-                    </ComboboxItem>
-                  ))}
-                  <ComboboxEmpty>Aucun encadrant trouvé</ComboboxEmpty>
-                </ComboboxList>
-              </ComboboxContent>
-            </Combobox>
-            {form.fieldErrors?.supervisorId && (
-              <p className="text-sm font-medium text-destructive">{form.fieldErrors.supervisorId}</p>
-            )}
-          </div>
+             <Field>
+               <FieldLabel>Encadrant</FieldLabel>
+               <Combobox
+                 value={form.formData.supervisorId}
+                 onValueChange={(val) => form.setFormData({ ...form.formData, supervisorId: val || "" })}
+                 data-testid="coord-project-dialog-supervisor"
+               >
+                 <ComboboxInput placeholder="Rechercher un encadrant..." showTrigger>
+                   <ComboboxValue />
+                 </ComboboxInput>
+                 <ComboboxContent>
+                   <ComboboxList>
+                     {teachers.map((teacher) => (
+                       <ComboboxItem key={teacher.id} value={String(teacher.id)}>
+                         {getFullName(teacher)}
+                       </ComboboxItem>
+                     ))}
+                     <ComboboxEmpty>Aucun encadrant trouvé</ComboboxEmpty>
+                   </ComboboxList>
+                 </ComboboxContent>
+               </Combobox>
+               {form.fieldErrors?.supervisorId && (
+                 <p className="text-sm font-medium text-destructive">{form.fieldErrors.supervisorId}</p>
+               )}
+             </Field>
 
-          <div className="grid gap-2">
-            <Label>Étudiants</Label>
-            <MultiSelect
-              options={studentOptions}
-              value={form.formData.studentIds}
-              onChange={(ids) => form.setFormData({ ...form.formData, studentIds: ids })}
-              placeholder="Sélectionner des étudiants..."
-              disabled={studentsQuery.isLoading}
-              data-testid="coord-project-dialog-students"
-            />
-            {form.fieldErrors?.studentIds && (
-              <p className="text-sm font-medium text-destructive">{form.fieldErrors.studentIds}</p>
-            )}
-          </div>
-
-        </form>
+             <Field>
+               <FieldLabel>Étudiants</FieldLabel>
+               <MultiSelect
+                 options={studentOptions}
+                 value={form.formData.studentIds}
+                 onChange={(ids) => form.setFormData({ ...form.formData, studentIds: ids })}
+                 placeholder="Sélectionner des étudiants..."
+                 disabled={studentsQuery.isLoading}
+                 data-testid="coord-project-dialog-students"
+               />
+               {form.fieldErrors?.studentIds && (
+                 <p className="text-sm font-medium text-destructive">{form.fieldErrors.studentIds}</p>
+               )}
+             </Field>
+           </FieldGroup>
+         </form>
         <DialogFooter>
           <Button
             type="button"
@@ -248,11 +234,11 @@ export function ProjectDialog({
           <Button
             type="submit"
             form={formId}
-            isLoading={isEdit ? updateProjectMutation.isPending : createProjectMutation.isPending}
-            disabled={teachersQuery.isLoading}
+            disabled={teachersQuery.isLoading || (isEdit ? updateProjectMutation.isPending : createProjectMutation.isPending)}
             data-testid="coord-project-dialog-submit"
           >
-            {isEdit ? "Sauvegarder" : "Créer le projet"}
+            {(isEdit ? updateProjectMutation.isPending : createProjectMutation.isPending) && <Loader2 data-icon="inline-start" className="animate-spin" />}
+            {(isEdit ? updateProjectMutation.isPending : createProjectMutation.isPending) ? (isEdit ? "Sauvegarder" : "Créer le projet") : (isEdit ? "Sauvegarder" : "Créer le projet")}
           </Button>
         </DialogFooter>
       </DialogContent>

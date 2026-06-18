@@ -6,7 +6,7 @@ export function useScheduleSession() {
   const [selectedSessionId, setSelectedSessionId] = useState<number | null>(null);
 
   const { data: sessionsData, isLoading: sessionsLoading } = useCoordinatorDefenseSessions();
-  const sessions = sessionsData?.items ?? [];
+  const sessions = useMemo(() => sessionsData?.items ?? [], [sessionsData]);
   const { data: defenseSettings } = useDefenseSettings();
  
   useEffect(() => {
@@ -31,9 +31,8 @@ export function useScheduleSession() {
   const timeSlots = useMemo(() => {
     if (!currentSession) return [];
     const { startTime = "08:00", endTime = "18:00" } = defenseSettings ?? {};
-    // FIXME: temporary compensation until backend serves correct values
-    const duration = (currentSession.defenseDuration ?? 0) + 30;
-    const breakDuration = (currentSession.breakDuration ?? 0) + 20;
+    const duration = currentSession.defenseDuration ?? 0;
+    const breakDuration = currentSession.breakDuration ?? 0;
     const step = duration + breakDuration;
     const slots: string[] = [];
     let [h, m] = startTime.split(":").map(Number);
@@ -58,7 +57,6 @@ export function useScheduleSession() {
     currentSession,
     days,
     timeSlots,
-    // FIXME: matches the +30 compensation above — remove together
-    defenseDuration: (currentSession?.defenseDuration ?? 0) + 30,
+    defenseDuration: currentSession?.defenseDuration ?? 0,
   };
 }

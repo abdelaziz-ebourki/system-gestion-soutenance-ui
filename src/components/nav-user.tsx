@@ -1,29 +1,7 @@
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -95,7 +73,7 @@ export function NavUser({
                     {user.email}
                   </span>
                 </div>
-                <EllipsisVerticalIcon className="ml-auto size-4" />
+                <EllipsisVerticalIcon className="ml-auto" />
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -127,11 +105,11 @@ export function NavUser({
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem className="cursor-pointer" onClick={() => navigate(ROUTES.SHARED.PROFILE)} data-testid="nav-user-profile">
-                  <CircleUserRoundIcon className="size-4" />
+                  <CircleUserRoundIcon data-icon="inline-start" />
                   Mon Profil
                 </DropdownMenuItem>
                 <DropdownMenuItem className="cursor-pointer" onClick={() => navigate(ROUTES.SHARED.NOTIFICATIONS)} data-testid="nav-user-notifications">
-                  <BellIcon className="size-4" />
+                  <BellIcon data-icon="inline-start" />
                   Notifications
                   <UnreadBadge />
                 </DropdownMenuItem>
@@ -140,8 +118,8 @@ export function NavUser({
               <DropdownMenuGroup>
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="cursor-pointer">
-                    <SunIcon className="mr-2 size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                    <MoonIcon className="absolute mr-2 size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                    <SunIcon data-icon="inline-start" className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                    <MoonIcon data-icon="inline-start" className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                     <span>Thème</span>
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
@@ -151,31 +129,31 @@ export function NavUser({
                         className="cursor-pointer justify-between"
                       >
                         <div className="flex items-center">
-                          <SunIcon className="mr-2 size-4" />
+                          <SunIcon data-icon="inline-start" />
                           Clair
                         </div>
-                        {theme === "light" && <CheckIcon className="size-4" />}
+                        {theme === "light" && <CheckIcon />}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => setTheme("dark")}
                         className="cursor-pointer justify-between"
                       >
                         <div className="flex items-center">
-                          <MoonIcon className="mr-2 size-4" />
+                          <MoonIcon data-icon="inline-start" />
                           Sombre
                         </div>
-                        {theme === "dark" && <CheckIcon className="size-4" />}
+                        {theme === "dark" && <CheckIcon />}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => setTheme("system")}
                         className="cursor-pointer justify-between"
                       >
                         <div className="flex items-center">
-                          <MonitorIcon className="mr-2 size-4" />
+                          <MonitorIcon data-icon="inline-start" />
                           Système
                         </div>
                         {theme === "system" && (
-                          <CheckIcon className="size-4" />
+                          <CheckIcon />
                         )}
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
@@ -185,7 +163,7 @@ export function NavUser({
               <DropdownMenuSeparator />
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem variant="destructive" className="cursor-pointer" data-testid="nav-user-logout-trigger">
-                  <LogOutIcon className="size-4" />
+                  <LogOutIcon data-icon="inline-start" />
                   Se déconnecter
                 </DropdownMenuItem>
               </AlertDialogTrigger>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { BellIcon, CheckCheck, Info, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { BellIcon, CheckCheck, Info, AlertTriangle, CheckCircle, XCircle, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -8,13 +8,11 @@ import { useNotifications, useMarkNotificationRead, useMarkAllNotificationsRead 
 import type { AppNotification } from "@/types";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  Skeleton,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 
 const typeIcons: Record<string, typeof Info> = {
@@ -41,7 +39,7 @@ const formatTimestamp = (ts: string) => {
 
 export default function NotificationsPage() {
   const { data: notificationsData, isLoading } = useNotifications();
-  const notifications = notificationsData?.items ?? [];
+  const notifications = useMemo(() => notificationsData?.items ?? [], [notificationsData]);
   const markReadMutation = useMarkNotificationRead();
   const markAllReadMutation = useMarkAllNotificationsRead();
   const navigate = useNavigate();
@@ -74,7 +72,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight" data-testid="notifications-header">Notifications</h1>
@@ -89,11 +87,11 @@ export default function NotificationsPage() {
             variant="outline"
             size="sm"
             onClick={handleMarkAllRead}
-            isLoading={markAllReadMutation.isPending}
+            disabled={markAllReadMutation.isPending}
             data-testid="notifications-mark-all-read"
           >
-            <CheckCheck className="mr-2 size-4" />
-            Tout marquer comme lu
+            {markAllReadMutation.isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+            {markAllReadMutation.isPending ? "Tout marquer comme lu" : <><CheckCheck data-icon="inline-start" /> Tout marquer comme lu</>}
           </Button>
         )}
       </div>
@@ -101,11 +99,11 @@ export default function NotificationsPage() {
       <Card data-testid="notifications-card">
         {isLoading ? (
           <CardContent>
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex items-start gap-4">
                   <Skeleton className="size-10 rounded-full" />
-                  <div className="flex-1 space-y-2">
+                  <div className="flex-1 flex flex-col gap-2">
                     <Skeleton className="h-4 w-48" />
                     <Skeleton className="h-3 w-full" />
                   </div>
@@ -114,12 +112,8 @@ export default function NotificationsPage() {
             </div>
           </CardContent>
         ) : notifications.length === 0 ? (
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center" data-testid="notifications-empty">
-            <BellIcon className="mb-4 size-12 text-muted-foreground/50" />
-            <p className="text-lg font-medium">Aucune notification</p>
-            <p className="text-sm text-muted-foreground">
-              Les notifications apparaîtront ici lorsqu'elles seront disponibles.
-            </p>
+          <CardContent>
+            <EmptyState icon={BellIcon} title="Aucune notification" description="Les notifications apparaîtront ici une fois que vous recevrez des mises à jour." />
           </CardContent>
         ) : (
           <div className="divide-y">
@@ -135,9 +129,9 @@ export default function NotificationsPage() {
                   data-testid={`notifications-item-${notification.id}`}
                 >
                   <div className={cn("rounded-full p-2", typeColors[notification.type])}>
-                    <Icon className="size-4" />
+                    <Icon />
                   </div>
-                  <div className="flex-1 space-y-1">
+                  <div className="flex-1 flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <p className="font-medium">{notification.title}</p>
                       {!notification.read && (
@@ -162,10 +156,10 @@ export default function NotificationsPage() {
                         size="icon"
                         className="size-8"
                         onClick={() => handleMarkRead(notification.id)}
-                        isLoading={readingId === notification.id}
+                        disabled={readingId === notification.id}
                         data-testid={`notifications-mark-read-${notification.id}`}
                       >
-                        <CheckCheck className="size-4" />
+                        {readingId === notification.id ? <Loader2 data-icon="inline-start" className="animate-spin" /> : <CheckCheck />}
                       </Button>
                     )}
                   </div>

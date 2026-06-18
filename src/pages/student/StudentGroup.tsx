@@ -1,4 +1,4 @@
-import { FolderKanban, Mail, Plus, UserRound, Users } from "lucide-react";
+import { FolderKanban, Mail, Plus, UserRound, Users, Loader2 } from "lucide-react";
 
 import {
   useStudentGroup,
@@ -7,17 +7,12 @@ import {
 } from "@/hooks/queries";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Skeleton,
-  StatsCard,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatsCard } from "@/components/ui/stats-card";
 
 export default function StudentGroup() {
   const { data: workspace, isLoading } = useStudentGroup();
@@ -47,7 +42,7 @@ export default function StudentGroup() {
   const group = workspace?.currentGroup || null;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight" data-testid="student-group-header">Mon groupe</h1>
         <p className="text-muted-foreground" data-testid="student-group-description">
@@ -109,14 +104,14 @@ export default function StudentGroup() {
               La répartition actuelle de votre équipe.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="flex flex-col gap-3">
             {group?.members.map((member) => (
               <div key={member.id} className="rounded-lg border p-4" data-testid={`student-group-member-${member.id}`}>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <p className="font-medium">{member.fullName}</p>
                     <p className="mt-1 inline-flex items-center gap-2 text-sm text-muted-foreground">
-                      <Mail className="size-3.5" />
+                      <Mail />
                       {member.email}
                     </p>
                   </div>
@@ -129,9 +124,7 @@ export default function StudentGroup() {
               </div>
             ))}
             {!isLoading && !group && (
-              <div className="rounded-lg border bg-secondary/40 p-4 text-sm text-muted-foreground">
-                Vous n'appartenez à aucun groupe pour le moment.
-              </div>
+              <EmptyState variant="card" description="Vous n'appartenez à aucun groupe pour le moment." />
             )}
           </CardContent>
         </Card>
@@ -145,7 +138,7 @@ export default function StudentGroup() {
             Groupe-2, etc.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="flex flex-col gap-4">
           <div className="rounded-lg border p-4 text-sm text-muted-foreground">
             Période autorisée: {workspace?.groupCreationStartDate} au{" "}
             {workspace?.groupCreationEndDate}
@@ -154,12 +147,10 @@ export default function StudentGroup() {
             <div className="flex flex-wrap gap-3">
               <Button
                 onClick={handleCreateGroup}
-                isLoading={isSubmitting}
-                disabled={Boolean(group)}
+                disabled={Boolean(group) || isSubmitting}
                 data-testid="student-group-create-btn"
               >
-                <Plus className="mr-2 size-4" />
-                Créer un groupe
+                {isSubmitting ? <><Loader2 data-icon="inline-start" className="animate-spin" /> Création...</> : <><Plus data-icon="inline-start" /> Créer un groupe</>}
               </Button>
             </div>
           ) : (
@@ -169,7 +160,7 @@ export default function StudentGroup() {
           )}
 
           {workspace && workspace.availableGroups.length > 0 && !group && (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <p className="text-sm font-medium">Groupes disponibles</p>
               {workspace.availableGroups.map((availableGroup) => (
                 <div
@@ -186,11 +177,10 @@ export default function StudentGroup() {
                   <Button
                     variant="outline"
                     onClick={() => handleJoinGroup(availableGroup.id)}
-                    isLoading={isSubmitting}
-                    disabled={!workspace.isGroupCreationOpen}
+                    disabled={!workspace.isGroupCreationOpen || isSubmitting}
                     data-testid={`student-group-join-btn-${availableGroup.id}`}
                   >
-                    Rejoindre
+                    {isSubmitting ? <><Loader2 data-icon="inline-start" className="animate-spin" /> Jonction...</> : "Rejoindre"}
                   </Button>
                 </div>
               ))}

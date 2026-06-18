@@ -4,18 +4,12 @@ import { CalendarDays, GraduationCap, Users, Loader2, Download } from "lucide-re
 
 import { useStudentStats, useStudentDefense } from "@/hooks/queries";
 import { getStudentConvocation } from "@/lib/api";
-import {
-  Badge,
-  Button,
-  buttonVariants,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Skeleton,
-  StatsCard,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatsCard } from "@/components/ui/stats-card";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
@@ -39,14 +33,14 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <section className="rounded-lg border bg-card">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.35fr_1fr] md:px-8">
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <Badge className="w-fit" variant="secondary" data-testid="student-dashboard-hero-badge">
               Ma soutenance
             </Badge>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <h1 className="text-3xl font-bold tracking-tight md:text-4xl" data-testid="student-dashboard-hero-title">
                 Toutes les informations utiles à votre soutenance, au même
                 endroit.
@@ -65,7 +59,7 @@ export default function StudentDashboard() {
                 Un résumé rapide avant la soutenance.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="flex flex-col gap-3">
               <div className="rounded-lg border bg-background/80 p-4">
                 <p className="text-xs uppercase tracking-widest text-muted-foreground">
                   Statut
@@ -106,7 +100,7 @@ export default function StudentDashboard() {
               Le sujet, l'encadrement et le planning associés à votre dossier.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col gap-4">
             <div className="rounded-lg border p-5">
               <p className="text-sm text-muted-foreground">Projet</p>
               <p className="mt-2 text-xl font-semibold">
@@ -141,9 +135,9 @@ export default function StudentDashboard() {
                 data-testid="student-dashboard-print-btn"
               >
                 {convocationLoading ? (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 data-icon="inline-start" className="animate-spin" />
                 ) : (
-                  <Download className="mr-2 size-4" />
+                  <Download data-icon="inline-start" />
                 )}
                 Télécharger la convocation
               </Button>
@@ -166,7 +160,7 @@ export default function StudentDashboard() {
               Les membres actuellement associés à votre soutenance.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="flex flex-col gap-3">
             {defense?.juryMembers && defense.juryMembers.length > 0 ? (
               defense.juryMembers.map((member) => (
               <div
@@ -181,9 +175,7 @@ export default function StudentDashboard() {
               </div>
             ))
             ) : (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                Aucun membre du jury assigné.
-              </div>
+              <EmptyState description="Aucun membre du jury assigné." />
             )}
             {defense?.result && (
               <div className="rounded-lg border bg-secondary p-4" data-testid="student-dashboard-result">

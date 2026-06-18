@@ -341,11 +341,11 @@ export const handlers = [
   }),
 
   // Group documents
-  http.get("*/api/student/groups/:groupId/documents", () =>
+  http.get("*/api/groups/:groupId/documents", () =>
     HttpResponse.json(GROUP_DOCUMENTS),
   ),
 
-  http.post("*/api/student/groups/:groupId/documents/:type/attachments", async ({ params }) => {
+  http.post("*/api/groups/:groupId/documents/:type/attachments", async ({ params }) => {
     const { groupId, type } = params;
     return HttpResponse.json({
       id: Date.now(), groupId: Number(groupId), type,

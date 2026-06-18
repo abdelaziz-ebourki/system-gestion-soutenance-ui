@@ -1,20 +1,11 @@
 import { useState, useRef } from "react";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/lib/utils";
-import { Upload, FileUp, AlertCircle, LoaderCircle, Download } from "lucide-react";
-import {
-  Alert,
-  AlertDescription,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui";
+import { cn, getErrorMessage } from "@/lib/utils";
+import { Upload, FileUp, AlertCircle, LoaderCircle, Download, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { bulkCreateUsers, bulkCreateRooms } from "@/lib/api";
 import { bulkCreateProjects } from "@/lib/api-coordinator";
 
@@ -204,7 +195,7 @@ export function BulkImportDialog({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" data-testid="bulk-import-trigger">
-          <FileUp className="mr-2 size-4" />
+          <FileUp data-icon="inline-start" />
           {triggerButtonText}
         </Button>
       </DialogTrigger>
@@ -218,7 +209,7 @@ export function BulkImportDialog({
         </DialogHeader>
 
         <Alert className="mb-4">
-          <AlertCircle className="size-4" />
+          <AlertCircle />
           <AlertDescription>
             Le fichier Excel doit contenir les colonnes suivantes :
             <span className="font-semibold block mt-1">
@@ -228,19 +219,13 @@ export function BulkImportDialog({
         </Alert>
 
         <Button variant="ghost" size="sm" onClick={downloadTemplate} className="self-start mb-2" data-testid="download-template">
-          <Download className="mr-2 size-4" />
+          <Download data-icon="inline-start" />
           Télécharger le modèle
         </Button>
 
         <div className="grid gap-4">
           <div
-            className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-              isParsing
-                ? "border-muted-foreground/30 bg-muted"
-                : isDragging
-                  ? "border-primary bg-primary/5"
-                  : "border-border bg-muted hover:bg-accent"
-            }`}
+            className={cn("flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors", isParsing ? "border-muted-foreground/30 bg-muted" : isDragging ? "border-primary bg-primary/5" : "border-border bg-muted hover:bg-accent")}
             onDragOver={isParsing ? undefined : handleDragOver}
             onDragLeave={isParsing ? undefined : handleDragLeave}
             onDrop={isParsing ? undefined : handleDrop}
@@ -248,9 +233,9 @@ export function BulkImportDialog({
           >
             <div className="flex flex-col items-center justify-center pt-5 pb-6">
               {isParsing ? (
-                <LoaderCircle className="w-8 h-8 mb-2 text-muted-foreground animate-spin" />
+                <LoaderCircle className="size-8 mb-2 text-muted-foreground animate-spin" />
               ) : (
-                <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                <Upload className="size-8 mb-2 text-muted-foreground" />
               )}
               <p className="text-sm text-muted-foreground">
                 {isParsing ? "Analyse du fichier en cours..." : file ? file.name : "Glissez-déposez ou cliquez pour télécharger le fichier"}
@@ -277,10 +262,9 @@ export function BulkImportDialog({
         <DialogFooter>
           <Button
             onClick={handleSubmit}
-            isLoading={isSubmitting}
-            disabled={!file}
+            disabled={!file || isSubmitting}
           >
-            Importer
+            {isSubmitting ? <><Loader2 data-icon="inline-start" className="animate-spin" /> Importation...</> : "Importer"}
           </Button>
         </DialogFooter>
       </DialogContent>

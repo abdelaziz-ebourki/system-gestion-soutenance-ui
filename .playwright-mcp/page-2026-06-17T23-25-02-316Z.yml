@@ -1,0 +1,281 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e41]:
+      - generic [ref=e44]:
+        - list [ref=e46]:
+          - listitem [ref=e47]:
+            - link "Soutenance FSBM" [ref=e48] [cursor=pointer]:
+              - /url: /
+              - img [ref=e49]
+              - generic [ref=e53]: Soutenance FSBM
+        - list [ref=e57]:
+          - listitem [ref=e58]:
+            - link "Tableau de bord" [ref=e59] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e60]
+              - generic [ref=e65]: Tableau de bord
+          - listitem [ref=e66]:
+            - link "Départements" [ref=e67] [cursor=pointer]:
+              - /url: /admin/departments
+              - img [ref=e68]
+              - generic [ref=e72]: Départements
+          - listitem [ref=e73]:
+            - link "Salles" [ref=e74] [cursor=pointer]:
+              - /url: /admin/rooms
+              - img [ref=e75]
+              - generic [ref=e78]: Salles
+          - listitem [ref=e79]:
+            - link "Étudiants" [ref=e80] [cursor=pointer]:
+              - /url: /admin/users/students
+              - img [ref=e81]
+              - generic [ref=e84]: Étudiants
+          - listitem [ref=e85]:
+            - link "Enseignants" [active] [ref=e86] [cursor=pointer]:
+              - /url: /admin/users/teachers
+              - img [ref=e87]
+              - generic [ref=e89]: Enseignants
+          - listitem [ref=e90]:
+            - link "Coordinateurs" [ref=e91] [cursor=pointer]:
+              - /url: /admin/users/coordinators
+              - img [ref=e92]
+              - generic [ref=e97]: Coordinateurs
+          - listitem [ref=e98]:
+            - link "Filières & Niveaux" [ref=e99] [cursor=pointer]:
+              - /url: /admin/config
+              - img [ref=e100]
+              - generic [ref=e103]: Filières & Niveaux
+          - listitem [ref=e104]:
+            - link "Journal d'audit" [ref=e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+              - img [ref=e106]
+              - generic [ref=e110]: Journal d'audit
+        - list [ref=e112]:
+          - listitem [ref=e113]:
+            - button "A Ahmadi Mohamed admin@univh2c.ma" [ref=e114]:
+              - generic [ref=e116]: A
+              - generic [ref=e117]:
+                - generic [ref=e118]: Ahmadi Mohamed
+                - generic [ref=e119]: admin@univh2c.ma
+              - img [ref=e120]
+      - main [ref=e124]:
+        - generic [ref=e126]:
+          - button "Toggle Sidebar" [ref=e127]:
+            - img
+            - generic [ref=e128]: Toggle Sidebar
+          - navigation "breadcrumb" [ref=e129]:
+            - list [ref=e130]:
+              - listitem [ref=e131]:
+                - link "Admin" [ref=e390] [cursor=pointer]:
+                  - /url: /admin
+              - listitem [ref=e681]:
+                - img [ref=e682]
+              - listitem [ref=e684]:
+                - generic [ref=e685]: users
+              - listitem [ref=e986]:
+                - img [ref=e987]
+              - listitem [ref=e989]:
+                - link "Enseignants" [disabled] [ref=e990]
+        - main [ref=e133]:
+          - generic [ref=e991]:
+            - generic [ref=e992]:
+              - generic [ref=e993]:
+                - heading "Enseignants" [level=1] [ref=e994]
+                - paragraph [ref=e996]: Gestion du corps enseignant.
+              - generic [ref=e997]:
+                - button "Importation en masse" [ref=e998]:
+                  - img
+                  - text: Importation en masse
+                - button "Nouvel Enseignant" [ref=e999]:
+                  - img
+                  - text: Nouvel Enseignant
+            - generic [ref=e1000]:
+              - generic [ref=e1001]:
+                - textbox "Rechercher par nom, prénom ou email..." [ref=e1002]
+                - combobox [ref=e1003]:
+                  - generic [ref=e1004]: Département
+                  - img
+              - table [ref=e1007]:
+                - rowgroup [ref=e1008]:
+                  - row "Select all Nom Prénom Email Département Statut" [ref=e1009]:
+                    - columnheader "Select all" [ref=e1010]:
+                      - checkbox "Select all" [ref=e1011]
+                    - columnheader "Nom" [ref=e1012] [cursor=pointer]:
+                      - text: Nom
+                      - img [ref=e1013]
+                    - columnheader "Prénom" [ref=e1016] [cursor=pointer]:
+                      - text: Prénom
+                      - img [ref=e1017]
+                    - columnheader "Email" [ref=e1020] [cursor=pointer]:
+                      - text: Email
+                      - img [ref=e1021]
+                    - columnheader "Département" [ref=e1024] [cursor=pointer]:
+                      - text: Département
+                      - img [ref=e1025]
+                    - columnheader "Statut" [ref=e1028] [cursor=pointer]:
+                      - text: Statut
+                      - img [ref=e1029]
+                    - columnheader [ref=e1032]
+                - rowgroup [ref=e1033]:
+                  - row "Select row Ben Ali Ali teacher@univh2c.ma Informatique Actif Ouvrir le menu" [ref=e1034]:
+                    - cell "Select row" [ref=e1035]:
+                      - checkbox "Select row" [ref=e1036]
+                    - cell "Ben Ali" [ref=e1037]:
+                      - generic [ref=e1038]: Ben Ali
+                    - cell "Ali" [ref=e1039]:
+                      - generic [ref=e1040]: Ali
+                    - cell "teacher@univh2c.ma" [ref=e1041]
+                    - cell "Informatique" [ref=e1042]
+                    - cell "Actif" [ref=e1043]:
+                      - generic [ref=e1044]: Actif
+                    - cell "Ouvrir le menu" [ref=e1045]:
+                      - button "Ouvrir le menu" [ref=e1047]:
+                        - generic [ref=e1048]: Ouvrir le menu
+                        - img
+                  - row "Select row Alami Moussa moussa@univh2c.ma Mathématiques Actif Ouvrir le menu" [ref=e1049]:
+                    - cell "Select row" [ref=e1050]:
+                      - checkbox "Select row" [ref=e1051]
+                    - cell "Alami" [ref=e1052]:
+                      - generic [ref=e1053]: Alami
+                    - cell "Moussa" [ref=e1054]:
+                      - generic [ref=e1055]: Moussa
+                    - cell "moussa@univh2c.ma" [ref=e1056]
+                    - cell "Mathématiques" [ref=e1057]
+                    - cell "Actif" [ref=e1058]:
+                      - generic [ref=e1059]: Actif
+                    - cell "Ouvrir le menu" [ref=e1060]:
+                      - button "Ouvrir le menu" [ref=e1062]:
+                        - generic [ref=e1063]: Ouvrir le menu
+                        - img
+                  - row "Select row El Ghazi Hassan hassan@univh2c.ma Physique Actif Ouvrir le menu" [ref=e1064]:
+                    - cell "Select row" [ref=e1065]:
+                      - checkbox "Select row" [ref=e1066]
+                    - cell "El Ghazi" [ref=e1067]:
+                      - generic [ref=e1068]: El Ghazi
+                    - cell "Hassan" [ref=e1069]:
+                      - generic [ref=e1070]: Hassan
+                    - cell "hassan@univh2c.ma" [ref=e1071]
+                    - cell "Physique" [ref=e1072]
+                    - cell "Actif" [ref=e1073]:
+                      - generic [ref=e1074]: Actif
+                    - cell "Ouvrir le menu" [ref=e1075]:
+                      - button "Ouvrir le menu" [ref=e1077]:
+                        - generic [ref=e1078]: Ouvrir le menu
+                        - img
+                  - row "Select row Benkirane Jamila jamila@univh2c.ma Biologie Actif Ouvrir le menu" [ref=e1079]:
+                    - cell "Select row" [ref=e1080]:
+                      - checkbox "Select row" [ref=e1081]
+                    - cell "Benkirane" [ref=e1082]:
+                      - generic [ref=e1083]: Benkirane
+                    - cell "Jamila" [ref=e1084]:
+                      - generic [ref=e1085]: Jamila
+                    - cell "jamila@univh2c.ma" [ref=e1086]
+                    - cell "Biologie" [ref=e1087]
+                    - cell "Actif" [ref=e1088]:
+                      - generic [ref=e1089]: Actif
+                    - cell "Ouvrir le menu" [ref=e1090]:
+                      - button "Ouvrir le menu" [ref=e1092]:
+                        - generic [ref=e1093]: Ouvrir le menu
+                        - img
+                  - row "Select row El Ouafi Rachid rachid@univh2c.ma Informatique Actif Ouvrir le menu" [ref=e1094]:
+                    - cell "Select row" [ref=e1095]:
+                      - checkbox "Select row" [ref=e1096]
+                    - cell "El Ouafi" [ref=e1097]:
+                      - generic [ref=e1098]: El Ouafi
+                    - cell "Rachid" [ref=e1099]:
+                      - generic [ref=e1100]: Rachid
+                    - cell "rachid@univh2c.ma" [ref=e1101]
+                    - cell "Informatique" [ref=e1102]
+                    - cell "Actif" [ref=e1103]:
+                      - generic [ref=e1104]: Actif
+                    - cell "Ouvrir le menu" [ref=e1105]:
+                      - button "Ouvrir le menu" [ref=e1107]:
+                        - generic [ref=e1108]: Ouvrir le menu
+                        - img
+                  - row "Select row El Fekkak Khadija khadija@univh2c.ma Mathématiques Actif Ouvrir le menu" [ref=e1109]:
+                    - cell "Select row" [ref=e1110]:
+                      - checkbox "Select row" [ref=e1111]
+                    - cell "El Fekkak" [ref=e1112]:
+                      - generic [ref=e1113]: El Fekkak
+                    - cell "Khadija" [ref=e1114]:
+                      - generic [ref=e1115]: Khadija
+                    - cell "khadija@univh2c.ma" [ref=e1116]
+                    - cell "Mathématiques" [ref=e1117]
+                    - cell "Actif" [ref=e1118]:
+                      - generic [ref=e1119]: Actif
+                    - cell "Ouvrir le menu" [ref=e1120]:
+                      - button "Ouvrir le menu" [ref=e1122]:
+                        - generic [ref=e1123]: Ouvrir le menu
+                        - img
+                  - row "Select row Ben Omar Nabil nabil@univh2c.ma Physique Actif Ouvrir le menu" [ref=e1124]:
+                    - cell "Select row" [ref=e1125]:
+                      - checkbox "Select row" [ref=e1126]
+                    - cell "Ben Omar" [ref=e1127]:
+                      - generic [ref=e1128]: Ben Omar
+                    - cell "Nabil" [ref=e1129]:
+                      - generic [ref=e1130]: Nabil
+                    - cell "nabil@univh2c.ma" [ref=e1131]
+                    - cell "Physique" [ref=e1132]
+                    - cell "Actif" [ref=e1133]:
+                      - generic [ref=e1134]: Actif
+                    - cell "Ouvrir le menu" [ref=e1135]:
+                      - button "Ouvrir le menu" [ref=e1137]:
+                        - generic [ref=e1138]: Ouvrir le menu
+                        - img
+                  - row "Select row El Kholti Samira samira@univh2c.ma Biologie Actif Ouvrir le menu" [ref=e1139]:
+                    - cell "Select row" [ref=e1140]:
+                      - checkbox "Select row" [ref=e1141]
+                    - cell "El Kholti" [ref=e1142]:
+                      - generic [ref=e1143]: El Kholti
+                    - cell "Samira" [ref=e1144]:
+                      - generic [ref=e1145]: Samira
+                    - cell "samira@univh2c.ma" [ref=e1146]
+                    - cell "Biologie" [ref=e1147]
+                    - cell "Actif" [ref=e1148]:
+                      - generic [ref=e1149]: Actif
+                    - cell "Ouvrir le menu" [ref=e1150]:
+                      - button "Ouvrir le menu" [ref=e1152]:
+                        - generic [ref=e1153]: Ouvrir le menu
+                        - img
+                  - row "Select row El Idrissi Abdellah abdellah@univh2c.ma Informatique Actif Ouvrir le menu" [ref=e1154]:
+                    - cell "Select row" [ref=e1155]:
+                      - checkbox "Select row" [ref=e1156]
+                    - cell "El Idrissi" [ref=e1157]:
+                      - generic [ref=e1158]: El Idrissi
+                    - cell "Abdellah" [ref=e1159]:
+                      - generic [ref=e1160]: Abdellah
+                    - cell "abdellah@univh2c.ma" [ref=e1161]
+                    - cell "Informatique" [ref=e1162]
+                    - cell "Actif" [ref=e1163]:
+                      - generic [ref=e1164]: Actif
+                    - cell "Ouvrir le menu" [ref=e1165]:
+                      - button "Ouvrir le menu" [ref=e1167]:
+                        - generic [ref=e1168]: Ouvrir le menu
+                        - img
+                  - row "Select row Bensouda Fatiha fatiha@univh2c.ma Mathématiques Actif Ouvrir le menu" [ref=e1169]:
+                    - cell "Select row" [ref=e1170]:
+                      - checkbox "Select row" [ref=e1171]
+                    - cell "Bensouda" [ref=e1172]:
+                      - generic [ref=e1173]: Bensouda
+                    - cell "Fatiha" [ref=e1174]:
+                      - generic [ref=e1175]: Fatiha
+                    - cell "fatiha@univh2c.ma" [ref=e1176]
+                    - cell "Mathématiques" [ref=e1177]
+                    - cell "Actif" [ref=e1178]:
+                      - generic [ref=e1179]: Actif
+                    - cell "Ouvrir le menu" [ref=e1180]:
+                      - button "Ouvrir le menu" [ref=e1182]:
+                        - generic [ref=e1183]: Ouvrir le menu
+                        - img
+              - generic [ref=e1184]:
+                - generic [ref=e1185]:
+                  - generic [ref=e1186]: Page 1 sur 2
+                  - combobox [ref=e1187]:
+                    - generic [ref=e1188]: 10/ page
+                    - img
+                - generic [ref=e1189]:
+                  - button "Précédent" [disabled]
+                  - button "1" [ref=e1190]
+                  - button "2" [ref=e1191]
+                  - button "Suivant" [ref=e1192]
+    - region "Notifications alt+T"
+  - generic [ref=e373]: Étudiants

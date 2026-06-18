@@ -1,13 +1,5 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui";
+import { Loader2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 interface DeleteAlertProps {
   isOpen: boolean;
@@ -52,10 +44,11 @@ export function DeleteAlert({
               onDelete();
             }}
             variant="destructive"
-            isLoading={isPending}
+            disabled={isPending}
             data-testid="delete-alert-confirm"
           >
-            Supprimer
+            {isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+            {isPending ? "Supprimer" : "Supprimer"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

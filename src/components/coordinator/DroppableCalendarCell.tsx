@@ -1,7 +1,8 @@
 import { useDroppable } from "@dnd-kit/core";
+import { cn } from "@/lib/utils";
 import { X, Users } from "lucide-react";
 import type { Jury } from "@/types";
-import { Badge } from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
 
 interface DroppableCalendarCellProps {
   id: string;
@@ -28,9 +29,7 @@ export default function DroppableCalendarCell({ id, jury, studentNames, onRemove
   return (
     <td
       ref={setNodeRef}
-      className={`relative h-25 w-[180px] border p-1 transition-all duration-200 ${
-        isOver ? "bg-primary/10 ring-2 ring-primary/60 scale-[1.02] z-10" : ""
-      } ${jury ? "bg-primary/5" : "bg-white/[0.02]"}`}
+      className={cn("relative h-25 w-[180px] border p-1 transition-all duration-200", jury ? "bg-primary/5" : "bg-white/[0.02]", isOver && "bg-primary/10 ring-2 ring-primary/60 scale-[1.02] z-10")}
       data-testid={`coord-cell-${id}`}
     >
       <div className="h-full w-full overflow-hidden">
@@ -41,7 +40,7 @@ export default function DroppableCalendarCell({ id, jury, studentNames, onRemove
               className="absolute right-1 top-1 z-10 rounded p-0.5 opacity-0 transition-opacity hover:bg-destructive/20 group-hover:opacity-100"
               data-testid={`coord-cell-remove-${id}`}
             >
-              <X className="size-3 text-destructive" />
+              <X className="text-destructive" />
             </button>
 
             <span className="line-clamp-2 font-medium leading-tight text-foreground/90 pr-4">
@@ -54,7 +53,7 @@ export default function DroppableCalendarCell({ id, jury, studentNames, onRemove
 
             {studentNames.length > 0 && (
               <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground truncate">
-                <Users className="size-2.5 shrink-0" />
+                <Users className="shrink-0" />
                 <span className="truncate">{studentNames.join(", ")}</span>
               </div>
             )}
@@ -74,11 +73,7 @@ export default function DroppableCalendarCell({ id, jury, studentNames, onRemove
           </div>
         ) : (
           <div
-            className={`flex h-full w-full cursor-default items-center justify-center rounded-lg border-2 border-dashed transition-all duration-200 ${
-              isOver
-                ? "border-primary/60 bg-primary/10 text-primary shadow-lg"
-                : "border-muted-foreground/25 bg-muted/15 text-muted-foreground/60 hover:border-muted-foreground/40 hover:bg-muted/25"
-            }`}
+            className={cn("flex h-full w-full cursor-default items-center justify-center rounded-lg border-2 border-dashed transition-all duration-200", isOver ? "border-primary/60 bg-primary/10 text-primary shadow-lg" : "border-muted-foreground/25 bg-muted/15 text-muted-foreground/60 hover:border-muted-foreground/40 hover:bg-muted/25")}
           >
             <span className="relative flex size-6 items-center justify-center rounded-full border border-current text-xs font-light leading-none">
               +

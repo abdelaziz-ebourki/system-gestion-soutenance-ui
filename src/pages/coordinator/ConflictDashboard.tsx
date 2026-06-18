@@ -1,20 +1,14 @@
 import { useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Clock, Users, DoorOpen, UserX } from "lucide-react";
 
-import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useSchedules, useCoordinatorUnavailability, useTeachersList } from "@/hooks/queries";
+import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useSchedules, useCoordinatorUnavailability, useCoordinatorTeachersList } from "@/hooks/queries";
 import { buildConflictContext, getAllConflicts } from "@/lib/conflict-engine";
 import type { ConflictIssue } from "@/lib/conflict-engine";
-import { createSlotKey } from "@/lib/utils";
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  EmptyState,
-  Skeleton,
-} from "@/components/ui";
+import { cn, createSlotKey } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const conflictIcons: Record<string, typeof AlertTriangle> = {
   room_capacity: DoorOpen,
@@ -48,7 +42,7 @@ export default function ConflictDashboard() {
   const sessionsQuery = useCoordinatorDefenseSessions();
   const scheduleQuery = useSchedules();
   const unavailabilityQuery = useCoordinatorUnavailability();
-  const teachersQuery = useTeachersList();
+  const teachersQuery = useCoordinatorTeachersList();
 
   const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || groupsQuery.isLoading || sessionsQuery.isLoading || scheduleQuery.isLoading || unavailabilityQuery.isLoading || teachersQuery.isLoading;
 
@@ -106,7 +100,7 @@ export default function ConflictDashboard() {
   }
 
   return (
-    <div className="space-y-6" data-testid="coord-conflicts-page">
+    <div className="flex flex-col gap-6" data-testid="coord-conflicts-page">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Conflits de planification</h1>
@@ -120,7 +114,7 @@ export default function ConflictDashboard() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
-              <AlertTriangle className="size-4 text-destructive" />
+              <AlertTriangle className="text-destructive" />
               Conflits
             </CardTitle>
           </CardHeader>
@@ -132,7 +126,7 @@ export default function ConflictDashboard() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
-              <AlertTriangle className="size-4 text-destructive" />
+              <AlertTriangle className="text-destructive" />
               Erreurs
             </CardTitle>
           </CardHeader>
@@ -144,7 +138,7 @@ export default function ConflictDashboard() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
-              <AlertTriangle className="size-4 text-warning" />
+              <AlertTriangle className="text-warning" />
               Avertissements
             </CardTitle>
           </CardHeader>
@@ -162,14 +156,14 @@ export default function ConflictDashboard() {
           description="Aucun conflit détecté. La planification est prête à être publiée."
         />
       ) : (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           {Object.entries(groupedConflicts).map(([type, typeConflicts]) => {
             const Icon = conflictIcons[type] || AlertTriangle;
             return (
               <Card key={type}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Icon className="size-4" />
+                    <Icon />
                     {conflictLabels[type] || type}
                     <Badge variant="secondary" className="ml-2">
                       {typeConflicts.length}
@@ -180,18 +174,14 @@ export default function ConflictDashboard() {
                     {typeConflicts.filter((c) => c.severity === "warning").length} avertissement(s)
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="flex flex-col gap-3">
                   {typeConflicts.map((conflict, i) => (
                     <div
                       key={i}
-                      className={`rounded-lg border p-4 ${
-                        conflict.severity === "error"
-                          ? "border-destructive/30 bg-destructive/5"
-                          : "border-primary/30 bg-primary/5"
-                      }`}
+                      className={cn("rounded-lg border p-4", conflict.severity === "error" ? "border-destructive/30 bg-destructive/5" : "border-primary/30 bg-primary/5")}
                     >
                       <div className="flex items-start justify-between gap-4">
-                        <div className="space-y-1">
+                        <div className="flex flex-col gap-1">
                           <p className="text-sm font-medium">{conflict.message}</p>
                           {conflict.suggestedResolution && (
                             <p className="text-xs text-muted-foreground">

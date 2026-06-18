@@ -1,6 +1,6 @@
 import { GripVertical, MousePointerClick } from "lucide-react";
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export type ScheduleMode = "click" | "dnd";
 
@@ -23,11 +23,11 @@ export function ModeToggle({ value, onChange }: ModeToggleProps) {
       data-testid="coord-toggle-mode"
     >
       <ToggleGroupItem value="click" className="gap-2" data-testid="coord-toggle-click">
-        <MousePointerClick className="size-4" />
+        <MousePointerClick data-icon="inline-start" />
         Placement rapide
       </ToggleGroupItem>
       <ToggleGroupItem value="dnd" className="gap-2" data-testid="coord-toggle-dnd">
-        <GripVertical className="size-4" />
+        <GripVertical data-icon="inline-start" />
         Glisser-déposer
       </ToggleGroupItem>
     </ToggleGroup>

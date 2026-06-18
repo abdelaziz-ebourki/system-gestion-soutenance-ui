@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import { RoomSearchSelect } from "@/components/coordinator/RoomSearchSelect";
 import type { Room } from "@/types";
 
-vi.mock("@/components/ui", () => ({
+vi.mock("@/components/ui/select", () => ({
   SimpleSelect: ({ label, options, value, onChange }: { label: string; options: Array<{ label: string; value: string }>; value: string | undefined; onChange: (val: string) => void }) => (
     <div>
       <label>{label}</label>

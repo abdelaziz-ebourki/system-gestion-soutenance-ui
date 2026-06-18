@@ -21,16 +21,12 @@ import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import type { User } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
 import { PageHeader } from "@/components/ui/page-header";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Skeleton,
-  StatsCard,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatsCard } from "@/components/ui/stats-card";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import {
   type ChartConfig,
@@ -120,7 +116,7 @@ export default function AdminDashboard() {
   } satisfies ChartConfig), []);
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="flex flex-col gap-6 pb-20">
       <PageHeader title="Tableau de Bord" subtitle="Aperçu global de l'activité du système." />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -165,18 +161,15 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             {notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Info className="mb-2 size-8 text-muted-foreground/50" />
-                <p className="text-sm text-muted-foreground">Aucune notification</p>
-              </div>
+              <EmptyState icon={Info} description="Aucune notification" />
             ) : (
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 {notifications.slice(0, 4).map((notification) => {
                   const Icon = typeIcons[notification.type] || Info;
                   return (
                     <div key={notification.id} className="flex items-start gap-3">
                       <div className={cn("mt-0.5 rounded-full p-1.5", typeColors[notification.type])}>
-                        <Icon className="size-3.5" />
+                        <Icon />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">

@@ -23,7 +23,7 @@ vi.mock("@/hooks/queries", () => ({
   useJuries: vi.fn(),
   useRooms: vi.fn(),
   useProjects: vi.fn(),
-  useTeachersList: vi.fn(),
+  useCoordinatorTeachersList: vi.fn(),
   useSaveSchedules: vi.fn(),
   useCoordinatorDefenseSessions: vi.fn(),
   useCoordinatorUnavailability: vi.fn(),
@@ -100,7 +100,7 @@ describe("useDefenseSchedule", () => {
     vi.mocked(queries.useJuries).mockReturnValue({ data: { items: mockJuries, total: 2, pageCount: 1, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Jury>, Error>);
     vi.mocked(queries.useRooms).mockReturnValue({ data: { items: mockRooms, total: 2, pageCount: 1, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Room>, Error>);
     vi.mocked(queries.useProjects).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Project>, Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
+    vi.mocked(queries.useCoordinatorTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
     vi.mocked(queries.useCoordinatorUnavailability).mockReturnValue({ data: mockUnavailabilities, isLoading: false } as unknown as UseQueryResult<UnavailabilityEntry[], Error>);
     vi.mocked(queries.useDefenseSettings).mockReturnValue({ data: { id: 1, startTime: "08:00", endTime: "18:00", defenseDuration: 60, breakDuration: 15, groupCreationStartDate: "", groupCreationEndDate: "" }, isLoading: false } as unknown as UseQueryResult<{ id: number; startTime: string; endTime: string; defenseDuration: number; breakDuration: number; groupCreationStartDate: string; groupCreationEndDate: string }, Error>);
     vi.mocked(queries.useSaveSchedules).mockReturnValue({ mutateAsync: mockSaveMutate } as unknown as UseMutationResult<ScheduleResponse[], Error, { defenseSessionId: number; slots: ScheduleSlot[] }>);

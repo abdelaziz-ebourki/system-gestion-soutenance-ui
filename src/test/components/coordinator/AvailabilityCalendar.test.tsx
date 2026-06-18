@@ -95,7 +95,8 @@ describe("AvailabilityCalendar", () => {
   it("applies partial unavailability style", () => {
     render(<AvailabilityCalendar {...defaultProps} />);
     const day16 = screen.getByTestId("teacher-availability-day-2025-06-16");
-    expect(day16.className).toContain("bg-destructive/5");
+    expect(day16.className).toContain("bg-primary/5");
+    expect(day16.className).toContain("border-primary/20");
   });
 
   it("applies full unavailability style", () => {

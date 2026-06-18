@@ -1,0 +1,134 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e41]:
+      - generic [ref=e44]:
+        - list [ref=e46]:
+          - listitem [ref=e47]:
+            - link "Soutenance FSBM" [ref=e48] [cursor=pointer]:
+              - /url: /
+              - img [ref=e49]
+              - generic [ref=e53]: Soutenance FSBM
+        - list [ref=e57]:
+          - listitem [ref=e58]:
+            - link "Tableau de bord" [ref=e59] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e60]
+              - generic [ref=e65]: Tableau de bord
+          - listitem [ref=e66]:
+            - link "Départements" [ref=e67] [cursor=pointer]:
+              - /url: /admin/departments
+              - img [ref=e68]
+              - generic [ref=e72]: Départements
+          - listitem [ref=e73]:
+            - link "Salles" [ref=e74] [cursor=pointer]:
+              - /url: /admin/rooms
+              - img [ref=e75]
+              - generic [ref=e78]: Salles
+          - listitem [ref=e79]:
+            - link "Étudiants" [ref=e80] [cursor=pointer]:
+              - /url: /admin/users/students
+              - img [ref=e81]
+              - generic [ref=e84]: Étudiants
+          - listitem [ref=e85]:
+            - link "Enseignants" [ref=e86] [cursor=pointer]:
+              - /url: /admin/users/teachers
+              - img [ref=e87]
+              - generic [ref=e89]: Enseignants
+          - listitem [ref=e90]:
+            - link "Coordinateurs" [active] [ref=e91] [cursor=pointer]:
+              - /url: /admin/users/coordinators
+              - img [ref=e92]
+              - generic [ref=e97]: Coordinateurs
+          - listitem [ref=e98]:
+            - link "Filières & Niveaux" [ref=e99] [cursor=pointer]:
+              - /url: /admin/config
+              - img [ref=e100]
+              - generic [ref=e103]: Filières & Niveaux
+          - listitem [ref=e104]:
+            - link "Journal d'audit" [ref=e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+              - img [ref=e106]
+              - generic [ref=e110]: Journal d'audit
+        - list [ref=e112]:
+          - listitem [ref=e113]:
+            - button "A Ahmadi Mohamed admin@univh2c.ma" [ref=e114]:
+              - generic [ref=e116]: A
+              - generic [ref=e117]:
+                - generic [ref=e118]: Ahmadi Mohamed
+                - generic [ref=e119]: admin@univh2c.ma
+              - img [ref=e120]
+      - main [ref=e124]:
+        - generic [ref=e126]:
+          - button "Toggle Sidebar" [ref=e127]:
+            - img
+            - generic [ref=e128]: Toggle Sidebar
+          - navigation "breadcrumb" [ref=e129]:
+            - list [ref=e130]:
+              - listitem [ref=e131]:
+                - link "Admin" [ref=e390] [cursor=pointer]:
+                  - /url: /admin
+              - listitem [ref=e681]:
+                - img [ref=e682]
+              - listitem [ref=e684]:
+                - generic [ref=e685]: users
+              - listitem [ref=e1193]:
+                - img [ref=e1194]
+              - listitem [ref=e1196]:
+                - link "Coordinateurs" [disabled] [ref=e1197]
+        - main [ref=e133]:
+          - generic [ref=e1198]:
+            - generic [ref=e1199]:
+              - generic [ref=e1200]:
+                - heading "Coordinateurs" [level=1] [ref=e1201]
+                - paragraph [ref=e1203]: Gestion des coordinateurs de filières.
+              - generic [ref=e1204]:
+                - button "Importation en masse" [ref=e1205]:
+                  - img
+                  - text: Importation en masse
+                - button "Nouveau Coordinateur" [ref=e1206]:
+                  - img
+                  - text: Nouveau Coordinateur
+            - generic [ref=e1207]:
+              - textbox "Rechercher par nom, prénom ou email..." [ref=e1209]
+              - table [ref=e1212]:
+                - rowgroup [ref=e1213]:
+                  - row "Select all Nom Prénom Email Statut" [ref=e1214]:
+                    - columnheader "Select all" [ref=e1215]:
+                      - checkbox "Select all" [ref=e1216]
+                    - columnheader "Nom" [ref=e1217] [cursor=pointer]:
+                      - text: Nom
+                      - img [ref=e1218]
+                    - columnheader "Prénom" [ref=e1221] [cursor=pointer]:
+                      - text: Prénom
+                      - img [ref=e1222]
+                    - columnheader "Email" [ref=e1225] [cursor=pointer]:
+                      - text: Email
+                      - img [ref=e1226]
+                    - columnheader "Statut" [ref=e1229] [cursor=pointer]:
+                      - text: Statut
+                      - img [ref=e1230]
+                    - columnheader [ref=e1233]
+                - rowgroup [ref=e1234]:
+                  - row "Select row Ouchen Yassin coord@univh2c.ma Actif Ouvrir le menu" [ref=e1235]:
+                    - cell "Select row" [ref=e1236]:
+                      - checkbox "Select row" [ref=e1237]
+                    - cell "Ouchen" [ref=e1238]
+                    - cell "Yassin" [ref=e1239]
+                    - cell "coord@univh2c.ma" [ref=e1240]
+                    - cell "Actif" [ref=e1241]:
+                      - generic [ref=e1242]: Actif
+                    - cell "Ouvrir le menu" [ref=e1243]:
+                      - button "Ouvrir le menu" [ref=e1245]:
+                        - generic [ref=e1246]: Ouvrir le menu
+                        - img
+              - generic [ref=e1247]:
+                - generic [ref=e1248]:
+                  - generic [ref=e1249]: Page 1 sur 1
+                  - combobox [ref=e1250]:
+                    - generic [ref=e1251]: 10/ page
+                    - img
+                - generic [ref=e1252]:
+                  - button "Précédent" [disabled]
+                  - button "Suivant" [disabled]
+    - region "Notifications alt+T"
+  - generic [ref=e373]: Étudiants

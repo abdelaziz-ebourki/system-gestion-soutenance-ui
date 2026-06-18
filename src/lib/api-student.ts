@@ -18,12 +18,12 @@ export const getStudentDocuments = () =>
   api<PaginatedResponse<StudentDocument>>("/student/documents");
 
 export const getGroupDocuments = (groupId: number) =>
-  api<GroupDocument[]>(`/student/groups/${groupId}/documents`);
+  api<GroupDocument[]>(`/groups/${groupId}/documents`);
 
 export const uploadGroupDocument = (groupId: number, type: GroupDocumentType, file: File) => {
   const formData = new FormData();
   formData.append("file", file);
-  return api<GroupDocument>(`/student/groups/${groupId}/documents/${type}/attachments`, {
+  return api<GroupDocument>(`/groups/${groupId}/documents/${type}/attachments`, {
     method: "POST",
     body: formData,
   });

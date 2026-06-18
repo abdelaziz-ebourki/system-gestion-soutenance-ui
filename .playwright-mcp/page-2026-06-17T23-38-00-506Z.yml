@@ -1,0 +1,153 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - list [ref=e8]:
+        - listitem [ref=e9]:
+          - link "Soutenance FSBM" [ref=e10] [cursor=pointer]:
+            - /url: /
+            - img [ref=e11]
+            - generic [ref=e15]: Soutenance FSBM
+      - list [ref=e19]:
+        - listitem [ref=e20]:
+          - link "Tableau de bord" [ref=e21] [cursor=pointer]:
+            - /url: /admin
+            - img [ref=e22]
+            - generic [ref=e27]: Tableau de bord
+        - listitem [ref=e28]:
+          - link "Départements" [active] [ref=e29] [cursor=pointer]:
+            - /url: /admin/departments
+            - img [ref=e30]
+            - generic [ref=e34]: Départements
+        - listitem [ref=e35]:
+          - link "Salles" [ref=e36] [cursor=pointer]:
+            - /url: /admin/rooms
+            - img [ref=e37]
+            - generic [ref=e40]: Salles
+        - listitem [ref=e41]:
+          - link "Étudiants" [ref=e42] [cursor=pointer]:
+            - /url: /admin/users/students
+            - img [ref=e43]
+            - generic [ref=e46]: Étudiants
+        - listitem [ref=e47]:
+          - link "Enseignants" [ref=e48] [cursor=pointer]:
+            - /url: /admin/users/teachers
+            - img [ref=e49]
+            - generic [ref=e51]: Enseignants
+        - listitem [ref=e52]:
+          - link "Coordinateurs" [ref=e53] [cursor=pointer]:
+            - /url: /admin/users/coordinators
+            - img [ref=e54]
+            - generic [ref=e59]: Coordinateurs
+        - listitem [ref=e60]:
+          - link "Filières & Niveaux" [ref=e61] [cursor=pointer]:
+            - /url: /admin/config
+            - img [ref=e62]
+            - generic [ref=e65]: Filières & Niveaux
+        - listitem [ref=e66]:
+          - link "Journal d'audit" [ref=e67] [cursor=pointer]:
+            - /url: /admin/audit-logs
+            - img [ref=e68]
+            - generic [ref=e72]: Journal d'audit
+      - list [ref=e74]:
+        - listitem [ref=e75]:
+          - button "A Ahmadi Mohamed admin@univh2c.ma" [ref=e76]:
+            - generic [ref=e78]: A
+            - generic [ref=e79]:
+              - generic [ref=e80]: Ahmadi Mohamed
+              - generic [ref=e81]: admin@univh2c.ma
+            - img [ref=e82]
+    - main [ref=e86]:
+      - generic [ref=e88]:
+        - button "Toggle Sidebar" [ref=e89]:
+          - img
+          - generic [ref=e90]: Toggle Sidebar
+        - navigation "breadcrumb" [ref=e91]:
+          - list [ref=e92]:
+            - listitem [ref=e93]:
+              - link "Admin" [ref=e94] [cursor=pointer]:
+                - /url: /admin
+            - listitem [ref=e328]:
+              - img [ref=e329]
+            - listitem [ref=e331]:
+              - link "Départements" [disabled] [ref=e332]
+      - main [ref=e100]:
+        - generic [ref=e333]:
+          - generic [ref=e334]:
+            - generic [ref=e335]:
+              - heading "Départements" [level=1] [ref=e336]
+              - paragraph [ref=e338]: Structure académique.
+            - button "Nouveau Département" [ref=e339]:
+              - img
+              - text: Nouveau Département
+          - generic [ref=e340]:
+            - textbox "Rechercher par nom..." [ref=e342]
+            - table [ref=e345]:
+              - rowgroup [ref=e346]:
+                - row "Select all Code Nom du Département Chef de Département" [ref=e347]:
+                  - columnheader "Select all" [ref=e348]:
+                    - checkbox "Select all" [ref=e349]
+                  - columnheader "Code" [ref=e350] [cursor=pointer]:
+                    - text: Code
+                    - img [ref=e351]
+                  - columnheader "Nom du Département" [ref=e354] [cursor=pointer]:
+                    - text: Nom du Département
+                    - img [ref=e355]
+                  - columnheader "Chef de Département" [ref=e358] [cursor=pointer]:
+                    - text: Chef de Département
+                    - img [ref=e359]
+                  - columnheader [ref=e362]
+              - rowgroup [ref=e363]:
+                - row "Select row INFO Informatique Benkirane Jamila Ouvrir le menu" [ref=e364]:
+                  - cell "Select row" [ref=e365]:
+                    - checkbox "Select row" [ref=e366]
+                  - cell "INFO" [ref=e367]:
+                    - generic [ref=e368]: INFO
+                  - cell "Informatique" [ref=e369]
+                  - cell "Benkirane Jamila" [ref=e370]
+                  - cell "Ouvrir le menu" [ref=e371]:
+                    - button "Ouvrir le menu" [ref=e373]:
+                      - generic [ref=e374]: Ouvrir le menu
+                      - img
+                - row "Select row MATH Mathématiques El Ouafi Rachid Ouvrir le menu" [ref=e375]:
+                  - cell "Select row" [ref=e376]:
+                    - checkbox "Select row" [ref=e377]
+                  - cell "MATH" [ref=e378]:
+                    - generic [ref=e379]: MATH
+                  - cell "Mathématiques" [ref=e380]
+                  - cell "El Ouafi Rachid" [ref=e381]
+                  - cell "Ouvrir le menu" [ref=e382]:
+                    - button "Ouvrir le menu" [ref=e384]:
+                      - generic [ref=e385]: Ouvrir le menu
+                      - img
+                - row "Select row PHYS Physique El Fekkak Khadija Ouvrir le menu" [ref=e386]:
+                  - cell "Select row" [ref=e387]:
+                    - checkbox "Select row" [ref=e388]
+                  - cell "PHYS" [ref=e389]:
+                    - generic [ref=e390]: PHYS
+                  - cell "Physique" [ref=e391]
+                  - cell "El Fekkak Khadija" [ref=e392]
+                  - cell "Ouvrir le menu" [ref=e393]:
+                    - button "Ouvrir le menu" [ref=e395]:
+                      - generic [ref=e396]: Ouvrir le menu
+                      - img
+                - row "Select row BIO Biologie Ben Omar Nabil Ouvrir le menu" [ref=e397]:
+                  - cell "Select row" [ref=e398]:
+                    - checkbox "Select row" [ref=e399]
+                  - cell "BIO" [ref=e400]:
+                    - generic [ref=e401]: BIO
+                  - cell "Biologie" [ref=e402]
+                  - cell "Ben Omar Nabil" [ref=e403]
+                  - cell "Ouvrir le menu" [ref=e404]:
+                    - button "Ouvrir le menu" [ref=e406]:
+                      - generic [ref=e407]: Ouvrir le menu
+                      - img
+            - generic [ref=e408]:
+              - generic [ref=e409]:
+                - generic [ref=e410]: Page 1 sur 1
+                - combobox [ref=e411]:
+                  - generic [ref=e412]: 10/ page
+                  - img
+              - generic [ref=e413]:
+                - button "Précédent" [disabled]
+                - button "Suivant" [disabled]
+  - region "Notifications alt+T"

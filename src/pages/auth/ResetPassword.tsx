@@ -1,20 +1,15 @@
+import { Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { zxcvbn, zxcvbnOptions } from "@zxcvbn-ts/core";
 import { adjacencyGraphs } from "@zxcvbn-ts/language-common";
 import { translations } from "@zxcvbn-ts/language-en";
 import { toast } from "sonner";
-import { getErrorMessage } from "@/lib/utils";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  PasswordInput,
-} from "@/components/ui";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { cn, getErrorMessage } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { resetPassword as apiResetPassword } from "@/lib/api-auth";
 import { validate, resetPasswordSchema } from "@/lib/validations";
 
@@ -80,61 +75,59 @@ export default function ResetPassword() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleReset} className="space-y-4" data-testid="reset-password-form">
-            <Field>
-              <FieldLabel>Nouveau mot de passe</FieldLabel>
-              <PasswordInput
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                error={fieldErrors?.password}
-                data-testid="reset-password-input"
-              />
-              {passwordResult && (
-                <div className="mt-2 space-y-1">
-                  <div className="flex gap-1">
-                    {[0, 1, 2, 3, 4].map((level) => (
-                      <div
-                        key={level}
-                        className={`h-1.5 flex-1 rounded-full transition-colors ${
-                          level <= passwordResult.score
-                            ? PASSWORD_COLORS[passwordResult.score]
-                            : "bg-muted"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">
-                      {PASSWORD_LABELS[passwordResult.score]}
-                    </span>
-                    {passwordResult.feedback.suggestions.length > 0 && (
+          <form onSubmit={handleReset} data-testid="reset-password-form">
+            <FieldGroup>
+              <Field>
+                <FieldLabel>Nouveau mot de passe</FieldLabel>
+                <PasswordInput
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  error={fieldErrors?.password}
+                  data-testid="reset-password-input"
+                />
+                {passwordResult && (
+                  <div className="mt-2 flex flex-col gap-1">
+                    <div className="flex gap-1">
+                      {[0, 1, 2, 3, 4].map((level) => (
+                        <div
+                          key={level}
+                          className={cn("h-1.5 flex-1 rounded-full transition-colors", level <= passwordResult.score ? PASSWORD_COLORS[passwordResult.score] : "bg-muted")}
+                        />
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
-                        {passwordResult.feedback.suggestions[0]}
+                        {PASSWORD_LABELS[passwordResult.score]}
                       </span>
-                    )}
+                      {passwordResult.feedback.suggestions.length > 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {passwordResult.feedback.suggestions[0]}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )}
-            </Field>
-            <Field>
-              <FieldLabel>Confirmer le mot de passe</FieldLabel>
-              <PasswordInput
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                error={fieldErrors?.confirmPassword}
-                data-testid="reset-password-confirm-input"
-              />
-            </Field>
+                )}
+              </Field>
+              <Field>
+                <FieldLabel>Confirmer le mot de passe</FieldLabel>
+                <PasswordInput
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  error={fieldErrors?.confirmPassword}
+                  data-testid="reset-password-confirm-input"
+                />
+              </Field>
+            </FieldGroup>
             <Button
               className="w-full"
               type="submit"
-              isLoading={isSubmitting}
-              loadingText="Réinitialisation..."
+              disabled={isSubmitting}
               data-testid="reset-password-submit-button"
             >
-              Réinitialiser le mot de passe
+              {isSubmitting && <Loader2 data-icon="inline-start" className="animate-spin" />}
+              {isSubmitting ? "Réinitialisation..." : "Réinitialiser le mot de passe"}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">

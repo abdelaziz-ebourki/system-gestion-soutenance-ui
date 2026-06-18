@@ -2,22 +2,12 @@ import { useState, useCallback, useMemo } from "react";
 import { FileText, Users, Calendar, ClipboardList, ScrollText, Loader2, Search } from "lucide-react";
 import { useJuries, useProjects, useCoordinatorDefenseSessions, useProjectGrades } from "@/hooks/queries";
 import * as api from "@/lib/api";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-  Skeleton,
-} from "@/components/ui";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { toast } from "sonner";
 
@@ -169,7 +159,7 @@ export default function Documents() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <div><h1 className="text-3xl font-bold tracking-tight">Génération de documents</h1></div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-44 rounded-xl" />)}
@@ -179,7 +169,7 @@ export default function Documents() {
   }
 
   return (
-    <div className="space-y-6" data-testid="coord-documents-page">
+    <div className="flex flex-col gap-6" data-testid="coord-documents-page">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Génération de documents</h1>
         <p className="text-muted-foreground">
@@ -192,7 +182,7 @@ export default function Documents() {
           <Card key={doc.id} className="flex flex-col" data-testid={`coord-documents-card-${doc.id}`}>
             <CardHeader>
               <div className="rounded-lg bg-primary/10 p-2.5 text-primary w-fit">
-                <doc.icon className="size-5" />
+                <doc.icon />
               </div>
               <CardTitle className="mt-3 text-base">{doc.title}</CardTitle>
               <CardDescription>{doc.description}</CardDescription>
@@ -204,7 +194,7 @@ export default function Documents() {
                 onClick={() => handleGenerate(doc)}
               >
                 {loadingPdf?.startsWith(doc.id) ? (
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 data-icon="inline-start" className="animate-spin" />
                 ) : null}
                 {doc.actionLabel}
               </Button>
@@ -222,7 +212,7 @@ export default function Documents() {
             Sélectionnez un projet pour générer le document.
           </DialogDescription>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Rechercher un projet..."
               value={pickerSearch}
@@ -233,11 +223,13 @@ export default function Documents() {
           </div>
           <div className="max-h-80 overflow-y-auto" data-testid="coord-documents-picker-list">
             {filteredPickerItems.length === 0 ? (
-              <p className="py-6 text-center text-sm text-muted-foreground">
-                {pickerItems.length === 0 ? "Aucun élément disponible" : "Aucun résultat"}
-              </p>
+              pickerItems.length === 0 ? (
+                <EmptyState description="Aucun élément disponible" />
+              ) : (
+                <EmptyState description="Aucun résultat" />
+              )
             ) : (
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 {filteredPickerItems.map((item) => (
                   <Button
                     key={item.id}
@@ -248,7 +240,7 @@ export default function Documents() {
                     data-testid={`coord-documents-picker-item-${item.id}`}
                   >
                     {loadingPdf === `${pickerDocId}-${item.id}` ? (
-                      <Loader2 className="mr-2 size-4 animate-spin" />
+                      <Loader2 data-icon="inline-start" className="animate-spin" />
                     ) : null}
                     {item.label}
                   </Button>
@@ -280,7 +272,7 @@ export default function Documents() {
               disabled={loadingPdf !== null}
               data-testid="coord-documents-date-generate"
             >
-              {loadingPdf?.startsWith("attendance-list-") && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {loadingPdf?.startsWith("attendance-list-") && <Loader2 data-icon="inline-start" className="animate-spin" />}
               Générer
             </Button>
           </DialogFooter>

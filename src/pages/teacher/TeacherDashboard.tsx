@@ -4,17 +4,11 @@ import { ClipboardCheck, Clock3, FileCheck2, ShieldCheck } from "lucide-react";
 import { useTeacherStats, useTeacherSchedule, useTeacherEvaluations } from "@/hooks/queries";
 
 
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  EmptyState,
-  Skeleton,
-  StatsCard,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatsCard } from "@/components/ui/stats-card";
 
 export default function TeacherDashboard() {
   const statsQuery = useTeacherStats();
@@ -31,14 +25,14 @@ export default function TeacherDashboard() {
   ), [evaluations]);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <section className="rounded-lg border bg-card">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.4fr_1fr] md:px-8">
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <Badge className="w-fit" variant="secondary" data-testid="teacher-dashboard-hero-badge">
               Session de soutenance
             </Badge>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <h1 className="text-3xl font-bold tracking-tight md:text-4xl" data-testid="teacher-dashboard-hero-title">
                 Un espace enseignant clair pour suivre jurys, planning et notes.
               </h1>
@@ -101,7 +95,7 @@ export default function TeacherDashboard() {
               Les passages où votre présence est requise prochainement.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="flex flex-col gap-3">
             {upcomingDefenses.length > 0 ? (
               upcomingDefenses.map((defense, index) => (
               <div key={`${defense.date}-${defense.time}-${index}`} className="rounded-lg border p-4" data-testid={`teacher-dashboard-upcoming-item-${index}`}>
@@ -120,9 +114,7 @@ export default function TeacherDashboard() {
               </div>
             ))
             ) : (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                Aucune soutenance prévue.
-              </div>
+              <EmptyState description="Aucune soutenance prévue." />
             )}
           </CardContent>
         </Card>
@@ -134,7 +126,7 @@ export default function TeacherDashboard() {
               Les dossiers qui demandent encore une note ou un commentaire.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="flex flex-col gap-3">
             {pendingEvaluations.map((evaluation) => (
               <div key={evaluation.id} className="rounded-lg border p-4" data-testid={`teacher-dashboard-evaluations-item-${evaluation.id}`}>
                 <p className="font-medium">{evaluation.projectTitle}</p>

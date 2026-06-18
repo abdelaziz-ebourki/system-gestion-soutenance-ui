@@ -1,20 +1,13 @@
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 import { useCoordinators } from "@/hooks/queries";
 import type { Coordinator } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
-import {
-  Badge,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  Input,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -75,7 +68,7 @@ export default function Coordinators() {
   ], [crud]);
 
   return (
-    <div className="space-y-6 pb-20" data-testid="admin-coordinators-page">
+    <div className="flex flex-col gap-6 pb-20" data-testid="admin-coordinators-page">
       <div className="flex items-center justify-between">
         <div className="relative pb-4">
           <h1 className="text-4xl font-bold tracking-tight">Coordinateurs</h1>
@@ -85,7 +78,7 @@ export default function Coordinators() {
         <div className="flex gap-2">
           <BulkImportDialog entity="coordinator" triggerButtonText="Importation en masse" onSuccess={refetch} />
           <Button onClick={crud.openCreate} data-testid="admin-coordinators-add-button">
-            <Plus className="size-4" /> Nouveau Coordinateur
+            <Plus data-icon="inline-start" /> Nouveau Coordinateur
           </Button>
         </div>
       </div>
@@ -136,7 +129,10 @@ export default function Coordinators() {
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <Button type="submit" isLoading={crud.isCreatePending || crud.isUpdatePending} loadingText="Enregistrement...">Enregistrer</Button>
+              <Button type="submit" disabled={crud.isCreatePending || crud.isUpdatePending}>
+                {(crud.isCreatePending || crud.isUpdatePending) && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {(crud.isCreatePending || crud.isUpdatePending) ? "Enregistrement..." : "Enregistrer"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

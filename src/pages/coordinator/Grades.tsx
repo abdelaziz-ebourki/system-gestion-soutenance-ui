@@ -1,16 +1,11 @@
 import { FileCheck2, Clock, AlertCircle } from "lucide-react";
 
 import { useProjectGrades } from "@/hooks/queries";
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Skeleton,
-  StatsCard,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatsCard } from "@/components/ui/stats-card";
 
 const STATUS_LABELS: Record<string, string> = {
   completed: "Complété",
@@ -31,7 +26,7 @@ export default function Grades() {
   const completed = grades.filter((g) => g.status === "completed").length;
 
   return (
-    <div className="space-y-6" data-testid="coord-grades-page">
+    <div className="flex flex-col gap-6" data-testid="coord-grades-page">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Notes</h1>
         <p className="text-muted-foreground">
@@ -53,8 +48,8 @@ export default function Grades() {
         </div>
       ) : grades.length === 0 ? (
         <Card>
-          <CardContent className="py-10 text-center text-sm text-muted-foreground">
-            Aucune évaluation disponible pour le moment.
+          <CardContent>
+            <EmptyState description="Aucune évaluation disponible pour le moment." />
           </CardContent>
         </Card>
       ) : (
@@ -75,7 +70,7 @@ export default function Grades() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   {grade.status === "completed" && grade.finalScore !== null && (
                     <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-3">
                       <span className="font-medium">Note finale</span>
@@ -83,7 +78,7 @@ export default function Grades() {
                     </div>
                   )}
                   {grade.individualScores.length > 0 && (
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       {grade.individualScores.map((item, i) => (
                         <div key={i} className="flex items-center justify-between rounded-md border px-3 py-1.5 text-sm">
                           <div className="flex items-center gap-2">

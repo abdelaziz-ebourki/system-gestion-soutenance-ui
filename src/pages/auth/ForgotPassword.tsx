@@ -1,22 +1,15 @@
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Mail } from "lucide-react";
+import { ArrowLeft, Mail, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import {
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Input,
-} from "@/components/ui";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { forgotPassword } from "@/lib/api-auth";
 import { validate, forgotPasswordSchema } from "@/lib/validations";
 import { siteConfig } from "@/config/site";
-
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,8 +38,8 @@ export default function ForgotPassword() {
       <div className="flex min-h-screen items-center justify-center p-4">
         <Card className="w-full max-w-md" data-testid="forgot-password-success-card">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <Mail className="h-6 w-6 text-primary" />
+            <div className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-primary/10">
+              <Mail className="text-primary" />
             </div>
             <CardTitle>Email envoyé</CardTitle>
             <CardDescription>
@@ -75,27 +68,29 @@ export default function ForgotPassword() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4" data-testid="forgot-password-form">
-            <Field>
-              <FieldLabel>Email académique</FieldLabel>
-              <Input
-                type="email"
-                placeholder={`nom.prenom@${siteConfig.emailDomain}`}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                error={fieldErrors?.email}
-                data-testid="forgot-password-email-input"
-              />
-            </Field>
+          <form onSubmit={handleSubmit} data-testid="forgot-password-form">
+            <FieldGroup>
+              <Field>
+                <FieldLabel>Email académique</FieldLabel>
+                <Input
+                  type="email"
+                  placeholder={`nom.prenom@${siteConfig.emailDomain}`}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  error={fieldErrors?.email}
+                  data-testid="forgot-password-email-input"
+                />
+              </Field>
+            </FieldGroup>
             <Button
               className="w-full"
               type="submit"
-              isLoading={isSubmitting}
-              loadingText="Envoi en cours..."
+              disabled={isSubmitting}
               data-testid="forgot-password-submit-button"
             >
-              Envoyer le lien
+              {isSubmitting && <Loader2 data-icon="inline-start" className="animate-spin" />}
+              {isSubmitting ? "Envoi en cours..." : "Envoyer le lien"}
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
@@ -103,7 +98,7 @@ export default function ForgotPassword() {
               to="/login"
               className="inline-flex items-center gap-1 text-muted-foreground hover:text-primary transition-colors"
             >
-              <ArrowLeft className="h-3 w-3" />
+              <ArrowLeft data-icon="inline-start" />
               Retour à la connexion
             </Link>
           </div>

@@ -110,7 +110,7 @@ describe("TeacherSchedule", () => {
     vi.mocked(queries.useTeacherSchedule).mockReturnValue({ data: { slots: [] }, isLoading: false } as unknown as UseQueryResult<{ slots: TeacherDefense[] }, Error>);
     renderSchedule();
     
-    expect(await screen.findByTestId("teacher-schedule-empty")).toHaveTextContent("Aucune soutenance programmée pour la période sélectionnée.");
+    expect(await screen.findByText("Aucune soutenance programmée pour la période sélectionnée.")).toBeInTheDocument();
   });
 });
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
-import { ArrowRight, Calendar, ShieldCheck, Clock, FileText, CheckCircle2, Plus } from "lucide-react";
+import { ArrowRight, Calendar, ShieldCheck, Clock, FileText, CheckCircle2, Plus, Loader2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { DefenseSession, DefenseSessionStatus, DefenseType, JuryRoleTemplate } from "@/types";
@@ -14,29 +14,14 @@ import {
   useJuryRoleTemplates,
 } from "@/hooks/queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  EmptyState,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Skeleton,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   DEFENSE_SESSION_STATUS_LABELS,
@@ -171,7 +156,7 @@ export default function CoordinatorDefenseSessions() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <Skeleton className="h-8 w-64" />
         <div className="grid gap-4 md:grid-cols-2">
           {[1, 2].map((i) => (
@@ -183,7 +168,7 @@ export default function CoordinatorDefenseSessions() {
   }
 
   return (
-    <div className="space-y-6" data-testid="coord-sessions-page">
+    <div className="flex flex-col gap-6" data-testid="coord-sessions-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Sessions de soutenance</h1>
@@ -192,7 +177,7 @@ export default function CoordinatorDefenseSessions() {
           </p>
         </div>
         <Button onClick={openCreate} data-testid="coord-sessions-add-button">
-          <Plus className="mr-2 size-4" />
+          <Plus data-icon="inline-start" />
           Nouvelle session
         </Button>
       </div>
@@ -213,9 +198,9 @@ export default function CoordinatorDefenseSessions() {
                 <div className="absolute right-0 top-0 h-1 w-full bg-primary" />
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <CardTitle className="flex items-center gap-2">
-                        <StatusIcon className="size-4 text-primary" />
+                        <StatusIcon data-icon="inline-start" className="text-primary" />
                         {session.name}
                       </CardTitle>
                       <CardDescription>
@@ -237,7 +222,7 @@ export default function CoordinatorDefenseSessions() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="flex flex-col gap-4">
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground">Max groupe</p>
@@ -250,14 +235,14 @@ export default function CoordinatorDefenseSessions() {
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground">Début</p>
                       <p className="font-medium">
-                        <Calendar className="mr-1 inline size-3" />
+                        <Calendar data-icon="inline-start" className="inline" />
                         {formatSessionDate(session.startDate)}
                       </p>
                     </div>
                     <div className="rounded-lg bg-muted/50 p-3">
                       <p className="text-xs text-muted-foreground">Fin</p>
                       <p className="font-medium">
-                        <Calendar className="mr-1 inline size-3" />
+                        <Calendar data-icon="inline-start" className="inline" />
                         {formatSessionDate(session.endDate)}
                       </p>
                     </div>
@@ -273,11 +258,11 @@ export default function CoordinatorDefenseSessions() {
                           onClick={() =>
                             handleTransition(session.id, next as DefenseSessionStatus)
                           }
-                          isLoading={transitioningId === session.id}
+                          disabled={transitioningId === session.id}
                           className="gap-1"
                         >
-                          {DEFENSE_SESSION_STATUS_LABELS[next]}
-                          <ArrowRight className="size-3" />
+                          {transitioningId === session.id && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                          {transitioningId === session.id ? DEFENSE_SESSION_STATUS_LABELS[next] : <>{DEFENSE_SESSION_STATUS_LABELS[next]}<ArrowRight data-icon="inline-end" /></>}
                         </Button>
                       ))}
                     </div>
@@ -304,7 +289,7 @@ export default function CoordinatorDefenseSessions() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit}>
-            <FieldGroup className="space-y-4 py-4">
+            <FieldGroup className="flex flex-col gap-4 py-4">
                <Field>
                  <FieldLabel>Nom</FieldLabel>
                  <Input
@@ -331,13 +316,15 @@ export default function CoordinatorDefenseSessions() {
                    <SelectTrigger data-testid="coord-sessions-input-defense-type">
                      <SelectValue />
                    </SelectTrigger>
-                   <SelectContent>
-                     {DEFENSE_TYPE_OPTIONS.map((opt) => (
-                       <SelectItem key={opt.value} value={opt.value}>
-                         {opt.label}
-                       </SelectItem>
-                     ))}
-                   </SelectContent>
+                    <SelectContent>
+                      <SelectGroup>
+                        {DEFENSE_TYPE_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
                  </Select>
                </Field>
                <div className="grid grid-cols-2 gap-4">
@@ -407,9 +394,11 @@ export default function CoordinatorDefenseSessions() {
                   >
                     <SelectTrigger data-testid="coord-sessions-input-template"><SelectValue placeholder="Choisir un modèle" /></SelectTrigger>
                     <SelectContent>
-                       {templates.map((t: JuryRoleTemplate) => (
-                        <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
-                      ))}
+                      <SelectGroup>
+                        {templates.map((t: JuryRoleTemplate) => (
+                          <SelectItem key={t.id} value={String(t.id)}>{t.name}</SelectItem>
+                        ))}
+                      </SelectGroup>
                     </SelectContent>
                   </Select>
                  {form.fieldErrors?.juryRoleTemplateId && (
@@ -461,8 +450,9 @@ export default function CoordinatorDefenseSessions() {
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} data-testid="coord-sessions-dialog-cancel">
                 Annuler
               </Button>
-              <Button type="submit" isLoading={createMutation.isPending || updateMutation.isPending} data-testid="coord-sessions-dialog-submit">
-                Enregistrer
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} data-testid="coord-sessions-dialog-submit">
+                {(createMutation.isPending || updateMutation.isPending) && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {(createMutation.isPending || updateMutation.isPending) ? "Enregistrer" : "Enregistrer"}
               </Button>
             </DialogFooter>
           </form>

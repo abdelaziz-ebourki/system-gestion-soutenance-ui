@@ -1,6 +1,6 @@
 import { type ColumnDef, type PaginationState } from "@tanstack/react-table";
 import { Link } from "react-router-dom";
-import { Plus, GraduationCap } from "lucide-react";
+import { Plus, GraduationCap, Loader2 } from "lucide-react";
 
 import {
   useStudents, useMajors, useLevels, useDepartments,
@@ -8,23 +8,12 @@ import {
 import { DEFAULT_API_LIMIT, MAX_TEACHER_FETCH_LIMIT } from "@/lib/constants";
 import { type Student, type Major, type Department, type Level } from "@/types";
 import { DataTable } from "@/components/ui/data-table";
-import {
-  Badge,
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  EmptyState,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BulkImportDialog } from "@/components/admin/BulkImportDialog";
 import { BatchActionsBar } from "@/components/admin/BatchActionsBar";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -48,9 +37,9 @@ export default function Students() {
   const { data: majorsData } = useMajors();
   const { data: levelsData } = useLevels();
   const { data: departmentsData } = useDepartments();
-  const majors = majorsData?.items ?? [];
-  const levels = levelsData?.items ?? [];
-  const departments = departmentsData?.items ?? [];
+  const majors = useMemo(() => majorsData?.items ?? [], [majorsData]);
+  const levels = useMemo(() => levelsData?.items ?? [], [levelsData]);
+  const departments = useMemo(() => departmentsData?.items ?? [], [departmentsData]);
   const crud = useStudentCrud();
 
   const data = studentsData?.items ?? [];
@@ -117,7 +106,7 @@ export default function Students() {
     if (majors.length === 0) parts.push("filières");
     if (levels.length === 0) parts.push("niveaux");
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <EmptyState
           icon={GraduationCap}
           title="Configuration requise"
@@ -129,7 +118,7 @@ export default function Students() {
   }
 
   return (
-    <div className="space-y-6 pb-20" data-testid="admin-students-page">
+    <div className="flex flex-col gap-6 pb-20" data-testid="admin-students-page">
       <div className="flex items-center justify-between">
         <div className="relative pb-4">
           <h1 className="text-4xl font-bold tracking-tight">Étudiants</h1>
@@ -139,7 +128,7 @@ export default function Students() {
         <div className="flex gap-2">
           <BulkImportDialog entity="student" triggerButtonText="Importation en masse" onSuccess={refetch} />
           <Button onClick={crud.openCreate} data-testid="admin-students-add-button">
-            <Plus className="size-4" /> Nouvel Étudiant
+            <Plus data-icon="inline-start" /> Nouvel Étudiant
           </Button>
         </div>
       </div>
@@ -215,7 +204,9 @@ export default function Students() {
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, levelId: v || "" })}>
                   <SelectTrigger><SelectValue placeholder="Choisir un niveau" /></SelectTrigger>
                   <SelectContent>
-                    {levels.map((n: Level) => <SelectItem key={n.id} value={String(n.id)}>{n.name}</SelectItem>)}
+                    <SelectGroup>
+                      {levels.map((n: Level) => <SelectItem key={n.id} value={String(n.id)}>{n.name}</SelectItem>)}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.levelId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.levelId}</p>}
@@ -226,14 +217,19 @@ export default function Students() {
                   onValueChange={(v) => crud.setFormData({ ...crud.formData, majorId: v || "" })}>
               <SelectTrigger><SelectValue placeholder="Choisir une filière" /></SelectTrigger>
                   <SelectContent>
-                      {majors.map((f: Major) => <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>)}
+                    <SelectGroup>
+                        {majors.map((f: Major) => <SelectItem key={f.id} value={String(f.id)}>{f.name}</SelectItem>)}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
                 {crud.fieldErrors?.majorId && <p className="text-sm font-medium text-destructive">{crud.fieldErrors.majorId}</p>}
               </Field>
             </FieldGroup>
             <DialogFooter>
-              <Button type="submit" isLoading={crud.isCreatePending || crud.isUpdatePending} loadingText="Enregistrement...">Enregistrer</Button>
+              <Button type="submit" disabled={crud.isCreatePending || crud.isUpdatePending}>
+                {(crud.isCreatePending || crud.isUpdatePending) && <Loader2 data-icon="inline-start" className="animate-spin" />}
+                {(crud.isCreatePending || crud.isUpdatePending) ? "Enregistrement..." : "Enregistrer"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

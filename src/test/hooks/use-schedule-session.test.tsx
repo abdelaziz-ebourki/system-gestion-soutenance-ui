@@ -105,19 +105,22 @@ describe("useScheduleSession", () => {
     expect(result.current.days).toEqual([]);
   });
 
-  it("applies FIXME compensation offsets to defenseDuration and breakDuration", () => {
+  it("uses defenseDuration directly from session", () => {
     const { result } = renderHook(() => useScheduleSession(), { wrapper: createWrapper() });
-    expect(result.current.defenseDuration).toBe(90);
+    expect(result.current.defenseDuration).toBe(60);
   });
 
   it("computes time slots based on duration and settings", () => {
     const { result } = renderHook(() => useScheduleSession(), { wrapper: createWrapper() });
     expect(result.current.timeSlots).toEqual([
       "08:00",
-      "10:05",
-      "12:10",
+      "09:15",
+      "10:30",
+      "11:45",
+      "13:00",
       "14:15",
-      "16:20",
+      "15:30",
+      "16:45",
     ]);
   });
 

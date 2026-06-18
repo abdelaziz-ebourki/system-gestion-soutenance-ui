@@ -1,4 +1,4 @@
-import { SimpleSelect } from "@/components/ui";
+import { SimpleSelect } from "@/components/ui/select";
 import type { Room } from "@/types";
 
 interface RoomSearchSelectProps {

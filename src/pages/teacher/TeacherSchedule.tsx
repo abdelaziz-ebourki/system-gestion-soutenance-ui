@@ -5,14 +5,9 @@ import { CalendarDays, MapPin, Timer } from "lucide-react";
 import { useTeacherSchedule } from "@/hooks/queries";
 import type { TeacherDefense } from "@/types";
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  StatsCard,
-} from "@/components/ui";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { StatsCard } from "@/components/ui/stats-card";
 import { DataTable } from "@/components/ui/data-table";
 
 export default function TeacherSchedule() {
@@ -25,7 +20,7 @@ export default function TeacherSchedule() {
       accessorKey: "projectTitle",
       header: "Projet",
       cell: ({ row }) => (
-        <div className="space-y-1">
+        <div className="flex flex-col gap-1">
           <div className="font-medium">{row.original.projectTitle}</div>
           <div className="text-xs text-muted-foreground">
             {row.original.studentNames.join(", ")}
@@ -48,7 +43,7 @@ export default function TeacherSchedule() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight" data-testid="teacher-schedule-header">Mon planning</h1>
         <p className="text-muted-foreground" data-testid="teacher-schedule-description">
@@ -95,7 +90,7 @@ export default function TeacherSchedule() {
                     <span>{defense.date}</span>
                     <span>{defense.time}</span>
                     <span className="inline-flex items-center gap-1">
-                      <MapPin className="size-3.5" />
+                      <MapPin />
                       {defense.roomName}
                     </span>
                   </div>
@@ -105,9 +100,7 @@ export default function TeacherSchedule() {
           ))}
         </div>
       ) : (
-        <div className="py-6 text-center text-sm text-muted-foreground" data-testid="teacher-schedule-empty">
-          Aucune soutenance programmée pour la période sélectionnée.
-        </div>
+        <EmptyState description="Aucune soutenance programmée pour la période sélectionnée." />
       )}
     </div>
   );

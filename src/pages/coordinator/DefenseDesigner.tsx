@@ -7,24 +7,12 @@ import {
   Wand2,
   Save,
   Send,
+  Loader2,
 } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  Button,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Skeleton,
-} from "@/components/ui";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import JurySidebar from "@/components/coordinator/JurySidebar";
 import DefenseCalendar from "@/components/coordinator/DefenseCalendar";
 import DraggableJurySlot from "@/components/coordinator/DraggableJurySlot";
@@ -63,7 +51,7 @@ export default function DefenseDesigner() {
 
   if (!sessions?.length) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Planificateur de Soutenances</h1>
           <p className="text-muted-foreground">
@@ -78,7 +66,7 @@ export default function DefenseDesigner() {
   if (!currentSession) return <Skeleton className="h-[600px] w-full" />;
 
   return (
-    <div className="space-y-6" data-testid="coord-designer-page">
+    <div className="flex flex-col gap-6" data-testid="coord-designer-page">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Planificateur de Soutenances</h1>
@@ -92,25 +80,29 @@ export default function DefenseDesigner() {
                 <SelectValue placeholder="Sélectionner une session" />
               </SelectTrigger>
               <SelectContent>
-                {sessions.map((s) => (
-                  <SelectItem key={s.id} value={String(s.id)}>
-                    {s.name}
-                  </SelectItem>
-                ))}
+                <SelectGroup>
+                  {sessions.map((s) => (
+                    <SelectItem key={s.id} value={String(s.id)}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
               </SelectContent>
             </Select>
           </div>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="gap-2" onClick={handleAutoGenerate} isLoading={saveSchedule.isPending} data-testid="coord-designer-auto-generate">
-            <Wand2 className="size-4" /> Génération Auto
+          <Button variant="outline" className="gap-2" onClick={handleAutoGenerate} disabled={saveSchedule.isPending} data-testid="coord-designer-auto-generate">
+            {saveSchedule.isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+            {saveSchedule.isPending ? "Génération Auto" : <><Wand2 data-icon="inline-start" /> Génération Auto</>}
           </Button>
-          <Button className="gap-2" onClick={handleSave} isLoading={saveSchedule.isPending} data-testid="coord-designer-save">
-            <Save className="size-4" /> Enregistrer
+          <Button className="gap-2" onClick={handleSave} disabled={saveSchedule.isPending} data-testid="coord-designer-save">
+            {saveSchedule.isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+            {saveSchedule.isPending ? "Enregistrer" : <><Save data-icon="inline-start" /> Enregistrer</>}
           </Button>
           <Button variant="default" className="gap-2"
             onClick={() => setIsPublishDialogOpen(true)} data-testid="coord-designer-publish">
-            <Send className="size-4" /> Publier
+            <Send data-icon="inline-start" /> Publier
           </Button>
         </div>
       </div>
@@ -159,8 +151,9 @@ export default function DefenseDesigner() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel data-testid="coord-designer-publish-cancel">Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handlePublish} isLoading={transitionSession.isPending} data-testid="coord-designer-publish-confirm">
-              Publier
+            <AlertDialogAction onClick={handlePublish} disabled={transitionSession.isPending} data-testid="coord-designer-publish-confirm">
+              {transitionSession.isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
+              {transitionSession.isPending ? "Publier" : "Publier"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
+import { CONFIG_STALE_TIME } from "@/lib/constants";
 import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload, ScheduleSlot } from "@/lib/api-coordinator";
 
 export function useCoordinatorStats() {
@@ -241,5 +242,13 @@ export function useProjectGrades() {
   return useQuery({
     queryKey: ["coordinator", "grades"],
     queryFn: () => api.getCoordinatorGrades(),
+  });
+}
+
+export function useCoordinatorTeachersList() {
+  return useQuery({
+    queryKey: ["coordinator", "teachers"],
+    queryFn: () => api.getCoordinatorUsers("TEACHER"),
+    staleTime: CONFIG_STALE_TIME,
   });
 }

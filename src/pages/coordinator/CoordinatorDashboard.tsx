@@ -4,26 +4,19 @@ import {
   ArrowRight,
   BookOpen,
   CalendarDays,
-  // FIXME: restore with Jurys stat card
-  // ClipboardCheck,
+  ClipboardCheck,
   Clock3,
   Users,
 } from "lucide-react";
 
 import { useCoordinatorStats, useProjects, useJuries } from "@/hooks/queries";
 
-import {
-  Badge,
-  buttonVariants,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-  EmptyState,
-  Skeleton,
-  StatsCard,
-} from "@/components/ui";
+import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatsCard } from "@/components/ui/stats-card";
 
 const actionCards = [
   {
@@ -69,14 +62,14 @@ export default function CoordinatorDashboard() {
   [projects.length, juries.length]);
 
   return (
-    <div className="space-y-6" data-testid="coord-dashboard-page">
+    <div className="flex flex-col gap-6" data-testid="coord-dashboard-page">
       <section className="overflow-hidden rounded-3xl border bg-card shadow-sm" data-testid="coord-dashboard-hero">
         <div className="grid gap-6 px-6 py-8 md:grid-cols-[1.5fr_1fr] md:px-8">
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <Badge className="w-fit" variant="secondary">
               Campagne de soutenance {new Date().getFullYear()}
             </Badge>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <h1 className="max-w-2xl text-3xl font-bold tracking-tight md:text-4xl">
                 Coordination des soutenances, pensee comme une salle de
                 contrôle.
@@ -113,7 +106,7 @@ export default function CoordinatorDashboard() {
                 Les points qui demandent encore une intervention.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex flex-col gap-4">
               <div className="rounded-lg border bg-background/80 p-4">
                 <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>Couverture des jurys</span>
@@ -159,10 +152,7 @@ export default function CoordinatorDashboard() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-testid="coord-dashboard-stats">
         <StatsCard label="Projets" value={stats?.totalProjects} icon={BookOpen} loading={statsLoading} />
         <StatsCard label="Groupes" value={stats?.totalGroups} icon={Users} loading={statsLoading} />
-        {/*
-        FIXME: restore when /coordinator/juries endpoint is stable
         <StatsCard label="Jurys" value={stats?.totalJuries} icon={ClipboardCheck} loading={statsLoading} />
-        */}
         <StatsCard label="Créneaux planifiés" value={stats?.scheduledDefenses} icon={Clock3} loading={statsLoading} />
       </section>
 
@@ -182,9 +172,9 @@ export default function CoordinatorDashboard() {
                 className="group rounded-xl border bg-card p-5 transition hover:-translate-y-0.5"
               >
                 <div className="mb-4 inline-flex rounded-lg bg-secondary p-3 text-primary">
-                  <card.icon className="size-5" />
+                  <card.icon />
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <h2 className="font-semibold">{card.title}</h2>
                   <p className="text-sm text-muted-foreground">
                     {card.description}
@@ -192,7 +182,7 @@ export default function CoordinatorDashboard() {
                 </div>
                 <div className="mt-6 flex items-center text-sm font-medium text-foreground">
                   Ouvrir
-                  <ArrowRight className="ml-2 size-4 transition group-hover:translate-x-1" />
+                  <ArrowRight data-icon="inline-end" className="transition group-hover:translate-x-1" />
                 </div>
               </Link>
             ))}
@@ -206,7 +196,7 @@ export default function CoordinatorDashboard() {
               Les dossiers qui bloquent le passage a la planification finale.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="flex flex-col gap-3">
             {contentLoading ? (
               <>
                 {[1, 2, 3].map((i) => (

@@ -1,0 +1,33 @@
+- generic [ref=e2] [box=0,0,1912,953]:
+  - generic [ref=e3] [box=0,0,1912,953]:
+    - img [box=0,0,1912,953]
+    - generic [ref=e4] [box=508,249,896,455]:
+      - generic [ref=e5] [box=508,388,432,177]:
+        - img [ref=e7] [box=508,388,48,48]
+        - heading "Soutenance FSBM" [level=1] [ref=e11] [box=508,460,432,53]
+        - paragraph [ref=e12] [box=508,537,432,28]: Planification des Soutenances — FSBM
+      - generic [ref=e13] [box=972,249,432,455]:
+        - generic [ref=e14] [box=972,273,432,60]:
+          - generic [ref=e15] [box=996,273,146,36]: Connexion
+          - generic [ref=e16] [box=996,313,382,20]: Veuillez entrer vos identifiants pour accéder à votre espace
+        - generic [ref=e17] [box=972,357,432,323]:
+          - generic [ref=e18] [box=972,357,432,263]:
+            - generic [ref=e22] [box=1136,373,104,16]: Identifiants
+            - generic [ref=e23] [box=996,421,384,163]:
+              - group [ref=e24] [box=996,421,384,67]:
+                - generic [ref=e25] [box=996,421,384,19]: Email académique
+                - textbox "nom.prenom@univh2c.ma" [ref=e26] [box=996,453,384,36]
+              - group [ref=e27] [box=996,517,384,67]:
+                - generic [ref=e28] [box=996,517,384,19]: Mot de passe
+                - group [ref=e30] [box=996,548,384,36]:
+                  - textbox "••••••••" [ref=e31] [box=997,548,350,36]
+                  - group [ref=e32] [box=1347,546,36,40]:
+                    - button "Show password" [ref=e33] [box=1347,554,24,24]:
+                      - img [box=1350,557,18,18]
+                      - generic [ref=e34] [box=1359,565,1,1]: Show password
+            - link "Mot de passe oublié ?" [ref=e36] [cursor=pointer] [box=1239,601,141,17]:
+              - /url: /forgot-password
+          - button "Se connecter" [ref=e38] [box=996,644,384,36]
+    - contentinfo [ref=e39] [box=897,861,118,60]:
+      - generic [ref=e40] [box=897,901,118,20]: © 2026 Copyright
+  - region "Notifications alt+T" [box=0,953,1912,0]

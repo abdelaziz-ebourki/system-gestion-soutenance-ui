@@ -62,7 +62,7 @@ vi.mock("@/hooks/queries", () => ({
   useCoordinatorDefenseSessions: vi.fn(),
   useSchedules: vi.fn(),
   useCoordinatorUnavailability: vi.fn(),
-  useTeachersList: vi.fn(),
+  useCoordinatorTeachersList: vi.fn(),
 }));
 
 function renderDashboard() {
@@ -95,7 +95,7 @@ describe("ConflictDashboard (Coordinator)", () => {
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue(data.sessions as unknown as UseQueryResult<PaginatedResponse<DefenseSession>, Error>);
     vi.mocked(queries.useSchedules).mockReturnValue(data.schedules as unknown as UseQueryResult<ScheduleResponse[], Error>);
     vi.mocked(queries.useCoordinatorUnavailability).mockReturnValue(data.unavailability as unknown as UseQueryResult<UnavailabilityEntry[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
+    vi.mocked(queries.useCoordinatorTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
     const { container } = renderDashboard();
     expect(container.querySelector('[data-slot="skeleton"]')).toBeInTheDocument();
   });
@@ -115,7 +115,7 @@ describe("ConflictDashboard (Coordinator)", () => {
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue(data.sessions as unknown as UseQueryResult<PaginatedResponse<DefenseSession>, Error>);
     vi.mocked(queries.useSchedules).mockReturnValue(data.schedules as unknown as UseQueryResult<ScheduleResponse[], Error>);
     vi.mocked(queries.useCoordinatorUnavailability).mockReturnValue(data.unavailability as unknown as UseQueryResult<UnavailabilityEntry[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
+    vi.mocked(queries.useCoordinatorTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
     renderDashboard();
     expect(await screen.findByText("Conflits de planification")).toBeInTheDocument();
     expect(screen.getByTestId("coord-conflicts-page")).toBeInTheDocument();
@@ -137,7 +137,7 @@ describe("ConflictDashboard (Coordinator)", () => {
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue(data.sessions as unknown as UseQueryResult<PaginatedResponse<DefenseSession>, Error>);
     vi.mocked(queries.useSchedules).mockReturnValue(data.schedules as unknown as UseQueryResult<ScheduleResponse[], Error>);
     vi.mocked(queries.useCoordinatorUnavailability).mockReturnValue(data.unavailability as unknown as UseQueryResult<UnavailabilityEntry[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
+    vi.mocked(queries.useCoordinatorTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
     renderDashboard();
     expect(await screen.findByText("Aucun conflit détecté. La planification est prête à être publiée.")).toBeInTheDocument();
   });
@@ -157,7 +157,7 @@ describe("ConflictDashboard (Coordinator)", () => {
     vi.mocked(queries.useCoordinatorDefenseSessions).mockReturnValue(data.sessions as unknown as UseQueryResult<PaginatedResponse<DefenseSession>, Error>);
     vi.mocked(queries.useSchedules).mockReturnValue(data.schedules as unknown as UseQueryResult<ScheduleResponse[], Error>);
     vi.mocked(queries.useCoordinatorUnavailability).mockReturnValue(data.unavailability as unknown as UseQueryResult<UnavailabilityEntry[], Error>);
-    vi.mocked(queries.useTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
+    vi.mocked(queries.useCoordinatorTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
     renderDashboard();
     expect(await screen.findByText("Conflit enseignant")).toBeInTheDocument();
     expect(screen.getByText("Capacité de salle")).toBeInTheDocument();
