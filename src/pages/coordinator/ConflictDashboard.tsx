@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { AlertTriangle, CheckCircle2, Clock, Users, DoorOpen, UserX } from "lucide-react";
 
-import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useSchedules, useCoordinatorUnavailability, useTeachersList } from "@/hooks/queries";
+import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useSchedules, useCoordinatorUnavailability, useCoordinatorTeachersList } from "@/hooks/queries";
 import { buildConflictContext, getAllConflicts } from "@/lib/conflict-engine";
 import type { ConflictIssue } from "@/lib/conflict-engine";
 import { cn, createSlotKey } from "@/lib/utils";
@@ -42,7 +42,7 @@ export default function ConflictDashboard() {
   const sessionsQuery = useCoordinatorDefenseSessions();
   const scheduleQuery = useSchedules();
   const unavailabilityQuery = useCoordinatorUnavailability();
-  const teachersQuery = useTeachersList();
+  const teachersQuery = useCoordinatorTeachersList();
 
   const isLoading = projectsQuery.isLoading || roomsQuery.isLoading || juriesQuery.isLoading || groupsQuery.isLoading || sessionsQuery.isLoading || scheduleQuery.isLoading || unavailabilityQuery.isLoading || teachersQuery.isLoading;
 

@@ -12,6 +12,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { login as loginApi } from "@/lib/api-auth";
 import { useAuth } from "@/contexts/auth-context";
 import { validate, loginSchema } from "@/lib/validations";
+import { siteConfig } from "@/config/site";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -88,11 +89,11 @@ export default function Login() {
           </div>
 
           <h1 className="font-heading text-5xl font-medium leading-[1.1] text-foreground">
-            SG-Soutenance
+            {siteConfig.name}
           </h1>
 
           <p className="text-lg text-muted-foreground max-w-md">
-            Gestion & Planification des Soutenances
+            {siteConfig.subtitle}
           </p>
         </div>
 
@@ -122,7 +123,7 @@ export default function Login() {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="nom.prenom@univh2c.ma"
+                    placeholder={`nom.prenom@${siteConfig.emailDomain}`}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required

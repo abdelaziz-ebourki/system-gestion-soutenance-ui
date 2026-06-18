@@ -239,7 +239,7 @@ export default function AvailabilityCalendar({
           <div className="flex-1 flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar">
             {slots.map((slot) => {
               const isUnavailable = (
-                unavailableSlots[activeDateKey] || []
+                (unavailableSlots || {})[activeDateKey] || []
               ).includes(slot);
               const hasSession = sessions.some(
                 (s) =>

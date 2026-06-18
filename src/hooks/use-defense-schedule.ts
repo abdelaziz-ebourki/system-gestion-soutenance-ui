@@ -3,7 +3,7 @@ import {
   useJuries,
   useRooms,
   useProjects,
-  useTeachersList,
+  useCoordinatorTeachersList,
   useCoordinatorUnavailability,
   useDefenseSettings,
 } from "@/hooks/queries";
@@ -27,7 +27,7 @@ export function useDefenseSchedule() {
   const rooms = roomsPage?.items ?? [];
   const { data: projectsData, isLoading: projectsLoading } = useProjects();
   const projects = useMemo(() => projectsData?.items ?? [], [projectsData]);
-  const { data: teachersData, isLoading: teachersLoading } = useTeachersList();
+  const { data: teachersData, isLoading: teachersLoading } = useCoordinatorTeachersList();
   const teachers = teachersData?.items ?? [];
   const { data: unavailabilitiesData, isLoading: unavailLoading } = useCoordinatorUnavailability();
   const unavailabilities = unavailabilitiesData ?? [];

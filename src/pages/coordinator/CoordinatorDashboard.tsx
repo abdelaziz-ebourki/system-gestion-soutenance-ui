@@ -4,8 +4,7 @@ import {
   ArrowRight,
   BookOpen,
   CalendarDays,
-  // FIXME: restore with Jurys stat card
-  // ClipboardCheck,
+  ClipboardCheck,
   Clock3,
   Users,
 } from "lucide-react";
@@ -153,10 +152,7 @@ export default function CoordinatorDashboard() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" data-testid="coord-dashboard-stats">
         <StatsCard label="Projets" value={stats?.totalProjects} icon={BookOpen} loading={statsLoading} />
         <StatsCard label="Groupes" value={stats?.totalGroups} icon={Users} loading={statsLoading} />
-        {/*
-        FIXME: restore when /coordinator/juries endpoint is stable
         <StatsCard label="Jurys" value={stats?.totalJuries} icon={ClipboardCheck} loading={statsLoading} />
-        */}
         <StatsCard label="Créneaux planifiés" value={stats?.scheduledDefenses} icon={Clock3} loading={statsLoading} />
       </section>
 

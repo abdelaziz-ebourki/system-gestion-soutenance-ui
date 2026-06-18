@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { forgotPassword } from "@/lib/api-auth";
 import { validate, forgotPasswordSchema } from "@/lib/validations";
+import { siteConfig } from "@/config/site";
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,7 +74,7 @@ export default function ForgotPassword() {
                 <FieldLabel>Email académique</FieldLabel>
                 <Input
                   type="email"
-                  placeholder="nom.prenom@univh2c.ma"
+                  placeholder={`nom.prenom@${siteConfig.emailDomain}`}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
