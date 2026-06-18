@@ -264,8 +264,7 @@ export function BulkImportDialog({
             onClick={handleSubmit}
             disabled={!file || isSubmitting}
           >
-            {isSubmitting && <Loader2 data-icon="inline-start" className="animate-spin" />}
-            {isSubmitting ? "Importer" : "Importer"}
+            {isSubmitting ? <><Loader2 data-icon="inline-start" className="animate-spin" /> Importation...</> : "Importer"}
           </Button>
         </DialogFooter>
       </DialogContent>

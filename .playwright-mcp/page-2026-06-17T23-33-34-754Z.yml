@@ -1,0 +1,315 @@
+- generic:
+  - generic:
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - list:
+                - listitem:
+                  - link:
+                    - /url: /
+                    - img
+                    - generic: Soutenance FSBM
+            - generic:
+              - generic:
+                - generic:
+                  - list:
+                    - listitem:
+                      - link:
+                        - /url: /admin
+                        - img
+                        - generic: Tableau de bord
+                    - listitem:
+                      - link:
+                        - /url: /admin/departments
+                        - img
+                        - generic: Départements
+                    - listitem:
+                      - link:
+                        - /url: /admin/rooms
+                        - img
+                        - generic: Salles
+                    - listitem:
+                      - link:
+                        - /url: /admin/users/students
+                        - img
+                        - generic: Étudiants
+                    - listitem:
+                      - link:
+                        - /url: /admin/users/teachers
+                        - img
+                        - generic: Enseignants
+                    - listitem:
+                      - link:
+                        - /url: /admin/users/coordinators
+                        - img
+                        - generic: Coordinateurs
+                    - listitem:
+                      - link:
+                        - /url: /admin/config
+                        - img
+                        - generic: Filières & Niveaux
+                    - listitem:
+                      - link:
+                        - /url: /admin/audit-logs
+                        - img
+                        - generic: Journal d'audit
+            - generic:
+              - list:
+                - listitem:
+                  - button:
+                    - generic:
+                      - generic: A
+                    - generic:
+                      - generic: Ahmadi Mohamed
+                      - generic: admin@univh2c.ma
+                    - img
+      - main:
+        - generic:
+          - generic:
+            - button:
+              - img
+              - generic: Toggle Sidebar
+            - navigation:
+              - list:
+                - listitem:
+                  - link:
+                    - /url: /admin
+                    - text: Admin
+                - listitem:
+                  - img
+                - listitem:
+                  - link [disabled]: Salles
+        - main:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=1]: Salles
+                  - paragraph: Gérez les espaces physiques pour les soutenances.
+                - generic:
+                  - button:
+                    - img
+                    - text: Importation en masse
+                  - button:
+                    - img
+                    - text: Nouvelle Salle
+              - generic:
+                - generic:
+                  - textbox:
+                    - /placeholder: Rechercher une salle...
+                - generic:
+                  - generic:
+                    - table:
+                      - rowgroup:
+                        - row:
+                          - columnheader:
+                            - checkbox
+                          - columnheader:
+                            - text: Nom de la Salle
+                            - img
+                          - columnheader:
+                            - text: Département
+                            - img
+                          - columnheader:
+                            - text: Capacité
+                            - img
+                          - columnheader
+                      - rowgroup:
+                        - row:
+                          - cell:
+                            - checkbox
+                          - cell:
+                            - generic: Amphi A
+                          - cell:
+                            - generic:
+                              - img
+                              - text: Informatique
+                          - cell:
+                            - generic: 200 places
+                          - cell:
+                            - generic:
+                              - button:
+                                - generic: Ouvrir le menu
+                                - img
+                        - row:
+                          - cell:
+                            - checkbox
+                          - cell:
+                            - generic: Amphi B
+                          - cell:
+                            - generic:
+                              - img
+                              - text: Informatique
+                          - cell:
+                            - generic: 150 places
+                          - cell:
+                            - generic:
+                              - button:
+                                - generic: Ouvrir le menu
+                                - img
+                        - row:
+                          - cell:
+                            - checkbox
+                          - cell:
+                            - generic: Salle 101
+                          - cell:
+                            - generic:
+                              - img
+                              - text: Informatique
+                          - cell:
+                            - generic: 50 places
+                          - cell:
+                            - generic:
+                              - button:
+                                - generic: Ouvrir le menu
+                                - img
+                        - row:
+                          - cell:
+                            - checkbox
+                          - cell:
+                            - generic: Salle 102
+                          - cell:
+                            - generic:
+                              - img
+                              - text: Mathématiques
+                          - cell:
+                            - generic: 40 places
+                          - cell:
+                            - generic:
+                              - button:
+                                - generic: Ouvrir le menu
+                                - img
+                        - row:
+                          - cell:
+                            - checkbox
+                          - cell:
+                            - generic: Salle 103
+                          - cell:
+                            - generic:
+                              - img
+                              - text: Mathématiques
+                          - cell:
+                            - generic: 30 places
+                          - cell:
+                            - generic:
+                              - button:
+                                - generic: Ouvrir le menu
+                                - img
+                        - row:
+                          - cell:
+                            - checkbox
+                          - cell:
+                            - generic: Salle 201
+                          - cell:
+                            - generic:
+                              - img
+                              - text: Mathématiques
+                          - cell:
+                            - generic: 45 places
+                          - cell:
+                            - generic:
+                              - button:
+                                - generic: Ouvrir le menu
+                                - img
+                        - row:
+                          - cell:
+                            - checkbox
+                          - cell:
+                            - generic: Salle 202
+                          - cell:
+                            - generic:
+                              - img
+                              - text: Physique
+                          - cell:
+                            - generic: 35 places
+                          - cell:
+                            - generic:
+                              - button:
+                                - generic: Ouvrir le menu
+                                - img
+                        - row:
+                          - cell:
+                            - checkbox
+                          - cell:
+                            - generic: Salle 203
+                          - cell:
+                            - generic:
+                              - img
+                              - text: Physique
+                          - cell:
+                            - generic: 25 places
+                          - cell:
+                            - generic:
+                              - button:
+                                - generic: Ouvrir le menu
+                                - img
+                        - row:
+                          - cell:
+                            - checkbox
+                          - cell:
+                            - generic: Salle 301
+                          - cell:
+                            - generic:
+                              - img
+                              - text: Physique
+                          - cell:
+                            - generic: 60 places
+                          - cell:
+                            - generic:
+                              - button:
+                                - generic: Ouvrir le menu
+                                - img
+                        - row:
+                          - cell:
+                            - checkbox
+                          - cell:
+                            - generic: Salle 302
+                          - cell:
+                            - generic:
+                              - img
+                              - text: Biologie
+                          - cell:
+                            - generic: 35 places
+                          - cell:
+                            - generic:
+                              - button:
+                                - generic: Ouvrir le menu
+                                - img
+                - generic:
+                  - generic:
+                    - generic: Page 1 sur 1
+                    - combobox:
+                      - generic: 10/ page
+                      - img
+                  - generic:
+                    - button [disabled]: Précédent
+                    - button [disabled]: Suivant
+    - region "Notifications alt+T"
+  - generic: Étudiants
+  - dialog "Ajouter une Salle" [ref=e2168]:
+    - generic [ref=e2169]:
+      - heading "Ajouter une Salle" [level=2] [ref=e2170]
+      - paragraph [ref=e2171]: Créez une nouvelle salle pour les examens et soutenances.
+    - generic [ref=e2172]:
+      - generic [ref=e2173]:
+        - group [ref=e2174]:
+          - generic [ref=e2175]: Nom de la Salle
+          - textbox "Nom de la Salle" [active] [ref=e2176]:
+            - /placeholder: "ex: Salle 101"
+        - group [ref=e2177]:
+          - generic [ref=e2178]: Département
+          - combobox "Département" [ref=e2179]:
+            - generic: Choisir un département
+            - img
+          - combobox [ref=e2180]
+        - group [ref=e2181]:
+          - generic [ref=e2182]: Capacité (places)
+          - spinbutton "Capacité (places)" [ref=e2183]: "0"
+      - generic [ref=e2184]:
+        - button "Annuler" [ref=e2185]
+        - button "Enregistrer" [ref=e2186]
+    - button "Close" [ref=e2187]:
+      - img
+      - generic [ref=e2188]: Close

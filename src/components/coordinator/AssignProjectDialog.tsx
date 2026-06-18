@@ -106,8 +106,7 @@ export function AssignProjectDialog({
               Annuler
             </Button>
             <Button type="submit" disabled={!selectedProjectId || assignMutation.isPending} data-testid="coord-assign-project-submit">
-              {assignMutation.isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
-              {assignMutation.isPending ? "Assigner" : "Assigner"}
+              {assignMutation.isPending ? <><Loader2 data-icon="inline-start" className="animate-spin" /> Assignation...</> : "Assigner"}
             </Button>
           </DialogFooter>
         </form>

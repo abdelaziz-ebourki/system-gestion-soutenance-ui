@@ -97,8 +97,7 @@ export function BatchActionsBar({
             <DialogFooter>
               <Button variant="outline" onClick={() => setBatchDialog(null)}>Annuler</Button>
               <Button onClick={() => handleUpdate(currentAction.key)} disabled={isPending}>
-                {isPending && <Loader2 data-icon="inline-start" className="animate-spin" />}
-                {isPending ? "Enregistrer" : "Enregistrer"}
+                {isPending ? <><Loader2 data-icon="inline-start" className="animate-spin" /> Enregistrement...</> : "Enregistrer"}
               </Button>
             </DialogFooter>
           </DialogContent>

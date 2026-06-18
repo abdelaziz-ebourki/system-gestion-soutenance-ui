@@ -150,8 +150,7 @@ export default function StudentGroup() {
                 disabled={Boolean(group) || isSubmitting}
                 data-testid="student-group-create-btn"
               >
-                {isSubmitting && <Loader2 data-icon="inline-start" className="animate-spin" />}
-                {isSubmitting ? "Créer un groupe" : <><Plus data-icon="inline-start" /> Créer un groupe</>}
+                {isSubmitting ? <><Loader2 data-icon="inline-start" className="animate-spin" /> Création...</> : <><Plus data-icon="inline-start" /> Créer un groupe</>}
               </Button>
             </div>
           ) : (
@@ -181,8 +180,7 @@ export default function StudentGroup() {
                     disabled={!workspace.isGroupCreationOpen || isSubmitting}
                     data-testid={`student-group-join-btn-${availableGroup.id}`}
                   >
-                    {isSubmitting && <Loader2 data-icon="inline-start" className="animate-spin" />}
-                    {isSubmitting ? "Rejoindre" : "Rejoindre"}
+                    {isSubmitting ? <><Loader2 data-icon="inline-start" className="animate-spin" /> Jonction...</> : "Rejoindre"}
                   </Button>
                 </div>
               ))}

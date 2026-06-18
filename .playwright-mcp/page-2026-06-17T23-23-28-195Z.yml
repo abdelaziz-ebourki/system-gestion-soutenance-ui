@@ -1,0 +1,259 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e41]:
+      - generic [ref=e44]:
+        - list [ref=e46]:
+          - listitem [ref=e47]:
+            - link "Soutenance FSBM" [ref=e48] [cursor=pointer]:
+              - /url: /
+              - img [ref=e49]
+              - generic [ref=e53]: Soutenance FSBM
+        - list [ref=e57]:
+          - listitem [ref=e58]:
+            - link "Tableau de bord" [ref=e59] [cursor=pointer]:
+              - /url: /admin
+              - img [ref=e60]
+              - generic [ref=e65]: Tableau de bord
+          - listitem [ref=e66]:
+            - link "Départements" [ref=e67] [cursor=pointer]:
+              - /url: /admin/departments
+              - img [ref=e68]
+              - generic [ref=e72]: Départements
+          - listitem [ref=e73]:
+            - link "Salles" [ref=e74] [cursor=pointer]:
+              - /url: /admin/rooms
+              - img [ref=e75]
+              - generic [ref=e78]: Salles
+          - listitem [ref=e79]:
+            - link "Étudiants" [ref=e80] [cursor=pointer]:
+              - /url: /admin/users/students
+              - img [ref=e81]
+              - generic [ref=e84]: Étudiants
+          - listitem [ref=e85]:
+            - link "Enseignants" [ref=e86] [cursor=pointer]:
+              - /url: /admin/users/teachers
+              - img [ref=e87]
+              - generic [ref=e89]: Enseignants
+          - listitem [ref=e90]:
+            - link "Coordinateurs" [ref=e91] [cursor=pointer]:
+              - /url: /admin/users/coordinators
+              - img [ref=e92]
+              - generic [ref=e97]: Coordinateurs
+          - listitem [ref=e98]:
+            - link "Filières & Niveaux" [ref=e99] [cursor=pointer]:
+              - /url: /admin/config
+              - img [ref=e100]
+              - generic [ref=e103]: Filières & Niveaux
+          - listitem [ref=e104]:
+            - link "Journal d'audit" [ref=e105] [cursor=pointer]:
+              - /url: /admin/audit-logs
+              - img [ref=e106]
+              - generic [ref=e110]: Journal d'audit
+        - list [ref=e112]:
+          - listitem [ref=e113]:
+            - button "A Ahmadi Mohamed admin@univh2c.ma" [ref=e114]:
+              - generic [ref=e116]: A
+              - generic [ref=e117]:
+                - generic [ref=e118]: Ahmadi Mohamed
+                - generic [ref=e119]: admin@univh2c.ma
+              - img [ref=e120]
+      - main [ref=e124]:
+        - generic [ref=e126]:
+          - button "Toggle Sidebar" [ref=e127]:
+            - img
+            - generic [ref=e128]: Toggle Sidebar
+          - navigation "breadcrumb" [ref=e129]:
+            - list [ref=e130]:
+              - listitem [ref=e131]:
+                - link "Admin" [disabled] [ref=e132]
+        - main [ref=e133]:
+          - generic [ref=e135]:
+            - generic [ref=e137]:
+              - heading "Tableau de Bord" [level=1] [ref=e138]
+              - paragraph [ref=e140]: Aperçu global de l'activité du système.
+            - generic [ref=e141]:
+              - generic [ref=e142]:
+                - generic [ref=e143]:
+                  - generic [ref=e144]: Étudiants
+                  - img [ref=e145]
+                - generic [ref=e151]: "100"
+              - generic [ref=e152]:
+                - generic [ref=e153]:
+                  - generic [ref=e154]: Enseignants
+                  - img [ref=e155]
+                - generic [ref=e159]: "12"
+              - generic [ref=e160]:
+                - generic [ref=e161]:
+                  - generic [ref=e162]: Départements
+                  - img [ref=e163]
+                - generic [ref=e168]: "4"
+              - generic [ref=e169]:
+                - generic [ref=e170]:
+                  - generic [ref=e171]: Salles
+                  - img [ref=e172]
+                - generic [ref=e176]: "12"
+            - generic [ref=e177]:
+              - generic [ref=e178]:
+                - generic [ref=e180]: Distribution des Ressources
+                - application [ref=e185]:
+                  - generic [ref=e190]:
+                    - generic [ref=e192]: Étudiants
+                    - generic [ref=e194]: Enseignants
+                    - generic [ref=e196]: Départements
+                    - generic [ref=e198]: Salles
+              - generic [ref=e199]:
+                - generic [ref=e200]:
+                  - generic [ref=e201]: Notifications
+                  - link "Voir tout" [ref=e202] [cursor=pointer]:
+                    - /url: /notifications
+                - generic [ref=e204]:
+                  - generic [ref=e205]:
+                    - img [ref=e207]
+                    - generic [ref=e209]:
+                      - paragraph [ref=e211]: Date de soutenance modifiée
+                      - paragraph [ref=e213]: Message détaillé pour date de soutenance modifiée.
+                      - text: 29 mai à 13:00
+                  - generic [ref=e214]:
+                    - img [ref=e216]
+                    - generic [ref=e218]:
+                      - paragraph [ref=e220]: Nouveau projet ajouté
+                      - paragraph [ref=e222]: Message détaillé pour nouveau projet ajouté.
+                      - text: 28 mai à 12:00
+                  - generic [ref=e223]:
+                    - img [ref=e225]
+                    - generic [ref=e227]:
+                      - paragraph [ref=e229]: Soutenance annulée
+                      - paragraph [ref=e231]: Message détaillé pour soutenance annulée.
+                      - text: 27 mai à 11:00
+                  - generic [ref=e232]:
+                    - img [ref=e234]
+                    - generic [ref=e236]:
+                      - paragraph [ref=e238]: Note publiée
+                      - paragraph [ref=e240]: Message détaillé pour note publiée.
+                      - text: 26 mai à 10:00
+            - generic [ref=e241]:
+              - generic [ref=e243]: Utilisateurs
+              - generic [ref=e245]:
+                - generic [ref=e246]:
+                  - textbox "Rechercher par nom, prénom ou email..." [ref=e247]
+                  - combobox [ref=e248]:
+                    - generic [ref=e249]: Rôle
+                    - img
+                - table [ref=e252]:
+                  - rowgroup [ref=e253]:
+                    - row "Select all Nom Prénom Email Rôle" [ref=e254]:
+                      - columnheader "Select all" [ref=e255]:
+                        - checkbox "Select all" [ref=e256]
+                      - columnheader "Nom" [ref=e257] [cursor=pointer]:
+                        - text: Nom
+                        - img [ref=e258]
+                      - columnheader "Prénom" [ref=e261] [cursor=pointer]:
+                        - text: Prénom
+                        - img [ref=e262]
+                      - columnheader "Email" [ref=e265] [cursor=pointer]:
+                        - text: Email
+                        - img [ref=e266]
+                      - columnheader "Rôle" [ref=e269] [cursor=pointer]:
+                        - text: Rôle
+                        - img [ref=e270]
+                  - rowgroup [ref=e273]:
+                    - row "Select row Ahmadi Mohamed admin@univh2c.ma admin" [ref=e274]:
+                      - cell "Select row" [ref=e275]:
+                        - checkbox "Select row" [ref=e276]
+                      - cell "Ahmadi" [ref=e277]
+                      - cell "Mohamed" [ref=e278]
+                      - cell "admin@univh2c.ma" [ref=e279]
+                      - cell "admin" [ref=e280]:
+                        - generic [ref=e281]: admin
+                    - row "Select row Ouchen Yassin coord@univh2c.ma coordinator" [ref=e282]:
+                      - cell "Select row" [ref=e283]:
+                        - checkbox "Select row" [ref=e284]
+                      - cell "Ouchen" [ref=e285]
+                      - cell "Yassin" [ref=e286]
+                      - cell "coord@univh2c.ma" [ref=e287]
+                      - cell "coordinator" [ref=e288]:
+                        - generic [ref=e289]: coordinator
+                    - row "Select row Ben Ali Ali teacher@univh2c.ma teacher" [ref=e290]:
+                      - cell "Select row" [ref=e291]:
+                        - checkbox "Select row" [ref=e292]
+                      - cell "Ben Ali" [ref=e293]
+                      - cell "Ali" [ref=e294]
+                      - cell "teacher@univh2c.ma" [ref=e295]
+                      - cell "teacher" [ref=e296]:
+                        - generic [ref=e297]: teacher
+                    - row "Select row Alami Moussa moussa@univh2c.ma teacher" [ref=e298]:
+                      - cell "Select row" [ref=e299]:
+                        - checkbox "Select row" [ref=e300]
+                      - cell "Alami" [ref=e301]
+                      - cell "Moussa" [ref=e302]
+                      - cell "moussa@univh2c.ma" [ref=e303]
+                      - cell "teacher" [ref=e304]:
+                        - generic [ref=e305]: teacher
+                    - row "Select row El Ghazi Hassan hassan@univh2c.ma teacher" [ref=e306]:
+                      - cell "Select row" [ref=e307]:
+                        - checkbox "Select row" [ref=e308]
+                      - cell "El Ghazi" [ref=e309]
+                      - cell "Hassan" [ref=e310]
+                      - cell "hassan@univh2c.ma" [ref=e311]
+                      - cell "teacher" [ref=e312]:
+                        - generic [ref=e313]: teacher
+                    - row "Select row Benkirane Jamila jamila@univh2c.ma teacher" [ref=e314]:
+                      - cell "Select row" [ref=e315]:
+                        - checkbox "Select row" [ref=e316]
+                      - cell "Benkirane" [ref=e317]
+                      - cell "Jamila" [ref=e318]
+                      - cell "jamila@univh2c.ma" [ref=e319]
+                      - cell "teacher" [ref=e320]:
+                        - generic [ref=e321]: teacher
+                    - row "Select row El Ouafi Rachid rachid@univh2c.ma teacher" [ref=e322]:
+                      - cell "Select row" [ref=e323]:
+                        - checkbox "Select row" [ref=e324]
+                      - cell "El Ouafi" [ref=e325]
+                      - cell "Rachid" [ref=e326]
+                      - cell "rachid@univh2c.ma" [ref=e327]
+                      - cell "teacher" [ref=e328]:
+                        - generic [ref=e329]: teacher
+                    - row "Select row El Fekkak Khadija khadija@univh2c.ma teacher" [ref=e330]:
+                      - cell "Select row" [ref=e331]:
+                        - checkbox "Select row" [ref=e332]
+                      - cell "El Fekkak" [ref=e333]
+                      - cell "Khadija" [ref=e334]
+                      - cell "khadija@univh2c.ma" [ref=e335]
+                      - cell "teacher" [ref=e336]:
+                        - generic [ref=e337]: teacher
+                    - row "Select row Ben Omar Nabil nabil@univh2c.ma teacher" [ref=e338]:
+                      - cell "Select row" [ref=e339]:
+                        - checkbox "Select row" [ref=e340]
+                      - cell "Ben Omar" [ref=e341]
+                      - cell "Nabil" [ref=e342]
+                      - cell "nabil@univh2c.ma" [ref=e343]
+                      - cell "teacher" [ref=e344]:
+                        - generic [ref=e345]: teacher
+                    - row "Select row El Kholti Samira samira@univh2c.ma teacher" [ref=e346]:
+                      - cell "Select row" [ref=e347]:
+                        - checkbox "Select row" [ref=e348]
+                      - cell "El Kholti" [ref=e349]
+                      - cell "Samira" [ref=e350]
+                      - cell "samira@univh2c.ma" [ref=e351]
+                      - cell "teacher" [ref=e352]:
+                        - generic [ref=e353]: teacher
+                - generic [ref=e354]:
+                  - generic [ref=e355]:
+                    - generic [ref=e356]: Page 1 sur 12
+                    - combobox [ref=e357]:
+                      - generic [ref=e358]: 10/ page
+                      - img
+                  - generic [ref=e359]:
+                    - button "Précédent" [disabled]
+                    - button "1" [ref=e360]
+                    - button "2" [ref=e361]
+                    - button "3" [ref=e362]
+                    - generic [ref=e363]: ...
+                    - button "12" [ref=e364]
+                    - button "Suivant" [ref=e365]
+    - region "Notifications alt+T":
+      - list:
+        - listitem [ref=e366]:
+          - img [ref=e368]
+          - generic [ref=e372]: Bienvenue, Mohamed Ahmadi
+  - generic [ref=e373]: Étudiants
