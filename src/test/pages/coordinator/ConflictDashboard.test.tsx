@@ -104,7 +104,7 @@ describe("ConflictDashboard (Coordinator)", () => {
     const { getAllConflicts } = await import("@/lib/conflict-engine");
     vi.mocked(getAllConflicts).mockReturnValue([
       { type: "teacher_double_booked", severity: "error", message: "Conflit enseignant", suggestedResolution: "Déplacer", slot: "s1" },
-      { type: "room_capacity", severity: "warning", message: "Capacité insuffisante", suggestedResolution: "Changer de salle", slot: "s1" },
+      { type: "teacher_unavailable", severity: "warning", message: "Enseignant indisponible", suggestedResolution: "Changer de créneau", slot: "s1" },
     ]);
     const queries = await import("@/hooks/queries");
     const data = createMockQueryData();
@@ -146,7 +146,7 @@ describe("ConflictDashboard (Coordinator)", () => {
     const { getAllConflicts } = await import("@/lib/conflict-engine");
     vi.mocked(getAllConflicts).mockReturnValue([
       { type: "teacher_double_booked", severity: "error", message: "Enseignant Dr. Alami doublonné", suggestedResolution: "Déplacer un passage", slot: "s1" },
-      { type: "room_capacity", severity: "warning", message: "Salle A01 trop petite", suggestedResolution: "Utiliser la salle B02", slot: "s1" },
+      { type: "teacher_unavailable", severity: "warning", message: "Teacher Dr. Alami indisponible", suggestedResolution: "Changer de créneau", slot: "s1" },
     ]);
     const queries = await import("@/hooks/queries");
     const data = createMockQueryData();
@@ -160,11 +160,10 @@ describe("ConflictDashboard (Coordinator)", () => {
     vi.mocked(queries.useCoordinatorTeachersList).mockReturnValue({ data: { items: [], total: 0, pageCount: 0, currentPage: 0, size: 10 }, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
     renderDashboard();
     expect(await screen.findByText("Conflit enseignant")).toBeInTheDocument();
-    expect(screen.getByText("Capacité de salle")).toBeInTheDocument();
+    expect(screen.getByText("Teacher Dr. Alami indisponible")).toBeInTheDocument();
     expect(screen.getByText("Enseignant Dr. Alami doublonné")).toBeInTheDocument();
-    expect(screen.getByText("Salle A01 trop petite")).toBeInTheDocument();
     expect(screen.getByText(/Suggestion : Déplacer un passage/)).toBeInTheDocument();
-    expect(screen.getByText(/Suggestion : Utiliser la salle B02/)).toBeInTheDocument();
+    expect(screen.getByText(/Suggestion : Changer de créneau/)).toBeInTheDocument();
   });
 });
 

@@ -197,7 +197,7 @@ describe("useDefenseSchedule", () => {
     validateSlot.mockReturnValue({
       isValid: false,
       issues: [
-        { severity: "error", type: "room_capacity", message: "Salle pleine", slot: "x", suggestedResolution: "Essayez la salle B" },
+        { severity: "error", type: "teacher_double_booked", message: "Salle pleine", slot: "x", suggestedResolution: "Essayez la salle B" },
       ],
     });
     const { result } = renderHook(() => useDefenseSchedule(), { wrapper: createWrapper() });

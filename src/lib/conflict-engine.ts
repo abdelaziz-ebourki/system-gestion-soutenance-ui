@@ -4,7 +4,7 @@ import type { UnavailabilityEntry } from "@/lib/api-coordinator";
 import { MAX_SUGGESTIONS } from "@/lib/constants";
 
 export interface ConflictIssue {
-  type: "room_capacity" | "teacher_double_booked" | "student_double_booked" | "supervisor_conflict" | "break_violation" | "out_of_bounds" | "slot_occupied" | "project_already_scheduled" | "teacher_unavailable";
+  type: "teacher_double_booked" | "supervisor_conflict" | "out_of_bounds" | "slot_occupied" | "project_already_scheduled" | "teacher_unavailable";
   severity: "error" | "warning";
   message: string;
   slot: string;
@@ -24,7 +24,7 @@ export interface SlotAssignment {
 
 export interface ConflictContext {
   schedule: Record<string, SlotAssignment>;
-  rooms: Record<string, { id: number; name: string; capacity: number }>;
+  rooms: Record<string, { id: number; name: string }>;
   groups: Record<string, { id: number; studentIds: number[] }>;
   projects: Record<string, { id: number; studentIds: number[]; supervisorId: number }>;
   teachers: Record<string, { id: number; name: string }>;
@@ -78,7 +78,7 @@ export function buildConflictContext(
       ]),
     ),
     rooms: Object.fromEntries(
-      rooms.map((r) => [r.id, { id: r.id, name: r.name, capacity: r.capacity }]),
+      rooms.map((r) => [r.id, { id: r.id, name: r.name }]),
     ),
     groups: {},
     projects: Object.fromEntries(
@@ -113,10 +113,6 @@ export function getSmartSuggestions(
     const altSlot = createSlotKey(date, String(altRoomId), altTime);
     if (context.schedule[altSlot]) return false;
 
-    const room = context.rooms[altRoomId];
-    const project = context.projects[projectId];
-    if (room && project && project.studentIds.length > room.capacity) return false;
-
     const projectJury = context.juriesByProjectId[projectId];
     const teacherIds = projectJury?.teacherIds ?? [];
     if (teacherIds.length > 0) {
@@ -127,7 +123,7 @@ export function getSmartSuggestions(
     return true;
   };
 
-  if (issueType === "slot_occupied" || issueType === "room_capacity") {
+  if (issueType === "slot_occupied") {
     const betterRooms = Object.values(context.rooms)
       .filter((r) => r.id !== roomId && canFit(r.id, time))
       .map((r) => r.name);
@@ -197,21 +193,6 @@ export function validateSlotAssignment(
     });
   }
 
-  const room = context.rooms[roomId];
-  const project = context.projects[projectId];
-  if (room && project) {
-    const studentCount = project.studentIds.length;
-    if (studentCount > room.capacity) {
-      issues.push({
-        type: "room_capacity",
-        severity: "error",
-        message: `La salle "${room.name}" a une capacité de ${room.capacity} mais le projet a ${studentCount} étudiants.`,
-        slot,
-        suggestedResolution: getSmartSuggestions(projectId, date, roomId, time, context, "room_capacity") || `Utilisez une salle avec capacité ≥ ${studentCount} ou divisez le groupe.`,
-      });
-    }
-  }
-
   if (context.defenseSession) {
     if (date < context.defenseSession.startDate || date > context.defenseSession.endDate) {
       issues.push({
@@ -225,6 +206,7 @@ export function validateSlotAssignment(
 
   const projectJury = context.juriesByProjectId[projectId];
   const teacherIds = projectJury?.teacherIds ?? [];
+  const project = context.projects[projectId];
 
   for (const [, existing] of Object.entries(context.schedule)) {
     if (existing.date !== date) continue;
@@ -252,7 +234,7 @@ export function validateSlotAssignment(
       if (existingProject?.supervisorId === project.supervisorId) {
         issues.push({
           type: "supervisor_conflict",
-          severity: "error",
+          severity: "warning",
           message: `L'encadrant est également encadrant de "${existing.title}" le même jour.`,
           slot,
           suggestedResolution: "Planifiez les deux passages le même jour avec suffisamment d'écart ou répartissez sur des jours différents.",
@@ -260,47 +242,6 @@ export function validateSlotAssignment(
       }
     }
 
-    if (project?.studentIds?.length) {
-      const existingProject = context.projects[existing.id];
-      const overlapping = project.studentIds.filter((sid) => existingProject?.studentIds.includes(sid));
-      if (overlapping.length > 0) {
-        issues.push({
-          type: "student_double_booked",
-          severity: "error",
-          message: `L'étudiant "${overlapping[0]}" est déjà dans "${existing.title}" le ${existing.date}.`,
-          slot,
-          suggestedResolution: "Réaffectez les étudiants pour éviter les chevauchements.",
-        });
-      }
-    }
-  }
-
-  if (context.defenseSession && roomId) {
-    const existingSlotsInRoom = Object.values(context.schedule)
-      .filter((s) => s.date === date && s.roomId === roomId && s.time !== time)
-      .map((s) => s.time)
-      .sort();
-
-    const [th, tm] = time.split(":").map(Number);
-    const thisMinutes = th * 60 + tm;
-
-    const precedingSlots = existingSlotsInRoom.filter((t) => t < time);
-    if (precedingSlots.length > 0) {
-      const nearestTime = precedingSlots[precedingSlots.length - 1];
-      const [nh, nm] = nearestTime.split(":").map(Number);
-      const nearestMinutes = nh * 60 + nm;
-      const gap = thisMinutes - nearestMinutes - (context.defenseSession.breakDuration || 0);
-
-      if (gap < 0) {
-        issues.push({
-          type: "break_violation",
-          severity: "warning",
-          message: `Pause insuffisante entre ${nearestTime} et ${time} dans la même salle.`,
-          slot,
-          suggestedResolution: `Ajoutez au moins ${Math.abs(gap)} minutes de plus ou changez de créneau.`,
-        });
-      }
-    }
   }
 
   if (teacherIds.length > 0) {

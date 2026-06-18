@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { AlertTriangle, CheckCircle2, Clock, Users, DoorOpen, UserX } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Users, UserX } from "lucide-react";
 
 import { useProjects, useRooms, useJuries, useGroups, useCoordinatorDefenseSessions, useSchedules, useCoordinatorUnavailability, useCoordinatorTeachersList } from "@/hooks/queries";
 import { buildConflictContext, getAllConflicts } from "@/lib/conflict-engine";
@@ -11,11 +11,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const conflictIcons: Record<string, typeof AlertTriangle> = {
-  room_capacity: DoorOpen,
   teacher_double_booked: Users,
-  student_double_booked: Users,
   supervisor_conflict: UserX,
-  break_violation: Clock,
   out_of_bounds: AlertTriangle,
   slot_occupied: AlertTriangle,
   project_already_scheduled: AlertTriangle,
@@ -23,11 +20,8 @@ const conflictIcons: Record<string, typeof AlertTriangle> = {
 };
 
 const conflictLabels: Record<string, string> = {
-  room_capacity: "Capacité de salle",
   teacher_double_booked: "Conflit enseignant",
-  student_double_booked: "Conflit étudiant",
   supervisor_conflict: "Conflit encadrant",
-  break_violation: "Pause insuffisante",
   out_of_bounds: "Hors session",
   slot_occupied: "Créneau occupé",
   project_already_scheduled: "Projet déjà planifié",

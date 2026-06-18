@@ -5,8 +5,8 @@ describe("Conflict Engine", () => {
   const mockContext: ConflictContext = {
     schedule: {},
     rooms: {
-      "1": { id: 1, name: "Salle A", capacity: 10 },
-      "2": { id: 2, name: "Salle B", capacity: 2 },
+      "1": { id: 1, name: "Salle A" },
+      "2": { id: 2, name: "Salle B" },
     },
     groups: {
       "1": { id: 1, studentIds: [1, 2] },
@@ -98,13 +98,6 @@ describe("Conflict Engine", () => {
       expect(result.issues.some(i => i.type === "slot_occupied")).toBe(true);
     });
 
-    it("should return error if room capacity is exceeded", () => {
-      const result = validateSlotAssignment(3, "2026-06-01|2|09:00", mockContext);
-      expect(result.isValid).toBe(false);
-      expect(result.issues.some(i => i.type === "room_capacity")).toBe(true);
-      expect(result.issues.find(i => i.type === "room_capacity")?.message).toContain("capacité de 2 mais le projet a 6");
-    });
-
     it("should return error if date is out of session boundaries", () => {
       const resultBefore = validateSlotAssignment(1, "2026-05-31|1|09:00", mockContext);
       const resultAfter = validateSlotAssignment(1, "2026-06-15|1|09:00", mockContext);
@@ -126,38 +119,6 @@ describe("Conflict Engine", () => {
       expect(result.issues.find(i => i.type === "teacher_double_booked")?.message).toContain("Teacher 2");
     });
 
-    it("should return error if student is double-booked on the same date", () => {
-      const context = {
-        ...mockContext,
-        projects: {
-          ...mockContext.projects,
-          "99": { id: 99, studentIds: [2, 5], supervisorId: 30 },
-        },
-        schedule: {
-          "2026-06-01|1|11:00": { id: 99, title: "Proj Double", date: "2026-06-01", time: "11:00", roomId: 1 },
-        },
-        juries: {
-          ...mockContext.juries,
-          "99": { id: 99, projectId: 99, teacherIds: [1] },
-        },
-      };
-      const result = validateSlotAssignment(1, "2026-06-01|2|09:00", context);
-      expect(result.issues.some(i => i.type === "student_double_booked")).toBe(true);
-      expect(result.issues.find(i => i.type === "student_double_booked")?.severity).toBe("error");
-      expect(result.issues.find(i => i.type === "student_double_booked")?.message).toContain("2");
-    });
-
-    it("should not flag student double-booking if students are on different dates", () => {
-      const context = {
-        ...mockContext,
-        schedule: {
-          "2026-06-02|1|11:00": { id: 2, title: "Proj 2", date: "2026-06-02", time: "11:00", roomId: 1 },
-        },
-      };
-      const result = validateSlotAssignment(1, "2026-06-01|1|09:00", context);
-      expect(result.issues.some(i => i.type === "student_double_booked")).toBe(false);
-    });
-
     it("should return error if supervisor has another project on the same date", () => {
       const context = {
         ...mockContext,
@@ -165,26 +126,7 @@ describe("Conflict Engine", () => {
       };
       const result = validateSlotAssignment(1, "2026-06-01|2|09:00", context);
       expect(result.issues.some(i => i.type === "supervisor_conflict")).toBe(true);
-      expect(result.issues.find(i => i.type === "supervisor_conflict")?.severity).toBe("error");
-    });
-
-    it("should return warning if break interval is violated in the same room", () => {
-      const context = {
-        ...mockContext,
-        schedule: { "2026-06-01|1|09:00": { id: 2, title: "Proj 2", date: "2026-06-01", time: "09:00", roomId: 1 } },
-      };
-      const result = validateSlotAssignment(1, "2026-06-01|1|09:10", context);
-      expect(result.issues.some(i => i.type === "break_violation")).toBe(true);
-      expect(result.issues.find(i => i.type === "break_violation")?.message).toContain("Pause insuffisante");
-    });
-
-    it("should pass break interval check if gap is sufficient", () => {
-      const context = {
-        ...mockContext,
-        schedule: { "2026-06-01|1|09:00": { id: 2, title: "Proj 2", date: "2026-06-01", time: "09:00", roomId: 1 } },
-      };
-      const result = validateSlotAssignment(1, "2026-06-01|1|09:30", context);
-      expect(result.issues.some(i => i.type === "break_violation")).toBe(false);
+      expect(result.issues.find(i => i.type === "supervisor_conflict")?.severity).toBe("warning");
     });
 
     it("should return error if teacher is unavailable for the slot", () => {
@@ -214,16 +156,6 @@ describe("Conflict Engine", () => {
       };
       const result = validateSlotAssignment(1, "2026-06-01|100|09:00", minimalContext);
       expect(result.isValid).toBe(true);
-    });
-
-    it("should handle missing breakDuration in defenseSession", () => {
-      const context: ConflictContext = {
-        ...mockContext,
-        defenseSession: { startDate: "2026-06-01", endDate: "2026-06-14", breakDuration: 0 },
-        schedule: { "2026-06-01|1|09:00": { id: 2, title: "P2", date: "2026-06-01", time: "09:00", roomId: 1 } },
-      };
-      const result = validateSlotAssignment(1, "2026-06-01|1|09:01", context);
-      expect(result.issues.some(i => i.type === "break_violation")).toBe(false);
     });
 
     it("should handle missing juries context", () => {
@@ -297,17 +229,6 @@ describe("Conflict Engine", () => {
       expect(issue?.suggestedResolution).toContain("Essayez les salles libres : Salle B");
     });
 
-    it("should provide smart suggestions for room capacity", () => {
-      const context: ConflictContext = {
-        ...mockContext,
-        allTimeSlots: ["09:00", "10:00", "11:00"],
-      };
-      const result = validateSlotAssignment(3, "2026-06-01|2|11:00", context);
-      expect(result.issues.some(i => i.type === "room_capacity")).toBe(true);
-      const issue = result.issues.find(i => i.type === "room_capacity");
-      expect(issue?.suggestedResolution).toContain("Essayez les salles libres : Salle A");
-    });
-
     it("should provide smart suggestions for teacher double booking", () => {
         const context: ConflictContext = {
             ...mockContext,
@@ -329,22 +250,6 @@ describe("Conflict Engine", () => {
         expect(issue?.suggestedResolution).toContain("Le jury est disponible à : 11:00");
     });
 
-    it("should return warning severity for break violations", () => {
-        const context = {
-            ...mockContext,
-            juries: {},
-            juriesByProjectId: {},
-            projects: {
-                ...mockContext.projects,
-                "1": { ...mockContext.projects["1"], supervisorId: 40 },
-            },
-            schedule: { "2026-06-01|1|09:00": { id: 2, title: "P2", date: "2026-06-01", time: "09:00", roomId: 1 } },
-        };
-        const result = validateSlotAssignment(1, "2026-06-01|1|09:10", context);
-        const breakIssue = result.issues.find(i => i.type === "break_violation");
-        expect(breakIssue?.severity).toBe("warning");
-        expect(result.isValid).toBe(true); // Warnings don't make it invalid
-    });
   });
 
   describe("getAllConflicts", () => {
@@ -361,7 +266,6 @@ describe("Conflict Engine", () => {
 
       const conflicts = getAllConflicts(realSchedule, contextWithSchedule);
       expect(conflicts.length).toBeGreaterThan(0);
-      expect(conflicts.some(c => c.type === "break_violation")).toBe(true);
     });
   });
 });
