@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CreateJuryDialog } from "@/components/coordinator/CreateJuryDialog";
-import { useTeachersList, useProjects, useJuryRoleTemplates, useCreateJury, useUpdateJury } from "@/hooks/queries";
+import { useCoordinatorTeachersList, useProjects, useJuryRoleTemplates, useCreateJury, useUpdateJury } from "@/hooks/queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate } from "@/lib/validations";
 import { toast } from "sonner";
@@ -10,7 +10,7 @@ import type { UseQueryResult, UseMutationResult } from "@tanstack/react-query";
 import type { CreateJuryPayload, UpdateJuryPayload } from "@/lib/api-coordinator";
 
 vi.mock("@/hooks/queries", () => ({
-  useTeachersList: vi.fn(),
+  useCoordinatorTeachersList: vi.fn(),
   useProjects: vi.fn(),
   useJuryRoleTemplates: vi.fn(),
   useCreateJury: vi.fn(),
@@ -90,7 +90,7 @@ describe("CreateJuryDialog", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useTeachersList).mockReturnValue({ data: mockTeachers, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
+    vi.mocked(useCoordinatorTeachersList).mockReturnValue({ data: mockTeachers, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
     vi.mocked(useProjects).mockReturnValue({ data: mockProjects, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Project>, Error>);
     vi.mocked(useJuryRoleTemplates).mockReturnValue({ data: mockTemplates, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<JuryRoleTemplate>, Error>);
     vi.mocked(useEntityForm).mockReturnValue(mockForm as unknown as ReturnType<typeof useEntityForm>);

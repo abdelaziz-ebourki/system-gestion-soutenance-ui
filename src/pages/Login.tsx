@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Landmark, ShieldCheck, BookOpen } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,31 +70,39 @@ export default function Login() {
       </svg>
 
       <div className="w-full max-w-4xl grid md:grid-cols-2 gap-8 items-center z-10">
-        <div className="flex flex-col gap-6 text-center md:text-left">
-          <div className="flex flex-col gap-1">
-            <svg
-              viewBox="0 0 64 64"
-              className="size-12 text-primary mx-auto md:mx-0"
-              fill="none"
-              aria-hidden="true"
-            >
-              <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" />
-              <circle cx="32" cy="32" r="20" stroke="currentColor" strokeWidth="1.5" className="text-accent" />
-              <circle cx="32" cy="32" r="8" fill="currentColor" className="text-primary" />
-              <line x1="4" y1="32" x2="28" y2="32" stroke="currentColor" strokeWidth="1.5" className="text-accent" />
-              <line x1="36" y1="32" x2="60" y2="32" stroke="currentColor" strokeWidth="1.5" className="text-accent" />
-              <line x1="32" y1="4" x2="32" y2="24" stroke="currentColor" strokeWidth="1.5" className="text-accent" />
-              <line x1="32" y1="40" x2="32" y2="60" stroke="currentColor" strokeWidth="1.5" className="text-accent" />
-            </svg>
+        <div className="space-y-6 text-center md:text-left">
+          <div>
+            <h1 className="font-heading text-4xl font-bold tracking-tight text-foreground">
+              {siteConfig.name}
+            </h1>
+            <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">
+              {siteConfig.subtitle}
+            </p>
           </div>
 
-          <h1 className="font-heading text-5xl font-medium leading-[1.1] text-foreground">
-            {siteConfig.name}
-          </h1>
+          <h2 className="font-heading text-5xl font-medium leading-[1.1] text-foreground">
+            L'excellence académique <br />
+            <span className="italic text-primary">au bout des doigts.</span>
+          </h2>
 
           <p className="text-lg text-muted-foreground max-w-md">
-            {siteConfig.subtitle}
+            {siteConfig.description}
           </p>
+
+          <div className="flex flex-wrap gap-4 pt-4 justify-center md:justify-start">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground border-r pr-4">
+              <Landmark className="size-4" />
+              <span>Officiel</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground border-r pr-4">
+              <ShieldCheck className="size-4" />
+              <span>Sécurisé</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <BookOpen className="size-4" />
+              <span>Intuitif</span>
+            </div>
+          </div>
         </div>
 
         <Card>
@@ -173,6 +181,9 @@ export default function Login() {
 
       <footer className="md:absolute pt-10 bottom-8 text-sm text-muted-foreground flex gap-6">
         <span>&copy; {new Date().getFullYear()} Copyright</span>
+        <a href={`mailto:${siteConfig.supportEmail}`} className="hover:text-primary transition-colors">
+          Assistance
+        </a>
       </footer>
     </div>
   );

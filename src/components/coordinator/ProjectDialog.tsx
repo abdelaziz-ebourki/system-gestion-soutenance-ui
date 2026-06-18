@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Loader2 } from "lucide-react";
 
-import { useTeachersList, useStudents, useCreateProject, useUpdateProject } from "@/hooks/queries";
+import { useCoordinatorTeachersList, useCoordinatorStudents, useCreateProject, useUpdateProject } from "@/hooks/queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, projectSchema } from "@/lib/validations";
 import type { DefenseType, Project } from "@/types";
@@ -32,11 +32,11 @@ export function ProjectDialog({
   onSuccess,
   project,
 }: ProjectDialogProps) {
-  const teachersQuery = useTeachersList();
+  const teachersQuery = useCoordinatorTeachersList();
   const createProjectMutation = useCreateProject();
   const updateProjectMutation = useUpdateProject();
   const teachers = teachersQuery.data?.items ?? [];
-  const studentsQuery = useStudents({ limit: MAX_STUDENT_FETCH_LIMIT });
+  const studentsQuery = useCoordinatorStudents(MAX_STUDENT_FETCH_LIMIT);
   const studentOptions = React.useMemo(() => 
     (studentsQuery.data?.items ?? []).map((s) => ({
       value: String(s.id),

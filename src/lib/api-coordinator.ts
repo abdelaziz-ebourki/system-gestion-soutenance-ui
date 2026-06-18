@@ -1,5 +1,5 @@
 import { api } from "./api-core";
-import type { Project, Group, Jury, DefenseSession, User, PaginatedResponse } from "@/types";
+import type { Project, Group, Jury, DefenseSession, User, PaginatedResponse, JuryRoleTemplate } from "@/types";
 
 export interface CoordinatorStats {
   totalProjects: number;
@@ -229,6 +229,9 @@ export const validateConflicts = (defenseSessionId: number, schedule: ScheduleSl
     method: "POST",
     body: JSON.stringify({ defenseSessionId, schedule }),
   });
+
+export const getCoordinatorJuryRoleTemplates = () =>
+  api<PaginatedResponse<JuryRoleTemplate>>("/coordinator/config/jury-role-templates");
 
 export const getCoordinatorUnavailability = () =>
   api<UnavailabilityEntry[]>("/coordinator/unavailability");

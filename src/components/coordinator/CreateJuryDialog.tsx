@@ -2,7 +2,7 @@ import * as React from "react";
 import { Loader2 } from "lucide-react";
 
 import {
-  useTeachersList, useProjects, useCreateJury, useUpdateJury, useJuryRoleTemplates,
+  useCoordinatorTeachersList, useProjects, useCreateJury, useUpdateJury, useJuryRoleTemplates,
 } from "@/hooks/queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate, jurySchema } from "@/lib/validations";
@@ -34,7 +34,7 @@ export function CreateJuryDialog({
   onSuccess,
   jury,
 }: CreateJuryDialogProps) {
-  const teachersQuery = useTeachersList();
+  const teachersQuery = useCoordinatorTeachersList();
   const projectsQuery = useProjects();
   const templatesQuery = useJuryRoleTemplates();
   const createJuryMutation = useCreateJury();

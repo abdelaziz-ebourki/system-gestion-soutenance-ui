@@ -150,11 +150,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
             >
               <a href="/" className="flex items-center gap-3">
-                <svg viewBox="0 0 32 32" className="size-8 shrink-0 text-sidebar-primary" fill="none" aria-hidden="true">
-                  <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="1.5" />
-                  <circle cx="16" cy="16" r="9" stroke="currentColor" strokeWidth="1.25" className="text-sidebar-accent-foreground/60" />
-                  <circle cx="16" cy="16" r="4" fill="currentColor" />
-                </svg>
                 <span className="truncate font-semibold text-lg tracking-tight">
                   {siteConfig.name}
                 </span>

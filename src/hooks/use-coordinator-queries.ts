@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/lib/api";
 import { CONFIG_STALE_TIME } from "@/lib/constants";
 import type { CreateProjectPayload, UpdateProjectPayload, CreateJuryPayload, UpdateJuryPayload, ScheduleSlot } from "@/lib/api-coordinator";
+import { MAX_STUDENT_FETCH_LIMIT } from "@/lib/constants";
 
 export function useCoordinatorStats() {
   return useQuery({
@@ -249,6 +250,14 @@ export function useCoordinatorTeachersList() {
   return useQuery({
     queryKey: ["coordinator", "teachers"],
     queryFn: () => api.getCoordinatorUsers("TEACHER"),
+    staleTime: CONFIG_STALE_TIME,
+  });
+}
+
+export function useCoordinatorStudents(limit = MAX_STUDENT_FETCH_LIMIT) {
+  return useQuery({
+    queryKey: ["coordinator", "students", limit],
+    queryFn: () => api.getCoordinatorUsers("STUDENT", 0, limit),
     staleTime: CONFIG_STALE_TIME,
   });
 }

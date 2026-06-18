@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ProjectDialog } from "@/components/coordinator/ProjectDialog";
-import { useTeachersList, useStudents, useCreateProject, useUpdateProject } from "@/hooks/queries";
+import { useCoordinatorTeachersList, useCoordinatorStudents, useCreateProject, useUpdateProject } from "@/hooks/queries";
 import { useEntityForm } from "@/hooks/use-entity-form";
 import { validate } from "@/lib/validations";
 import { toast } from "sonner";
@@ -11,8 +11,8 @@ import type { PaginatedResponse } from "@/types";
 import type { CreateProjectPayload, UpdateProjectPayload } from "@/lib/api-coordinator";
 
 vi.mock("@/hooks/queries", () => ({
-  useTeachersList: vi.fn(),
-  useStudents: vi.fn(),
+  useCoordinatorTeachersList: vi.fn(),
+  useCoordinatorStudents: vi.fn(),
   useCreateProject: vi.fn(),
   useUpdateProject: vi.fn(),
 }));
@@ -69,8 +69,8 @@ describe("ProjectDialog", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useTeachersList).mockReturnValue({ data: mockTeachersResponse, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
-    vi.mocked(useStudents).mockReturnValue({ data: mockStudents, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
+    vi.mocked(useCoordinatorTeachersList).mockReturnValue({ data: mockTeachersResponse, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Teacher>, Error>);
+    vi.mocked(useCoordinatorStudents).mockReturnValue({ data: mockStudents, isLoading: false } as unknown as UseQueryResult<PaginatedResponse<Student>, Error>);
     vi.mocked(useEntityForm).mockReturnValue(mockForm as unknown as ReturnType<typeof useEntityForm>);
     vi.mocked(validate).mockReturnValue(null);
     vi.mocked(useCreateProject).mockReturnValue({ mutateAsync: vi.fn().mockResolvedValue({}), isPending: false } as unknown as UseMutationResult<Project, Error, CreateProjectPayload, unknown>);
